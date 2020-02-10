@@ -1,8 +1,8 @@
-
+require('dotenv').config();
 const request = require('request')
 
 const api_base = 'https://api.nanopool.org/v1/rvn/balance/';
-const raven_address = 'RCF1bfzwJb2saQ6JSPtcWrZ2eTP7i45UC4'
+const raven_address = process.env.RAVEN_ADDRESS
 
 const options = {
   method: 'GET',
