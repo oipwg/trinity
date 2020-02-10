@@ -1,13 +1,14 @@
+require('dotenv').config();
 const querystring = require('querystring');
 const request = require('request');
 const crypto = require('crypto');
 let api_base = 'https://www.miningrigrentals.com/api/v2/';
 let endpoint = "/account";
-
+console.log(process.env)
 
 let keys = {
-  api_key: '9d14bb91dd5a50dd4b4f3a74ea451013adb5d4b913def4d360049d57214171bf',
-  api_secret: '6b78f1fc31577cf32c38d83fc55f6bb86de956940bf08848ea6efcdbf0ef3ec5',
+  api_key: process.env.MININGRENTAL_KEY,
+  api_secret: process.env.MININGRENTAL_SECRET,
   nonce: Date.now()
 }
 
