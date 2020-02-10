@@ -6,7 +6,7 @@
     "test": "NODE_ENV=development nodemon -e js,hbs,html,css,json,config.js ./bin/www",
     "start": "nodemon  ./bin/www",
     "serve": "live-server public/",
-    "build": "webpack",
+    "build": "webpack --watch",
     "dev-server": "NODE_ENV=development webpack-dev-server"
   },
   "dependencies": {
