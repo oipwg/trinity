@@ -1,4 +1,5 @@
 import { manualRent } from './manualRent'
+const manualRent = require('./manualRent').manualRent
 
 //This file doesn't exist
 // import rentSelector from './manualRentSelector'
@@ -7,26 +8,31 @@ const NORMAL = 'NORMAL'
 const WARNING = 'WARNING'
 const ERROR = 'ERROR'
 
-export default function(vorpal, options) {
+// Function ran from index.js as a command of Rent
+// export default function(vorpal, options) {
+export default function Rent(commands, options) {
     let spartan = options.SpartanBot
 
-    vorpal
-        .command('rent')
-        .description('Manually rent a miner')
-        .action(async function(args, cb) {
+    if (command === 'rent')
+        async function decleration(args, cb) {
             const self = this
-            const exit = vorpal.chalk.red(`exit`)
+            // const exit = vorpal.chalk.red(`exit`)
 
             let rental_providers = spartan.getRentalProviders()
 
             if (rental_providers.length === 0) {
-                return this.log(
-                    vorpal.chalk.yellow(
-                        "No Rental Providers were found! Please run '"
-                    ) +
-                        vorpal.chalk.cyan('rentalprovider add') +
-                        vorpal.chalk.yellow("' to add your API keys.")
+                return console.log(
+                    'No Rental Providers were found! Please run ' +
+                        'rentalprovider add' +
+                        ' to add your API keys.'
                 )
+                // return this.log(
+                //     vorpal.chalk.yellow(
+                //         "No Rental Providers were found! Please run '"
+                //     ) +
+                //         vorpal.chalk.cyan('rentalprovider add') +
+                //         vorpal.chalk.yellow("' to add your API keys.")
+                // )
             }
 
             let promptRentType = await self.prompt({
@@ -115,5 +121,5 @@ export default function(vorpal, options) {
 
             if (rentType === 'Collective Defense') {
             }
-        })
+        } // run this function decleration().  END
 }
