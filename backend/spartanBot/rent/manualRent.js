@@ -1,10 +1,14 @@
+const spartan = require('spartanbot')
+let spartan = new SpartanBot()
+
 const NORMAL = 'NORMAL'
 const WARNING = 'WARNING'
 const CUTOFF = 'CUTOFF'
 const LOW_BALANCE = 'LOW_BALANCE'
 
-export const manualRent = async (self, vorpal, spartan) => {
-    const exit = vorpal.chalk.red('exit')
+export const manualRent = async (self, spartan) => {
+    //self passed from rent.js which is the cli whole object
+    // const exit = vorpal.chalk.red('exit')
     const questions = [
         {
             type: 'input',
@@ -25,11 +29,12 @@ export const manualRent = async (self, vorpal, spartan) => {
     ]
 
     let answers = await self.prompt(questions)
+    let hashrate = 1762487
+    let duration = 1467067237
+    // let hashrate = answers.hashrate
+    // let duration = answers.duration
 
-    let hashrate = answers.hashrate
-    let duration = answers.duration
-
-    self.log(vorpal.chalk.cyan('Searching for miners...'))
+    // self.log(vorpal.chalk.cyan('Searching for miners...'))
     // console.log(vorpal.ui._activePrompt)
 
     spartan.manualRent(hashrate, duration, async (preprocess, options) => {
