@@ -1,10 +1,9 @@
-const express = require('express')
-const router = express.Router()
-console.log(require('../spartanBot/spartanbot.js'))
+const express = require('express');
+const router = express.Router();
 
 /* GET home page. */
 router.get('/', function(req, res) {
-    res.render('index.html')
-})
+    res.render('index.html');
+});
 
-module.exports = router
+module.exports = router;
