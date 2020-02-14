@@ -29,6 +29,7 @@
         "react-dom": "^16.12.0",
         "spartanbot": "git+https://github.com/bradicalone/spartanbot.git",
         "style-loader": "0.18.2",
+        "timestring": "^6.0.0",
         "webpack": "^4.41.2",
         "webpack-dev-server": "^3.9.0"
     },

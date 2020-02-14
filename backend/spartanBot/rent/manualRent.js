@@ -1,12 +1,9 @@
-const spartan = require('spartanbot')
-let spartan = new SpartanBot()
+const NORMAL = 'NORMAL';
+const WARNING = 'WARNING';
+const CUTOFF = 'CUTOFF';
+const LOW_BALANCE = 'LOW_BALANCE';
 
-const NORMAL = 'NORMAL'
-const WARNING = 'WARNING'
-const CUTOFF = 'CUTOFF'
-const LOW_BALANCE = 'LOW_BALANCE'
-
-export const manualRent = async (self, spartan) => {
+exports.manualRent = async (self, spartan) => {
     //self passed from rent.js which is the cli whole object
     // const exit = vorpal.chalk.red('exit')
     const questions = [
@@ -26,11 +23,11 @@ export const manualRent = async (self, spartan) => {
                 'How long would you like to rent your miner? (hours) '
             ),
         },
-    ]
+    ];
 
-    let answers = await self.prompt(questions)
-    let hashrate = 1762487
-    let duration = 1467067237
+    let answers = await self.prompt(questions);
+    let hashrate = 1762487;
+    let duration = 1467067237;
     // let hashrate = answers.hashrate
     // let duration = answers.duration
 
@@ -40,16 +37,16 @@ export const manualRent = async (self, spartan) => {
     spartan.manualRent(hashrate, duration, async (preprocess, options) => {
         //cancel any ongoing processes so that we can display preprocess prompts
         // console.log('midPrompt: ', vorpal.ui._midPrompt)
-        vorpal.ui.cancel()
+        vorpal.ui.cancel();
 
         // self.log('preprocess: ', preprocess)
-        const badges = preprocess.badges
+        const badges = preprocess.badges;
         if (badges.length === 0) {
             return {
                 confirm: false,
                 message:
                     'No rental options found with current balance and desired options.',
-            }
+            };
         }
 
         const statusBadges = {
@@ -57,7 +54,7 @@ export const manualRent = async (self, spartan) => {
             cutoff: vorpal.chalk.bgYellow.white('*CUTOFF'),
             extension: vorpal.chalk.bgBlue.white('*EXTENSION'),
             low_balance: vorpal.chalk.bgRed.white('*LOW_BALANCE'),
-        }
+        };
 
         const statusMessages = {
             normal: vorpal.chalk.bgGreen(
@@ -72,45 +69,45 @@ export const manualRent = async (self, spartan) => {
             low_balance: vorpal.chalk.bgRed(
                 `*LOW_BALANCE - Warning status. Provider has low balance, cannot rent for desired duration/limit.`
             ),
-        }
+        };
 
         let statuses = {
             normal: false,
             extension: false,
             cutoff: false,
             low_balance: false,
-        }
+        };
 
         //make a 2layer deep copy of the badges so that we can display different info for the cutoffs
-        let badgesCopy = badges.map(obj => ({ ...obj }))
+        let badgesCopy = badges.map(obj => ({ ...obj }));
 
         //apply status text to badges
-        let badgesObject = {}
+        let badgesObject = {};
         for (let badge of badgesCopy) {
-            let statusText
+            let statusText;
             if (badge.status.status === NORMAL) {
-                statuses.normal = true
-                statusText = statusBadges.normal
+                statuses.normal = true;
+                statusText = statusBadges.normal;
             }
             if (badge.status.status === WARNING) {
                 if (badge.status.type === CUTOFF) {
                     if (badge.cutoff) {
-                        badge.amount = badge.status.cutoffCost
-                        badge.duration = badge.status.desiredDuration
-                        statuses.cutoff = true
-                        statusText = statusBadges.cutoff
+                        badge.amount = badge.status.cutoffCost;
+                        badge.duration = badge.status.desiredDuration;
+                        statuses.cutoff = true;
+                        statusText = statusBadges.cutoff;
                     } else {
-                        statuses.extension = true
-                        statusText = statusBadges.extension
+                        statuses.extension = true;
+                        statusText = statusBadges.extension;
                     }
                 }
                 if (badge.status.type === LOW_BALANCE) {
-                    statuses.low_balance = true
-                    statusText = statusBadges.low_balance
+                    statuses.low_balance = true;
+                    statusText = statusBadges.low_balance;
                 }
             }
-            badge.statusText = statusText
-            badgesObject[badge.id] = badge
+            badge.statusText = statusText;
+            badgesObject[badge.id] = badge;
         }
 
         const fmtPool = (badge, vorpal) => {
@@ -125,18 +122,18 @@ export const manualRent = async (self, spartan) => {
                     `${vorpal.chalk.yellow(`Duration`)} ` +
                     `${badge.duration} hours ` +
                     `${badge.statusText}`
-            )}`
-        }
-        let fmtBadges = []
+            )}`;
+        };
+        let fmtBadges = [];
 
-        let fmtObject = {}
+        let fmtObject = {};
         for (let badge of badgesCopy) {
-            fmtBadges.push(fmtPool(badge, vorpal))
-            fmtObject[badge.id] = fmtPool(badge, vorpal)
+            fmtBadges.push(fmtPool(badge, vorpal));
+            fmtObject[badge.id] = fmtPool(badge, vorpal);
         }
 
         for (let status in statuses) {
-            if (statuses[status]) self.log(statusMessages[status])
+            if (statuses[status]) self.log(statusMessages[status]);
         }
 
         let rentPrompt = await self.prompt({
@@ -144,38 +141,38 @@ export const manualRent = async (self, spartan) => {
             message: vorpal.chalk.yellow('Select from the following: '),
             name: 'options',
             choices: [...fmtBadges, exit],
-        })
-        let selection = rentPrompt.options
+        });
+        let selection = rentPrompt.options;
 
-        let badgeID
-        let _badge
+        let badgeID;
+        let _badge;
 
         if (selection === exit) {
-            return { confirm: false, message: 'Rent cancelled' }
+            return { confirm: false, message: 'Rent cancelled' };
         } else {
             let confirmationPrompt = await self.prompt({
                 type: 'confirm',
                 message: vorpal.chalk.green('Are you sure?'),
                 default: false,
                 name: 'confirm',
-            })
-            let confirmation = confirmationPrompt.confirm
+            });
+            let confirmation = confirmationPrompt.confirm;
             if (!confirmation) {
-                return { confirm: false, message: 'Rent cancelled' }
+                return { confirm: false, message: 'Rent cancelled' };
             } else {
                 for (let id in fmtObject) {
-                    if (fmtObject[id] === selection) badgeID = id
+                    if (fmtObject[id] === selection) badgeID = id;
                 }
                 for (let badge of badges) {
-                    if (badge.id === badgeID) _badge = badge
+                    if (badge.id === badgeID) _badge = badge;
                 }
             }
         }
-        self.log(vorpal.chalk.yellow('Renting...'))
+        self.log(vorpal.chalk.yellow('Renting...'));
         // self.log(vorpal.ui._activePrompt, vorpal.ui._midPrompt)
         return {
             confirm: true,
             badges: _badge,
-        }
-    })
-}
+        };
+    });
+};
