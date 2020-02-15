@@ -3,6 +3,10 @@ const JWT = require('jsonwebtoken');
 const { JWT_SECRET } = process.env;
 const express = require('express');
 const router = express.Router();
+const passportConf = require('../passport');
+
+const passport = require('passport');
+const passportSignIn = passport.authenticate('local', { session: false });
 
 function authenticateToken(req, res, next) {
     console.log('header', req.headers);
@@ -27,7 +31,7 @@ const UsersController = require('../controllers/users');
 
 router.post('/signup', signUpValidator, UsersController.signUp);
 
-router.post('/signin', authenticateToken, UsersController.signIn);
+router.post('/signin', passportSignIn, UsersController.signIn);
 
 // router.get('/secret', //Add jwt
 // UsersController.secret

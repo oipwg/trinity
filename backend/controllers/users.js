@@ -35,7 +35,7 @@ module.exports = {
             await newUser.save();
 
             const token = signToken(newUser);
-
+            console.log('user created', { token });
             res.status(200).json({ token });
         } catch (error) {
             console.log(error);
@@ -44,7 +44,10 @@ module.exports = {
 
     signIn: async (req, res, next) => {
         try {
-            const token = signToken(req.body);
+            user = req.body;
+
+            console.log(user);
+            const token = signToken(user);
             console.log(token);
 
             res.status(200).json({ token });
