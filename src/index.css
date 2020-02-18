@@ -1,0 +1,42 @@
+/* Eddie's Palette
+
+Alexandria blue - #0082f9 //complimentary - #F97700
+
+Dark grey - #424656
+
+cement grey - #A6ABBD
+
+hilcrest pink - #ED416D
+
+kinda red - #AE003E
+
+*/
+
+html,
+body {
+    background: rgb(0, 0, 0);
+    background: -moz-linear-gradient(
+        180deg,
+        rgba(0, 0, 0, 1) 0%,
+        rgba(66, 70, 86, 1) 50%,
+        rgba(0, 130, 249, 1) 100%
+    );
+    background: -webkit-linear-gradient(
+        180deg,
+        rgba(0, 0, 0, 1) 0%,
+        rgba(66, 70, 86, 1) 50%,
+        rgba(0, 130, 249, 1) 100%
+    );
+    background: linear-gradient(
+        180deg,
+        rgba(0, 0, 0, 1) 0%,
+        rgba(66, 70, 86, 1) 50%,
+        rgba(0, 130, 249, 1) 100%
+    );
+    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="#000000",endColorstr="#0082f9",GradientType=1);
+    height: 100%;
+}
+
+body {
+    font-family: Arial, Helvetica, sans-serif;
+}
