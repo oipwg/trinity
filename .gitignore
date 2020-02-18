@@ -4,4 +4,6 @@ localStorage
 .env
 
 .DS_Store 
+/dist
+
 

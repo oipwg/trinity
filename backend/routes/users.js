@@ -31,7 +31,7 @@ const UsersController = require('../controllers/users');
 
 router.post('/signup', signUpValidator, UsersController.signUp);
 
-router.post('/signin', passportSignIn, UsersController.signIn);
+router.post('/login', passportSignIn, UsersController.signIn);
 
 // router.get('/secret', //Add jwt
 // UsersController.secret
