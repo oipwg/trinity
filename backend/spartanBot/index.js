@@ -12,20 +12,20 @@ const spartan = new SpartanBot();
 const INPUT = [Rent, RentalProvider];
 
 module.exports = function(options) {
-    console.log('From root index file spartanBot ', options);
+    options.SpartanBot = spartan;
 
-    switch ('case') {
-        case 'add':
-            console.log('add hit');
+    // let to_do = options.to_do;
+    let to_do = Object.keys(options.to_do)[0];
+    console.log('From root index file spartanBot. ', Object.keys(to_do));
+
+    console.log(to_do);
+    // Switch based on user input object
+    switch (to_do) {
+        case 'rentalProvider':
+            RentalProvider(options);
             break;
-        case 'add':
-            console.log('add hit');
+        case 'rent':
+            Rent(options);
             break;
-    }
-    // Rent({ SpartanBot: spartan });
-    // For each Command in the COMMANDS array
-    for (let input of INPUT) {
-        // console.log(input)
-        this.command = INPUT;
     }
 };

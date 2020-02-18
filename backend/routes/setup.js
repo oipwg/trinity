@@ -10,13 +10,18 @@ console.log(controller);
 
 /* GET setup wizard page */
 router.get('/', (req, res) => {
+    console.log('hit');
     // From the req.body
     let options = {
         rental_provider: 'MiningRigRentals', // or 'NiceHash'
         api_key: process.env.MRR_API_KEY, // come from the body instead
         api_secret: process.env.MRR_API_SECRET, // come from the body instead
         name: 'MRR',
-        to_do: 'add',
+        to_do: {
+            rentalProvider: {
+                add: true,
+            },
+        },
     };
     controller(options);
     res.render('index.html');
