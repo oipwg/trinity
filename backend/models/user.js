@@ -6,12 +6,12 @@ const userSchema = new Schema({
     userName: {
         type: String,
         require: true,
-        unquie: true,
+        unique: true,
     },
     email: {
         type: String,
         lowercase: true,
-        unquie: true,
+        unique: false,
     },
     password: { type: String, required: true },
 });
