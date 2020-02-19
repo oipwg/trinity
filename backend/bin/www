@@ -4,9 +4,9 @@
  * Module dependencies.
  */
 
-const app = require('../backend/app');
-const debug = require('debug')('spartan:server');
-const http = require('http');
+var app = require('../app');
+var debug = require('debug')('spartan:server');
+var http = require('http');
 
 /**
  * Get port from environment and store in Express.
