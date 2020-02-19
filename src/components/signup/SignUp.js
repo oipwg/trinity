@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
+import HDMW from 'oip-hdmw';
 import './signup.css';
 
-// todo: Remove error message when correcting or at backspace
+// todo: add Token to local storage
+// todo: HDMW decrypt HDMW wallet???
 
 const SignUp = () => {
     /**************************STATE SECTION************************/
@@ -133,6 +135,7 @@ const SignUp = () => {
                                     placeholder="password"
                                     onChange={e => {
                                         setPassword(e.target.value);
+                                        setPassErrorMessage(null);
                                     }}
                                 />
                             </div>
@@ -148,6 +151,7 @@ const SignUp = () => {
                                     placeholder="re-password"
                                     onChange={e => {
                                         setRePassword(e.target.value);
+                                        setPassErrorMessage(null);
                                     }}
                                 />
                             </div>
@@ -177,7 +181,10 @@ const SignUp = () => {
                             </div>
                             {/***** SUCCESS!  *****/}
                             {success && (
-                                <div class="alert alert-success" role="alert">
+                                <div
+                                    className="alert alert-success"
+                                    role="alert"
+                                >
                                     {'Success! '}
                                     <span role="img" aria-label="thumbs-uo">
                                         👍
