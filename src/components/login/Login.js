@@ -8,12 +8,8 @@ const Login = () => {
 
     const onFormSubmit = e => {
         e.preventDefault();
-        console.log(e.target);
         handleLogin();
     };
-
-    console.log('username', username);
-    console.log('password', password);
 
     const handleLogin = async () => {
         if (username && password)
