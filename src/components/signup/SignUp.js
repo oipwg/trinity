@@ -1,20 +1,23 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import './signup.css';
-import Login from '../login/Login';
+
+// todo: Remove error message when correcting or at backspace
 
 const SignUp = () => {
     /**************************STATE SECTION************************/
     //**Display Name States */
-    const [username, setUsername] = useState('');
-    const [usernameErrorMessage, setUsernameErrorMessage] = useState('');
+    const [username, setUsername] = useState(null);
+    const [usernameErrorMessage, setUsernameErrorMessage] = useState(null);
 
     //**Password States */
-    const [password, setPassword] = useState('');
-    const [rePassword, setRePassword] = useState('');
-    const [passErrorMessage, setPassErrorMessage] = useState('');
+    const [password, setPassword] = useState(null);
+    const [rePassword, setRePassword] = useState(null);
+    const [passErrorMessage, setPassErrorMessage] = useState(null);
 
     //**Email States */
     const [email, setEmail] = useState('');
+
+    const [success, setSuccessMessage] = useState(null);
 
     // todo:
     /**
@@ -26,20 +29,23 @@ const SignUp = () => {
   });
      */
 
+    // useEffect(() => {
+    //     validateForm();
+    // }, [usernameErrorMessage, passErrorMessage]);
+
     const onFormSubmit = e => {
         e.preventDefault();
-        console.log(e.target);
         validateForm(e);
     };
-
-    console.log({ username, password, rePassword, email });
-    console.log({ usernameErrorMessage, passErrorMessage });
 
     /****** Function to compare password, usename, fields */
 
     const validateForm = e => {
-        if (username) {
+        if (!username) {
             setUsernameErrorMessage('Enter username');
+        } else if (!password) {
+            setUsernameErrorMessage('');
+            setPassErrorMessage('Enter password');
         } else if (password !== rePassword) {
             setUsernameErrorMessage('');
             setPassErrorMessage('Passwords do not match!');
@@ -67,7 +73,14 @@ const SignUp = () => {
                     }
                 );
                 const data = await response.json();
-                console.log(data);
+
+                if (data.error) {
+                    setUsernameErrorMessage(data.error);
+                } else if (data.token) {
+                    setSuccessMessage(data.token);
+                }
+
+                console.log('data', data);
             } catch (error) {
                 console.error(error);
             }
@@ -94,9 +107,20 @@ const SignUp = () => {
                                     placeholder="username"
                                     onChange={e => {
                                         setUsername(e.target.value);
+                                        setUsernameErrorMessage(null);
                                     }}
                                 />
                             </div>
+                            {/***** USERNAME ERROR  *****/}
+                            {usernameErrorMessage && (
+                                <div
+                                    className="alert alert-danger"
+                                    role="alert"
+                                >
+                                    {usernameErrorMessage}
+                                </div>
+                            )}
+
                             <div className="input-group form-group">
                                 <div className="input-group-prepend">
                                     <span className="input-group-text">
@@ -127,6 +151,15 @@ const SignUp = () => {
                                     }}
                                 />
                             </div>
+                            {/***** PASS ERROR  *****/}
+                            {passErrorMessage && (
+                                <div
+                                    className="alert alert-danger"
+                                    role="alert"
+                                >
+                                    {passErrorMessage}
+                                </div>
+                            )}
                             <div className="input-group form-group">
                                 <div className="input-group-prepend">
                                     <span className="input-group-text">
@@ -142,6 +175,15 @@ const SignUp = () => {
                                     }}
                                 />
                             </div>
+                            {/***** SUCCESS!  *****/}
+                            {success && (
+                                <div class="alert alert-success" role="alert">
+                                    {'Success! '}
+                                    <span role="img" aria-label="thumbs-uo">
+                                        👍
+                                    </span>
+                                </div>
+                            )}
                             <div className="form-group">
                                 <input
                                     type="submit"
@@ -150,10 +192,10 @@ const SignUp = () => {
                                 />
                             </div>
                         </form>
-                    </div>
-                    <div className="card-footer">
-                        <div className="d-flex justify-content-left links">
-                            <a href="#">Login</a>
+                        <div className="card-footer">
+                            <div className="d-flex justify-content-left links">
+                                <a href="#">Login</a>
+                            </div>
                         </div>
                     </div>
                 </div>

@@ -4,7 +4,7 @@ const Joi = require('@hapi/joi');
 
 const scehma = Joi.object().keys({
     userName: Joi.string().required(),
-    email: Joi.string().email(),
+    email: Joi.any(),
     password: Joi.string().required(),
 });
 
