@@ -36,5 +36,8 @@ router.post('/login', passportSignIn, UsersController.signIn);
 // router.get('/secret', //Add jwt
 // UsersController.secret
 // );
+router.get('/users', (res, req) => {
+    res.sendFile('index.html');
+});
 
 module.exports = router;

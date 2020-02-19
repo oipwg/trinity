@@ -20,12 +20,11 @@ const MiningRigRentals = 'MiningRigRentals';
 const NiceHash = 'NiceHash';
 
 module.exports = function(options) {
-    console.log('options add.js', options);
     let spartan = options.SpartanBot;
-
+    console.log(options.rental_provider);
+    // console.log('options add.js', options, spartan);
     //'rentalprovider add'
     //'Add a rental provider to Spartan Bot')
-
     async function add(args) {
         //self is for commands which we don't need
         const self = this;
@@ -40,9 +39,9 @@ module.exports = function(options) {
             spartan
         );
         //MAKE
-        // let select_rental_providers = options.rental_provider
+        let select_rental_providers = options.rental_provider;
 
-        let rental_provider_type = select_rental_providers.rental_provider;
+        // let rental_provider_type = select_rental_providers.rental_provider;
         if (rental_provider_type === exit) return;
 
         //fn to check existence of a provider
