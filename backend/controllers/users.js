@@ -18,7 +18,7 @@ signToken = user => {
 module.exports = {
     signUp: async (req, res, next) => {
         try {
-            const { userName, email, password } = req.body;
+            const { userName, email, password, mnemonic } = req.body;
             // check for user in DB
             const foundUser = await User.findOne({ userName });
             if (foundUser) {
@@ -30,6 +30,7 @@ module.exports = {
                 userName,
                 email,
                 password,
+                mnemonic,
             });
 
             await newUser.save();

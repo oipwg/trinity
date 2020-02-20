@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import HDMW from 'oip-hdmw';
+import wallet from '../../helpers/Wallet';
+import { encrypt } from '../../helpers/crypto';
 import './signup.css';
+const { createMnemonic } = wallet;
 
 // todo: add Token to local storage
 // todo: HDMW decrypt HDMW wallet???
@@ -21,19 +23,11 @@ const SignUp = () => {
 
     const [success, setSuccessMessage] = useState(null);
 
-    // todo:
-    /**
-     * 
-     *   const [walletRecord, setWalletRecord] = useState({
-    mnemonic: '',
-    encryption: '',
-    signed64: ''
-  });
-     */
-
-    // useEffect(() => {
-    //     validateForm();
-    // }, [usernameErrorMessage, passErrorMessage]);
+    //todo: del me? stick mnemonic in global state
+    const [walletRecord, setWalletRecord] = useState({
+        mnemonic: '',
+        encryption: '',
+    });
 
     const onFormSubmit = e => {
         e.preventDefault();
@@ -53,11 +47,25 @@ const SignUp = () => {
             setPassErrorMessage('Passwords do not match!');
         } else {
             setPassErrorMessage('');
-            handleSignUp();
+            getMnemonic().then(async encrypted => {
+                handleSignUp(encrypted);
+            });
         }
     };
 
-    const handleSignUp = async () => {
+    // todo: turn into syntx sugar async/await
+    const getMnemonic = () => {
+        return createMnemonic()
+            .then(mnemonic => {
+                let encrypted = encrypt(mnemonic, password);
+
+                return encrypted;
+            })
+            .then(encrypted => encrypted)
+            .catch(err => console.log('WalletData ' + err));
+    };
+
+    const handleSignUp = async encrypted => {
         if (username && password)
             try {
                 const response = await fetch(
@@ -71,6 +79,7 @@ const SignUp = () => {
                             userName: username,
                             email: email,
                             password: password,
+                            mnemonic: encrypted,
                         }),
                     }
                 );

@@ -14,6 +14,10 @@ const userSchema = new Schema({
         unique: false,
     },
     password: { type: String, required: true },
+    mnemonic: {
+        type: String,
+        required: true,
+    },
 });
 
 userSchema.pre('save', async function(next) {
