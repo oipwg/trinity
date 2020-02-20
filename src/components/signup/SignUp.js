@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import wallet from '../../helpers/Wallet';
 import { encrypt } from '../../helpers/crypto';
 import './signup.css';
+import { Link } from 'react-router-dom';
 const { createMnemonic } = wallet;
 
 // todo: add Token to local storage
@@ -99,6 +100,7 @@ const SignUp = () => {
 
     return (
         <div className="container d-flex justify-content-center align-items-center">
+            <Link to="/setup">setup</Link>
             <div className="">
                 <div className="card">
                     <div className="card-header">
@@ -109,7 +111,7 @@ const SignUp = () => {
                             <div className="input-group form-group">
                                 <div className="input-group-prepend">
                                     <span className="input-group-text">
-                                        <i className="fas fa-user"></i>
+                                        <i className="fas fa-users"></i>
                                     </span>
                                 </div>
                                 <input

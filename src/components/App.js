@@ -1,22 +1,21 @@
 import React from 'react';
 import Login from './login/Login';
 import SignUp from './signup/SignUp';
-import Setup from './setup/Setup';
-import { Switch, BrowserRouter, Route } from 'react-router-dom';
+import SpartanBot from './spartanbot/SpartanBot';
+import { BrowserRouter as Router, Switch, Route, Link } from 'react-router-dom';
 
 const App = () => {
     return (
-        <BrowserRouter>
+        <Router>
             <Switch>
-                {/* <Login /> */}
                 <Route path="/" exact>
                     <SignUp />
                 </Route>
                 <Route path="/setup">
-                    <Setup />
+                    <SpartanBot />
                 </Route>
             </Switch>
-        </BrowserRouter>
+        </Router>
     );
 };
 export default App;
