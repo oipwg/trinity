@@ -31,6 +31,9 @@ module.exports = {
     //     contentBase: path.join(__dirname, 'backend/views'),
     //     port: 5000,
     // },
+    devServer: {
+        historyApiFallback: true,
+    },
     plugins: [
         new HtmlWebpackPlugin({
             template: './src/index.html',

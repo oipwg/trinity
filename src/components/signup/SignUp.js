@@ -1,8 +1,12 @@
 import React, { useState, useEffect } from 'react';
+import wallet from '../../helpers/Wallet';
+import { encrypt } from '../../helpers/crypto';
 import './signup.css';
 import { Link } from 'react-router-dom';
+const { createMnemonic } = wallet;
 
-// todo: Remove error message when correcting or at backspace
+// todo: add Token to local storage
+// todo: HDMW decrypt HDMW wallet???
 
 const SignUp = () => {
     /**************************STATE SECTION************************/
@@ -20,19 +24,11 @@ const SignUp = () => {
 
     const [success, setSuccessMessage] = useState(null);
 
-    // todo:
-    /**
-     * 
-     *   const [walletRecord, setWalletRecord] = useState({
-    mnemonic: '',
-    encryption: '',
-    signed64: ''
-  });
-     */
-
-    // useEffect(() => {
-    //     validateForm();
-    // }, [usernameErrorMessage, passErrorMessage]);
+    //todo: del me? stick mnemonic in global state
+    const [walletRecord, setWalletRecord] = useState({
+        mnemonic: '',
+        encryption: '',
+    });
 
     const onFormSubmit = e => {
         e.preventDefault();
@@ -52,11 +48,25 @@ const SignUp = () => {
             setPassErrorMessage('Passwords do not match!');
         } else {
             setPassErrorMessage('');
-            handleSignUp();
+            getMnemonic().then(async encrypted => {
+                handleSignUp(encrypted);
+            });
         }
     };
 
-    const handleSignUp = async () => {
+    // todo: turn into syntx sugar async/await
+    const getMnemonic = () => {
+        return createMnemonic()
+            .then(mnemonic => {
+                let encrypted = encrypt(mnemonic, password);
+
+                return encrypted;
+            })
+            .then(encrypted => encrypted)
+            .catch(err => console.log('WalletData ' + err));
+    };
+
+    const handleSignUp = async encrypted => {
         if (username && password)
             try {
                 const response = await fetch(
@@ -70,6 +80,7 @@ const SignUp = () => {
                             userName: username,
                             email: email,
                             password: password,
+                            mnemonic: encrypted,
                         }),
                     }
                 );
@@ -135,6 +146,7 @@ const SignUp = () => {
                                     placeholder="password"
                                     onChange={e => {
                                         setPassword(e.target.value);
+                                        setPassErrorMessage(null);
                                     }}
                                 />
                             </div>
@@ -150,6 +162,7 @@ const SignUp = () => {
                                     placeholder="re-password"
                                     onChange={e => {
                                         setRePassword(e.target.value);
+                                        setPassErrorMessage(null);
                                     }}
                                 />
                             </div>
@@ -179,7 +192,10 @@ const SignUp = () => {
                             </div>
                             {/***** SUCCESS!  *****/}
                             {success && (
-                                <div class="alert alert-success" role="alert">
+                                <div
+                                    className="alert alert-success"
+                                    role="alert"
+                                >
                                     {'Success! '}
                                     <span role="img" aria-label="thumbs-uo">
                                         👍
