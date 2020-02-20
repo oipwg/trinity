@@ -24,7 +24,7 @@ router.get('/', (req, res) => {
         },
     };
     controller(options);
-    res.render('index.html');
+    console.log(k);
 });
 
 module.exports = router;

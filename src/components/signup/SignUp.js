@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import './signup.css';
+import { Link } from 'react-router-dom';
 
 // todo: Remove error message when correcting or at backspace
 
@@ -88,6 +89,7 @@ const SignUp = () => {
 
     return (
         <div className="container d-flex justify-content-center align-items-center">
+            <Link to="/setup">setup</Link>
             <div className="">
                 <div className="card">
                     <div className="card-header">
@@ -98,7 +100,7 @@ const SignUp = () => {
                             <div className="input-group form-group">
                                 <div className="input-group-prepend">
                                     <span className="input-group-text">
-                                        <i className="fas fa-user"></i>
+                                        <i className="fas fa-users"></i>
                                     </span>
                                 </div>
                                 <input

@@ -1,7 +1,8 @@
 const express = require('express');
 const router = express.Router();
 router.get('/', function(req, res) {
-    res.render('index.html');
+    console.log('hit');
+    // res.sendFile('index.html');
 });
 
 module.exports = router;
