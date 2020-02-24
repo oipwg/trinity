@@ -4,6 +4,7 @@ const { JWT_SECRET } = process.env;
 const express = require('express');
 const router = express.Router();
 const passportConf = require('../passport');
+const auth = require('../middleware/auth');
 
 const passport = require('passport');
 const passportSignIn = passport.authenticate('local', { session: false });
@@ -29,15 +30,17 @@ const signUpValidator = require('../helpers/signUpValidator');
 
 const UsersController = require('../controllers/users');
 
+// Public - token created
+
 router.post('/signup', signUpValidator, UsersController.signUp);
 
 router.post('/login', passportSignIn, UsersController.signIn);
 
-// router.get('/secret', //Add jwt
-// UsersController.secret
-// );
-router.get('/users', (res, req) => {
-    res.sendFile('index.html');
-});
+// Private - need token
+router.post('/resetpassword', auth, UsersController.resetPassword);
+
+router.post('/secret', auth, UsersController.secret);
+
+router.get('/user', auth, UsersController.user);
 
 module.exports = router;

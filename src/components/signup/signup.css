@@ -1,57 +1,59 @@
-.container {
-    height: 100vh;
+#signup-card .container {
+  height: 100vh;
 }
 
-.card {
-    height: auto;
-    margin-top: auto;
-    margin-bottom: auto;
-    width: 400px;
-    background-color: rgba(0, 0, 0, 0.5);
+#signup-card .card {
+  height: auto;
+  margin-top: auto;
+  margin-bottom: auto;
+  width: 400px;
+  background-color: rgba(0, 0, 0, 0.5);
 }
 
-.card-header h3 {
-    color: white;
+#signup-card .card-header h3 {
+  color: white;
 }
 
-.input-group-prepend span {
-    width: 50px;
-    background-color: #f97700;
-    color: black;
-    border: 0 !important;
+#signup-card .input-group-prepend span {
+  width: 50px;
+  background-color: #f97700;
+  color: black;
+  border: 0 !important;
 }
 
-input:focus {
-    outline: 0 0 0 0;
-    box-shadow: 0 0 0 0;
+#signup-card input:focus {
+  outline: 0 0 0 0;
+  -webkit-box-shadow: 0 0 0 0;
+          box-shadow: 0 0 0 0;
 }
 
-.remember {
-    color: white;
+#signup-card .remember {
+  color: white;
 }
 
-.remember input {
-    width: 20px;
-    height: 20px;
-    margin-left: 15px;
-    margin-right: 5px;
+#signup-card .remember input {
+  width: 20px;
+  height: 20px;
+  margin-left: 15px;
+  margin-right: 5px;
 }
 
-.login_btn {
-    color: black;
-    background-color: #f97700;
-    width: 100px;
+#signup-card .login_btn {
+  color: black;
+  background-color: #f97700;
+  width: 100px;
 }
 
-.login_btn:hover {
-    color: black;
-    background-color: white;
+#signup-card .login_btn:hover {
+  color: black;
+  background-color: white;
 }
 
-.links {
-    color: white;
+#signup-card .links {
+  color: white;
 }
 
-.links a {
-    margin-left: 4px;
+#signup-card .links a {
+  margin-left: 4px;
 }
+/*# sourceMappingURL=signup.css.map */

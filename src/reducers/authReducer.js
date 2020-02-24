@@ -4,9 +4,9 @@ import {
     AUTH_ERROR,
     LOGIN_SUCCESS,
     LOGIN_FAIL,
-    LOGOUY_SUCCESS,
+    LOGOUT_SUCCESS,
     SIGNUP_SUCCESS,
-    REGISTER_FAIL,
+    SIGNUP_FAIL,
 } from '../actions/types';
 
 const initState = {
@@ -21,14 +21,36 @@ const authReducer = (state = initState, action) => {
         case USER_LOADING:
             return {
                 ...state,
-                isLoading: !isLoading,
+                isLoading: true,
             };
         case USER_LOADED:
             return {
                 ...state,
-                isAuthenticated: !isAuthenticated,
-                isLoading: !isLoading,
+                isAuthenticated: true,
+                isLoading: false,
                 user: action.payload,
+            };
+        case LOGIN_SUCCESS:
+        case SIGNUP_SUCCESS:
+            localStorage.setItem('token', action.payload.token);
+
+            return {
+                ...state,
+                ...action.payload,
+                isAuthenticated: true,
+                isLoading: false,
+            };
+        case AUTH_ERROR:
+        case LOGIN_FAIL:
+        case LOGOUT_SUCCESS:
+        case SIGNUP_FAIL:
+            localStorage.removeItem('token');
+            return {
+                ...state,
+                token: null,
+                user: null,
+                isAuthenticated: false,
+                isLoading: false,
             };
 
         default:
