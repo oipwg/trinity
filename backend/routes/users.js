@@ -37,7 +37,7 @@ router.post('/signup', signUpValidator, UsersController.signUp);
 router.post('/login', passportSignIn, UsersController.signIn);
 
 // Private - need token
-router.post('/resetpassword', auth, UsersController.resetPassword);
+router.post('/changepassword', auth, UsersController.changePassword);
 
 router.post('/secret', auth, UsersController.secret);
 
