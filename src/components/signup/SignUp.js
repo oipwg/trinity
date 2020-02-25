@@ -181,19 +181,6 @@ const SignUp = props => {
                                     }}
                                 />
                             </div>
-                            {/* todo: make this work? or del me */}
-                            {/***** SUCCESS!  *****/}
-                            {/* {success && (
-                                <div
-                                    className="alert alert-success"
-                                    role="alert"
-                                >
-                                    {'Success! '}
-                                    <span role="img" aria-label="thumbs-uo">
-                                        👍
-                                    </span>
-                                </div>
-                            )} */}
                             <div className="form-group">
                                 <input
                                     type="submit"
@@ -202,17 +189,18 @@ const SignUp = props => {
                                 />
                             </div>
                         </form>
-                        <div className="card-footer">
-                            <div className="d-flex justify-content-left links">
-                                <Link
-                                    to="/login"
-                                    onClick={() => {
-                                        props.clearErrors();
-                                    }}
-                                >
-                                    Login
-                                </Link>
-                            </div>
+                    </div>
+                    <div className="card-footer">
+                        <div className="d-flex justify-content-center links">
+                            Have an account?
+                            <Link
+                                to="/login"
+                                onClick={() => {
+                                    props.clearErrors();
+                                }}
+                            >
+                                Login
+                            </Link>
                         </div>
                     </div>
                 </div>
