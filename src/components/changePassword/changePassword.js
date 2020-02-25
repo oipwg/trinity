@@ -119,7 +119,7 @@ const ResetPassword = props => {
                 <div className="form-group">
                     <input
                         type="submit"
-                        value="Sign Up"
+                        value="Send"
                         className="btn float-right login_btn"
                     />
                 </div>
