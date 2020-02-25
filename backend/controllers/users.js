@@ -83,7 +83,7 @@ module.exports = {
             const isMatch = await user.isValidPassword(oldPassword);
 
             if (!isMatch)
-                return res.status(400).json({ error: 'Incorrenct password' });
+                return res.status(400).json({ error: 'Incorrect password' });
 
             user.password = password;
             user.mnemonic = mnemonic;
