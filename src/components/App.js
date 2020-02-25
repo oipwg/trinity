@@ -3,15 +3,13 @@ import Login from './login/Login';
 import SignUp from './signup/SignUp';
 import SpartanBot from './spartanbot/SpartanBot';
 import { BrowserRouter as Router, Switch, Route } from 'react-router-dom';
-import ResetPassword from './resetPassword/ResetPassword';
+import ChangePassword from './changePassword/ChangePassword';
 import Home from './home/Home';
 
 import { loadUser } from '../actions/authActions';
 import { connect } from 'react-redux';
 
 const App = props => {
-    console.log(props);
-
     useEffect(() => {
         props.loadUser();
     }, []);
@@ -22,7 +20,7 @@ const App = props => {
                 <Route path="/" exact component={Home} />
                 <Route path="/signup" component={SignUp} />
                 <Route path="/login" component={Login} />
-                <Route path="/resetpassword" component={ResetPassword} />
+                <Route path="/changePassword" component={ChangePassword} />
                 <Route path="/setup" component={SpartanBot} />
             </Switch>
         </Router>

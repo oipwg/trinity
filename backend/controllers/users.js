@@ -33,16 +33,15 @@ module.exports = {
                 mnemonic,
             });
 
-            await newUser.save().then(user => {
-                res.status(200).json({
-                    token: signToken(newUser),
-                    user: {
-                        id: user.id,
-                        username: user.userName,
-                        email: user.email,
-                        mnemonic: user.mnemonic,
-                    },
-                });
+            const user = await newUser.save();
+            res.status(200).json({
+                token: signToken(newUser),
+                user: {
+                    id: user.id,
+                    username: user.userName,
+                    email: user.email,
+                    mnemonic: user.mnemonic,
+                },
             });
         } catch (error) {
             console.log(error);
@@ -56,7 +55,7 @@ module.exports = {
             const user = await User.findOne({ userName });
 
             if (!user) {
-                return res.status(400).json({ error: 'Uses does not exist' });
+                return res.status(403).json({ error: 'User does not exist' });
             }
 
             res.status(200).json({
@@ -75,14 +74,24 @@ module.exports = {
         }
     },
 
-    resetPassword: async (req, res, next) => {
+    changePassword: async (req, res, next) => {
         try {
-            const { user, oldpassword, newPassword, mnemonic } = req.body;
+            const { id, oldPassword, password, mnemonic } = req.body;
 
-            console.log('req.body', req.body);
+            const user = await User.findById({ _id: id });
 
-            // todo: work in progress
-            // const isMatch = await user.isValidPassword(password);
+            const isMatch = await user.isValidPassword(oldPassword);
+
+            if (!isMatch)
+                return res.status(400).json({ error: 'Incorrenct password' });
+
+            user.password = password;
+            user.mnemonic = mnemonic;
+
+            await user.save();
+            res.status(200).json({
+                success: 'Password Changed!',
+            });
         } catch (error) {
             console.log(error);
         }

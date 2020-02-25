@@ -1,5 +1,7 @@
 import axios from 'axios';
 import { returnErrors } from './errorAction';
+import { API_URL } from '../../config';
+import { returnSuccess } from './successAction';
 
 import {
     USER_LOADED,
@@ -10,6 +12,8 @@ import {
     LOGOUT_SUCCESS,
     SIGNUP_SUCCESS,
     SIGNUP_FAIL,
+    CHANGE_PW_FAIL,
+    CHANGE_PW_SUCCESS,
 } from './types';
 
 const config = {
@@ -26,7 +30,7 @@ export const loadUser = () => (dispatch, getState) => {
     });
 
     axios
-        .get('http://localhost:5000/users/user', tokenConfig(getState))
+        .get(`${API_URL}/users/user`, tokenConfig(getState))
         .then(res => {
             dispatch({
                 type: USER_LOADED,
@@ -62,7 +66,7 @@ export const signup = (
     });
 
     axios
-        .post('http://localhost:5000/users/signup', body, config)
+        .post(`${API_URL}/users/signup`, body, config)
         .then(res => {
             console.log('signup', res);
             dispatch({
@@ -88,6 +92,40 @@ export const signup = (
         });
 };
 
+export const changePassword = ({ id, oldPassword, password, mnemonic }) => (
+    dispatch,
+    getState
+) => {
+    const body = JSON.stringify({
+        id,
+        oldPassword,
+        password,
+        mnemonic,
+    });
+
+    axios
+        .post(`${API_URL}/users/changepassword`, body, tokenConfig(getState))
+        .then(res => {
+            console.log('changepassword', res);
+
+            dispatch(returnSuccess(res.data, res.status, 'CHANGE_PW_SUCCESS'));
+        })
+        .catch(err => {
+            console.log('changepassword', err);
+            dispatch(
+                returnErrors(
+                    err.response.data,
+                    err.response.status,
+                    'CHANGE_PW_FAIL'
+                )
+            );
+            //todo: change state?
+            // dispatch({
+            //     type: CHANGE_PW_FAIL,
+            // });
+        });
+};
+
 // Login User
 export const loginUser = ({ userName, password }, props) => dispatch => {
     const body = JSON.stringify({
@@ -96,7 +134,7 @@ export const loginUser = ({ userName, password }, props) => dispatch => {
     });
 
     axios
-        .post('http://localhost:5000/users/login', body, config)
+        .post(`${API_URL}/users/login`, body, config)
         .then(res => {
             console.log('login', res);
             dispatch({
