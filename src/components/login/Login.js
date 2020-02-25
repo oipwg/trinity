@@ -118,7 +118,7 @@ const Login = props => {
                             </Link>
                         </div>
                         <div className="d-flex justify-content-center">
-                            <a href="#">Forgot your password?</a>
+                            {/* <a href="#">Forgot your password?</a> */}
                         </div>
                     </div>
                 </div>
