@@ -4,6 +4,7 @@ import { BrowserRouter as Router, Switch, Route } from 'react-router-dom';
 
 import NavBar from './navbar/navbar';
 import Login from './login/Login';
+import Logout from './logout/Logout';
 import SignUp from './signup/SignUp';
 import ChangePassword from './changePassword/ChangePassword';
 import Home from './home/Home';
@@ -25,6 +26,7 @@ const App = props => {
                 <Route path="/login" component={Login} />
                 <Route path="/changePassword" component={ChangePassword} />
                 <Route path="/setup" component={SpartanBot} />
+                <Route path="/logout" component={Logout} />
             </Switch>
         </Router>
     );
