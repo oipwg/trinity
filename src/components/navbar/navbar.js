@@ -29,6 +29,7 @@ class Navbar extends React.Component {
         ) {
             this.setState({
                 dropItDown: false,
+                collapse: false,
             });
         }
     };
