@@ -18,7 +18,7 @@ class Navbar extends React.Component {
 
     handleClick = () => {
         this.setState({
-            dropItDown: true,
+            dropItDown: !this.state.dropItDown,
         });
     };
 
@@ -45,14 +45,26 @@ class Navbar extends React.Component {
                 className="dropdown-menu show"
                 aria-labelledby="navbarDropdown"
             >
-                <Link className="dropdown-item" to="setup">
+                <Link
+                    onClick={(this.handleClick, this.handleCollapse)}
+                    className="dropdown-item"
+                    to="setup"
+                >
                     Setup
                 </Link>
                 <div className="dropdown-divider"></div>
-                <Link className="dropdown-item" to="/changePassword">
+                <Link
+                    onClick={(this.handleClick, this.handleCollapse)}
+                    className="dropdown-item"
+                    to="/changePassword"
+                >
                     Change Password
                 </Link>
-                <Link className="dropdown-item" to="logout">
+                <Link
+                    onClick={(this.handleClick, this.handleCollapse)}
+                    className="dropdown-item"
+                    to="logout"
+                >
                     Logout
                 </Link>
             </div>
@@ -66,7 +78,11 @@ class Navbar extends React.Component {
                 className="navbar navbar-expand-lg navbar-light bg-light"
                 ref={this.container}
             >
-                <Link className="navbar-brand" to="/">
+                <Link
+                    onClick={this.handleCollapse}
+                    className="navbar-brand"
+                    to="/"
+                >
                     TRINITY
                 </Link>
                 <button
@@ -91,12 +107,20 @@ class Navbar extends React.Component {
                     <ul className="navbar-nav mr-auto">
                         {/* NAV LINkS */}
                         <li className="nav-item">
-                            <Link className="nav-link" to="/">
+                            <Link
+                                onClick={this.handleCollapse}
+                                className="nav-link"
+                                to="/"
+                            >
                                 Home <span className="sr-only">(current)</span>
                             </Link>
                         </li>
                         <li>
-                            <Link className="nav-link" to="login">
+                            <Link
+                                onClick={this.handleCollapse}
+                                className="nav-link"
+                                to="login"
+                            >
                                 Login
                             </Link>
                         </li>
