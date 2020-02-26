@@ -1,8 +1,10 @@
-import React, { useEffect } from 'react';
-import Login from './login/Login';
-import SignUp from './signup/SignUp';
+import React, { useState, useEffect } from 'react';
 import SpartanBot from './spartanbot/SpartanBot';
 import { BrowserRouter as Router, Switch, Route } from 'react-router-dom';
+
+import NavBar from './navbar/navbar';
+import Login from './login/Login';
+import SignUp from './signup/SignUp';
 import ChangePassword from './changePassword/ChangePassword';
 import Home from './home/Home';
 
@@ -16,8 +18,9 @@ const App = props => {
 
     return (
         <Router>
+            <NavBar />
             <Switch>
-                <Route path="/" exact component={Home} />
+                <Route path="/" exact component={Login} />
                 <Route path="/signup" component={SignUp} />
                 <Route path="/login" component={Login} />
                 <Route path="/changePassword" component={ChangePassword} />
