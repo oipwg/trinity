@@ -160,6 +160,15 @@ export const loginUser = ({ userName, password }, props) => dispatch => {
         });
 };
 
+export const logoutUser = props => dispatch => {
+    console.log('Logging out... peace...');
+    dispatch({
+        type: LOGOUT_SUCCESS,
+    });
+
+    return props.push('/');
+};
+
 // Setup config/headers and token
 export const tokenConfig = getState => {
     // Get token from localstorage
