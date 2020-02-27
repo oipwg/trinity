@@ -18,6 +18,11 @@
     white-space: nowrap;
 }
 
+.wizard .pools,
+.wizard .credentials {
+    overflow: hidden;
+}
+
 .btn-submit {
     -webkit-box-shadow: 0 8px 6px -6px #000;
     -moz-box-shadow: 0 8px 6px -6px #000;
@@ -45,6 +50,10 @@
     color: #fff;
 }
 
+.btn-submit:focus {
+    outline: none;
+}
+
 .wizard .form-groups,
 .rental-provider {
     margin: 5px 0;
@@ -69,13 +78,16 @@
     border-radius: 0; */
 }
 
-/* .wizard form:nth-last-child(-n + 2) {
-    position: relative;
-    top: 50px;
-} */
-
-::-webkit-input-placeholder {
+::-webkit-input-placeholder, .custom-select {
     color: lightgrey !important;
+}
+
+.provider-credentials, .pool-add  {
+    transition: all .4s ease-in;
+}
+
+.pool-add  {
+    /* display: none; */
 }
 
 @media (max-width: 576px) {

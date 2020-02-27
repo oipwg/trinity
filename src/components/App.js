@@ -1,7 +1,7 @@
 import React from 'react';
 import Login from './login/Login';
 import SignUp from './signup/SignUp';
-import SpartanBot from './spartanbot/SpartanBot';
+import Trinity from './trinity/Trinity';
 import { BrowserRouter as Router, Switch, Route, Link } from 'react-router-dom';
 
 const App = () => {
@@ -12,7 +12,7 @@ const App = () => {
                     <SignUp />
                 </Route>
                 <Route path="/setup">
-                    <SpartanBot />
+                    <Trinity />
                 </Route>
             </Switch>
         </Router>

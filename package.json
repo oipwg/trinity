@@ -34,7 +34,8 @@
         "react-router-dom": "^5.1.2",
         "react-spring": "^8.0.27",
         "spartanbot": "git+https://github.com/bradicalone/spartanbot.git",
-        "timestring": "^6.0.0"
+        "timestring": "^6.0.0",
+        "ws": "^7.2.1"
     },
     "devDependencies": {
         "@babel/cli": "^7.7.7",
