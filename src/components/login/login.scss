@@ -1,23 +1,23 @@
 #login-card {
-    .container {
-        height: 100vh;
+    height: 100vh;
+
+    .fas {
+        color: white;
     }
 
     .card {
         height: auto;
-        margin-top: auto;
-        margin-bottom: auto;
+        margin-top: -25vh;
         width: 400px;
-        background-color: rgba(0, 0, 0, 0.5);
+        background-color: #424656d2;
     }
-
     .card-header h3 {
-        color: white;
+        color: #ffffff;
     }
 
     .input-group-prepend span {
         width: 50px;
-        background-color: #f97700;
+        background-color: #424656;
         color: black;
         border: 0 !important;
     }
@@ -39,21 +39,27 @@
     }
 
     .login_btn {
-        color: black;
-        background-color: #f97700;
+        color: #ffffff;
+        background-color: #004ff9;
         width: 100px;
     }
 
     .login_btn:hover {
-        color: black;
-        background-color: white;
+        color: #0082f9;
+        background-color: #ffffff;
     }
 
     .links {
-        color: white;
+        color: #ffffff;
     }
 
     .links a {
         margin-left: 4px;
+        color: #ffffff;
+    }
+
+    .links a:hover {
+        color: #0082f9;
+        text-decoration: none;
     }
 }

@@ -1,14 +1,19 @@
 import React from 'react';
+import logo from '../../../public/images/alexandria/bookmark-3k.png';
 
-const Home = props => {
-    const handleClick = () => {
-        props.history.push('/login');
-    };
-
+const Home = () => {
     return (
-        <div>
-            <h1>Spartan Bot Yo!</h1>
-            <button onClick={handleClick}>Click Me</button>
+        <div
+            style={{
+                // prettier-ignore
+                opacity: '0.05',
+                height: '100vh',
+                backgroundImage: `url(${logo})`,
+                backgroundPosition: 'center',
+                backgroundRepeat: 'no-repeat',
+            }}
+        >
+            <h1 style={{}}>ALEXANDRIA</h1>
         </div>
     );
 };
