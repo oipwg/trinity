@@ -40,7 +40,7 @@ const Login = props => {
     return (
         <div
             id="login-card"
-            className="container d-flex justify-content-center align-items-center"
+            className=" d-flex justify-content-center align-items-center"
         >
             <div className="">
                 <div className="card">
@@ -131,7 +131,7 @@ const mapStateToProps = state => {
     return {
         isAuthneticated: state.auth.isAuthneticated,
         error: state.error,
-        user: state.user,
+        user: state.user, //state.auth.user
     };
 };
 

@@ -1,32 +1,54 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect } from 'react';
 import SpartanBot from './spartanbot/SpartanBot';
 import { BrowserRouter as Router, Switch, Route } from 'react-router-dom';
 
+import Home from './home/Home';
 import NavBar from './navbar/navbar';
 import Login from './login/Login';
 import Logout from './logout/Logout';
 import SignUp from './signup/SignUp';
 import ChangePassword from './changePassword/ChangePassword';
-import Home from './home/Home';
+import Dashboard from './dashboard/Dashboard';
+import NoMatch404 from './noMatch404/noMatch404';
 
 import { loadUser } from '../actions/authActions';
 import { connect } from 'react-redux';
 
+import PrivateRoute from './PrivateRoute';
+
 const App = props => {
     useEffect(() => {
         props.loadUser();
-    }, []);
+    }, [!props.user]);
 
     return (
         <Router>
-            <NavBar />
+            <NavBar user={props.user} />
             <Switch>
-                <Route path="/" exact component={Login} />
-                <Route path="/signup" component={SignUp} />
+                {/* Public Routes */}
+                <Route path="/" exact component={Home} />
                 <Route path="/login" component={Login} />
-                <Route path="/changePassword" component={ChangePassword} />
-                <Route path="/setup" component={SpartanBot} />
+                <Route path="/signup" component={SignUp} />
                 <Route path="/logout" component={Logout} />
+                {/* Only if isAuthenticated */}
+                <PrivateRoute
+                    path="/dashboard"
+                    component={Dashboard}
+                    isAuthenticated={props.isAuthenticated}
+                />
+                <PrivateRoute
+                    path="/changePassword"
+                    component={ChangePassword}
+                    isAuthenticated={props.isAuthenticated}
+                />
+                <PrivateRoute
+                    path="/setup"
+                    component={SpartanBot}
+                    isAuthenticated={props.isAuthenticated}
+                />
+
+                {/* 404 */}
+                <Route component={NoMatch404} />
             </Switch>
         </Router>
     );
@@ -42,8 +64,9 @@ const App = props => {
 
 const mapStateToProps = state => {
     return {
-        isAuthneticated: state.auth.isAuthneticated,
+        isAuthenticated: state.auth.isAuthenticated,
         error: state.error,
+        user: state.auth.user,
     };
 };
 
