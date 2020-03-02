@@ -20,28 +20,33 @@ function processUserInput(body) {
         } else if ( options.rental_provider === "niceHash" ) {
             options.name = "Nice Hash"
         }
+    }else {
+        // get user option key and secret from database
     }
     return options
 }
 
+
+
 /* GET setup wizard page */
 router.post('/', (req, res) => {
+
     const body = req.body;
-    console.log('body:', body)
+    // console.log('body:', body)
     console.log(processUserInput(body))
 
     // From the req.body
     let options = {
         rental_provider: 'MiningRigRentals',
-        api_key: '7af572bacb6ffcfbe5cc5b73ddb9c27b0e8023ce0205dcdfaa116c76c9c25919',
-        api_secret: 'fc613d94ac190066649e8db6323fc486b878a63143bb78f5dafa61516df991f8',
+        api_key: process.env.MRR_API_KEY,
+        api_secret: process.env.MRR_API_SECRET,
         name: 'MRR',
         to_do: {
             rentalProvider: {
                 add: true,
             }
         },
-        // pool: { 
+        // poolData: { 
         //     profileName: 'mlg',
         //     algo: 'scrypt',
         //     host: '35.224.24.139',
@@ -54,9 +59,8 @@ router.post('/', (req, res) => {
     };
     try {
         controller(options).then((data)=>{
-            console.log('setup.js',data)
+            console.log('setup.js return data',data)
             const err = new Error(data);
-            console.log(err.message)
             // res.status(200).send(data);
             res.status(200).json({data})
         }).catch((err)=> {
@@ -65,7 +69,7 @@ router.post('/', (req, res) => {
         } );
         
     } catch (e) {
-        console.log('Setup.js error', e);
+        console.log('Setup.js catch error', e);
         res.status(500).json({ err: e });
     }
 });

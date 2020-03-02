@@ -86,6 +86,10 @@
     transition: all .4s ease-in;
 }
 
+#wizard-tableHeader tr th {
+    border-top: none;
+}
+
 .pool-add  {
     /* display: none; */
 }

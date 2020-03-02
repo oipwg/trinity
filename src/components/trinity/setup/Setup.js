@@ -3,72 +3,150 @@ import Navigation from '../nav/Navigation';
 import './setup.css';
 
 const Setup = () => {
-    const [values, setValues] = useState(false);
-    const [credentials, showCredentials] = useState(false);
-    const [pool, showPool] = useState(false);
-    const [error, setError] = useState('');
-    const [userData, setUserData] = useState([{credentials: false}]);
+    const [userData, setUserData] = useState([]);
+    const [poolIsOpen, setPoolOpen] = useState('')
 
     useEffect(() => {
- 
-        // if(values) setup_Provider(values)
-       
-    },[userData]);
+        if (userData[0] !== undefined) {
+            // setPoolOpen(userData[0].pool)
+        }
+    })
+
+    const merge = ( ...objects ) => ( [...objects] );
 
     function set_rental_provider(e) {
         e.preventDefault();
-        const merge = ( ...objects ) => ( [...objects] );
+        // const merge = ( ...objects ) => ( [...objects] );
         let target = e.target.options[e.target.selectedIndex].value
 
         if (!target) return
 
         let options = {
-            providerName: target,
             provider: target,
-            credentials: true,
+            credentials: false,
+            pool: true,
+            success: false,
             err: ''
         }
-        // If more than {credentials: false} exist in userData array
-        if (Object.keys(userData[0]).length > 1) {
-            userData.map( prevState => {
-                if (prevState.providerName !== target) {
-                    let data = merge(options, prevState)
-                    return setUserData(data)
-                } 
-            })
+       
+        
+        // If there is user data merge it somehow with the new data
+        if (userData.length) {
+   
+            let newState = []
+            let length = userData.length 
+            let i = 0
+            while(i < length) {
+                let prevState = userData[i]
+                if (prevState.err && length > 1) {
+                    // Clears any elements left in array previously
+                    newState.length = []
+                    //Includes the error element and all other elements if there are any
+                    let allOtherElements = userData.filter(el => el.provider !== target) 
+                    // Keeps target element rending to the top
+                    let targetElement = userData.filter(el => el.provider === target)
+                    let data = merge(...targetElement, ...allOtherElements)
+
+                    console.log('data:', data)
+                    
+                    newState.push(data)
+                    break;
+                } if (prevState.provider !== target) {
+        
+                        let data = merge(options, prevState)
+                        newState.push(data)
+                    }
+                i++
+            }
+            // *** USE BELOW IF ABOVE BREAKS ***
+            // userData.map( prevState => {
+                // if (prevState.provider !== target) {
+                //     let data = merge(options, prevState)
+                //     return setUserData(data)
+                // } 
+            // })
+     
+            setUserData(newState[0])
         } else {
             setUserData([options])
         }
     }
+    function set_pool_values(e) {
+        e.preventDefault();
+        const form = document.getElementsByClassName('wizard-form')[0]
+        const form_inputs = form.elements
 
-    function set_form_values(e) {
+        let length = form_inputs.length
+        let poolData = {}
+        for (let i = 0; i < length; i++) {
+            const el = form_inputs[i];
+         
+            if ( el.tagName === "SELECT" || el.tagName === "INPUT") {
+                switch (el.id) {
+                    case 'pool-name':
+                        poolData.profileName = el.value
+                        break;
+                    case 'algo':
+                        poolData.algo = el.options[el.selectedIndex].value
+                        break;
+                    case 'port':
+                        console.log(el.value)
+                        poolData.port = el.value
+                        break;
+                    case 'wallet':
+                        poolData.user = el.value
+                        break;
+                    case 'pool-password':
+                        poolData.pass = el.value
+                        break;
+                    case 'pool-notes':
+                        poolData.notes = el.value     
+                }    
+            }
+        }
+        
+        let sentData = {...userData[0], poolData:{...poolData}}
+        console.log(sentData)
+    }
+
+    function set_provider_values(e) {
         e.preventDefault();
         const form = document.getElementsByClassName('wizard-form')[0]
         const form_inputs = form.elements
         let length = form_inputs.length
         let options = {}
-        // let form_data = selector.options[selector.selectedIndex].value
+ 
         for (let i = 0; i < length; i++) {
             const el = form_inputs[i];
- 
+            
             if ( el.tagName === "SELECT" || el.tagName === "INPUT") {
+
                 switch (el.id) {
                     case 'rental_provider':
                         options.rental_provider = el.options[el.selectedIndex].value
+                        break;
                     case 'key':
                         options.key = el.value
+                        break;
                     case 'secret':
                         options.secret = el.value
+                        break;  
                 }    
             }
         }
+        
+        for(let prop in options ) {
+            if (options.hasOwnProperty(prop)) {
+                // console.log(options[prop] === '')
+            }
+        }
+
         form.reset();
         let sentData = {...userData[0], ...options}
-        const merge = ( ...objects ) => ( [...objects] );
-        // Adds values to state and adds callback to run the fetch process setup_Provider()
+        console.log('sentData:', sentData)
+  
         console.log(merge(userData[1], sentData))
-        // setUserData([{...userData[0],...options}])
-        // setValues({...values,...options})
+        // setUserData([sentData])
         setup_Provider(sentData)
     }
 
@@ -80,7 +158,6 @@ const Setup = () => {
             let value = data[key]
             let property = key
     
-            
             switch (property) {
                 case 'err': 
                     responseData[property] = value
@@ -88,25 +165,22 @@ const Setup = () => {
                     responseData[property] = value    
                 case 'pool':
                     responseData[property] = value
-                case 'credintials':
+                case 'credentials':
                     responseData[property] = value
                 case 'success':
                     responseData[property] = value
             }
-            
-            // if (data.err) {
-            //     let errorType = data.err
-            //     setError(data)
-            // } else {
-            //     credentials = true
-
-            //     setUserData(data)
-            // }
-            
         }
-        console.log(userData[0], responseData)
-        // setUserData(responseData)
-        // showPool(true)
+        // const merge = ( ...objects ) => ( [...objects] )
+
+        // Top object, and response object that came back
+        let allData = {...userData[0], ...responseData}
+        if ( userData.length > 1) {
+           console.log( merge(allData, userData[1]))
+           setUserData(merge(allData, userData[1]))
+        } else {
+            setUserData([allData])
+        }
     }
 
     async function setup_Provider(data) {
@@ -128,10 +202,23 @@ const Setup = () => {
             process_returned_data({err: e})
         }
     }
+    const showPool = props => 
+        userData[0] === undefined ? true : userData[0].pool;
+    
+
+        
+        
+
+    const showCredentials = (userdata) => {
+        console.log(userdata)
+        let boolean = !userdata.length || userdata.credentials === false ? false : true
+        console.log('boolean:', boolean)
+        
+        return boolean
+    }
 
     return (
         <section className="wizard">
-            {console.log('values:', userData,Object.keys(userData))}
             <table className="table">
                 <thead id="wizard-tableHeader">
                     <tr>
@@ -146,23 +233,25 @@ const Setup = () => {
                     {(()=> {
                         return (
                             userData.map( (userData, i)=> {
-                                console.log(userData)
+                                let dataKeys = Object.keys(userData)
+                     
                                 return (   
                                     <tr key={i} className="data-table-row">
-                                        <td key={i}>{i}</td>
-                                        {userData.provider && (
-                                            <td key={provider}>{userData.err === "provider" ? userData.message : 
+                                        <td key={i+1}>{i}</td>
+                                        {dataKeys[0] && (
+                                            <td key={i+2}>{userData.err === "provider" ? userData.message : 
                                             userData.provider}</td>
                                         )}
-                                        {userData.credentials && (
-                                            <td key={credentials}>{!userData.credentials ? <span>&#10004;</span> :
+                                        {dataKeys[1] && (
+                                            <td key={i+3}>{userData.credentials ? <span>&#10004;</span> :
                                             <i className="fas fa-thumbs-down"></i>}</td>
                                         )}
-                                        {userData.pool && (
-                                            <td key={pool}>{userData.err === "pool" ? userData.message : ''}</td> 
+                                        {dataKeys[2] && (
+                                            <td key={i+4}>{userData.err === "pool" ? userData.message : 
+                                            <i className="fas fa-thumbs-down"></i>}</td> 
                                         )}
-                                        {userData.success && (
-                                            <td key={i}>{userData.success ? <span>&#10004;</span> : 
+                                        {dataKeys[3] && (
+                                            <td key={i+5}>{userData.success ? <span>&#10004;</span> : 
                                             <i className="fas fa-thumbs-down"></i>}</td> 
                                         )}
                                     </tr>
@@ -175,7 +264,6 @@ const Setup = () => {
             <form className="wizard-form">
                 <div className="form-inline rental-provider">
                     <h4>Provider</h4>
-                    {console.log(userData[0].credentials)}
                     <div className="form-groups">
                         <label className="my-1 mr-2">Rental provider</label>
                         <select
@@ -193,7 +281,8 @@ const Setup = () => {
                     </div>
                 </div>
                 <div className="credentials">
-                    <div style={{height: userData[0].credentials ? '125px' : '0px'}} className="provider-credentials">
+                    {/* {console.log(userData[0].credentials)} */}
+                    <div style={{height: showCredentials(userData) ? '125px' : '0px'}} className="provider-credentials">
                         <h4>Provider Credentials</h4>
                         <div className="form-inline API-key">
                             <div className="form-groups">
@@ -221,25 +310,36 @@ const Setup = () => {
                 </div>
                
                 {/* End of rental passwords */}
-                <Pools poolBoolean={userData.pool}/>
+                <Pools poolBoolean ={showPool}/>
                 {/* End of pool information */}
-                <button type="submit" className="btn-submit" onClick={set_form_values}>
-                    Submit
+
+                <button type="submit" className="btn-submit" onClick={set_provider_values}
+                style={{display: showPool() ? 'block' : 'none'}}>
+                    Add Provider
+                </button>
+                    
+                <button type="submit" className="btn-submit" onClick={set_pool_values}
+                style={{display: showPool() ? 'none' : 'block'}}>
+                    Add Pool
                 </button>
             </form>
         </section>
     );
 };
 const Pools = (props) => {
-    return (
-        
+
+    // const showPool = props => 
+    //     props.poolBoolean === undefined ? true : props.poolBoolean.pool;
+    
+    return (  
         <div className="pools">
-            <div style={{height: props.poolBoolean === false ? '310px' : '0px' }} className="pool-add">
+            {console.log(props.poolBoolean())}
+            <div style={{height: props.poolBoolean() ? '0px' : '310px' }} className="pool-add">
                 <h4>Add A Pool</h4>
                 <div className="form-inline">
                     <div className="form-groups">
                         <label className="my-1 mr-2">Type</label>
-                        <select className="custom-select mx-sm-4">
+                        <select id="algo" className="custom-select mx-sm-4">
                             <option defaultValue value="">
                                 Select Algorithm
                             </option>
@@ -252,6 +352,7 @@ const Pools = (props) => {
                     <div className="form-groups">
                         <label htmlFor="name">Pool name</label>
                         <input
+                            type="hidden"
                             type="text"
                             id="pool-name"
                             className="form-control mx-sm-4"
@@ -262,13 +363,13 @@ const Pools = (props) => {
                 </div>
                 <div className="form-inline">
                     <div className="form-groups">
-                        <label htmlFor="Port">Host</label>
+                        <label htmlFor="Port">Host:Port</label>
                         <input
                             type="text"
                             id="port"
                             className="form-control mx-sm-4"
                             aria-describedby="algorithm"
-                            placeholder="Port"
+                            placeholder="after stratum+tcp://"
                         />
                     </div>
                 </div>
@@ -280,7 +381,7 @@ const Pools = (props) => {
                             id="wallet"
                             className="form-control mx-sm-4"
                             aria-describedby="Wallet address"
-                            placeholder="Wallet address"
+                            placeholder="Workername or wallet address"
                         />
                     </div>
                 </div>

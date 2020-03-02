@@ -1,6 +1,19 @@
 require('dotenv').config();
 // import { config } from 'dotenv'
-// config()
+const fs = require('fs');
+const fsPromise = fs.promises;
+const storage = process.cwd() +'/localStorage/spartanbot-storage';
+
+// get storage file when app loads, PROBABLY CHANGE WHEN SAVING KEYS AND SECRET PROVIDER TO DATABASE
+const getStorage = async () => {
+    try {
+        const data = await JSON.parse( await fsPromise.readFile(storage, "utf8") )
+        return data
+    } catch(e) {
+        return 'File reader failed: '+ e
+    }
+}
+
 
 const {
     Prompt_MRRAPIKeys,
@@ -19,6 +32,11 @@ const MiningRigRentals = 'MiningRigRentals';
 const NiceHash = 'NiceHash';
 
 module.exports = async function(options) {
+    let storageFile = {}
+    getStorage().then((data)=> storageFile.file = data.rental_providers[0]).catch(err => console.log(err))
+    
+    const storage = storageFile.file
+
     let spartan = options.SpartanBot;
     let rentalProviders = spartan.getRentalProviders();
 
@@ -27,9 +45,9 @@ module.exports = async function(options) {
         console.log('Maximum number of providers reached.');
         return {
             err: 'provider',
-            message: 'Maximum number of providers reached.'+ poolArray,
+            message: 'Maximum number of providers reached.'+ poolArray.length,
             pool: poolArray.length ? true : false,
-            credentials: false,
+            credentials: true,
             success: poolArray.length ? true : false,
         }
     }
@@ -50,14 +68,15 @@ module.exports = async function(options) {
     if (rental_provider_type === MiningRigRentals) {
         if (checkProviders(MiningRigRentals)) {
             let poolArray = await spartan.returnPools();
-     
+            
             console.log(`MiningRigRentals account already exists.
                                 Current Limit: 1.`);
             return {
-                err: 'provider',
-                message: 'MiningRigRentals account already exists. Current Limit: 1.',
+                err: poolArray.length ? 'provider' : 'pool',
+                message: poolArray.length ? 'Mining Rig Rentals account already exists. Current Limit: 1.'+
+                                            'You can move on to setup to rent' : 'No pool found enter pool info below to add a pool',
                 pool: poolArray.length ? true : false,
-                credentials: false,
+                credentials: true,
                 success: poolArray.length ? true : false,
             }
         }
@@ -68,30 +87,28 @@ module.exports = async function(options) {
                 `NiceHash account already exists. 'Current Limit: 1.'`
             );
             return {
-                err: 'provider',
-                message: 'NiceHash account already exists. Current Limit: 1.',
+                err: poolArray.length ? 'provider' : 'pool',
+                message: poolArray.length ? 'Nice Hash account already exists. Current Limit: 1.'+
+                                            'You can move on to setup to rent' : 'No pool found enter pool info below to add a pool',
                 pool: poolArray.length ? true : false,
-                credentials: false,
+                credentials: true,
                 success: poolArray.length ? true : false,
             }
         }
-           
-        // api_answers = await Prompt_NiceHashAPIKeys(self, vorpal);
     }
 
 
     try {
         let setup_success = await spartan.setupRentalProvider({
             type: rental_provider_type,
-            api_key: api_answers.api_key,
-            api_secret: api_answers.api_secret,
+            api_key: api_answers.api_key || storage.api_key,
+            api_secret: api_answers.api_secret || storage.api_secret,
             // api_id: api_answers.api_id,
             api_id: Date.now(),
-            name: options.name === 'undefined'
+            name: options.name === undefined
                     ? undefined
-                    : options.name,
+                    : rental_provider_type,
         });
-        console.log('setup_success:', setup_success)
 
         if (setup_success.success) {
             spartan.returnPools();
@@ -100,10 +117,19 @@ module.exports = async function(options) {
                 //if user has no pools, prompt to create one
                 if ( setup_success.poolProfiles.length === 0 ) {
                     let poolData;
-                    console.log('options.pool:', options.pool)
-                    if (options.pool === 'undefined') return console.log('undefined')
+                    console.log('options.pool:', options.poolData)
+                    if (options.poolData === undefined){
+                        return {
+                            provider: 'MRR',
+                            err: 'pool',
+                            message: `No pools found, input pool info below to continue:`,
+                            pool: false,
+                            credentials: true,
+                            success: false
+                        }
+                    }
                     
-
+                    
                     createPoolProfile()
                     function createPoolProfile() {
 
@@ -111,7 +137,7 @@ module.exports = async function(options) {
                     try {
                         //MRRProvider.js in spartanbot
                         poolData = await setup_success.provider.createPoolProfile(
-                            options.pool.profileName, options.pool.algo
+                            options.poolDATA.profileName, options.poolData.algo
                         );
                     } catch (err) {
                         console.log(`Error while creating the profile: ${err}`);
@@ -120,7 +146,7 @@ module.exports = async function(options) {
                             err: 'pool',
                             message: `Error while creating the profile: ${err}`,
                             pool: false,
-                            credentials: false,
+                            credentials: true,
                             success: false
                         }
                     }
@@ -146,7 +172,7 @@ module.exports = async function(options) {
                             provider: 'Mining Rig Rental',
                             message: `Pool successfully added ${poolData}`,
                             pool: true,
-                            credentials: false,
+                            credentials: true,
                             success: true
                         }
                     } else {
@@ -345,7 +371,9 @@ module.exports = async function(options) {
         return {
             err: 'provider',
             message: 'Error! Unable to add Rental Provider!\n' + e,
-            credentials: false
+            credentials: false,
+            pool: false,
+            success: false
         }
     }
 };
