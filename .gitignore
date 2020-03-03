@@ -2,10 +2,9 @@ node_modules
 bundle.js
 localStorage
 .env
+package-lock.json
 
 .DS_Store 
 /dist
 
-
-config.js
 config.js

@@ -7,6 +7,8 @@
     flex: 1 0 100%;
     border-radius: 5px;
     left: 50px;
+    -webkit-box-shadow: 0 15px 35px rgba(50,50,93,.1), 0 5px 15px rgba(0,0,0,.07);
+    box-shadow: 0 15px 35px rgba(50,50,93,.1), 0 5px 15px rgba(0,0,0,.07);
 }
 
 .wizard label {
@@ -16,6 +18,11 @@
     width: 232px;
     justify-content: end;
     white-space: nowrap;
+}
+
+.wizard .pools,
+.wizard .credentials {
+    overflow: hidden;
 }
 
 .btn-submit {
@@ -45,6 +52,10 @@
     color: #fff;
 }
 
+.btn-submit:focus {
+    outline: none;
+}
+
 .wizard .form-groups,
 .rental-provider {
     margin: 5px 0;
@@ -69,13 +80,20 @@
     border-radius: 0; */
 }
 
-/* .wizard form:nth-last-child(-n + 2) {
-    position: relative;
-    top: 50px;
-} */
-
-::-webkit-input-placeholder {
+::-webkit-input-placeholder, .custom-select {
     color: lightgrey !important;
+}
+
+.provider-credentials, .pool-add  {
+    transition: all .4s ease-in;
+}
+
+#wizard-tableHeader tr th {
+    border-top: none;
+}
+
+.pool-add  {
+    /* display: none; */
 }
 
 @media (max-width: 576px) {
