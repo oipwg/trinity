@@ -41,14 +41,18 @@ passport.use(
             try {
                 const user = await User.findOne({ userName });
 
+                //need to handler error
+
                 if (!user) {
-                    return done(null, false);
+                    return done(null, false, { message: 'Incorrect Username' });
                 }
 
                 const isMatch = await user.isValidPassword(password);
 
                 if (!isMatch) {
-                    return done(null, false);
+                    return done(null, false, {
+                        message: 'Invalid Credentials',
+                    });
                 }
 
                 done(null, user);

@@ -1,11 +1,13 @@
-nav {
+.nav-setup {
     position: fixed;
     left: 0;
     height: 100%;
     background: #ffffff;
+    -webkit-box-shadow: 0 15px 35px rgba(50,50,93,.1), 0 5px 15px rgba(0,0,0,.07);
+    box-shadow: 0 15px 35px rgba(50,50,93,.1), 0 5px 15px rgba(0,0,0,.07);
 }
 
-nav ul {
+.nav-setup ul {
     padding: 0;
     list-style: none;
 }

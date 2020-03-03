@@ -14,8 +14,7 @@ kinda red - #AE003E
 
 html,
 body {
-    background: rgb(0, 0, 0);
-    background: -moz-linear-gradient(
+    /* background: -moz-linear-gradient(
         180deg,
         rgba(0, 0, 0, 1) 0%,
         rgba(66, 70, 86, 1) 50%,
@@ -33,10 +32,19 @@ body {
         rgba(66, 70, 86, 1) 50%,
         rgba(0, 130, 249, 1) 100%
     );
-    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="#000000",endColorstr="#0082f9",GradientType=1);
+    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="#000000",endColorstr="#0082f9",GradientType=1); */
     height: 100%;
+
 }
 
-body {
-    font-family: Arial, Helvetica, sans-serif;
+.bg-primary {
+    background-color: #0082f9 !important;
+}
+
+#header-navbar {
+    z-index: 9999;
+}
+
+.navbar-light .navbar-nav .nav-link {
+    color: #ffffff;
 }

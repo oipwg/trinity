@@ -3,12 +3,24 @@ import wallet from '../../helpers/Wallet';
 import { encrypt } from '../../helpers/crypto';
 import './signup.css';
 import { Link } from 'react-router-dom';
+// import PropTypes from 'prop-types'; //todo: maybe ? del me
+import { connect } from 'react-redux';
+import { signup } from '../../actions/authActions';
+import { clearErrors } from '../../actions/errorAction';
+
 const { createMnemonic } = wallet;
 
-// todo: add Token to local storage
-// todo: HDMW decrypt HDMW wallet???
+// todo: mnemonic encrypted in global state - decrepty when requested?
 
-const SignUp = () => {
+const SignUp = props => {
+    /**************************STATE SECTION************************/
+
+    useEffect(() => {
+        if (props.error.id === 'SIGNUP_FAIL') {
+            return setUsernameErrorMessage(props.error.msg.error);
+        }
+    }, [props.error.id]);
+
     /**************************STATE SECTION************************/
     //**Display Name States */
     const [username, setUsername] = useState(null);
@@ -22,13 +34,7 @@ const SignUp = () => {
     //**Email States */
     const [email, setEmail] = useState('');
 
-    const [success, setSuccessMessage] = useState(null);
-
-    //todo: del me? stick mnemonic in global state
-    const [walletRecord, setWalletRecord] = useState({
-        mnemonic: '',
-        encryption: '',
-    });
+    // const [success, setSuccessMessage] = useState(null);
 
     const onFormSubmit = e => {
         e.preventDefault();
@@ -49,7 +55,18 @@ const SignUp = () => {
         } else {
             setPassErrorMessage('');
             getMnemonic().then(async encrypted => {
-                handleSignUp(encrypted);
+                const newUser = {
+                    userName: username,
+                    email: email,
+                    password: password,
+                    mnemonic: encrypted,
+                };
+                // Attempt to Register
+                try {
+                    props.signup(newUser, props.history);
+                } catch (error) {
+                    console.log(error);
+                }
             });
         }
     };
@@ -66,41 +83,11 @@ const SignUp = () => {
             .catch(err => console.log('WalletData ' + err));
     };
 
-    const handleSignUp = async encrypted => {
-        if (username && password)
-            try {
-                const response = await fetch(
-                    'http://localhost:5000/users/signup',
-                    {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                        },
-                        body: JSON.stringify({
-                            userName: username,
-                            email: email,
-                            password: password,
-                            mnemonic: encrypted,
-                        }),
-                    }
-                );
-                const data = await response.json();
-
-                if (data.error) {
-                    setUsernameErrorMessage(data.error);
-                } else if (data.token) {
-                    setSuccessMessage(data.token);
-                }
-
-                console.log('data', data);
-            } catch (error) {
-                console.error(error);
-            }
-    };
-
     return (
-        <div className="container d-flex justify-content-center align-items-center">
-            <Link to="/setup">setup</Link>
+        <div
+            id="signup-card"
+            className="container d-flex justify-content-center align-items-center"
+        >
             <div className="">
                 <div className="card">
                     <div className="card-header">
@@ -115,17 +102,19 @@ const SignUp = () => {
                                     </span>
                                 </div>
                                 <input
+                                    required
                                     type="text"
                                     className="form-control"
                                     placeholder="username"
                                     onChange={e => {
                                         setUsername(e.target.value);
                                         setUsernameErrorMessage(null);
+                                        props.clearErrors();
                                     }}
                                 />
                             </div>
                             {/***** USERNAME ERROR  *****/}
-                            {usernameErrorMessage && (
+                            {props.error.id && (
                                 <div
                                     className="alert alert-danger"
                                     role="alert"
@@ -141,6 +130,7 @@ const SignUp = () => {
                                     </span>
                                 </div>
                                 <input
+                                    required
                                     type="password"
                                     className="form-control"
                                     placeholder="password"
@@ -157,6 +147,7 @@ const SignUp = () => {
                                     </span>
                                 </div>
                                 <input
+                                    required
                                     type="password"
                                     className="form-control"
                                     placeholder="re-password"
@@ -190,18 +181,6 @@ const SignUp = () => {
                                     }}
                                 />
                             </div>
-                            {/***** SUCCESS!  *****/}
-                            {success && (
-                                <div
-                                    className="alert alert-success"
-                                    role="alert"
-                                >
-                                    {'Success! '}
-                                    <span role="img" aria-label="thumbs-uo">
-                                        👍
-                                    </span>
-                                </div>
-                            )}
                             <div className="form-group">
                                 <input
                                     type="submit"
@@ -210,10 +189,18 @@ const SignUp = () => {
                                 />
                             </div>
                         </form>
-                        <div className="card-footer">
-                            <div className="d-flex justify-content-left links">
-                                <a href="#">Login</a>
-                            </div>
+                    </div>
+                    <div className="card-footer">
+                        <div className="d-flex justify-content-center links">
+                            Have an account?
+                            <Link
+                                to="/login"
+                                onClick={() => {
+                                    props.clearErrors();
+                                }}
+                            >
+                                Login
+                            </Link>
                         </div>
                     </div>
                 </div>
@@ -222,4 +209,19 @@ const SignUp = () => {
     );
 };
 
-export default SignUp;
+//todo: maybe enforce prop types? maybe....
+// SignUp.propTypes = {
+//     isAuthneticated: PropTypes.bool,
+//     error: PropTypes.object.isRequired,
+//     signup: PropTypes.func.isRequired,
+// };
+
+const mapStateToProps = state => {
+    return {
+        isAuthneticated: state.auth.isAuthneticated,
+        error: state.error,
+        user: state.user,
+    };
+};
+
+export default connect(mapStateToProps, { signup, clearErrors })(SignUp);

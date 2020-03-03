@@ -7,7 +7,7 @@ signToken = user => {
     return JWT.sign(
         {
             iss: 'Trinity',
-            sub: user._id,
+            id: user._id,
             iat: new Date().getTime(), // curent time
             exp: new Date().setDate(new Date().getDate() + 1), //current time + 1 day ahead
         },
@@ -33,11 +33,16 @@ module.exports = {
                 mnemonic,
             });
 
-            await newUser.save();
-
-            const token = signToken(newUser);
-            console.log('user created', { token });
-            res.status(200).json({ token });
+            const user = await newUser.save();
+            res.status(200).json({
+                token: signToken(newUser),
+                user: {
+                    id: user.id,
+                    username: user.userName,
+                    email: user.email,
+                    mnemonic: user.mnemonic,
+                },
+            });
         } catch (error) {
             console.log(error);
         }
@@ -45,16 +50,66 @@ module.exports = {
 
     signIn: async (req, res, next) => {
         try {
-            user = req.body;
+            const { userName } = req.body;
 
-            console.log(user);
-            const token = signToken(user);
-            console.log(token);
+            const user = await User.findOne({ userName });
 
-            res.status(200).json({ token });
+            if (!user) {
+                return res.status(403).json({ error: 'User does not exist' });
+            }
+
+            res.status(200).json({
+                token: signToken(user),
+                user: {
+                    id: user.id,
+                    name: user.userName,
+                    email: user.email,
+                    mnemonic: user.mnemonic,
+                },
+            });
+
             console.log('successful login!');
         } catch (error) {
             console.log(error);
         }
+    },
+
+    changePassword: async (req, res, next) => {
+        try {
+            const { id, oldPassword, password, mnemonic } = req.body;
+
+            const user = await User.findById({ _id: id });
+
+            const isMatch = await user.isValidPassword(oldPassword);
+
+            if (!isMatch)
+                return res.status(400).json({ error: 'Incorrect password' });
+
+            user.password = password;
+            user.mnemonic = mnemonic;
+
+            await user.save();
+            res.status(200).json({
+                success: 'Password Changed!',
+            });
+        } catch (error) {
+            console.log(error);
+        }
+    },
+
+    secret: async (req, res, next) => {
+        try {
+            console.log('hey');
+        } catch (error) {
+            console.log(error);
+        }
+    },
+
+    user: async (req, res, next) => {
+        try {
+            const user = await User.findById(req.user.id).select('-password');
+
+            res.json(user);
+        } catch (error) {}
     },
 };

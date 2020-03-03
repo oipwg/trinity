@@ -1,41 +1,47 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
+import { connect } from 'react-redux';
+import { loginUser } from '../../actions/authActions';
+import { clearErrors } from '../../actions/errorAction';
+
 import './login.css';
 
-const Login = () => {
-    const [username, setUsername] = useState('');
+const Login = props => {
+    /**************************STATE SECTION************************/
+    //**Display Name State */
+    const [username, setUsername] = useState(null);
+
+    //**Password State */
     const [password, setPassword] = useState('');
-    const [error, setError] = useState('');
+
+    //**Error State */
+    const [error, setError] = useState(null);
+
+    useEffect(() => {
+        if (props.error.id === 'LOGIN_FAIL') {
+            return setError('Invalid Credentials');
+        }
+    }, [props.error.id]);
 
     const onFormSubmit = e => {
         e.preventDefault();
-        handleLogin();
-    };
+        try {
+            const user = {
+                userName: username,
+                password: password,
+            };
 
-    const handleLogin = async () => {
-        if (username && password)
-            try {
-                const response = await fetch(
-                    'http://localhost:5000/users/login',
-                    {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                        },
-                        body: JSON.stringify({
-                            userName: username,
-                            password: password,
-                        }),
-                    }
-                );
-                const data = await response.json();
-                console.log(data);
-            } catch (error) {
-                console.error(error);
-            }
+            props.loginUser(user, props.history);
+        } catch (error) {
+            console.log(error);
+        }
     };
 
     return (
-        <div className="container d-flex justify-content-center align-items-center">
+        <div
+            id="login-card"
+            className=" d-flex justify-content-center align-items-center"
+        >
             <div className="">
                 <div className="card">
                     <div className="card-header">
@@ -50,11 +56,13 @@ const Login = () => {
                                     </span>
                                 </div>
                                 <input
+                                    required
                                     type="text"
                                     className="form-control"
                                     placeholder="username"
                                     onChange={e => {
                                         setUsername(e.target.value);
+                                        props.clearErrors();
                                     }}
                                 />
                             </div>
@@ -65,14 +73,25 @@ const Login = () => {
                                     </span>
                                 </div>
                                 <input
+                                    required
                                     type="password"
                                     className="form-control"
                                     placeholder="password"
                                     onChange={e => {
                                         setPassword(e.target.value);
+                                        props.clearErrors();
                                     }}
                                 />
                             </div>
+                            {/***** ERROR MESSAGE  *****/}
+                            {props.error.id && (
+                                <div
+                                    className="alert alert-danger"
+                                    role="alert"
+                                >
+                                    {error}
+                                </div>
+                            )}
                             <div className="row align-items-center remember">
                                 <input type="checkbox" />
                                 Remember Me
@@ -88,10 +107,18 @@ const Login = () => {
                     </div>
                     <div className="card-footer">
                         <div className="d-flex justify-content-center links">
-                            Don't have an account?<a href="#">Sign Up</a>
+                            Don't have an account?
+                            <Link
+                                to="/signup"
+                                onClick={() => {
+                                    props.clearErrors();
+                                }}
+                            >
+                                Sign Up
+                            </Link>
                         </div>
                         <div className="d-flex justify-content-center">
-                            <a href="#">Forgot your password?</a>
+                            {/* <a href="#">Forgot your password?</a> */}
                         </div>
                     </div>
                 </div>
@@ -100,4 +127,12 @@ const Login = () => {
     );
 };
 
-export default Login;
+const mapStateToProps = state => {
+    return {
+        isAuthneticated: state.auth.isAuthneticated,
+        error: state.error,
+        user: state.user, //state.auth.user
+    };
+};
+
+export default connect(mapStateToProps, { loginUser, clearErrors })(Login);
