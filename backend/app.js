@@ -9,6 +9,9 @@ const mongoose = require('mongoose');
 const usersRouter = require('./routes/users');
 const dashboardRouter = require('./routes/dashboard');
 const setupRouter = require('./routes/setup');
+const authRouter = require('./routes/auth');
+const passport = require('passport');
+const auth = require('./middleware/auth');
 
 const app = express();
 
@@ -19,12 +22,14 @@ mongoose
         useNewUrlParser: true,
         useUnifiedTopology: true,
         useCreateIndex: true,
+        useFindAndModify: false,
     })
     .catch(error => console.log('Mongoose DB error ', error));
 
 app.use(logger('dev'));
 
 // CORS - DEVElOPMENT ONLY - //todo: del. me
+// use proxy for production
 let allowCrossDomain = function(req, res, next) {
     res.header('Access-Control-Allow-Origin', '*');
     res.header('Access-Control-Allow-Headers', '*');
@@ -32,15 +37,25 @@ let allowCrossDomain = function(req, res, next) {
 };
 app.use(allowCrossDomain);
 
+app.use(express.static('../dist'));
+app.use(cookieParser());
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
-app.use(cookieParser());
-app.use(express.static('../public'));
+app.use(passport.initialize());
 
 // Routes
 app.use('/users', usersRouter);
 app.use('/dashboard', dashboardRouter);
 app.use('/setup', setupRouter);
+app.use('/auth', authRouter);
+
+app.use('/oauth/done', (req, res, next) => {
+    console.log('uuggghhh');
+
+    console.log(req);
+
+    res.status(201).json({ sick: 'no' });
+});
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

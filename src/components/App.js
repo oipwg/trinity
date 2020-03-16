@@ -16,6 +16,8 @@ import { connect } from 'react-redux';
 
 import PrivateRoute from './PrivateRoute';
 
+// todo: after login redirect to orginal page
+
 const App = props => {
     useEffect(() => {
         props.loadUser();
@@ -27,15 +29,22 @@ const App = props => {
             <Switch>
                 {/* Public Routes */}
                 <Route path="/" exact component={Home} />
-                <Route path="/login" component={Login} />
-                <Route path="/signup" component={SignUp} />
-                <Route path="/logout" component={Logout} />
-                {/* Only if isAuthenticated */}
-                <PrivateRoute
+                {/* Testing */}
+                <Route
                     path="/dashboard"
                     component={Dashboard}
                     isAuthenticated={props.isAuthenticated}
                 />
+                <Route path="/login" component={Login} />
+                <Route path="/signup" component={SignUp} />
+                <Route path="/logout" component={Logout} />
+
+                {/* Only if isAuthenticated */}
+                {/* <PrivateRoute
+                    path="/dashboard"
+                    component={Dashboard}
+                    isAuthenticated={props.isAuthenticated}
+                /> */}
                 <PrivateRoute
                     path="/changePassword"
                     component={ChangePassword}
@@ -48,7 +57,9 @@ const App = props => {
                 />
 
                 {/* 404 */}
-                <Route component={NoMatch404} />
+                <Route path="*">
+                    <NoMatch404 />
+                </Route>
             </Switch>
         </Router>
     );
