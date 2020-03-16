@@ -11,7 +11,7 @@ const dashboardRouter = require('./routes/dashboard');
 const setupRouter = require('./routes/setup');
 const authRouter = require('./routes/auth');
 const passport = require('passport');
-const auth = require('./middleware/auth');
+const setupWebSocket = require('./routes/socket');
 
 const app = express();
 
@@ -48,14 +48,7 @@ app.use('/users', usersRouter);
 app.use('/dashboard', dashboardRouter);
 app.use('/setup', setupRouter);
 app.use('/auth', authRouter);
-
-app.use('/oauth/done', (req, res, next) => {
-    console.log('uuggghhh');
-
-    console.log(req);
-
-    res.status(201).json({ sick: 'no' });
-});
+app.use('/setup', setupWebSocket);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
