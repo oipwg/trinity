@@ -3,7 +3,7 @@ import Navigation from '../nav/Navigation';
 import './setup.css';
 import { connect } from 'react-redux';
 
-const Setup = props => {
+const Main = props => {
     const [userData, setUserData] = useState([]);
     const userId = useRef('');
     
@@ -499,4 +499,4 @@ const mapStateToProps = state => {
     };
 };
 
-export default connect(mapStateToProps)(Setup);
+export default connect(mapStateToProps)(Main);
