@@ -17,9 +17,10 @@ import { connect } from 'react-redux';
 import PrivateRoute from './PrivateRoute';
 
 const App = props => {
+    
     useEffect(() => {
         props.loadUser();
-    }, [!props.user]);
+    }, []);
 
     return (
         <Router>
@@ -44,11 +45,11 @@ const App = props => {
                     component={ChangePassword}
                     isAuthenticated={props.isAuthenticated}
                 />
-                <PrivateRoute
+                {/* <PrivateRoute
                     path="/setup"
                     component={Trinity}
                     isAuthenticated={props.isAuthenticated}
-                />
+                /> */}
 
                 {/* 404 */}
                 <Route component={NoMatch404} />
@@ -64,7 +65,7 @@ const App = props => {
 //     error: PropTypes.object.isRequired,
 //     signup: PropTypes.func.isRequired,
 // };
-
+// export default App
 const mapStateToProps = state => {
     return {
         isAuthenticated: state.auth.isAuthenticated,

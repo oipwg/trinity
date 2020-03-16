@@ -42,7 +42,7 @@ app.use(express.static('../public'));
 app.use('/users', usersRouter);
 app.use('/dashboard', dashboardRouter);
 app.use('/setup', setupRouter);
-app.use('/setup', setupWebSocket);
+// app.use('/setup', setupWebSocket);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
