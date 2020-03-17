@@ -5,7 +5,9 @@ import Home from './home/Home';
 
 const Dashboard = () => {
     return (
+        <div>
         <Home />
+        </div>
         //todo: currently not needed
         // <Router>
         //     <DashboardSidebar />

@@ -1,49 +1,51 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import Navigation from '../nav/Navigation';
 import './setup.css';
+import { connect } from 'react-redux';
 
-const Setup = () => {
+const Setup = props => {
     const [userData, setUserData] = useState([]);
-    const [poolIsOpen, setPoolOpen] = useState('')
-
+    const userId = useRef('');
+    
     useEffect(() => {
-        if (userData[0] !== undefined) {
-            // setPoolOpen(userData[0].pool)
+        if (props.user) {
+            userId.current = props.user._id
         }
-    })
+    }, [props.user])
 
     const merge = ( ...objects ) => ( [...objects] );
 
     function set_rental_provider(e) {
         e.preventDefault();
-        // const merge = ( ...objects ) => ( [...objects] );
+
         let target = e.target.options[e.target.selectedIndex].value
 
         if (!target) return
 
         let options = {
+            userId: userId.current,
             provider: target,
             credentials: false,
-            pool: true,
+            pool: undefined,
             success: false,
             err: ''
         }
        
-        
-        // If there is user data merge it somehow with the new data
+        // If there is user data merge it with the new data
         if (userData.length) {
-   
-            let newState = []
-            let length = userData.length 
-            let i = 0
+            let newState = [], length = userData.length, i = 0
+
+            if (userData[0].provider === target) return
+
             while(i < length) {
                 let prevState = userData[i]
+                // Runs if only one or more providers selected
                 if (prevState.err && length > 1) {
-                    // Clears any elements left in array previously
+                    // Clears any elements cached in the array previously
                     newState.length = []
                     //Includes the error element and all other elements if there are any
                     let allOtherElements = userData.filter(el => el.provider !== target) 
-                    // Keeps target element rending to the top
+                    // Keeps target element rendering to the top
                     let targetElement = userData.filter(el => el.provider === target)
                     let data = merge(...targetElement, ...allOtherElements)
 
@@ -51,11 +53,12 @@ const Setup = () => {
                     
                     newState.push(data)
                     break;
-                } if (prevState.provider !== target) {
-        
-                        let data = merge(options, prevState)
-                        newState.push(data)
-                    }
+                }
+                if (prevState.provider !== target) {
+                    let data = merge(options, prevState)
+                    console.log('data:', data)
+                    newState.push(data)
+                }
                 i++
             }
             // *** USE BELOW IF ABOVE BREAKS ***
@@ -65,9 +68,10 @@ const Setup = () => {
                 //     return setUserData(data)
                 // } 
             // })
-     
+            console.log('if')
             setUserData(newState[0])
         } else {
+            console.log('else')
             setUserData([options])
         }
     }
@@ -84,29 +88,43 @@ const Setup = () => {
             if ( el.tagName === "SELECT" || el.tagName === "INPUT") {
                 switch (el.id) {
                     case 'pool-name':
-                        poolData.profileName = el.value
+                        poolData.name = el.value
+                        el.value = ''
                         break;
                     case 'algo':
-                        poolData.algo = el.options[el.selectedIndex].value
+                        poolData.type = el.options[el.selectedIndex].value.toLowerCase()
+                        break;
+                    case 'priority':
+                        poolData.priority = el.options[el.selectedIndex].value
+                        break;
+                    case 'host':
+                        poolData.host = el.value
+                        el.value = ''
                         break;
                     case 'port':
-                        console.log(el.value)
                         poolData.port = el.value
+                        el.value = ''
                         break;
                     case 'wallet':
                         poolData.user = el.value
+                        el.value = ''
                         break;
                     case 'pool-password':
                         poolData.pass = el.value
+                        el.value = ''
                         break;
                     case 'pool-notes':
-                        poolData.notes = el.value     
-                }    
+                        poolData.notes = el.value
+                        el.value = ''   
+                }
             }
         }
-        
+        //Adds the rental_provider key again
+        userData[0].rental_provider = userData[0].provider
         let sentData = {...userData[0], poolData:{...poolData}}
         console.log(sentData)
+        setup_Provider(sentData)
+        
     }
 
     function set_provider_values(e) {
@@ -126,10 +144,16 @@ const Setup = () => {
                         options.rental_provider = el.options[el.selectedIndex].value
                         break;
                     case 'key':
-                        options.key = el.value
+                        options.api_key = el.value
+                        el.value = ''
                         break;
                     case 'secret':
-                        options.secret = el.value
+                        options.api_secret = el.value
+                        el.value = ''
+                        break;
+                    case 'id':
+                        options.api_id = el.value
+                        el.value = ''
                         break;  
                 }    
             }
@@ -141,7 +165,6 @@ const Setup = () => {
             }
         }
 
-        form.reset();
         let sentData = {...userData[0], ...options}
         console.log('sentData:', sentData)
   
@@ -154,7 +177,7 @@ const Setup = () => {
     function process_returned_data(data) {
         console.log(data)
         let responseData = {}
-        for(let key in data) {
+        for (let key in data) {
             let value = data[key]
             let property = key
     
@@ -171,17 +194,18 @@ const Setup = () => {
                     responseData[property] = value
             }
         }
-        // const merge = ( ...objects ) => ( [...objects] )
 
-        // Top object, and response object that came back
+        // Top exsisting data / object, and response object that came back
         let allData = {...userData[0], ...responseData}
+        
         if ( userData.length > 1) {
            console.log( merge(allData, userData[1]))
            setUserData(merge(allData, userData[1]))
         } else {
+            console.log('allData:', allData)
             setUserData([allData])
         }
-    }
+    };
 
     async function setup_Provider(data) {
         console.log('setup_Provider ran', data)
@@ -202,18 +226,30 @@ const Setup = () => {
             process_returned_data({err: e})
         }
     }
-    const showPool = props => 
-        userData[0] === undefined ? true : userData[0].pool;
-    
+    const showPool = props => {
+        if (userData[0] === undefined || userData[0].pool === undefined ) {
+  
+            return true
+        } else {
+            console.log('userData[0].pool:', userData[0].pool)
+            return userData[0].pool;
+        }
+    }
 
-        
-        
+    const showCredentials = userdata => {
+        let height = (() => {
+            if (userdata.length ) {
+                return userdata[0].provider === 'MiningRigRentals' ? '119px' : '195px'
+            } else 
+                return '0px'
+        })();
+        let boolean = !userdata.length ? true : userdata[0].credentials
 
-    const showCredentials = (userdata) => {
-        console.log(userdata)
-        let boolean = !userdata.length || userdata.credentials === false ? false : true
-        console.log('boolean:', boolean)
-        
+        return {boolean, height}
+    }
+
+    const showSuccessBtn = () => {
+        let boolean = !userData.length ? false : userData[0].success
         return boolean
     }
 
@@ -231,6 +267,7 @@ const Setup = () => {
                 </thead>
                 <tbody>
                     {(()=> {
+                        {console.log(userData)}
                         return (
                             userData.map( (userData, i)=> {
                                 let dataKeys = Object.keys(userData)
@@ -248,7 +285,8 @@ const Setup = () => {
                                         )}
                                         {dataKeys[2] && (
                                             <td key={i+4}>{userData.err === "pool" ? userData.message : 
-                                            <i className="fas fa-thumbs-down"></i>}</td> 
+                                        <i className="fas fa-thumbs-down"></i>}{showSuccessBtn() ? '' :
+                                        ''}</td> 
                                         )}
                                         {dataKeys[3] && (
                                             <td key={i+5}>{userData.success ? <span>&#10004;</span> : 
@@ -281,8 +319,8 @@ const Setup = () => {
                     </div>
                 </div>
                 <div className="credentials">
-                    {/* {console.log(userData[0].credentials)} */}
-                    <div style={{height: showCredentials(userData) ? '125px' : '0px'}} className="provider-credentials">
+                    {console.log(showCredentials(userData))}
+                    <div style={{height: showCredentials(userData).boolean ? '0px' : showCredentials(userData).height }} className="provider-credentials">
                         <h4>Provider Credentials</h4>
                         <div className="form-inline API-key">
                             <div className="form-groups">
@@ -306,6 +344,17 @@ const Setup = () => {
                                     placeholder="Your secret"/>
                             </div>
                         </div>
+                        <div className="form-inline id">
+                            <div className="form-groups">
+                                <label htmlFor="secret">ID</label>
+                                <input
+                                    type="text"
+                                    id="id"
+                                    className="form-control mx-sm-4"
+                                    aria-describedby="id"
+                                    placeholder="Organization ID"/>
+                            </div>
+                        </div>
                     </div>
                 </div>
                
@@ -322,29 +371,43 @@ const Setup = () => {
                 style={{display: showPool() ? 'none' : 'block'}}>
                     Add Pool
                 </button>
+                <button type="submit" className="btn-submit" onClick={set_pool_values}
+                style={{display: showSuccessBtn() ? 'block' : 'none'}}>
+                    Continue
+                </button>
             </form>
         </section>
     );
 };
 const Pools = (props) => {
-
-    // const showPool = props => 
-    //     props.poolBoolean === undefined ? true : props.poolBoolean.pool;
-    
     return (  
         <div className="pools">
             {console.log(props.poolBoolean())}
-            <div style={{height: props.poolBoolean() ? '0px' : '310px' }} className="pool-add">
+            <div style={{height: props.poolBoolean() ? '0px' : '345px' }} className="pool-add">
                 <h4>Add A Pool</h4>
-                <div className="form-inline">
-                    <div className="form-groups">
-                        <label className="my-1 mr-2">Type</label>
+                 {/* flex */}
+                <div className="selector-groups">
+                    <div className="selector-group-child"> 
+                   
+                        <label className="type my-1 mr-2">Type</label>
                         <select id="algo" className="custom-select mx-sm-4">
                             <option defaultValue value="">
                                 Select Algorithm
                             </option>
                             <option value="Scrypt">Scrypt</option>
                             <option value="X16rv2">X16rv2</option>
+                        </select>
+                    </div>
+                    <div className="selector-group-child">
+                        <label className="my-1 mr-2">Pool Priority</label>
+                        <select id="priority" className="custom-select mx-sm-4">
+                            <option defaultValue value="">
+                                Select Priority
+                            </option>
+                            <option value="0">0</option>
+                            <option value="1">1</option>
+                            <option value="2">2</option>
+                            <option value="3">2</option>
                         </select>
                     </div>
                 </div>
@@ -363,13 +426,25 @@ const Pools = (props) => {
                 </div>
                 <div className="form-inline">
                     <div className="form-groups">
-                        <label htmlFor="Port">Host:Port</label>
+                        <label htmlFor="host">Host</label>
+                        <input
+                            type="text"
+                            id="host"
+                            className="form-control mx-sm-4"
+                            aria-describedby="algorithm"
+                            placeholder="after stratum+tcp://"
+                        />
+                    </div>
+                </div>
+                <div className="form-inline">
+                    <div className="form-groups">
+                        <label htmlFor="port">Port</label>
                         <input
                             type="text"
                             id="port"
                             className="form-control mx-sm-4"
                             aria-describedby="algorithm"
-                            placeholder="after stratum+tcp://"
+                            placeholder="8080"
                         />
                     </div>
                 </div>
@@ -413,4 +488,15 @@ const Pools = (props) => {
         </div>
     )
 }
-export default Setup;
+
+
+const mapStateToProps = state => {
+
+    return {
+        isAuthneticated: state.auth.isAuthneticated,
+        user: state.auth.user,
+        success: state.success,
+    };
+};
+
+export default connect(mapStateToProps)(Setup);

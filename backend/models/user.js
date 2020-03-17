@@ -18,6 +18,21 @@ const userSchema = new Schema({
         type: String,
         required: true,
     },
+    coinbase: {
+        type: Object,
+    },
+    api_key: {
+        type: String
+    },
+    api_secret: {
+        type: String
+    },
+    providerData: [{
+        rental_provider: String,
+        api_key: String,
+        api_secret: String,
+        api_id: String
+    }]
 });
 
 userSchema.pre('save', async function(next) {

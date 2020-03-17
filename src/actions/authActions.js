@@ -103,6 +103,8 @@ export const changePassword = ({ id, oldPassword, password, mnemonic }) => (
         mnemonic,
     });
 
+    console.log(body);
+
     axios
         .post(`${API_URL}/users/changepassword`, body, tokenConfig(getState))
         .then(res => {

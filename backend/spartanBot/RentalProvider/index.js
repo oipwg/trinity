@@ -2,11 +2,13 @@ const add = require('./add/add');
 const list = require('./list');
 const delete_ = require('./delete');
 
-// An array of all the supported commands
+// An array of all the supported input commands
 const COMMANDS = [add, list, delete_];
 
 module.exports = async function(options) {
+
     let to_do = Object.keys(options.to_do.rentalProvider)[0];
+
     console.log(
         'Options from rentalProvider index.js file',
         Object.keys(options.to_do.rentalProvider)[0]
@@ -16,11 +18,8 @@ module.exports = async function(options) {
     switch (to_do) {
         case 'add':
             let added = await add(options).then((data)=>{
-                // console.log('data from rentalprovider index.js:', data)
-                
                 return data
             }).catch(err => err);
-            console.log('data from rentalprovider index.js:', added)
             return added;
             break;
         case 'list':

@@ -1,0 +1,9 @@
+node_modules
+bundle.js
+localStorage
+.env
+
+.DS_Store 
+/dist
+
+config.js

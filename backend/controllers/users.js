@@ -1,6 +1,13 @@
 require('dotenv').config();
+const axios = require('axios');
 const JWT = require('jsonwebtoken');
-const { JWT_SECRET } = process.env;
+const {
+    JWT_SECRET,
+    COINBASE_CLIENT_ID,
+    COINBASE_CLIENT_SECRET,
+    COINBASE_REDIRECT_URL,
+    COINBASE_SECURE_RANDOM,
+} = process.env;
 const User = require('../models/user');
 
 signToken = user => {
@@ -97,19 +104,38 @@ module.exports = {
         }
     },
 
-    secret: async (req, res, next) => {
-        try {
-            console.log('hey');
-        } catch (error) {
-            console.log(error);
-        }
-    },
-
+    // example, pulls ID from token = req.user.id
     user: async (req, res, next) => {
         try {
             const user = await User.findById(req.user.id).select('-password');
 
             res.json(user);
-        } catch (error) {}
+        } catch (error) {
+            console.log(error);
+        }
+    },
+
+    // refactor, can grab ID from token
+    validatePassword: async (req, res, next) => {
+        try {
+            const { id, password } = req.body;
+
+            const user = await User.findById({ _id: id });
+
+            if (!user) {
+                return res.status(404).json({ error: 'User not found' });
+            }
+
+            const isMatch = await user.isValidPassword(password);
+
+            console.log('ismatch', isMatch);
+
+            if (!isMatch)
+                return res.status(401).send({ error: 'Incorrect password' });
+
+            res.status(201).json({ validate: true });
+        } catch (error) {
+            console.log('error', error);
+        }
     },
 };

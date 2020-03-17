@@ -16,12 +16,11 @@ import { connect } from 'react-redux';
 
 import PrivateRoute from './PrivateRoute';
 
-// todo: after login redirect to orginal page
-
 const App = props => {
+    
     useEffect(() => {
         props.loadUser();
-    }, [!props.user]);
+    }, []);
 
     return (
         <Router>
@@ -31,36 +30,29 @@ const App = props => {
                 <Route path="/setup" component={Trinity} /> 
                 {/* Public Routes */}
                 <Route path="/" exact component={Home} />
-                {/* Testing */}
-                <Route
+                <Route path="/login" component={Login} />
+                <Route path="/signup" component={SignUp} />
+                <Route path="/logout" component={Logout} />
+                
+                {/* Only if isAuthenticated */}
+                <PrivateRoute
                     path="/dashboard"
                     component={Dashboard}
                     isAuthenticated={props.isAuthenticated}
                 />
-                <Route path="/login" component={Login} />
-                <Route path="/signup" component={SignUp} />
-                <Route path="/logout" component={Logout} />
-                {/* Only if isAuthenticated */}
-                {/* <PrivateRoute
-                    path="/dashboard"
-                    component={Dashboard}
-                    isAuthenticated={props.isAuthenticated}
-                /> */}
                 <PrivateRoute
                     path="/changePassword"
                     component={ChangePassword}
                     isAuthenticated={props.isAuthenticated}
                 />
-                <PrivateRoute
+                {/* <PrivateRoute
                     path="/setup"
                     component={Trinity}
                     isAuthenticated={props.isAuthenticated}
-                />
+                /> */}
 
                 {/* 404 */}
-                <Route path="*">
-                    <NoMatch404 />
-                </Route>
+                <Route component={NoMatch404} />
             </Switch>
         </Router>
     );
@@ -73,7 +65,7 @@ const App = props => {
 //     error: PropTypes.object.isRequired,
 //     signup: PropTypes.func.isRequired,
 // };
-
+// export default App
 const mapStateToProps = state => {
     return {
         isAuthenticated: state.auth.isAuthenticated,

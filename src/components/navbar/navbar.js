@@ -1,9 +1,16 @@
 import React from 'react';
-import logo from '../../../public/images/alexandria/alexandria-bookmark-100.png';
-
+import axios from 'axios';
+import Modal from '../helpers/modal';
 import { Link } from 'react-router-dom';
+import { API_URL } from '../../../config';
+import { tokenConfig } from '../../helpers/headers';
+import { decrypt } from '../../helpers/crypto';
+import logo from '../../../public/images/alexandria/alexandria-bookmark-100.png';
+import RenderError from '../helpers/errors';
 
 // todo: If (no token is present) - Foward to Login - No Menu Options
+// todo: CSS Navebar - Dashboard on the Left - Backup, User Right
+// todo: Hambuger Menu - Collapse User when clicked?
 
 class Navbar extends React.Component {
     constructor(props) {
@@ -12,6 +19,11 @@ class Navbar extends React.Component {
         this.state = {
             dropItDown: false,
             collapse: false,
+            modalState: false,
+            password: '',
+            downloadmnemonic: false,
+            error: null,
+            showMnemonic: null,
         };
     }
 
@@ -47,6 +59,54 @@ class Navbar extends React.Component {
         this.setState({
             collapse: !this.state.collapse,
         });
+    };
+
+    handleBackupModal = () => {
+        this.setState({
+            modalState: !this.state.modalState,
+            showMnemonic: null,
+            downloadmnemonic: false,
+            password: '',
+        });
+    };
+
+    handleSubmit = e => {
+        e.preventDefault();
+
+        if (this.state.downloadmnemonic) {
+            return;
+        }
+
+        let { _id } = this.props.user;
+        let { password } = this.state;
+
+        const body = JSON.stringify({
+            id: _id,
+            password,
+        });
+
+        axios
+            .post(`${API_URL}/users/validatePassword`, body, tokenConfig())
+            .then(res => res)
+            .then(() => {
+                this.setState({
+                    downloadmnemonic: true,
+                });
+
+                let { mnemonic } = this.props.user;
+
+                let plain = decrypt(mnemonic, password);
+
+                this.setState({
+                    showMnemonic: plain,
+                });
+            })
+            .catch(err =>
+                this.setState({
+                    error: err.response.data,
+                    downloadmnemonic: false,
+                })
+            );
     };
 
     dropDownMenu() {
@@ -158,25 +218,110 @@ class Navbar extends React.Component {
 
                         {/* DROP DOWN */}
                         {this.props.user && (
-                            <li className="nav-item dropdown">
-                                <a
-                                    onClick={this.handleClick}
-                                    className="nav-link dropdown-toggle"
-                                    href="#"
-                                    id="navbarDropdown"
-                                    role="button"
-                                    data-toggle="dropdown"
-                                    aria-haspopup="true"
-                                    aria-expanded="false"
-                                >
-                                    {this.props.user
-                                        ? this.props.user.userName
-                                        : '...'}
-                                </a>
-                                {dropItDown && this.dropDownMenu()}
-                            </li>
+                            <>
+                                <li>
+                                    <button
+                                        onClick={this.handleBackupModal}
+                                        style={{
+                                            // moves the icon and messes up the click
+                                            // position: 'relative',
+                                            // left: '3rem',
+                                            // top: '2.35rem',
+                                            background: 'none',
+                                            border: 'none',
+                                            color: '#ffffff',
+                                        }}
+                                    >
+                                        <i className="fas fa-cloud-download-alt"></i>
+                                    </button>
+                                </li>
+                                <li className="nav-item dropdown">
+                                    <a
+                                        onClick={this.handleClick}
+                                        className="nav-link dropdown-toggle"
+                                        href="#"
+                                        id="navbarDropdown"
+                                        role="button"
+                                        data-toggle="dropdown"
+                                        aria-haspopup="true"
+                                        aria-expanded="false"
+                                    >
+                                        {this.props.user
+                                            ? this.props.user.userName
+                                            : 'user loading'}
+                                    </a>
+                                    {dropItDown && this.dropDownMenu()}
+                                </li>
+                            </>
                         )}
                     </ul>
+                    {/* BACKUP WALLET MODAL */}
+                    {this.state.modalState && (
+                        <Modal
+                            handleClick={this.handleBackupModal}
+                            handleSubmit={this.handleSubmit}
+                            title={'Backup Wallet'}
+                            sendButtonTitle={<i className="fas fa-unlock"></i>}
+                            submitType={'submit'}
+                            modalBody={
+                                <>
+                                    <p>
+                                        <strong style={{ color: 'red' }}>
+                                            DO NOT LOSE THIS
+                                        </strong>
+                                        .
+                                        <br />
+                                        Burn it into your mind.
+                                    </p>
+                                    {this.state.showMnemonic ? (
+                                        <div>
+                                            <strong>
+                                                {this.state.showMnemonic}
+                                            </strong>
+                                        </div>
+                                    ) : (
+                                        <form onSubmit={this.handleSubmit}>
+                                            {/* <label>Enter Password</label> */}
+                                            <input
+                                                required
+                                                type="password"
+                                                className="form-control"
+                                                placeholder="password"
+                                                onChange={e => {
+                                                    this.setState({
+                                                        password:
+                                                            e.target.value,
+                                                        error: null,
+                                                    });
+                                                }}
+                                            />
+                                            {this.state.error && (
+                                                <>
+                                                    <br />
+                                                    <RenderError
+                                                        message={
+                                                            this.state.error
+                                                                .error
+                                                        }
+                                                    />
+                                                </>
+                                            )}
+                                        </form>
+                                    )}
+
+                                    <br />
+                                    <p>
+                                        <strong>DO NOT</strong> forget it.
+                                    </p>
+
+                                    <p className="blockquote-footer">
+                                        Hide your wife, hide your kids,
+                                        definitely hide your mnemonic.
+                                    </p>
+                                </>
+                            }
+                        />
+                    )}
                 </div>
             </nav>
         );
