@@ -22,7 +22,6 @@
 
 .wizard .pools,
 .wizard .credentials {
-
     overflow: hidden;
 }
 
@@ -72,8 +71,17 @@
     color: #fff;
 }
 
+.fas.fa-thumbs-up {
+    color: limegreen;
+}
+
 .btn-submit:focus {
     outline: none;
+}
+
+.btn.btn-success { 
+    padding: 4px 8px;
+    font-size: 14px;
 }
 
 .wizard .form-groups,
@@ -113,7 +121,7 @@
 }
 
 .data-table-row td {
-    white-space: pre;
+    white-space: pre-wrap;
 }
 
 .pool-add  {
