@@ -1,9 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
-import Navigation from '../nav/Navigation';
 import './setup.css';
 import { connect } from 'react-redux';
 
-const Setup = props => {
+const Main = props => {
     const [userData, setUserData] = useState([]);
     const userId = useRef('');
     
@@ -68,10 +67,8 @@ const Setup = props => {
                 //     return setUserData(data)
                 // } 
             // })
-            console.log('if')
             setUserData(newState[0])
         } else {
-            console.log('else')
             setUserData([options])
         }
     }
@@ -122,9 +119,8 @@ const Setup = props => {
         //Adds the rental_provider key again
         userData[0].rental_provider = userData[0].provider
         let sentData = {...userData[0], poolData:{...poolData}}
-        console.log(sentData)
+
         setup_Provider(sentData)
-        
     }
 
     function set_provider_values(e) {
@@ -138,7 +134,6 @@ const Setup = props => {
             const el = form_inputs[i];
             
             if ( el.tagName === "SELECT" || el.tagName === "INPUT") {
-
                 switch (el.id) {
                     case 'rental_provider':
                         options.rental_provider = el.options[el.selectedIndex].value
@@ -158,24 +153,21 @@ const Setup = props => {
                 }    
             }
         }
-        
+        // **** WILL COME BACK AND CHECK MAKE SURE FIELDS ALL EXIST  ****
         for(let prop in options ) {
             if (options.hasOwnProperty(prop)) {
                 // console.log(options[prop] === '')
             }
         }
 
+        // Merges the existing data when selecting provider with added data from "Add Provider" button
         let sentData = {...userData[0], ...options}
-        console.log('sentData:', sentData)
-  
-        console.log(merge(userData[1], sentData))
-        // setUserData([sentData])
+
         setup_Provider(sentData)
     }
 
     
     function process_returned_data(data) {
-        console.log(data)
         let responseData = {}
         for (let key in data) {
             let value = data[key]
@@ -195,14 +187,12 @@ const Setup = props => {
             }
         }
 
-        // Top exsisting data / object, and response object that came back
+        // Top exsisting data / object, and response object that came back merged together
         let allData = {...userData[0], ...responseData}
         
         if ( userData.length > 1) {
-           console.log( merge(allData, userData[1]))
-           setUserData(merge(allData, userData[1]))
+            setUserData(merge(allData, userData[1]))
         } else {
-            console.log('allData:', allData)
             setUserData([allData])
         }
     };
@@ -219,19 +209,17 @@ const Setup = props => {
             });
         
             let res = await response.json()
-           console.log(res)
+
             process_returned_data(res.data)
-        }catch (e) {
-            console.log('Catch error: ',e)
+        } catch (e) {
+            console.log('Catch error: Main.js line 215',e)
             process_returned_data({err: e})
         }
     }
     const showPool = props => {
         if (userData[0] === undefined || userData[0].pool === undefined ) {
-  
             return true
         } else {
-            console.log('userData[0].pool:', userData[0].pool)
             return userData[0].pool;
         }
     }
@@ -251,6 +239,59 @@ const Setup = props => {
     const showSuccessBtn = () => {
         let boolean = !userData.length ? false : userData[0].success
         return boolean
+    }
+
+    const showMessage = (field, i) => {
+        let data = userData[i]
+        switch ( field ) {
+            case 'provider':
+                if (data.err === field && data.success) {
+                    return [
+                        data.message,
+                        <button type="submit" className="btn btn-success" onClick={set_pool_values}>
+                            Continue >>
+                        </button>
+                    ]    
+                }
+                if (data.err === field) {
+                    return (
+                        data.message
+                    )
+                } else return data.provider
+            case 'credentials':
+            case 'pool':
+                if (data.err === field && data.success) {
+                    return [
+                        data.message,
+                        <button type="submit" className="btn btn-success" onClick={set_pool_values}>
+                            Continue >>
+                        </button>
+                    ]    
+                } else if (data.err === field) {
+                    return (
+                        data.message
+                    )
+                }
+                if (data[field] === true) {
+                    return (
+                        <i className="fas fa-thumbs-up"></i>
+                    )
+                } else {
+                    return (
+                        <i className="fas fa-thumbs-down"></i>
+                    )
+                }
+            case 'success':
+                if (data[field] === true) {
+                    return (
+                        <i className="fas fa-thumbs-up"></i>
+                    )
+                } else {
+                    return (
+                        <i className="fas fa-thumbs-down"></i>
+                    )
+                }
+        }
     }
 
     return (
@@ -274,23 +315,19 @@ const Setup = props => {
                      
                                 return (   
                                     <tr key={i} className="data-table-row">
-                                        <td key={i+1}>{i}</td>
+                                        <td>{i}</td>
                                         {dataKeys[0] && (
-                                            <td key={i+2}>{userData.err === "provider" ? userData.message : 
-                                            userData.provider}</td>
+                                              <td>{showMessage('provider', i) }</td>
                                         )}
                                         {dataKeys[1] && (
-                                            <td key={i+3}>{userData.credentials ? <span>&#10004;</span> :
-                                            <i className="fas fa-thumbs-down"></i>}</td>
+                                            <td>{showMessage('credentials', i)}</td>
                                         )}
                                         {dataKeys[2] && (
-                                            <td key={i+4}>{userData.err === "pool" ? userData.message : 
-                                        <i className="fas fa-thumbs-down"></i>}{showSuccessBtn() ? '' :
+                                        <td>{showMessage('pool', i)}{showSuccessBtn() ? '' :
                                         ''}</td> 
                                         )}
                                         {dataKeys[3] && (
-                                            <td key={i+5}>{userData.success ? <span>&#10004;</span> : 
-                                            <i className="fas fa-thumbs-down"></i>}</td> 
+                                            <td>{showMessage('success', i)}</td> 
                                         )}
                                     </tr>
                                 )
@@ -361,7 +398,6 @@ const Setup = props => {
                 {/* End of rental passwords */}
                 <Pools poolBoolean ={showPool}/>
                 {/* End of pool information */}
-
                 <button type="submit" className="btn-submit" onClick={set_provider_values}
                 style={{display: showPool() ? 'block' : 'none'}}>
                     Add Provider
@@ -370,10 +406,6 @@ const Setup = props => {
                 <button type="submit" className="btn-submit" onClick={set_pool_values}
                 style={{display: showPool() ? 'none' : 'block'}}>
                     Add Pool
-                </button>
-                <button type="submit" className="btn-submit" onClick={set_pool_values}
-                style={{display: showSuccessBtn() ? 'block' : 'none'}}>
-                    Continue
                 </button>
             </form>
         </section>
@@ -407,7 +439,7 @@ const Pools = (props) => {
                             <option value="0">0</option>
                             <option value="1">1</option>
                             <option value="2">2</option>
-                            <option value="3">2</option>
+                            <option value="3">3</option>
                         </select>
                     </div>
                 </div>
@@ -491,7 +523,6 @@ const Pools = (props) => {
 
 
 const mapStateToProps = state => {
-
     return {
         isAuthneticated: state.auth.isAuthneticated,
         user: state.auth.user,
@@ -499,4 +530,4 @@ const mapStateToProps = state => {
     };
 };
 
-export default connect(mapStateToProps)(Setup);
+export default connect(mapStateToProps)(Main);
