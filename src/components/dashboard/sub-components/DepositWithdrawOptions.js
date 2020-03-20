@@ -2,6 +2,7 @@ import React from 'react';
 import Modal from '../../helpers/modal';
 
 const DepositWithdrawOptions = (props) => {
+    console.log(props)
     return (
         <Modal
         handleClick={props.handleClick}
@@ -43,7 +44,9 @@ const DepositWithdrawOptions = (props) => {
                 
                 
                 {/* COINBASE */}
-                <div
+
+              {props.code === 'BTC' ? 
+            (    <div
                 style={{
                   display: 'flex',
                   alignItems: 'center',
@@ -64,9 +67,9 @@ const DepositWithdrawOptions = (props) => {
                </div>
                 <i className="fas fa-chevron-right"></i>
                 </div>
-            </div>
-            
-
+            ): null
+            }
+</div>
         }
     />
     );

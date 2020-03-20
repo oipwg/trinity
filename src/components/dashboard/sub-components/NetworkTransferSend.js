@@ -12,8 +12,7 @@ import { getBalance } from '../../../actions/walletActions'
 
 
 const NetworkTransferSend = props => {
-    console.log(props)
-    let { name, code, icon } = props.showDepositCrypto 
+    let { name, code, icon } = props.showWithdrawCrypto
     let wallet = props.wallet
     
     let account = props.account ? props.account : null
@@ -25,21 +24,15 @@ const NetworkTransferSend = props => {
     const [showSpinner, setShowSpinner] = useState(false);
     
     
-    const copyElementText = () => {
-        let text = document.getElementById('address').innerText
-        let elem = document.createElement('textarea');
-        document.body.appendChild(elem);
-        elem.value = text;
-        elem.select();
-        document.execCommand('copy');
-        document.body.removeChild(elem);
-    }
-
-
-    let sum =  (Number(sendAmount)) * account.exchangeRate[name].toFixed(2)
-
-        console.log(sum)
-        console.log(sendAmount, account.exchangeRate[name])
+    // const copyElementText = () => {
+    //     let text = document.getElementById('address').innerText
+    //     let elem = document.createElement('textarea');
+    //     document.body.appendChild(elem);
+    //     elem.value = text;
+    //     elem.select();
+    //     document.execCommand('copy');
+    //     document.body.removeChild(elem);
+    // }
 
 
     const handleSubmit = e => {

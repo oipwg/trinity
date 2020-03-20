@@ -13,11 +13,6 @@ const NetworkTransfer = props => {
 
     let addresses = props.wallet ? Object.keys(props.wallet.coins[name].accounts[0].addresses) : null
 
-    console.log(addresses)
-    
-
-    const [showPayOptions, setShowPayOptions] = useState(false);
-
     let [increment, setIncrement ] = useState(0);
     
     const copyElementText = () => {
@@ -30,19 +25,9 @@ const NetworkTransfer = props => {
         document.body.removeChild(elem);
     }
 
-
-
-    //todo: close modal
-    const handleSubmit = e => {
-        e.preventDefault();
-
-    };
-
-
         return (
             <Modal
                 handleClick={props.handleClick}
-                handleSubmit={e => handleSubmit(e)}
                 title={'Deposit'}
                 headerStyle={{
                     backgroundColor: '#0082f9',
@@ -81,32 +66,21 @@ const NetworkTransfer = props => {
 
 
                                 </div>
+                                {/* Copy Button */}
                                 <button 
                                 style={{border: 'none', cursor: 'copy'}}
                                 onClick={copyElementText}>
                                     <i className="fas fa-copy"></i>
                                 </button>
 
-
+                                {/* Get new addy */}
                                 <button onClick={() => setIncrement(increment += 1)} style={{border: 'none'}}>
                                     <i className="fas fa-redo"></i>
-                                </button>
-                        
-                            </div>
-                            <div className="deposit-footer-items">
-                                <button
-                                    onClick={() =>
-                                        setShowPayOptions(!showPayOptions)
-                                    }
-                                    style={{ border: 'none', outline: 'none' }}
-                                >
                                 </button>
                             </div>
                         </div>
                     </div>
                 }
-                submitType={'submit'}
-                sendButtonTitle={`Done`}
                 exitModal={props.exitModal}
                 exitModalTitle={'Done'}
             />
