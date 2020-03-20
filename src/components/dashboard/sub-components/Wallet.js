@@ -21,6 +21,7 @@ import { API_URL } from '../../../../config';
 import { tokenConfig } from '../../../helpers/headers';
 
 const WalletBalance = props => {
+    console.log(props);
     const [modalState, setModalState] = useState(false);
     const [password, setPassword] = useState('');
     // const [myWallet, setMyWallet] = useState(null);
@@ -32,6 +33,7 @@ const WalletBalance = props => {
     const [depositModal, setDepositModal] = useState(false);
     const [withdrawModal, setWithdrawModal] = useState(false);
     const [showSpinner, setShowSpinner] = useState(false)
+    const [walletLock, setWalletLock] = useState(false);//! TRUE
 
     const handleClick = () => {
         return setModalState(!modalState);
@@ -63,6 +65,7 @@ const WalletBalance = props => {
                 props.loadWallet(mnemonic, password);
                 setModalState(false);
                 setShowSpinner(!showSpinner);
+                setWalletLock(false)
             })
             .catch(err => setErrorMessage(err.response.data));
     };
@@ -87,8 +90,7 @@ const WalletBalance = props => {
                 
             }
         }
-        // return Math.floor(sum * 100) / 100;
-        return sum.toFixed(2);
+        return Math.floor(sum * 100) / 100;
     };
 
     const renderBreakdown = () => {
@@ -213,6 +215,8 @@ const WalletBalance = props => {
                             </>
                         ) : (
                             <>
+
+                            {/* Wallet Lock Button  */}
                                 {
                                     showSpinner 
                                     ?
@@ -233,8 +237,11 @@ const WalletBalance = props => {
                         )}
                     </h3>
                 </div>
+
+                {/* Deposit/Withdraw Buttons */}
                 <div>
                     <button
+                        disabled={walletLock}
                         style={{marginRight: '.25rem'}}
                         onClick={() => {
                             setDepositModal(!depositModal);
@@ -245,6 +252,7 @@ const WalletBalance = props => {
                         Deposit
                     </button>
                     <button
+                        disabled={walletLock}
                         onClick={() => {
                             setWithdrawModal(!withdrawModal);
                         }}

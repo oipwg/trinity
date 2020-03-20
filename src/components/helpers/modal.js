@@ -42,26 +42,30 @@ const Modal = props => {
                             <div className="modal-footer">
                                 {props.footer}
 
-                                <button
-                                    onClick={props.handleSubmit}
-                                    type={
-                                        props.submitType
-                                            ? props.submitType
-                                            : 'button'
-                                    }
-                                    className="btn btn-primary"
-                                >
-                                    {props.sendButtonTitle}
-                                </button>
+                            {props.handleSubmit 
+                                ?     
+                                    (<button
+                                        onClick={props.handleSubmit}
+                                        type={
+                                            props.submitType
+                                                ? props.submitType
+                                                : 'button'
+                                        }
+                                        className="btn btn-primary"
+                                    >
+                                        {props.sendButtonTitle}
+                                    </button>)
+                                : null
+                            }
                                 
                             {props.exitModalTitle 
                                 ? 
-                                (<button
-                                    onClick={props.exitModal}
-                                    className="btn btn-secondary"
-                                >
-                                {props.exitModalTitle}
-                                </button>)
+                                    (<button
+                                        onClick={props.exitModal}
+                                        className="btn btn-secondary"
+                                    >
+                                    {props.exitModalTitle}
+                                    </button>)
                                 : null 
                             }
 
