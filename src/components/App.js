@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 // import SpartanBot from './spartanbot/SpartanBot';
 import { BrowserRouter as Router, Switch, Route } from 'react-router-dom';
-import Trinity from './trinity/Trinity';
+import Setup from './setup/Setup';
 import Home from './home/Home';
 import NavBar from './navbar/navbar';
 import Login from './login/Login';
@@ -27,7 +27,7 @@ const App = props => {
             <NavBar user={props.user} />
             <Switch>
                 {/* 'Test' */}
-                <Route path="/setup" component={Trinity} /> 
+                <Route path="/setup" component={Setup} /> 
                 {/* Public Routes */}
                 <Route path="/" exact component={Home} />
                 <Route path="/login" component={Login} />
@@ -47,7 +47,7 @@ const App = props => {
                 />
                 {/* <PrivateRoute
                     path="/setup"
-                    component={Trinity}
+                    component={Setup}
                     isAuthenticated={props.isAuthenticated}
                 /> */}
 

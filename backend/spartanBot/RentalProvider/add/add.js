@@ -2,7 +2,12 @@ require('dotenv').config();
 const fs = require('fs');
 const fsPromise = fs.promises;
 const storage = process.cwd() +'/localStorage/spartanbot-storage';
-
+/**
+ * TO DO LIST
+ * @param {FIX NiceHash.js functions => convertIDtoAlgo, checkAlgo, convertAlgoToID } Not.working
+ * @param {Change this.host = 'https://api-test.nicehash.com' to 'https://api2.nicehash.com'
+ *           In production, and use keys from https://www.nicehash.com instead.}
+ */
 /**
  * Create a pool and add it to local variable
  * @param {Object} options.poolData
@@ -24,10 +29,8 @@ let addPool = async function(setup_success, options) {
     let poolData;
     try {
         //MRRProvider.js in spartanbot creates pool profile on MMR site
-        poolData = await provider.createPoolProfile( options.poolData.name, options.poolData.type );
-
+        if (options.provider === 'MiningRigRentals') poolData = await provider.createPoolProfile( options.poolData.name, options.poolData.type );
     } catch (err) {
-        console.log(`Error while creating the profile: ${err}`);
         return {
             provider: 'MiningRigRentals',
             err: 'pool',
@@ -37,12 +40,12 @@ let addPool = async function(setup_success, options) {
             success: false
         }
     }
-    
+    // or proivider === NiceHashProvider... because NiceHash doesn't have profiles you can add, so it skips the createPoolProfile
+    if ( poolData && poolData.success && poolData.data.id || provider.name === 'NiceHash') {
 
-    if ( poolData && poolData.success && poolData.data.id ) {
-        provider.setActivePoolProfile( poolData.data.id );
+        if (provider.name === 'MiningRigRentals') provider.setActivePoolProfile( poolData.data.id );
         this.serialize()
-
+        console.log('options.provider: 42 add.js')
         for (let p of this.getRentalProviders()) {
             if ( p.getUID() !== provider.getUID() ) {
                 p._addPools(options.poolData);  // Line is not working, was .addPools and not _addPools method, 
@@ -51,12 +54,12 @@ let addPool = async function(setup_success, options) {
         }
         try {
             let pool = await provider._createPool(options.poolData)
+            
+           
             if ( pool.error ) {
                 console.log(`Error while creating the profile: ${pool.error}`);
-                
-                console.log(`Pool successfully added add.js line#54 ${poolAdded}`);
                 return {
-                    provider: 'MiningRigRentals',
+                    provider: options.provider,
                     err: 'pool',
                     message: `Error while creating the pool: ${pool.error}`,
                     pool: false,
@@ -65,23 +68,23 @@ let addPool = async function(setup_success, options) {
                 }
             } else {
                 return {
-                    rental_provider: 'MiningRigRentals',
-                    message: `Mining Rig Rental and Pool successfully added, \n` + 
-                             `pool id:${pool.mrrID}`,
+                    rental_provider: options.provider,
+                    message: `${options.provider} and Pool successfully added, \n` + 
+                             `pool id: ${pool.mrrID}  `,
                     pool: true,
                     credentials: true,
                     success: true
                 }
             }
         } catch(e) {
-            console.log({err: 'Pool unsuccessful add.js line 76' + e})
+            console.log({err: 'Pool unsuccessful add.js line 79' + e})
             return {err: 'Pool unsuccessful' + e}
         }
     } else {
         if (poolData === null || poolData === undefined) {
             console.log(`Profile unsuccessfully added. Pool Data: ${poolData}`)
             return {
-                provider: 'MiningRigRental',
+                provider: options.provider,
                 err: 'pool',
                 message: `Profile unsuccessfully added. Profile data: ${poolData}`,
                 pool: false,
@@ -98,11 +101,9 @@ let addPool = async function(setup_success, options) {
 */
 
 const getCurrentProvider = function(options) {
-    console.log('THIS ',this)
     if (this.length) {
         return this.filter(provider => {
             if ( provider.name === options.provider) {
-                console.log('provider: NAME NAME', provider)
                 return provider
             }
         })[0]
@@ -154,7 +155,7 @@ module.exports = async function(options) {
         let poolArray = spartan.returnPools();
         return {
             err: 'provider',
-            message: poolArray.length ? `Maximum number of providers reached, ${rentalProviders.length}.`: 
+            message: poolArray.length ? `Maximum number of providers reached: ${rentalProviders.length}.`: 
                         `Maximum number of providers reached, showing ${poolArray.length} pools.\n Input fields below to add one.`,
             pool: poolArray.length ? true : false,
             credentials: true,
@@ -173,7 +174,7 @@ module.exports = async function(options) {
     };
 
     let poolArray = await spartan.returnPools();
-    console.log('poolArray: 181', poolArray)
+    console.log('poolArray: 176', poolArray)
 
     if (rental_provider_type === MiningRigRentals) {
         if (checkProviders(MiningRigRentals)) {
@@ -209,6 +210,7 @@ module.exports = async function(options) {
             }
         }
     } else if (rental_provider_type === NiceHash) {
+        
         if (checkProviders(NiceHash)){
             // No pool input data sent from user and no pools exist for user
             if (options.poolData === undefined ) {
@@ -219,13 +221,29 @@ module.exports = async function(options) {
                                 'No pool found enter pool info below to add a pool',
                     pool:  false,
                     credentials: true,
-                    success: false,
+                    success: false
+                }
+            } else {
+                try {
+                    const currentProvider = getCurrentProvider.call(rentalProviders, options)
+                    const pool = await addPool.call(spartan, currentProvider ,options)
+                    console.log('pool: 232', pool)
+                    return pool
+                } catch(e) {
+                    return {
+                        err: 'pool',
+                        message: 'Parse error during addPool function \n',
+                        pool:  false,
+                        credentials: true,
+                        success: false,
+                    }
                 }
             }
         }
     }
 
     try {
+
         // Setup either NiceHash or Mining Rig Rentals and finds out if pools or rigs are added to the account also signs you in
         let setup_success = await spartan.setupRentalProvider({
             type: rental_provider_type,
@@ -236,7 +254,7 @@ module.exports = async function(options) {
         });
 
         // return setup_success.provider.deletePoolProfile(100144).then(res => console.log('deletedPoolProfile: ',res))
-        console.log('setup_success: top \n', setup_success.provider)
+        console.log('setup_success: top \n', setup_success.provider);
 
 
         if (setup_success.success) {
@@ -250,12 +268,10 @@ module.exports = async function(options) {
                  * */
                 
                 if ( setup_success.poolProfiles.length === 0 ) {
-                    let poolData;
-                    
+    
                     //if user has no poolProfiles, prompt to create one
                     if (options.poolData === undefined){
                         return {
-                            rental_provider: 'MiningRigRental',
                             err: 'pool',
                             message: `No pools found, input pool info below to continue:`,
                             pool: false,
@@ -263,7 +279,6 @@ module.exports = async function(options) {
                             success: false
                         }
                     }
-                    
                 } else {
       
                     /**
@@ -300,12 +315,14 @@ module.exports = async function(options) {
                        
                 
                         spartan.serialize();
+                        
+                        console.log('poolArray: 320', poolArray)
                         return {
-                            rental_provider: 'MiningRigRental',
+                            provider: 'MiningRigRental',
                             err: 'pool',
                             message: `Profile successfully added, profile id(s): ${profileIDs} \n`+
                                      `You have ${setup_success.pools.length} pool(s), fill out pool info below \n`+
-                                     `to add another or click continue`,
+                                     `to add another or click continue  `,
                             pool: false,
                             credentials: true,
                             success: true
@@ -333,74 +350,69 @@ module.exports = async function(options) {
             }
             if (setup_success.type === 'NiceHash') {
                 
-                console.log('setup_success.provider:', setup_success.provider)
-                let poolOptions = await Prompt_AddOrCreatePool(
-                    setup_success.provider
-                );
-                if (poolOptions.option === 'add') {
-                    let poolArray = await spartan.returnPools();
+                console.log('setup_success.provider: 337', setup_success.provider)
+               
+                let poolArray = await spartan.returnPools();
+                console.log('poolArray: 342 Nice Hash', poolArray)
 
-                    //if on pools, ask if they want to create one
-                    if (poolArray.length === 0) {
-                        let confirm = await self.prompt({
-                            type: 'confirm',
-                            name: 'option',
-                            default: true,
-                            message: vorpal.chalk.yellow(
-                                'Found no pools to add, would you like to create one?'
-                            ),
-                        });
-                        if (confirm.option) {
-                            //create pool
-                            let NiceHashPool = await Prompt_NiceHashCreatePool(
-                         
-                                spartan
-                            );
-                            await spartan.createPool(NiceHashPool);
-                            setup_success.provider.setActivePool(
-                                NiceHashPool.id
-                            );
-                            self.log(`Pool Added`);
+                //if on pools, ask if they want to create one
+                if (poolArray.length === 0) {
+                    console.log('Found no pools to add, would you like to create one? 346')
+                    if (options.poolData === undefined){
+                        return {
+                            err: 'pool',
+                            message: `No pools found, input pool info below to continue:`,
+                            pool: false,
+                            credentials: true,
+                            success: false
                         }
                     } else {
-                        let fmtPoolArray = [];
-                        for (let pool of poolArray) {
-                            fmtPoolArray.push(fmtPool(serPool(pool), vorpal));
-                        }
-                        let poolPicked = await Prompt_AddPool(
-                         
-                            fmtPoolArray
-                        );
-
-                        let poolObject = {};
-                        for (let pool of poolArray) {
-                            poolObject[fmtPool(serPool(pool), vorpal)] =
-                                pool.id;
-                        }
-
-                        let poolid = poolObject[poolPicked.option];
-                        setup_success.provider.setActivePool(poolid);
-                        for (let pool of poolArray) {
-                            if (pool.id === poolid) {
-                                setup_success.provider.addPools(pool);
-                            }
-                        }
+                        const currentProvider = getCurrentProvider.call(rentalProviders, options)
+                        const pool = await addPool.call(spartan, currentProvider ,options)
+                        console.log('setup_success:', setup_success)
                     }
-                } else if (poolOptions.option === 'create') {
-                    //Prompt create Nice Hash pool
-                    let NiceHashPool = await Prompt_NiceHashCreatePool(
-           
-                        spartan
-                    );
-                    await spartan.createPool(NiceHashPool);
-                    self.log(`Pool Created`);
+                        
+        
+                    if (confirm.option) {
+                        //create pool
+                        let NiceHashPool = options.poolData
+                        await spartan.createPool(NiceHashPool);
+                        setup_success.provider.setActivePool(NiceHashPool.id);
+                        console.log(`Pool Added`);
+                    }
+                } else {
+                    let PoolArray = [];
+                    
+                    for (let pool of poolArray) {
+                        PoolArray.push(pool.id)
+                        setup_success.provider.setActivePool(pool.id);
+                        setup_success.provider.addPools(pool);
+                    }
+                    console.log('PoolArray:', PoolArray)
+                    return {
+                        provider: 'MiningRigRental',
+                        err: 'pool',
+                        message: `You have ${ PoolArray.length} pool(s). \n`+
+                                 `Pool id: ${PoolArray} `,
+                        pool: true,
+                        credentials: true,
+                        success: true
+                    }
+                    // Probably not needed, holding onto to remind me if need to create pool manually
+                    if (poolOptions.option === 'create') {
+                        //Prompt create Nice Hash pool
+                        let NiceHashPool = await Prompt_NiceHashCreatePool( spartan );
+                        await spartan.createPool(NiceHashPool);
+                        console.log(`Pool Created`);
+                    }
                 }
             }
-            spartan.serialize();
+            // spartan.serialize();
         } else {
             if (setup_success.message === 'settings.api_key is required!') {
                 console.log('You must input an API Key!')
                 return {
+                    
                     err: 'credentials',
                     message: 'settings.api_key is required!',
                     credentials: false,
@@ -435,8 +447,7 @@ module.exports = async function(options) {
         }
     } catch (e) {
       
-            console.log('Error! Unable to add Rental Provider!\n' + e)
-     
+            console.log('Error! Unable to add Rental Provider!\n add.js line 458' + e)
         return {
             err: 'provider',
             message: 'Error! Unable to add Rental Provider!\n' + e,
