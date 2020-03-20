@@ -17,11 +17,22 @@ const Login = props => {
     //**Error State */
     const [error, setError] = useState(null);
 
-    useEffect(() => {
-        if (props.error.id === 'LOGIN_FAIL') {
-            return setError('Invalid Credentials');
-        }
-    }, [props.error.id]);
+    useEffect(
+        (prevPass = password, prevUsername = username) => {
+            if (props.error.id === 'LOGIN_FAIL') {
+                return setError('Invalid Credentials');
+            }
+
+            if (prevPass !== password) {
+                props.clearErrors();
+            }
+
+            if (prevUsername !== username) {
+                props.clearErrors();
+            }
+        },
+        [props.error.id, password, username]
+    );
 
     const onFormSubmit = e => {
         e.preventDefault();
@@ -40,7 +51,7 @@ const Login = props => {
     return (
         <div
             id="login-card"
-            className="container d-flex justify-content-center align-items-center"
+            className=" d-flex justify-content-center align-items-center"
         >
             <div className="">
                 <div className="card">
@@ -118,7 +129,7 @@ const Login = props => {
                             </Link>
                         </div>
                         <div className="d-flex justify-content-center">
-                            <a href="#">Forgot your password?</a>
+                            {/* <a href="#">Forgot your password?</a> */}
                         </div>
                     </div>
                 </div>
@@ -131,7 +142,7 @@ const mapStateToProps = state => {
     return {
         isAuthneticated: state.auth.isAuthneticated,
         error: state.error,
-        user: state.user,
+        user: state.user, //state.auth.user
     };
 };
 

@@ -1,7 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { encrypt, decrypt } from '../../helpers/crypto';
 import './changePassword.css';
-import { Link } from 'react-router-dom';
 import { connect } from 'react-redux';
 import { changePassword } from '../../actions/authActions';
 import { clearErrors } from '../../actions/errorAction';
@@ -119,7 +118,7 @@ const ResetPassword = props => {
                 <div className="form-group">
                     <input
                         type="submit"
-                        value="Sign Up"
+                        value="Submit"
                         className="btn float-right login_btn"
                     />
                 </div>
@@ -130,7 +129,7 @@ const ResetPassword = props => {
     return (
         <div
             id="changePass-card"
-            className="container d-flex justify-content-center align-items-center"
+            className="container d-flex justify-content-center align-items-center "
         >
             <div className="">
                 <div className="card">
@@ -145,11 +144,6 @@ const ResetPassword = props => {
                         ) : (
                             renderForm()
                         )}
-                        <div className="card-footer">
-                            <div className="d-flex justify-content-left links">
-                                <Link to="/setup">Setup</Link>
-                            </div>
-                        </div>
                     </div>
                 </div>
             </div>

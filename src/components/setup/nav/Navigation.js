@@ -3,7 +3,7 @@ import './nav.css';
 
 const Navigation = () => {
     return (
-        <nav>
+        <nav className='nav-setup'>
             <div className="nav-item-container">
                 <h4>Trinity</h4>
                 <ul>

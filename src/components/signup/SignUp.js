@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import wallet from '../../helpers/Wallet';
 import { encrypt } from '../../helpers/crypto';
 import './signup.css';
 import { Link } from 'react-router-dom';
@@ -7,10 +6,8 @@ import { Link } from 'react-router-dom';
 import { connect } from 'react-redux';
 import { signup } from '../../actions/authActions';
 import { clearErrors } from '../../actions/errorAction';
-
-const { createMnemonic } = wallet;
-
-// todo: mnemonic encrypted in global state - decrepty when requested?
+import HDMW from '@oipwg/hdmw';
+const Wallet = HDMW.Wallet;
 
 const SignUp = props => {
     /**************************STATE SECTION************************/
@@ -34,6 +31,9 @@ const SignUp = props => {
     //**Email States */
     const [email, setEmail] = useState('');
 
+    const [userHasMnemonic, setUserHasMnemonic] = useState('');
+    const [disableMnemonic, setDisableMnemonic] = useState(true);
+
     // const [success, setSuccessMessage] = useState(null);
 
     const onFormSubmit = e => {
@@ -54,7 +54,7 @@ const SignUp = props => {
             setPassErrorMessage('Passwords do not match!');
         } else {
             setPassErrorMessage('');
-            getMnemonic().then(async encrypted => {
+            getEncryptedMnemonic().then(async encrypted => {
                 const newUser = {
                     userName: username,
                     email: email,
@@ -71,8 +71,30 @@ const SignUp = props => {
         }
     };
 
+    const createMnemonic = async () => {
+        if (userHasMnemonic) {
+            let myWallet2 = new Wallet(userHasMnemonic, {
+                supported_coins: ['flo'],
+            });
+            let validation = myWallet2.fromMnemonic(userHasMnemonic);
+
+            if (validation) {
+                return userHasMnemonic;
+            }
+        }
+
+        let myWallet = new Wallet('', {
+            supported_coins: ['flo'],
+            discover: false,
+        });
+
+        let mnemonic = await myWallet.getMnemonic();
+        console.log('My Mnemonic: ' + mnemonic);
+        return mnemonic;
+    };
+
     // todo: turn into syntx sugar async/await
-    const getMnemonic = () => {
+    const getEncryptedMnemonic = () => {
         return createMnemonic()
             .then(mnemonic => {
                 let encrypted = encrypt(mnemonic, password);
@@ -181,19 +203,23 @@ const SignUp = props => {
                                     }}
                                 />
                             </div>
-                            {/* todo: make this work? or del me */}
-                            {/***** SUCCESS!  *****/}
-                            {/* {success && (
-                                <div
-                                    className="alert alert-success"
-                                    role="alert"
-                                >
-                                    {'Success! '}
-                                    <span role="img" aria-label="thumbs-uo">
-                                        👍
+                            {/* ENTER EXISTING MNEMONIC */}
+                            <div className="input-group form-group">
+                                <div className="input-group-prepend">
+                                    <span className="input-group-text">
+                                        <i className="fas fa-key"></i>
                                     </span>
                                 </div>
-                            )} */}
+                                <input
+                                    type="text"
+                                    className="form-control"
+                                    placeholder="enter wallet (optional)"
+                                    onChange={e => {
+                                        setUserHasMnemonic(e.target.value);
+                                    }}
+                                />
+                            </div>
+                            {/* ENTER EXISTING MNEMONIC */}
                             <div className="form-group">
                                 <input
                                     type="submit"
@@ -202,17 +228,18 @@ const SignUp = props => {
                                 />
                             </div>
                         </form>
-                        <div className="card-footer">
-                            <div className="d-flex justify-content-left links">
-                                <Link
-                                    to="/login"
-                                    onClick={() => {
-                                        props.clearErrors();
-                                    }}
-                                >
-                                    Login
-                                </Link>
-                            </div>
+                    </div>
+                    <div className="card-footer">
+                        <div className="d-flex justify-content-center links">
+                            Have an account?
+                            <Link
+                                to="/login"
+                                onClick={() => {
+                                    props.clearErrors();
+                                }}
+                            >
+                                Login
+                            </Link>
                         </div>
                     </div>
                 </div>

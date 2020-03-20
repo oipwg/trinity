@@ -6,4 +6,5 @@ localStorage
 .DS_Store 
 /dist
 
-
+config.js
+.prettierrc

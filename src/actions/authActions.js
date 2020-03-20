@@ -48,7 +48,7 @@ export const loadUser = () => (dispatch, getState) => {
 // Register User
 export const signup = (
     { userName, email, password, mnemonic },
-    props
+    history
 ) => dispatch => {
     // headers
     // const config = {
@@ -74,7 +74,7 @@ export const signup = (
                 payload: res.data,
             });
 
-            return props.push('/setup');
+            return history.push('/setup');
         })
         .catch(err => {
             console.log('sign up', err);
@@ -103,6 +103,8 @@ export const changePassword = ({ id, oldPassword, password, mnemonic }) => (
         mnemonic,
     });
 
+    console.log(body);
+
     axios
         .post(`${API_URL}/users/changepassword`, body, tokenConfig(getState))
         .then(res => {
@@ -127,7 +129,7 @@ export const changePassword = ({ id, oldPassword, password, mnemonic }) => (
 };
 
 // Login User
-export const loginUser = ({ userName, password }, props) => dispatch => {
+export const loginUser = ({ userName, password }, history) => dispatch => {
     const body = JSON.stringify({
         userName,
         password,
@@ -142,7 +144,7 @@ export const loginUser = ({ userName, password }, props) => dispatch => {
                 payload: res.data,
             });
 
-            return props.push('/setup');
+            return history.push('/setup');
         })
         .catch(err => {
             console.log('login err', err);
@@ -158,6 +160,15 @@ export const loginUser = ({ userName, password }, props) => dispatch => {
                 type: LOGIN_FAIL,
             });
         });
+};
+
+export const logoutUser = history => dispatch => {
+    console.log('Logging out... peace...');
+    dispatch({
+        type: LOGOUT_SUCCESS,
+    });
+
+    return history.push('/');
 };
 
 // Setup config/headers and token
