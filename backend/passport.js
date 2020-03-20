@@ -69,6 +69,7 @@ passport.use(
     )
 );
 
+
 //CoinBase
 passport.use(
     new OAuth2Strategy(
@@ -80,9 +81,10 @@ passport.use(
             callbackURL: COINBASE_REDIRECT_URL,
             passReqToCallback: true,
             scope: [
-                `wallet:user:read,wallet:user:email,wallet:accounts:read,wallet:payment-methods:read`,
-            ],
+                `wallet:user:read,wallet:user:email,wallet:accounts:read,wallet:payment-methods:read,wallet:buys:read,wallet:buys:create,wallet:transactions:read,wallet:transactions:send,wallet:sells:create,wallet:withdrawals:create`]
         },
+
+
         async (req, accessToken, refreshToken, profile, cb) => {
             try {
                 console.log({
@@ -92,18 +94,22 @@ passport.use(
                     cb,
                 });
 
-                const user = await User.findById(req.user.id);
+                const user = await User.findById(req.user.id).select('-password');
+
+                console.log(user)
 
                 profile = user;
+
 
                 user.coinbase = {
                     accessToken,
                     refreshToken,
                 };
 
-                await user.save();
+                await user.save({validateBeforeSave: false})
 
-                return cb(null, user);
+
+                return cb(null, profile);
             } catch (error) {
                 console.log(error);
                 cb(error, false);
@@ -113,8 +119,8 @@ passport.use(
 );
 
 /*
-const coinbaseURL = `https://www.coinbase.com/oauth/authorize?response_type=code&client_id=${COINBASE_CLIENT_ID}&redirect_uri=${COINBASE_REDIRECT_URL}&state=state&scope=${scopes}`;
 const meta = `meta[send_limit_amount]=1&meta[send_limit_currency]=USD&meta[send_limit_period]=day`;
+
 
 let code = params.replace(/(\?code=)|(&state=state)/gi, '');
 
@@ -128,9 +134,7 @@ wallet:accounts:read
 wallet:payment-methods:read
 wallet:payment-methods:delete
 wallet:payment-methods:limits
-wallet:transactions:read
 wallet:transactions:request
-wallet:buys:read
 wallet:sells:read
 wallet:trades:read
 wallet:addresses:read
@@ -144,17 +148,13 @@ wallet:supported-assets:read
 wallet:accounts:update
 wallet:accounts:create
 wallet:accounts:delete
-wallet:buys:create
-wallet:sells:create
 wallet:trades:create
 wallet:orders:create
 wallet:deposits:create
-wallet:withdrawals:create
 wallet:user:update
 wallet:checkouts:create
 wallet:orders:refund
 wallet:transactions:transfer
-wallet:transactions:send
 external:wallet-addresses:write
 
 */

@@ -19,8 +19,8 @@ const userSchema = new Schema({
         required: true,
     },
     coinbase: {
-        accessToken: String,
-        refreshToken: String
+        accessToken: {type: String},
+        refreshToken: {type: String}
     },
     api_key: {
         type: String
@@ -44,8 +44,6 @@ userSchema.pre('save', async function(next) {
 
         const salt = await bcrypt.genSalt(10);
         const passwordHash = await bcrypt.hash(this.password, salt);
-
-        console.log(salt, passwordHash);
 
         this.password = passwordHash;
         next();

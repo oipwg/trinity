@@ -15,7 +15,7 @@ const Confirm = props => {
     return (
         <Modal
             handleClick={props.handleClick}
-            // handleSubmit={}
+            handleSubmit={() => {console.log('do it!')}}
             title={props.title}
             headerStyle={{
                 backgroundColor: '#0082f9',
@@ -67,15 +67,15 @@ const Confirm = props => {
                     </div>
                 </div>
             }
-            // footer={
-            //     <div className="deposit-footer">
-            //         <div className="deposit-footer-card">
-            //             <div className="deposit-footer-items"></div>
-            //         </div>
-            //     </div>
-            // }
+            footer={
+                <div className="deposit-footer">
+                    <div className="deposit-footer-card">
+                        <div className="deposit-footer-items"></div>
+                    </div>
+                </div>
+            }
             submitType={'submit'}
-            sendButtonTitle={'Confirm'}
+            sendButtonTitle={`Confirm`}
         />
     );
 };

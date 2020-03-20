@@ -1,6 +1,6 @@
 import React from 'react';
 
-const WalletBalanceBreakdown = ({ localFlo, localBtc, mrr, nicehash }) => {
+const WalletBalanceBreakdown = ({ localFlo, localBtc, localRvn, mrr, nicehash }) => {
     return (
         <div className="minicard">
             <div className="card">
@@ -9,6 +9,7 @@ const WalletBalanceBreakdown = ({ localFlo, localBtc, mrr, nicehash }) => {
                     <div>
                         <p>{localFlo} flo</p>
                         <p>{localBtc} btc</p>
+                        <p>{localRvn} rvn</p>
                     </div>
                 </div>
             </div>

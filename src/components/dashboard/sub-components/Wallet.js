@@ -1,13 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+
 import Modal from '../../helpers/modal';
 import WalletBalanceBreakdown from './WalletBalanceBreakdown';
 import RenderError from '../../helpers/errors';
 import Deposit from './Deposit';
 // import BuyCryptoModal from './BuyCryptoModal';
+import Withdraw from './Withdraw';
+import Spinner from '../../helpers/spinner';
 
 import { connect } from 'react-redux';
-import { loadWallet } from '../../../actions/walletActions';
+import { loadWallet, getBalance } from '../../../actions/walletActions';
 import {
     listAccounts,
     listPaymentMethods,
@@ -16,7 +19,6 @@ import {
 import { Link } from 'react-router-dom';
 import { API_URL } from '../../../../config';
 import { tokenConfig } from '../../../helpers/headers';
-import Withdraw from './Withdraw';
 
 const WalletBalance = props => {
     const [modalState, setModalState] = useState(false);
@@ -27,8 +29,9 @@ const WalletBalance = props => {
     const [dropdownState, setDropdown] = useState(null);
     const [errorMessage, setErrorMessage] = useState(null);
 
-    const [depositModal, setDepositModal] = useState(true); //! false
+    const [depositModal, setDepositModal] = useState(false);
     const [withdrawModal, setWithdrawModal] = useState(false);
+    const [showSpinner, setShowSpinner] = useState(false)
 
     const handleClick = () => {
         return setModalState(!modalState);
@@ -45,6 +48,7 @@ const WalletBalance = props => {
             return setErrorMessage({ error: 'Enter Password ' });
         }
 
+        setShowSpinner(!showSpinner);
         let { mnemonic, _id } = props.user;
 
         const body = JSON.stringify({
@@ -58,6 +62,7 @@ const WalletBalance = props => {
             .then(() => {
                 props.loadWallet(mnemonic, password);
                 setModalState(false);
+                setShowSpinner(!showSpinner);
             })
             .catch(err => setErrorMessage(err.response.data));
     };
@@ -74,10 +79,16 @@ const WalletBalance = props => {
 
         if (balance && exchangeRate) {
             for (const k in balance) {
-                sum += exchangeRate[k] * balance[k];
+                console.log(balance[k]);
+
+                if(typeof balance[k] === 'number'){
+                    sum += exchangeRate[k] * balance[k];
+                }
+                
             }
         }
-        return Math.floor(sum * 100) / 100;
+        // return Math.floor(sum * 100) / 100;
+        return sum.toFixed(2);
     };
 
     const renderBreakdown = () => {
@@ -97,13 +108,18 @@ const WalletBalance = props => {
                 {dropdownState && (
                     <WalletBalanceBreakdown
                         localFlo={
-                            props.account.balance
-                                ? props.account.balance.flo
+                            typeof props.account.balance.flo === 'number'
+                                ? props.account.balance.flo.toFixed(8)
                                 : 'n/a'
                         }
                         localBtc={
-                            props.account.balance
-                                ? props.account.balance.bitcoin
+                            typeof props.account.balance.bitcoin === 'number'
+                                ? props.account.balance.bitcoin.toFixed(8)
+                                : 'n/a'
+                        }
+                        localRvn={
+                            typeof props.account.balance.raven === 'number'
+                                ? props.account.balance.raven.toFixed(8)
                                 : 'n/a'
                         }
                         mrr={124}
@@ -116,6 +132,12 @@ const WalletBalance = props => {
 
     return (
         <div className="card">
+
+            <a href={`${API_URL}/auth/coinbase`}>
+            Coinbase
+            </a>
+
+
             <button
                 onClick={() => {
                     props.listAccounts();
@@ -129,12 +151,16 @@ const WalletBalance = props => {
                     handleClick={handleClick}
                     handleSubmit={handleSubmit}
                     title={'Unencrypt Wallet'}
+                    headerStyle={{
+                    backgroundColor: '#0082f9',
+                    color: '#ffffff', }}
                     sendButtonTitle={<i className="fas fa-unlock"></i>}
                     submitType={'submit'}
                     modalBody={
                         <form onSubmit={handleSubmit}>
                             <label>Enter Password</label>
                             <input
+                                autoFocus
                                 required
                                 type="password"
                                 className="form-control"
@@ -153,12 +179,15 @@ const WalletBalance = props => {
                 />
             )}
             {depositModal && (
-                <Deposit handleClick={() => setDepositModal(!depositModal)} />
-            )}
+                <Deposit 
+                    exitModal={() => setDepositModal(false)}
+                    handleClick={() => setDepositModal(!depositModal)} />
+            )}  
 
             {/* change this  */}
             {withdrawModal && (
                 <Withdraw
+                    exitModal={() => setWithdrawModal(false)}
                     handleClick={() => setWithdrawModal(!withdrawModal)}
                 />
             )}
@@ -171,25 +200,42 @@ const WalletBalance = props => {
                 <div>
                     <h3>
                         ${''}
+                        
                         {props.account.balance ? (
-                            usdSum()
-                        ) : (
-                            <button
-                                type="button"
-                                className="btn btn-primary"
-                                onClick={handleClick}
-                                style={{
-                                    marginLeft: '.4rem',
-                                    marginRight: '.4rem',
-                                }}
-                            >
-                                <i className="fas fa-lock"></i>
+                            <>
+                            {usdSum()}
+                            <button 
+                            style={{border: 'none', marginLeft: '10px', fontSize: '18px'}}
+                            onClick={() => props.getBalance(props.account.wallet)}>
+                            <i className="fas fa-redo"></i>
                             </button>
+
+                            </>
+                        ) : (
+                            <>
+                                {
+                                    showSpinner 
+                                    ?
+                                        <Spinner />
+                                    :
+                                        <button
+                                            type="button"
+                                            className="btn btn-primary"
+                                            onClick={handleClick}
+                                            style={{
+                                                marginLeft: '.4rem',
+                                                marginRight: '.4rem',
+                                            }}>
+                                            <i className="fas fa-lock"></i>
+                                        </button>
+                                }
+                            </>
                         )}
                     </h3>
                 </div>
                 <div>
                     <button
+                        style={{marginRight: '.25rem'}}
                         onClick={() => {
                             setDepositModal(!depositModal);
                         }}
@@ -203,7 +249,7 @@ const WalletBalance = props => {
                             setWithdrawModal(!withdrawModal);
                         }}
                         type="button"
-                        className="btn btn-light"
+                        className="btn btn-secondary"
                     >
                         Withdraw
                     </button>
@@ -227,4 +273,5 @@ export default connect(mapStateToProps, {
     loadWallet,
     listAccounts,
     listPaymentMethods,
+    getBalance, 
 })(WalletBalance);

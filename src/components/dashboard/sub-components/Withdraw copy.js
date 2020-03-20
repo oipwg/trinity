@@ -1,24 +1,24 @@
 import React, { useState, useEffect } from 'react';
-import btcLogo from '../../../../public/images/icons/btc.svg';
-import { API_URL } from '../../../../config';
+import Modal from '../../helpers/modal';
+import coinbaseLogo from '../../../../public/images/icons/coinbase.png';
+import { crypto } from './crypto';
+
 import './subcomponent.css';
 
-import Modal from '../../helpers/modal';
 import Confirm from './Confirm';
 import BuyOrSellOptions from './BuyOrSellOptions';
 import PayOrWithdrawOptions from './PayOrWithdrawOptions';
 
-
-
 import { connect } from 'react-redux';
+import {
+    placeSellOrderWithoutFees,
+    placeSellOrderWithFees,
+} from '../home/coinbaseApi';
 
-import { placeBuyOrderWithoutFees } from '../../../actions/coinbaseActions';
-
-const BuyCryptoModal = props => {
-    console.log(props)
-
+const Withdraw = props => {
     let accounts = props.accounts ? props.accounts.data : null;
-    let paymentMethods = props.paymentMethods ? props.paymentMethods.data
+    let paymentMethods = props.paymentMethods
+        ? props.paymentMethods.data
         : null;
 
     const [buyAmount, setBuyAmount] = useState('');
@@ -45,10 +45,20 @@ const BuyCryptoModal = props => {
         unit_price: '',
         status: '',
     });
-    
+
     const [showConfirmBuy, setShowConfirmBuy] = useState(false);
     const [showBuyOptions, setShowBuyOptions] = useState(false);
     const [showPayOptions, setShowPayOptions] = useState(false);
+
+
+    // 
+    const [showNetworkTransfer, setShowNetworkTransfer] = useState(false);
+    const [showBuySellModal, setShowBuySellModal] = useState(false);
+    const [showDepositCrypto, setShowDepositCrypto] = useState({
+        visible: false,
+        crypto: '',
+        name: ''
+    });
 
     useEffect(() => {
         {
@@ -72,7 +82,7 @@ const BuyCryptoModal = props => {
                             currency: obj.currency.name,
                             code: obj.currency.code,
                         });
-                    }
+                    } else return;
                 });
             }
         }
@@ -81,11 +91,13 @@ const BuyCryptoModal = props => {
     const handleSubmit = e => {
         e.preventDefault();
 
-        props.placeBuyOrderWithoutFees(
+        placeSellOrderWithoutFees(
             coinbaseBuyOption.id,
             buyAmount,
             buyCurrency
         ).then(res => {
+            console.log(res);
+
             let {
                 fee,
                 amount,
@@ -129,12 +141,12 @@ const BuyCryptoModal = props => {
         }
     };
 
-    const DepositModal = () => {
+    const WithdrawModal = () => {
         return (
             <Modal
                 handleClick={props.handleClick}
                 handleSubmit={e => handleSubmit(e)}
-                title={props.title}
+                title={'Sell'}
                 headerStyle={{
                     backgroundColor: '#0082f9',
                     color: '#ffffff',
@@ -165,7 +177,7 @@ const BuyCryptoModal = props => {
                         <div className="deposit-footer-card">
                             <div className="deposit-footer-items">
                                 <div>
-                                    <p>Buy</p>
+                                    <p>Sell</p>
                                 </div>
                                 <div>
                                     <img
@@ -186,7 +198,7 @@ const BuyCryptoModal = props => {
                             </div>
                             <div className="deposit-footer-items">
                                 <div>
-                                    <p>Pay with</p>
+                                    <p>Withdraw to</p>
                                 </div>
                                 <div>
                                     <img
@@ -209,7 +221,7 @@ const BuyCryptoModal = props => {
                     </div>
                 }
                 submitType={'submit'}
-                sendButtonTitle={`${props.submitTitle} ${coinbaseBuyOption.currency}`}
+                sendButtonTitle={`Sell ${coinbaseBuyOption.currency}`}
             />
         );
     };
@@ -221,17 +233,13 @@ const BuyCryptoModal = props => {
                     payWith={primaryAcc.name}
                     confirmOrder={confirmOrder}
                     handleClick={() => setShowConfirmBuy(!showConfirmBuy)}
-                    handleSubmit={(e) => {
-                        e.preventDefault();
-                        console.log('submit?')
-                    }}
-                    title={'Confirm order'}
-                    headingOne={'Pay with'}
+                    title={'Confirm withdraw'}
+                    headingOne={'Withdraw to'}
                     headingTwo={'Price'}
-                    headingThree={'Purchase'}
+                    headingThree={'Sale'}
                     headingFour={'Coinbase fee'}
                     headingFive={'Amount'}
-                    headingSix={'Total'}
+                    headingSix={'Total payout'}
                 />
             );
         } else if (showBuyOptions) {
@@ -240,7 +248,7 @@ const BuyCryptoModal = props => {
                     handleReturnObj={handleReturnObj}
                     handleClick={() => setShowBuyOptions(!showBuyOptions)}
                     crypto={accounts}
-                    title={'Buy'}
+                    title={'Sell'}
                 />
             );
         } else if (showPayOptions) {
@@ -249,11 +257,11 @@ const BuyCryptoModal = props => {
                     handleReturnObj={handleReturnObj}
                     handleClick={() => setShowPayOptions(!showPayOptions)}
                     paymentMethods={paymentMethods}
-                    title={'Pay With'}
+                    title={'Withdraw To'}
                 />
             );
         } else {
-            return <DepositModal />;
+            return <WithdrawModal />;
         }
     };
 
@@ -268,4 +276,4 @@ const mapStateToProps = state => {
     };
 };
 
-export default connect(mapStateToProps, {placeBuyOrderWithoutFees})(BuyCryptoModal);
+export default connect(mapStateToProps, {})(Withdraw);

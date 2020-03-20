@@ -1,8 +1,8 @@
 import axios from 'axios';
 
 // this will get pulled from user's account.
-const accesstoken =
-    '1a9c487ed4db38d4654e2c11d029757e0ac753d6dfe7e0c48a213ebc1e52118e';
+
+
 const coinbase = axios.create({
     baseURL: 'https://api.coinbase.com/v2',
     timeout: 1000,
@@ -11,6 +11,9 @@ const coinbase = axios.create({
         Authorization: `Bearer ${accesstoken}`,
     },
 });
+
+const accesstoken = "46c2ce5af89db2e6b49cba913155d1302e33df744020e5313306ee0db3e86587"
+
 
 export const listAccounts = () => {
     coinbase
@@ -32,31 +35,6 @@ export const listAccounts = () => {
 //*** BUYING ***/ - need resource id
 // SCOPES
 // wallet:buys:create
-
-export const placeBuyOrderWithoutFees = (
-    walletId,
-    amount,
-    currency,
-    payment_method = null,
-    agree_btc_amount_varies = false,
-    quote = true
-) => {
-    const body = JSON.stringify({
-        amount,
-        currency,
-        payment_method,
-        agree_btc_amount_varies,
-        quote,
-    });
-
-    return coinbase
-        .post(`accounts/${walletId}/buys`, body)
-        .then(res => {
-            return res;
-        })
-        .catch(err => console.log(err));
-};
-
 export const placeBuyOrderWithFees = (
     walletId,
     amount,
@@ -95,36 +73,7 @@ export const placeBuyOrderWithFees = (
         .catch(err => console.log(err));
 };
 
-//*** Selling ***/ - need resource id
-// SCOPES
-// wallet:sells:create
-// Fees amout not included in order
-export const placeSellOrderWithoutFees = async (
-    walletId,
-    amount,
-    currency,
-    payment_method = null,
-    agree_btc_amount_varies = false,
-    quote = true
-) => {
-    const body = JSON.stringify({
-        amount,
-        currency,
-        payment_method,
-        agree_btc_amount_varies,
-        quote,
-    });
 
-    try {
-        const res = await coinbase.post(`accounts/${walletId}/sells`, body);
-        console.log(res);
-        // let { fee, amount, total, subtotal, unit_price, status, } = res.data.data;
-        // console.log({ fee, amount, total, subtotal, unit_price, status });
-        return res;
-    } catch (err) {
-        return console.log(err);
-    }
-};
 
 // amout with fees includes
 export const placeSellOrderWithFees = (
@@ -201,16 +150,7 @@ export const withDrawFunds = (
         .catch(err => console.log(err));
 };
 
-export const listPaymentMethods = () => {
-    coinbase
-        .get('/payment-methods', headers)
-        .then(res => {
-            console.log(res.data.data);
-        })
-        .catch(err => {
-            console.log(err);
-        });
-};
+
 
 export const listBuysForAnAcc = () => {
     coinbase
@@ -234,35 +174,7 @@ export const listAddysforAccount = () => {
         });
 };
 
-//************* Send Funds **********/
-// wallet:transactions:send
 
-// request requires a CB-2FA header
-export const sendFunds = (to, amount, currency, description, fee, idem) => {
-    let body = {
-        type: 'send',
-        to,
-        amount,
-        currency,
-        description,
-        fee,
-        idem,
-        to_financial_institution: false,
-    };
-
-    coinbase
-        .post(`accounts/${walletId}/transactions`, body, {
-            headers: {
-                'CB-2FA-TOKEN': '5586810',
-            },
-        })
-        .then(res => {
-            console.log(res);
-        })
-        .catch(err => {
-            console.log(err);
-        });
-};
 
 // id?
 export const showOneAddyforAccount = () => {

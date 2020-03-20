@@ -1,17 +1,23 @@
 import React, { useState, useEffect } from 'react';
 import Modal from '../../helpers/modal';
-import btcLogo from '../../../../public/images/icons/btc.svg';
+import coinbaseLogo from '../../../../public/images/icons/coinbase.png';
+import { crypto } from './crypto';
+
 import './subcomponent.css';
 
+import DepositWithdrawOptions from './DepositWithdrawOptions'
 import Confirm from './Confirm';
 import BuyOrSellOptions from './BuyOrSellOptions';
 import PayOrWithdrawOptions from './PayOrWithdrawOptions';
+import BuyCryptoModal from './BuyCryptoModal';
+import SellCryptoModal from './SellCryptoModal';
+import NetworkTransferSend from './NetworkTransferSend';
+
+
+import { placeBuyOrderWithoutFees } from '../../../actions/coinbaseActions';
 
 import { connect } from 'react-redux';
-import {
-    placeSellOrderWithoutFees,
-    placeSellOrderWithFees,
-} from '../home/coinbaseApi';
+
 
 const Withdraw = props => {
     let accounts = props.accounts ? props.accounts.data : null;
@@ -44,9 +50,17 @@ const Withdraw = props => {
         status: '',
     });
 
-    const [showConfirmBuy, setShowConfirmBuy] = useState(false);
-    const [showBuyOptions, setShowBuyOptions] = useState(false);
-    const [showPayOptions, setShowPayOptions] = useState(false);
+    const [showConfirmSell, setShowConfirmSell] = useState(false);
+
+
+    // 
+    const [showNetworkTransfer, setShowNetworkTransfer] = useState(false);
+    const [showBuySellModal, setShowBuySellModal] = useState(false);
+    const [showDepositCrypto, setShowDepositCrypto] = useState({
+        visible: false,
+        crypto: '',
+        name: ''
+    });
 
     useEffect(() => {
         {
@@ -70,7 +84,7 @@ const Withdraw = props => {
                             currency: obj.currency.name,
                             code: obj.currency.code,
                         });
-                    }
+                    } else return;
                 });
             }
         }
@@ -79,7 +93,9 @@ const Withdraw = props => {
     const handleSubmit = e => {
         e.preventDefault();
 
-        placeSellOrderWithoutFees(
+        console.log('ran')
+
+        props.placeSellOrderWithoutFees(
             coinbaseBuyOption.id,
             buyAmount,
             buyCurrency
@@ -104,7 +120,7 @@ const Withdraw = props => {
                 status,
             });
 
-            setShowConfirmBuy(!showConfirmBuy);
+            setShowConfirmSell(!showConfirmSell);
         });
     };
 
@@ -134,121 +150,152 @@ const Withdraw = props => {
             <Modal
                 handleClick={props.handleClick}
                 handleSubmit={e => handleSubmit(e)}
-                title={'Sell'}
+                title={'Withdraw'}
                 headerStyle={{
                     backgroundColor: '#0082f9',
                     color: '#ffffff',
                 }}
                 modalBody={
-                    <div className="deposit-input">
-                        <span className="deposit-dollarsign">$</span>
-                        <input
-                            autoFocus={true}
-                            onChange={e => {
-                                let amount = e.target.value;
-
-                                amount.match(/^[0-9]*$/)
-                                    ? setBuyAmount(amount)
-                                    : null;
+                    Object.keys(crypto).map((coin, i) => {
+                        return (
+                            <div
+                            onClick={() => {
+                                setShowDepositCrypto(
+                                    {
+                                        visible: !showDepositCrypto.visible,
+                                        code: crypto[coin].code,
+                                        name: crypto[coin].name,
+                                        icon: crypto[coin].icon
+                                    }
+                                )
                             }}
-                            minLength="1"
-                            type="tel"
-                            placeholder="0"
-                            fontSize="62"
-                            value={buyAmount}
-                            className="deposit-modal"
-                        />
-                    </div>
-                }
-                footer={
-                    <div className="deposit-footer">
-                        <div className="deposit-footer-card">
-                            <div className="deposit-footer-items">
+                            style={{
+                                cursor: 'pointer',
+                                display: 'flex', justifyContent: 'space-evenly', padding: '10px', alignItems: 'flex-start'}}
+                            key={i}>
+                                <img src={crypto[coin].icon}></img>
                                 <div>
-                                    <p>Sell</p>
+
+                                <p>{crypto[coin].code}</p>
                                 </div>
-                                <div>
-                                    <img
-                                        src={btcLogo}
-                                        alt="Bitcoin Logo"
-                                        width="30px"
-                                    />{' '}
-                                    {coinbaseBuyOption.currency}
-                                </div>
-                                <button
-                                    onClick={() =>
-                                        setShowBuyOptions(!showBuyOptions)
-                                    }
-                                    style={{ border: 'none', outline: 'none' }}
-                                >
-                                    <i className="fas fa-chevron-right"></i>
-                                </button>
+                                <i className="fas fa-chevron-right"></i>
+
                             </div>
-                            <div className="deposit-footer-items">
-                                <div>
-                                    <p>Withdraw to</p>
-                                </div>
-                                <div>
-                                    <img
-                                        src={btcLogo}
-                                        alt="Bitcoin Logo"
-                                        width="30px"
-                                    />{' '}
-                                    {primaryAcc.name}
-                                </div>
-                                <button
-                                    onClick={() =>
-                                        setShowPayOptions(!showPayOptions)
-                                    }
-                                    style={{ border: 'none', outline: 'none' }}
-                                >
-                                    <i className="fas fa-chevron-right"></i>
-                                </button>
-                            </div>
-                        </div>
-                    </div>
+                        )
+                    })
+
                 }
-                submitType={'submit'}
-                sendButtonTitle={`Sell ${coinbaseBuyOption.currency}`}
             />
         );
     };
 
+    // const renderComponents = () => {
+    
+
+
+    //     if (showConfirmBuy) {
+    //         return (
+    //             <Confirm
+    //                 payWith={primaryAcc.name}
+    //                 confirmOrder={confirmOrder}
+    //                 handleClick={() => setShowConfirmBuy(!showConfirmBuy)}
+    //                 title={'Confirm order'}
+    //                 headingOne={'Pay with'}
+    //                 headingTwo={'Price'}
+    //                 headingThree={'Purchase'}
+    //                 headingFour={'Coinbase fee'}
+    //                 headingFive={'Amount'}
+    //                 headingSix={'Total'}
+    //             />
+    //         );
+    //     } else if (showBuyOptions) {
+    //         return (
+    //             <BuyOrSellOptions
+    //                 handleReturnObj={handleReturnObj}
+    //                 handleClick={() => setShowBuyOptions(!showBuyOptions)}
+    //                 crypto={accounts}
+    //                 title={'Buy'}
+    //             />
+    //         );
+    //     } else if (showPayOptions) {
+    //         return (
+    //             <PayOrWithdrawOptions
+    //                 handleReturnObj={handleReturnObj}
+    //                 handleClick={() => setShowPayOptions(!showPayOptions)}
+    //                 paymentMethods={paymentMethods}
+    //                 title={'Pay With'}
+    //             />
+    //         );
+    //     } else {
+    //         return <DepositModal />;
+    //     }
+    // };
+
+
+    const CoinbaseLogo = () =>{ return <img width='32px' height='32px' style={{borderRadius: '25%'}} src={coinbaseLogo}></img>}
+
+
     const renderComponents = () => {
-        if (showConfirmBuy) {
+    
+
+        if (showDepositCrypto.visible) {
+           return <DepositWithdrawOptions 
+            handleClick={() => {setShowDepositCrypto({
+                visible: !showDepositCrypto.visible,
+                        })}}
+            title={`Withdraw ${showDepositCrypto.code}`}
+            coinbaseLogo={<CoinbaseLogo />}
+            handleCoinbaseClick={() => {
+                setShowBuySellModal(!showBuySellModal)
+                setShowDepositCrypto({
+                ...showDepositCrypto,
+                visible: !showDepositCrypto.visible,
+                        })        
+            }}
+            handleCryptoAddressClick={() => {
+                setShowNetworkTransfer(!showNetworkTransfer)
+                setShowDepositCrypto({
+                ...showDepositCrypto,
+                visible: !showDepositCrypto.visible,
+                        })
+            }
+            }
+
+           />
+        } else if(showBuySellModal) {
             return (
-                <Confirm
-                    payWith={primaryAcc.name}
-                    confirmOrder={confirmOrder}
-                    handleClick={() => setShowConfirmBuy(!showConfirmBuy)}
-                    title={'Confirm withdraw'}
-                    headingOne={'Withdraw to'}
-                    headingTwo={'Price'}
-                    headingThree={'Sale'}
-                    headingFour={'Coinbase fee'}
-                    headingFive={'Amount'}
-                    headingSix={'Total payout'}
-                />
-            );
-        } else if (showBuyOptions) {
+                 <SellCryptoModal 
+                 title={"Sell"}
+                 submitTitle={"Sell"}
+                handleClick={() => {
+                setShowBuySellModal(!showBuySellModal)
+                setShowDepositCrypto({
+                ...showDepositCrypto,
+                visible: !showDepositCrypto.visible,
+                        })  
+            }}
+                crypto={showDepositCrypto.crypto}          
+             />
+                )
+        } else if(showNetworkTransfer) {
             return (
-                <BuyOrSellOptions
-                    handleReturnObj={handleReturnObj}
-                    handleClick={() => setShowBuyOptions(!showBuyOptions)}
-                    crypto={accounts}
-                    title={'Sell'}
-                />
-            );
-        } else if (showPayOptions) {
-            return (
-                <PayOrWithdrawOptions
-                    handleReturnObj={handleReturnObj}
-                    handleClick={() => setShowPayOptions(!showPayOptions)}
-                    paymentMethods={paymentMethods}
-                    title={'Withdraw To'}
-                />
-            );
-        } else {
+                <NetworkTransferSend
+                 exitModal={props.exitModal}
+                 handleClick={() => {
+                setShowNetworkTransfer(!showNetworkTransfer)
+                setShowDepositCrypto({
+                ...showDepositCrypto,
+                visible: !showDepositCrypto.visible,
+                        })  
+                }}
+                showDepositCrypto={showDepositCrypto}          
+             />
+            )
+        }
+        
+        
+        
+        else {
             return <WithdrawModal />;
         }
     };
@@ -264,4 +311,4 @@ const mapStateToProps = state => {
     };
 };
 
-export default connect(mapStateToProps, {})(Withdraw);
+export default connect(mapStateToProps, {placeBuyOrderWithoutFees})(Withdraw);

@@ -1,17 +1,18 @@
 import React, { useState, useEffect } from 'react';
 import Modal from '../../helpers/modal';
-import btcLogo from '../../../../public/images/icons/btc.svg';
-import rvnLogo from '../../../../public/images/icons/rvn.svg';
-import floLogo from '../../../../public/images/icons/flo.svg';
 import coinbaseLogo from '../../../../public/images/icons/coinbase.png';
-
-
-
+import { crypto } from './crypto';
 import './subcomponent.css';
 
+import DepositWithdrawOptions from './DepositWithdrawOptions'
 import Confirm from './Confirm';
 import BuyOrSellOptions from './BuyOrSellOptions';
 import PayOrWithdrawOptions from './PayOrWithdrawOptions';
+import BuyCryptoModal from './BuyCryptoModal';
+import NetworkTransfer from './NetworkTransfer';
+import CoinbaseTrasnferToWallet from './CoinbaseTransferToWallet';
+
+
 
 import { connect } from 'react-redux';
 import {
@@ -27,26 +28,12 @@ import {
 //! todo: add error messages!
 //todo: create a transacation ID to avoid dupes
 //todo: Coinbase will send BTC from coinbase wallet directly to MRR Wallet || Nice Hash Wallet || Trinity Wallet
-// todo: RVN/FLO No coinbse option
+//todo: RVN/FLO No coinbse option
+//todo: if Wallet locked, disable deposit/withdraw buttons, else enable.
+//todo: fix Coinbase Scopes
+//todo: add copy element to txid - successuful <NetworkTrasnferSend />
 
 const Deposit = props => {
-
-    let crypto = {
-        bitcoin: {
-            code: "BTC",
-            icon: btcLogo
-        },
-        flo: {
-            code: "FLO",
-            icon: floLogo
-        }, 
-        raven: {
-            code: "RVN",
-            icon: rvnLogo
-        },
-    }
-
-
     let accounts = props.accounts ? props.accounts.data : null;
     let paymentMethods = props.paymentMethods
         ? props.paymentMethods.data
@@ -77,13 +64,20 @@ const Deposit = props => {
         status: '',
     });
 
+
     const [showConfirmBuy, setShowConfirmBuy] = useState(false);
     const [showBuyOptions, setShowBuyOptions] = useState(false);
     const [showPayOptions, setShowPayOptions] = useState(false);
+    
+    const [showCoinbaseTrasnferToWallet, setShowCoinbaseTrasnferToWallet] = useState(false);
+    const [showNetworkTransfer, setShowNetworkTransfer] = useState(false);
+    const [showBuySellModal, setShowBuySellModal] = useState(false);
     const [showDepositCrypto, setShowDepositCrypto] = useState({
         visible: false,
-        crypto: null
+        crypto: '',
+        name: ''
     });
+    
 
     useEffect(() => {
         {
@@ -107,7 +101,7 @@ const Deposit = props => {
                             currency: obj.currency.name,
                             code: obj.currency.code,
                         });
-                    }
+                    } else return
                 });
             }
         }
@@ -182,7 +176,9 @@ const Deposit = props => {
                                 setShowDepositCrypto(
                                     {
                                         visible: !showDepositCrypto.visible,
-                                        crypto: crypto[coin].code
+                                        code: crypto[coin].code,
+                                        name: crypto[coin].name,
+                                        icon: crypto[coin].icon
                                     }
                                 )
                             }}
@@ -248,74 +244,79 @@ const Deposit = props => {
     //     }
     // };
 
+
+    const CoinbaseLogo = () =>{ return <img width='32px' height='32px' style={{borderRadius: '25%'}} src={coinbaseLogo}></img>}
+
+
     const renderComponents = () => {
     
 
-
         if (showDepositCrypto.visible) {
+           return <DepositWithdrawOptions 
+            handleClick={() => {setShowDepositCrypto({
+                visible: !showDepositCrypto.visible,
+                        })}}
+            title={`Deposit ${showDepositCrypto.code}`}
+            coinbaseLogo={<CoinbaseLogo />}
+            handleCoinbaseClick={() => {
+                setShowBuySellModal(!showBuySellModal)
+                setShowDepositCrypto({
+                ...showDepositCrypto,
+                visible: !showDepositCrypto.visible,
+                        })        
+            }}
+            handleCryptoAddressClick={() => {
+                setShowNetworkTransfer(!showNetworkTransfer)
+                setShowDepositCrypto({
+                ...showDepositCrypto,
+                visible: !showDepositCrypto.visible,
+                        })
+            }
+            }
+
+           />
+        } else if(showBuySellModal) {
             return (
-                <Modal
-                handleClick={() => {setShowDepositCrypto({
-                        visible: !showDepositCrypto.visible,
-                })}}
-                handleSubmit={e => handleSubmit(e)}
-                title={`Deposit ${showDepositCrypto.crypto}`}
-                headerStyle={{
-                    backgroundColor: '#0082f9',
-                    color: '#ffffff',
+                 <BuyCryptoModal 
+                title={'Buy'}
+                submitTitle={'Buy'}
+                handleClick={() => {
+                setShowBuySellModal(!showBuySellModal)
+                setShowDepositCrypto({
+                ...showDepositCrypto,
+                visible: !showDepositCrypto.visible,
+                        })  
+            }}
+                crypto={showDepositCrypto.crypto}          
+             />
+                )
+        } else if(showNetworkTransfer) {
+            return (
+                <NetworkTransfer
+                exitModal={props.exitModal}
+                 handleClick={() => {
+                setShowNetworkTransfer(!showNetworkTransfer)
+                setShowDepositCrypto({
+                ...showDepositCrypto,
+                visible: !showDepositCrypto.visible,
+                        })  
                 }}
-                modalBody={
-                    <div>
-                      <div style={{
-                          display: 'flex',
-
-
-                      }}>
-
-                      <span style={{ flex: '1 1 auto'}}>
-
-                      <i  
-                        style={{fontSize: '32px'}}
-                      className="fas fa-qrcode"></i>
-                      </span>
-                        <div style={{ flex: '1 1 auto'}}>
-                        <p>
-                        <strong>Crypto Address</strong>
-                        </p>
-                        <p>network transfer</p>
-                        </div>
-                        <i className="fas fa-chevron-right"></i>
-                      </div>
-
-                        
-                        
-
-                        <div
-                        style={{
-                          display: 'flex',
-
-
-                      }}
-                        >
-
-                        <span style={{ flex: '1 1 auto'}}>
-                        <img width='32px' height='32px' style={{borderRadius: '25%'}} src={coinbaseLogo}></img>
-                        </span>
-                    <div style={{ flex: '1 1 auto'}}>
-                        <p>
-                        <strong>Coinbase</strong>
-                        <p>Trasnfer funds from Coinbase.com</p>
-                        </p>
-                       </div>
-                        <i className="fas fa-chevron-right"></i>
-                        </div>
-                    </div>
-                    
-
-                }
-            />
-            );
-        } else {
+                showDepositCrypto={showDepositCrypto}          
+             />
+            )
+        } else if(showCoinbaseTrasnferToWallet) {
+            return <CoinbaseTrasnferToWallet
+                 exitModal={props.exitModal}
+                  handleClick={() => {
+                 setShowNetworkTransfer(!showNetworkTransfer)
+                 setShowDepositCrypto({
+                 ...showDepositCrypto,
+                 visible: !showDepositCrypto.visible,
+                         })  
+                 }}
+                 showDepositCrypto={showDepositCrypto}    
+             />
+         } else {
             return <DepositModal />;
         }
     };
@@ -328,6 +329,9 @@ const mapStateToProps = state => {
         error: state.error,
         accounts: state.coinbase.accounts,
         paymentMethods: state.coinbase.paymentMethods,
+        coinbaseLoaded: state.coinbase.coinbaseLoaded,
+        // coinbaseAuth: state.auth.user[coinbase] ? state.auth.user.coinbase : null
+
     };
 };
 

@@ -37,24 +37,37 @@ const Modal = props => {
                             {props.modalBody}
                         </div>
                         
-                    {props.footer ? 
-                        <div className="modal-footer">
-                            {props.footer}
+                    {props.footer 
+                        ? 
+                            <div className="modal-footer">
+                                {props.footer}
 
-                            <button
-                                onClick={props.handleSubmit}
-                                type={
-                                    props.submitType
-                                        ? props.submitType
-                                        : 'button'
-                                }
-                                className="btn btn-primary"
-                            >
-                                {props.sendButtonTitle}
-                            </button>
-                        </div>
+                                <button
+                                    onClick={props.handleSubmit}
+                                    type={
+                                        props.submitType
+                                            ? props.submitType
+                                            : 'button'
+                                    }
+                                    className="btn btn-primary"
+                                >
+                                    {props.sendButtonTitle}
+                                </button>
+                                
+                            {props.exitModalTitle 
+                                ? 
+                                (<button
+                                    onClick={props.exitModal}
+                                    className="btn btn-secondary"
+                                >
+                                {props.exitModalTitle}
+                                </button>)
+                                : null 
+                            }
+
+                            </div>
                     
-                     : null} 
+                        : null} 
 
                     </div>
                 </div>

@@ -3,6 +3,8 @@ import Modal from '../../helpers/modal';
 import './subcomponent.css';
 
 const PayOrWithdrawOptions = props => {
+    console.log(props)
+
     return (
         <Modal
             handleClick={props.handleClick}
@@ -28,7 +30,7 @@ const PayOrWithdrawOptions = props => {
                 >
                     <div>
                         <p>
-                            <strong>{pay.limits.name}:</strong>
+                            <strong>Pay With:</strong>
                         </p>
                     </div>
                     <div>

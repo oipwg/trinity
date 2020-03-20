@@ -58,4 +58,15 @@ export const loadWallet = (encryptedMnemonic, password) => dispatch => {
             payload: res,
         })
     );
+
 };
+
+export const getBalance = (wallet) => dispatch => {
+    wallet.getCoinBalances().then(res => {
+        dispatch({
+            type: GET_BALANCE,
+            payload: res,
+        });
+    });
+}
+

@@ -47,7 +47,7 @@ module.exports = {
                     id: user.id,
                     username: user.userName,
                     email: user.email,
-                    mnemonic: user.mnemonic,
+                    mnemonic: user.mnemonic
                 },
             });
         } catch (error) {

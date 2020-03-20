@@ -12,9 +12,9 @@ import PayOrWithdrawOptions from './PayOrWithdrawOptions';
 
 import { connect } from 'react-redux';
 
-import { placeBuyOrderWithoutFees } from '../../../actions/coinbaseActions';
+import { placeSellOrderWithoutFees } from '../../../actions/coinbaseActions';
 
-const BuyCryptoModal = props => {
+const SellCryptoModal = props => {
     console.log(props)
 
     let accounts = props.accounts ? props.accounts.data : null;
@@ -81,7 +81,7 @@ const BuyCryptoModal = props => {
     const handleSubmit = e => {
         e.preventDefault();
 
-        props.placeBuyOrderWithoutFees(
+        props.placeSellOrderWithoutFees(
             coinbaseBuyOption.id,
             buyAmount,
             buyCurrency
@@ -165,7 +165,7 @@ const BuyCryptoModal = props => {
                         <div className="deposit-footer-card">
                             <div className="deposit-footer-items">
                                 <div>
-                                    <p>Buy</p>
+                                    <p>Sell</p>
                                 </div>
                                 <div>
                                     <img
@@ -186,7 +186,7 @@ const BuyCryptoModal = props => {
                             </div>
                             <div className="deposit-footer-items">
                                 <div>
-                                    <p>Pay with</p>
+                                    <p>Withdraw to</p>
                                 </div>
                                 <div>
                                     <img
@@ -226,9 +226,9 @@ const BuyCryptoModal = props => {
                         console.log('submit?')
                     }}
                     title={'Confirm order'}
-                    headingOne={'Pay with'}
-                    headingTwo={'Price'}
-                    headingThree={'Purchase'}
+                    headingOne={'Pay to'}
+                    headingTwo={'Sold at'}
+                    headingThree={'Deposit'}
                     headingFour={'Coinbase fee'}
                     headingFive={'Amount'}
                     headingSix={'Total'}
@@ -268,4 +268,4 @@ const mapStateToProps = state => {
     };
 };
 
-export default connect(mapStateToProps, {placeBuyOrderWithoutFees})(BuyCryptoModal);
+export default connect(mapStateToProps, {placeSellOrderWithoutFees})(SellCryptoModal);
