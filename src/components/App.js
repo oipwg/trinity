@@ -20,7 +20,7 @@ const App = props => {
     
     useEffect(() => {
         props.loadUser();
-    }, [!props.user]);
+    }, []);
 
     return (
         <Router>
