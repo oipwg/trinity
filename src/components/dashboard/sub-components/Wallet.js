@@ -10,6 +10,8 @@ import Withdraw from './Withdraw';
 import Spinner from '../../helpers/spinner';
 
 import { connect } from 'react-redux';
+
+import { coinbaseOAuth } from '../../../actions/authActions'
 import { loadWallet, getBalance } from '../../../actions/walletActions';
 import {
     listAccounts,
@@ -21,7 +23,38 @@ import { API_URL } from '../../../../config';
 import { tokenConfig } from '../../../helpers/headers';
 
 const WalletBalance = props => {
-    console.log(props);
+
+    let coinbaseInDB;
+    let coinbaseAccessToken
+
+    //todo: handle refresh token, and create this into a pop-up
+    // checks to see if coinbase obj is in user.
+    if(props.user){
+        coinbaseInDB = "coinbase" in props.user;
+
+        if(coinbaseInDB){
+            coinbaseAccessToken = props.user.coinbase.accessToken
+        } else coinbaseAccessToken = undefined
+    }
+
+    //sends code to API. to get coinbase access token
+    useEffect(() => {
+        if(coinbaseInDB === false){
+            const params = window.location.search;
+
+            let code = params.replace(/(\?code=)/gi, '');
+
+            if(code){
+                props.coinbaseOAuth(code).then(res => {
+                    location.reload();
+                })
+            }
+        }
+
+    }, [coinbaseInDB])
+
+
+
     const [modalState, setModalState] = useState(false);
     const [password, setPassword] = useState('');
     // const [myWallet, setMyWallet] = useState(null);
@@ -33,7 +66,7 @@ const WalletBalance = props => {
     const [depositModal, setDepositModal] = useState(false);
     const [withdrawModal, setWithdrawModal] = useState(false);
     const [showSpinner, setShowSpinner] = useState(false)
-    const [walletLock, setWalletLock] = useState(false);//! TRUE
+    const [walletLock, setWalletLock] = useState(true); 
 
     const handleClick = () => {
         return setModalState(!modalState);
@@ -76,14 +109,21 @@ const WalletBalance = props => {
         }
     }, [props.account]);
 
+    useEffect(() => {
+        
+        if(coinbaseAccessToken){
+            props.listAccounts()
+            props.listPaymentMethods();
+        }
+    }, [props.user])
+
+
     const usdSum = () => {
         let { balance, exchangeRate } = props.account;
         let sum = 0;
 
         if (balance && exchangeRate) {
             for (const k in balance) {
-                console.log(balance[k]);
-
                 if(typeof balance[k] === 'number'){
                     sum += exchangeRate[k] * balance[k];
                 }
@@ -134,20 +174,6 @@ const WalletBalance = props => {
 
     return (
         <div className="card">
-
-            <a href={`${API_URL}/auth/coinbase`}>
-            Coinbase
-            </a>
-
-
-            <button
-                onClick={() => {
-                    props.listAccounts();
-                    props.listPaymentMethods();
-                }}
-            >
-                Test
-            </button>
             {modalState && (
                 <Modal
                     handleClick={handleClick}
@@ -182,6 +208,7 @@ const WalletBalance = props => {
             )}
             {depositModal && (
                 <Deposit 
+                    coinbaseInDB={coinbaseInDB}
                     exitModal={() => setDepositModal(false)}
                     handleClick={() => setDepositModal(!depositModal)} />
             )}  
@@ -189,6 +216,7 @@ const WalletBalance = props => {
             {/* change this  */}
             {withdrawModal && (
                 <Withdraw
+                    coinbaseInDB={coinbaseInDB}
                     exitModal={() => setWithdrawModal(false)}
                     handleClick={() => setWithdrawModal(!withdrawModal)}
                 />
@@ -206,11 +234,11 @@ const WalletBalance = props => {
                         {props.account.balance ? (
                             <>
                             {usdSum()}
-                            <button 
+                          <button 
                             style={{border: 'none', marginLeft: '10px', fontSize: '18px'}}
                             onClick={() => props.getBalance(props.account.wallet)}>
                             <i className="fas fa-redo"></i>
-                            </button>
+                            </button>  
 
                             </>
                         ) : (
@@ -281,5 +309,6 @@ export default connect(mapStateToProps, {
     loadWallet,
     listAccounts,
     listPaymentMethods,
-    getBalance, 
+    getBalance,
+    coinbaseOAuth
 })(WalletBalance);

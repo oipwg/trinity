@@ -1,5 +1,6 @@
-import React from 'react';
+import React, {useEffect} from 'react';
 import Modal from '../../helpers/modal';
+import { API_URL } from '../../../../config';
 
 const DepositWithdrawOptions = (props) => {
     console.log(props)
@@ -56,6 +57,21 @@ const DepositWithdrawOptions = (props) => {
               onClick={props.handleCoinbaseClick}
                 >
 
+            {!props.coinbaseInDB &&
+              <a 
+             style={{
+               position: 'absolute',
+               width: '100%',
+               height: '50%',
+               zIndex: '1000',
+               bottom: '0',
+               left: '0'
+             }}
+             href={`${API_URL}/auth/coinbase`}>
+              </a>
+            }
+
+ 
                 <span style={{ flex: '1 1 auto'}}>
                 {props.coinbaseLogo}
                 </span>

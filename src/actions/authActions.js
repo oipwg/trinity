@@ -171,9 +171,31 @@ export const logoutUser = history => dispatch => {
     return history.push('/');
 };
 
+export const coinbaseOAuth = (code) => (dispatch, getState) => {
+
+    console.log(code)
+
+    return axios
+        .get(`${API_URL}/auth/coinbase/callback?code=${code}`, tokenConfig(getState))
+        .then(res => {
+            console.log(res)
+            return res
+        }
+        )
+        .catch(err => console.log({err}))
+
+        
+    // axios
+    //     .get(`${API_URL}/auth/coinbase/callback?code=${code}`, tokenConfig(getState))
+    //     .then(res => console.log(res))
+    //     .catch(err => console.log(err.response))
+
+}
+
+
 // Setup config/headers and token
 export const tokenConfig = getState => {
-    // Get token from localstorage
+    // Get token from global state
     const token = getState().auth.token;
 
     // headers

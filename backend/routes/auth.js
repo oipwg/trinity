@@ -18,14 +18,29 @@ const passportCoinbase = passport.authenticate('oauth2', { session: false });
 
 
 let scopes = `wallet:user:read,wallet:user:email,wallet:accounts:read,wallet:payment-methods:read,wallet:buys:read,wallet:buys:create,wallet:transactions:read,wallet:transactions:send,wallet:sells:create,wallet:withdrawals:create`
-let meta =  `meta[send_limit_amount]=1&meta[send_limit_currency]=USD&meta[send_limit_period]=day`
-let coinbaseURL = `https://www.coinbase.com/oauth/authorize?response_type=code&client_id=${COINBASE_CLIENT_ID}&redirect_uri=${COINBASE_REDIRECT_URL}&state=state&scope=${scopes}&${meta}`
+// let meta =  `meta[send_limit_amount]=1&meta[send_limit_currency]=USD&meta[send_limit_period]=day`
+// let coinbaseURL = `https://www.coinbase.com/oauth/authorize?response_type=code&client_id=${COINBASE_CLIENT_ID}&redirect_uri=${COINBASE_REDIRECT_URL}&state=state&scope=${scopes}&${meta}`
 
-router.get('/coinbase', ((req, res) => 
-    {
-        return res.redirect((coinbaseURL))
-    }
-))
+const options = {
+        sendLimitAmount: '1',
+        sendLimitCurrency: 'USD',
+        sendLimitPeriod: 'day'
+}
+// router.get('/coinbase', ((req, res) => 
+//     {
+//         return res.redirect((coinbaseURL))
+//     }
+// ))
+
+router.get('/coinbase',
+  passport.authenticate('coinbase', {scope: [`wallet:user:read,wallet:user:email,wallet:accounts:read,wallet:payment-methods:read,wallet:buys:read,wallet:buys:create,wallet:transactions:read,wallet:transactions:send,wallet:sells:create,wallet:withdrawals:create`]}
+  ),
+
+  function(req, res){
+    // The request will be redirected to Coinbase for authentication, so this
+    // function will not be called.
+  });
+
 
 // pass code - will spit out token
 router.get('/coinbase/callback', auth, passportCoinbase, async (req, res) => {
