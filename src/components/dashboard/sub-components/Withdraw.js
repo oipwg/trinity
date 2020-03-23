@@ -102,6 +102,7 @@ const Withdraw = props => {
         } else if(showBuySellModal) {
             return (
                  <SellCryptoModal 
+                exitModal={props.exitModal}
                  title={"Sell"}
                  submitTitle={"Sell"}
                 handleClick={() => {

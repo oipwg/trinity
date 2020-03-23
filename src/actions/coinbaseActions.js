@@ -22,6 +22,7 @@ const getAccessToken = (getState, cb2Fa ) => {
     const config = {
         headers: {
             'Content-Type': 'application/json',
+            'CB-VERSION': '2020-02-12'
         },
     };
 
@@ -58,7 +59,7 @@ export const listAccounts = () => (dispatch, getState) => {
             });
         })
         .catch(err => {
-            console.log(err);
+            console.log(err.response);
             dispatch({
                 type: GET_ERRORS,
                 payload: err.response,
@@ -111,7 +112,7 @@ export const placeBuyOrderWithoutFees = (
             console.log(res);
             return res;
         })
-        .catch(err => console.log(err));
+        .catch(err => console.log(err.response));
 };
 
 //************* Send Funds **********/
@@ -140,7 +141,7 @@ export const sendFunds = (walletId,to, amount, currency, description, fee, idem,
             return res
         })
         .catch(err => {
-            console.log(err);
+            console.log(err.response);
         });
 };
 
@@ -168,6 +169,6 @@ export const placeSellOrderWithoutFees = (
         console.log(res);
         return res;
     } catch (err) {
-        return console.log(err);
+        return console.log(err.response);
     }
 };

@@ -7,6 +7,8 @@ import Modal from '../../helpers/modal';
 import Confirm from './Confirm';
 import BuyOrSellOptions from './BuyOrSellOptions';
 import PayOrWithdrawOptions from './PayOrWithdrawOptions';
+import CoinbaseTrasnferToWallet from './CoinbaseTransferToWallet';
+
 
 
 
@@ -29,6 +31,8 @@ const BuyCryptoModal = props => {
         type: '',
     });
 
+    console.log(primaryAcc)
+
     const [coinbaseBuyOption, setCoinbaseBuyOption] = useState({
         id: '',
         name: '',
@@ -49,6 +53,8 @@ const BuyCryptoModal = props => {
     const [showConfirmBuy, setShowConfirmBuy] = useState(false);
     const [showBuyOptions, setShowBuyOptions] = useState(false);
     const [showPayOptions, setShowPayOptions] = useState(false);
+    const [showCoinbaseTrasnferToWallet, setShowCoinbaseTrasnferToWallet] = useState(false);
+
 
     useEffect(() => {
         {
@@ -78,13 +84,15 @@ const BuyCryptoModal = props => {
         }
     }, []);
 
+    // will return with qoute - <Confirm />
     const handleSubmit = e => {
         e.preventDefault();
 
         props.placeBuyOrderWithoutFees(
             coinbaseBuyOption.id,
             buyAmount,
-            buyCurrency
+            buyCurrency,
+            primaryAcc.id
         ).then(res => {
             let {
                 fee,
@@ -107,6 +115,32 @@ const BuyCryptoModal = props => {
             setShowConfirmBuy(!showConfirmBuy);
         });
     };
+
+    //Buy crypto - go to transfer to local wallet -  <CoinbaseTrasnferToWallet />
+    const submitOrder = e => {
+        e.preventDefault();
+        props.placeBuyOrderWithoutFees(
+            coinbaseBuyOption.id,
+            buyAmount,
+            buyCurrency,
+            primaryAcc.id,
+            false,
+            true, //!false will result in buy.
+        ).then(res => {
+            let {
+                fee,
+                amount,
+                total,
+                subtotal,
+                unit_price,
+                status,
+            } = res.data.data;
+
+            setShowConfirmBuy(!showConfirmBuy);
+            return setShowCoinbaseTrasnferToWallet(!showCoinbaseTrasnferToWallet)
+        
+        });
+    }
 
     const handleReturnObj = (from, option) => {
         switch (from) {
@@ -222,8 +256,7 @@ const BuyCryptoModal = props => {
                     confirmOrder={confirmOrder}
                     handleClick={() => setShowConfirmBuy(!showConfirmBuy)}
                     handleSubmit={(e) => {
-                        e.preventDefault();
-                        console.log('submit?')
+                        submitOrder(e)
                     }}
                     title={'Confirm order'}
                     headingOne={'Pay with'}
@@ -252,7 +285,19 @@ const BuyCryptoModal = props => {
                     title={'Pay With'}
                 />
             );
-        } else {
+        } else if(showCoinbaseTrasnferToWallet) {
+            return <CoinbaseTrasnferToWallet
+                 exitModal={props.exitModal}
+                  handleClick={() => {
+                 setShowNetworkTransfer(!showNetworkTransfer)
+                 setShowDepositCrypto({
+                 ...showDepositCrypto,
+                 visible: !showDepositCrypto.visible,
+                         })  
+                 }}
+                //  showDepositCrypto={showDepositCrypto}    
+             />
+         } else {
             return <DepositModal />;
         }
     };

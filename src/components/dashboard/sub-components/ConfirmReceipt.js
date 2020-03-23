@@ -2,14 +2,16 @@ import React from 'react';
 import Modal from '../../helpers/modal';
 import './subcomponent.css';
 
-const Confirm = props => {
+const ConfirmReceipt = props => {
+
     let {
-        fee,
-        amount,
-        total,
-        subtotal,
-        unit_price,
         status,
+        sent,
+        currency,
+        description,
+        fee,
+        transaction_amount,
+        address_url,
     } = props.confirmOrder;
 
     return (
@@ -27,7 +29,7 @@ const Confirm = props => {
                         <p>
                             <strong>{props.headingOne}</strong>
                         </p>
-                        <p> {props.payWith}</p>
+                        <p> {status}</p>
                     </div>
 
                     <div className="flex-spacebtwn">
@@ -35,7 +37,7 @@ const Confirm = props => {
                             <strong>{props.headingTwo}</strong>
                         </p>
                         <p>
-                            ${unit_price.amount} / {unit_price.currency}
+                            {sent} / {currency}
                         </p>
                     </div>
 
@@ -43,27 +45,27 @@ const Confirm = props => {
                         <p>
                             <strong>{props.headingThree}</strong>
                         </p>
-                        <p>${subtotal.amount}</p>
+                        <p>{description}</p>
                     </div>
                     <div className="flex-spacebtwn">
                         <p>
                             <strong>{props.headingFour}</strong>
                         </p>
-                        <p>${fee.amount}</p>
+                        <p>{fee} / {currency}</p>
                     </div>
                     <div className="flex-spacebtwn">
                         <p>
                             <strong>{props.headingFive}</strong>
                         </p>
                         <p>
-                            {amount.amount} {amount.currency}
+                            {transaction_amount} / {currency}
                         </p>
                     </div>
                     <div className="flex-spacebtwn">
                         <p>
                             <strong>{props.headingSix}</strong>
                         </p>
-                        <p>${total.amount}</p>
+                        <a href={address_url} target="_blank">View transaction</a>
                     </div>
                 </div>
             }
@@ -80,4 +82,4 @@ const Confirm = props => {
     );
 };
 
-export default Confirm;
+export default ConfirmReceipt;

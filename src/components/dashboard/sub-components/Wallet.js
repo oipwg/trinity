@@ -21,7 +21,6 @@ import { API_URL } from '../../../../config';
 import { tokenConfig } from '../../../helpers/headers';
 
 const WalletBalance = props => {
-    console.log(props);
     const [modalState, setModalState] = useState(false);
     const [password, setPassword] = useState('');
     // const [myWallet, setMyWallet] = useState(null);
@@ -33,7 +32,7 @@ const WalletBalance = props => {
     const [depositModal, setDepositModal] = useState(false);
     const [withdrawModal, setWithdrawModal] = useState(false);
     const [showSpinner, setShowSpinner] = useState(false)
-    const [walletLock, setWalletLock] = useState(false);//! TRUE
+    const [walletLock, setWalletLock] = useState(true); 
 
     const handleClick = () => {
         return setModalState(!modalState);
@@ -146,7 +145,7 @@ const WalletBalance = props => {
                     props.listPaymentMethods();
                 }}
             >
-                Test
+                useEffect
             </button>
             {modalState && (
                 <Modal
@@ -206,11 +205,11 @@ const WalletBalance = props => {
                         {props.account.balance ? (
                             <>
                             {usdSum()}
-                            <button 
+                          <button 
                             style={{border: 'none', marginLeft: '10px', fontSize: '18px'}}
                             onClick={() => props.getBalance(props.account.wallet)}>
                             <i className="fas fa-redo"></i>
-                            </button>
+                            </button>  
 
                             </>
                         ) : (

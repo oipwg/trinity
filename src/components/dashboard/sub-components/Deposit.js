@@ -134,6 +134,7 @@ const Deposit = props => {
         } else if(showBuySellModal) {
             return (
                  <BuyCryptoModal 
+                exitModal={props.exitModal}
                 title={'Buy'}
                 submitTitle={'Buy'}
                 handleClick={() => {
@@ -160,6 +161,7 @@ const Deposit = props => {
                 showDepositCrypto={showDepositCrypto}          
              />
             )
+            //! currently no visible - can add this as a button in wallet? 
         } else if(showCoinbaseTrasnferToWallet) {
             return <CoinbaseTrasnferToWallet
                  exitModal={props.exitModal}

@@ -30,6 +30,8 @@
         "mongoose": "^5.9.0",
         "morgan": "~1.9.1",
         "passport": "^0.4.1",
+        "passport-coinbase": "^0.1.2",
+        "passport-coinbase-oauth2": "0.0.3",
         "passport-jwt": "^4.0.0",
         "passport-local": "^1.0.0",
         "passport-oauth2": "^1.5.0",
@@ -44,7 +46,7 @@
         "react-spring": "^8.0.27",
         "redux": "^4.0.5",
         "redux-thunk": "^2.3.0",
-        "spartanbot": "git+https://github.com/bradicalone/spartanbot.git",
+        "spartanbot": "git+https://github.com/oipwg/spartanbot.git#up",
         "timestring": "^6.0.0",
         "ws": "^7.2.1"
     },
