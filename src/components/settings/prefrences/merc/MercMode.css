@@ -1,0 +1,98 @@
+#merc .grid-container {
+  padding-top: 1.5rem;
+  display: -ms-grid;
+  display: grid;
+  grid-gap: 1rem;
+  -ms-grid-rows: auto;
+      grid-template-rows: auto;
+      grid-template-areas: "header-a item-1 item-2" "header-b item-3 item-4" "header-c item-5 item-6" "header-d item-7 item-8" "header-e item item" "header-f item item";
+}
+
+#merc .header-a {
+  -ms-grid-row: 1;
+  -ms-grid-column: 1;
+  grid-area: header-a;
+  -ms-grid-column-align: stretch;
+      justify-self: stretch;
+}
+
+#merc .header-b {
+  -ms-grid-row: 2;
+  -ms-grid-column: 1;
+  grid-area: header-b;
+  -ms-grid-column-align: stretch;
+      justify-self: stretch;
+}
+
+#merc .header-c {
+  -ms-grid-row: 3;
+  -ms-grid-column: 1;
+  grid-area: header-c;
+  -ms-grid-column-align: stretch;
+      justify-self: stretch;
+}
+
+#merc .header-d {
+  -ms-grid-row: 4;
+  -ms-grid-column: 1;
+  grid-area: header-d;
+  -ms-grid-column-align: stretch;
+      justify-self: stretch;
+}
+
+#merc .header-e {
+  -ms-grid-row: 5;
+  -ms-grid-column: 1;
+  grid-area: header-e;
+  -ms-grid-column-align: stretch;
+      justify-self: stretch;
+}
+
+#merc .header-f {
+  -ms-grid-row: 6;
+  -ms-grid-column: 1;
+  grid-area: header-f;
+  -ms-grid-column-align: stretch;
+      justify-self: stretch;
+}
+
+#merc .item-1 {
+  -ms-grid-row: 1;
+  -ms-grid-column: 2;
+  grid-area: item-1;
+}
+
+#merc .item-2 {
+  -ms-grid-row: 1;
+  -ms-grid-column: 3;
+  grid-area: item-2;
+}
+
+#merc .item-3 {
+  -ms-grid-row: 2;
+  -ms-grid-column: 2;
+  grid-area: item-3;
+}
+
+#merc .item-4 {
+  -ms-grid-row: 2;
+  -ms-grid-column: 3;
+  grid-area: item-4;
+}
+
+#merc .item-5 {
+  -ms-grid-row: 3;
+  -ms-grid-column: 2;
+  grid-area: item-5;
+}
+
+#merc .item-6 {
+  -ms-grid-row: 3;
+  -ms-grid-column: 3;
+  grid-area: item-6;
+}
+
+#merc input {
+  margin-right: 10px;
+}
+/*# sourceMappingURL=MercMode.css.map */
