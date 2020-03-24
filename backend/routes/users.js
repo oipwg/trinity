@@ -9,23 +9,6 @@ const auth = require('../middleware/auth');
 const passport = require('passport');
 const passportSignIn = passport.authenticate('local', { session: false });
 
-function authenticateToken(req, res, next) {
-    console.log('header', req.headers);
-    const authHeader = req.headers['authorization'];
-    const token = authHeader;
-
-    console.log('authHeader', authHeader);
-    console.log('token', token);
-    if (token == null) return res.sendStatus(401);
-
-    JWT.verify(token, JWT_SECRET, (err, user) => {
-        if (err) return console.log('403');
-
-        req.body = user;
-        next();
-    });
-}
-
 const signUpValidator = require('../helpers/signUpValidator');
 
 const UsersController = require('../controllers/users');
@@ -36,11 +19,14 @@ router.post('/signup', signUpValidator, UsersController.signUp);
 
 router.post('/login', passportSignIn, UsersController.signIn);
 
+// router.get('/coinbase', UsersController.coinbase);
+// router.get('/coinbase/oauth/token', UsersController.coinbase);
+
 // Private - need token
 router.post('/changepassword', auth, UsersController.changePassword);
 
-router.post('/secret', auth, UsersController.secret);
-
 router.get('/user', auth, UsersController.user);
+
+router.post('/validatePassword', auth, UsersController.validatePassword);
 
 module.exports = router;

@@ -17,11 +17,22 @@ const Login = props => {
     //**Error State */
     const [error, setError] = useState(null);
 
-    useEffect(() => {
-        if (props.error.id === 'LOGIN_FAIL') {
-            return setError('Invalid Credentials');
-        }
-    }, [props.error.id]);
+    useEffect(
+        (prevPass = password, prevUsername = username) => {
+            if (props.error.id === 'LOGIN_FAIL') {
+                return setError('Invalid Credentials');
+            }
+
+            if (prevPass !== password) {
+                props.clearErrors();
+            }
+
+            if (prevUsername !== username) {
+                props.clearErrors();
+            }
+        },
+        [props.error.id, password, username]
+    );
 
     const onFormSubmit = e => {
         e.preventDefault();

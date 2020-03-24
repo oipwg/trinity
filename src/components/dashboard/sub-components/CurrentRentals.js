@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 
 const CurrentRentals = () => {
     let fakeState = {
@@ -32,6 +33,7 @@ const CurrentRentals = () => {
                     </div>
                 </div>
             </div>
+            <Link to="#">View Rentals</Link>
         </div>
     );
 };

@@ -1,3 +1,5 @@
+require('dotenv').config();
+const { API_URL, APP_URL } = process.env;
 const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 
@@ -10,10 +12,13 @@ module.exports = {
     module: {
         rules: [
             {
-                test: /\.(png|jpe?g|gif)$/i,
+                test: /\.(png|jp(e*)g|svg|gif)$/,
                 use: [
                     {
                         loader: 'file-loader',
+                        options: {
+                            name: 'images/[hash]-[name].[ext]',
+                        },
                     },
                 ],
             },
@@ -30,15 +35,11 @@ module.exports = {
             },
         ],
     },
+    mode: 'development',
+    devtool: 'cheap-module-eval-source-map',
     devServer: {
         historyApiFallback: true,
     },
-    mode: 'development',
-    devtool: 'cheap-module-eval-source-map',
-    // devServer: {
-    //     contentBase: path.join(__dirname, 'backend/views'),
-    //     port: 5000,
-    // },
     plugins: [
         new HtmlWebpackPlugin({
             template: './src/index.html',

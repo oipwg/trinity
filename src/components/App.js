@@ -28,7 +28,14 @@ const App = props => {
             <NavBar user={props.user} />
             <Switch>
                  {/* 'Test' */}
-                 <Route path="/settings" component={Settings} /> 
+                 
+                <Route
+                    path="/dashboard"
+                    component={Dashboard}
+                    isAuthenticated={props.isAuthenticated}
+                />
+
+                <Route path="/settings" component={Settings} /> 
                 {/* 'Test' */}
                 <Route path="/setup" component={Setup} /> 
                 {/* Public Routes */}

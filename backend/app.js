@@ -11,6 +11,8 @@ const dashboardRouter = require('./routes/dashboard');
 const setupRouter = require('./routes/setup');
 const settingsRouter = require('./routes/settings');
 const setupWebSocket = require('./routes/socket');
+const authRouter = require('./routes/auth');
+const passport = require('passport');
 
 const app = express();
 
@@ -21,12 +23,14 @@ mongoose
         useNewUrlParser: true,
         useUnifiedTopology: true,
         useCreateIndex: true,
+        useFindAndModify: false,
     })
     .catch(error => console.log('Mongoose DB error ', error));
 
 app.use(logger('dev'));
 
 // CORS - DEVElOPMENT ONLY - //todo: del. me
+// use proxy for production
 let allowCrossDomain = function(req, res, next) {
     res.header('Access-Control-Allow-Origin', '*');
     res.header('Access-Control-Allow-Headers', '*');
@@ -34,16 +38,18 @@ let allowCrossDomain = function(req, res, next) {
 };
 app.use(allowCrossDomain);
 
+app.use(express.static('../dist'));
+app.use(cookieParser());
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
-app.use(cookieParser());
-app.use(express.static('../public'));
+app.use(passport.initialize());
 
 // Routes
 app.use('/users', usersRouter);
 app.use('/dashboard', dashboardRouter);
 app.use('/setup', setupRouter);
 app.use('/settings', settingsRouter);
+app.use('/auth', authRouter);
 // app.use('/setup', setupWebSocket);
 
 // catch 404 and forward to error handler
