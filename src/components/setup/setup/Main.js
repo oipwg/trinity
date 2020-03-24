@@ -1,8 +1,11 @@
 import React, { useState, useEffect, useRef } from 'react';
 import './setup.css';
+import { ROOT_URL, API_URL } from '../../../../config.js';
+
 import { connect } from 'react-redux';
 
 const Main = props => {
+    console.log()
     const [userData, setUserData] = useState([]);
     const userId = useRef('');
     
@@ -200,7 +203,7 @@ const Main = props => {
     async function setup_Provider(data) {
         console.log('setup_Provider ran', data)
         try {
-            const response = await fetch('http://localhost:5000/setup', {
+            const response = await fetch(API_URL+'/setup', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -226,7 +229,7 @@ const Main = props => {
 
     const showCredentials = userdata => {
         let height = (() => {
-            if (userdata.length ) {
+            if ( userdata.length ) {
                 return userdata[0].provider === 'MiningRigRentals' ? '119px' : '195px'
             } else 
                 return '0px'
@@ -240,6 +243,9 @@ const Main = props => {
         let boolean = !userData.length ? false : userData[0].success
         return boolean
     }
+    const goToSettings = () => {
+        location.href = ROOT_URL+'settings';
+    }
 
     const showMessage = (field, i) => {
         let data = userData[i]
@@ -248,8 +254,8 @@ const Main = props => {
                 if (data.err === field && data.success) {
                     return [
                         data.message,
-                        <button type="submit" className="btn btn-success" onClick={set_pool_values}>
-                            Continue >>
+                        <button key={i} type="submit" className="btn btn-success" onClick={goToSettings}>
+                            Continue  >
                         </button>
                     ]    
                 }
@@ -263,8 +269,8 @@ const Main = props => {
                 if (data.err === field && data.success) {
                     return [
                         data.message,
-                        <button type="submit" className="btn btn-success" onClick={set_pool_values}>
-                            Continue >>
+                        <button key={i} type="submit" className="btn btn-success" onClick={goToSettings}>
+                            Continue  >
                         </button>
                     ]    
                 } else if (data.err === field) {
@@ -274,21 +280,21 @@ const Main = props => {
                 }
                 if (data[field] === true) {
                     return (
-                        <i className="fas fa-thumbs-up"></i>
+                        <i key={i} className="fas fa-thumbs-up"></i>
                     )
                 } else {
                     return (
-                        <i className="fas fa-thumbs-down"></i>
+                        <i key={i} className="fas fa-thumbs-down"></i>
                     )
                 }
             case 'success':
                 if (data[field] === true) {
                     return (
-                        <i className="fas fa-thumbs-up"></i>
+                        <i key={i} className="fas fa-thumbs-up"></i>
                     )
                 } else {
                     return (
-                        <i className="fas fa-thumbs-down"></i>
+                        <i key={i} className="fas fa-thumbs-down"></i>
                     )
                 }
         }
@@ -312,10 +318,11 @@ const Main = props => {
                         return (
                             userData.map( (userData, i)=> {
                                 let dataKeys = Object.keys(userData)
-                     
+                                
+                                console.log('length:', i)
                                 return (   
-                                    <tr key={i} className="data-table-row">
-                                        <td>{i}</td>
+                                    <tr  key={i} className="data-table-row">
+                                        <td key={'hey'}>{i}</td>
                                         {dataKeys[0] && (
                                               <td>{showMessage('provider', i) }</td>
                                         )}
@@ -356,7 +363,6 @@ const Main = props => {
                     </div>
                 </div>
                 <div className="credentials">
-                    {console.log(showCredentials(userData))}
                     <div style={{height: showCredentials(userData).boolean ? '0px' : showCredentials(userData).height }} className="provider-credentials">
                         <h4>Provider Credentials</h4>
                         <div className="form-inline API-key">

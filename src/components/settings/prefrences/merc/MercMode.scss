@@ -1,0 +1,64 @@
+#merc {
+  .grid-container {
+    padding-top: 1.5rem;
+    display: grid;
+    // grid-template-columns: repeat(auto-fill);
+    grid-gap: 1rem;
+    grid-template-rows: auto;
+    grid-template-areas:
+      "header-a item-1 item-2"
+      "header-b item-3 item-4"
+      "header-c item-5 item-6"
+      "header-d item-7 item-8"
+      "header-e item item"
+      "header-f item item";
+  }
+
+  .header-a {
+    grid-area: header-a;
+    justify-self: stretch;
+  }
+  .header-b {
+    grid-area: header-b;
+    justify-self: stretch;
+  }
+  .header-c {
+    grid-area: header-c;
+    justify-self: stretch;
+  }
+  .header-d {
+    grid-area: header-d;
+    justify-self: stretch;
+  }
+  .header-e {
+    grid-area: header-e;
+    justify-self: stretch;
+  }
+  .header-f {
+    grid-area: header-f;
+    justify-self: stretch;
+  }
+
+  .item-1 {
+    grid-area: item-1;
+  }
+  .item-2 {
+    grid-area: item-2;
+  }
+  .item-3 {
+    grid-area: item-3;
+  }
+  .item-4 {
+    grid-area: item-4;
+  }
+  .item-5 {
+    grid-area: item-5;
+  }
+  .item-6 {
+    grid-area: item-6;
+  }
+
+  input {
+    margin-right: 10px;
+  }
+}

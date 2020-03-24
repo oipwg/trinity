@@ -57,22 +57,18 @@ async function processUserInput(req, res) {
     }
 }
 
-/* GET setup wizard page */
+/* POST setup wizard page */
 router.post('/', async (req, res) => {
     let userInput = await processUserInput(req, res).then(data => data).catch(err => err)
-    console.log('processUserInput ', userInput)
+    // console.log('processUserInput ', userInput)
 
-
-    controller(userInput).then((data)=>{
-        // console.log('setup.js return data',data)
-        // const err = new Error(data);
+    try {
+        let data = await controller(userInput);
         res.status(200).json({data})
-    }).catch((err)=> {
-        console.log('Setup.js catch error', err);
-        console.log('Error :', err )
+    } catch (err) {
+        console.log('route setup.js 69 catch error', err);
         res.status(500).json({err: err})
-    });
-
+    }
 });
 
 module.exports = router;
