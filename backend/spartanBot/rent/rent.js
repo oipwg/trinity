@@ -10,60 +10,57 @@ const ERROR = 'ERROR';
 
 // Function ran from index.js as a command of Rent
 // export default function(vorpal, options) {
-module.exports = function(options) {
+module.exports = async function(options) {
     let spartan = options.SpartanBot;
-    console.log('rent.js ', spartan);
+
     // if (command === 'rent')
-    async function rent(args, cb) {
-        const self = this;
 
         let rental_providers = spartan.getRentalProviders();
+        console.log('rental_providers:', rental_providers)
 
-        if (rental_providers.length === 0) {
-            return console.log(
-                'No Rental Providers were found! Please run ' +
-                    'rentalprovider add' +
-                    ' to add your API keys.'
-            );
-        }
+        // *** UNCOMMENT WHEN DONE WITH RENTING ***
+        // if (rental_providers.length === 0) {
+        //     return console.log(
+        //         'No Rental Providers were found! Please run ' +
+        //             'rentalprovider add' +
+        //             ' to add your API keys.'
+        //     );
+        // }
 
-        let promptRentType = await self.prompt({
-            type: 'list',
-            name: 'option',
-            message: vorpal.chalk.yellow('Select rent mode:'),
-            choices: ['Manual', 'Spot', 'Tradebot', 'Collective Defense', exit],
-        });
-        let rentType = promptRentType.option;
+        let promptRentType = ['Manual', 'Spot', 'Tradebot', 'Collective Defense']
+        let rentType = promptRentType;
 
         async function interactiveObjectInspection(object) {
             let keys = Object.keys(object);
+            // [ 'status', 'message', 'error', 'timestamp', 'unixTimestamp', 'id' ]
+      
             let modifiedKeys = [];
             for (let key of keys) {
                 modifiedKeys.push(
-                    (key += `: ${vorpal.chalk.yellow(object[key])}`)
+                    (key += `: ${object[key]}`)
                 );
             }
-            let promptChoices = [...modifiedKeys, exit];
-            let inspectionPrompt = await self.prompt({
-                type: 'list',
-                message: 'View your receipt',
-                name: 'option',
-                choices: promptChoices,
-            });
-            if (inspectionPrompt.option === exit) return true;
 
-            let param = inspectionPrompt.option;
-            let splited = param.split(':');
-            param = splited[0];
-            if (
-                Array.isArray(object[param]) ||
-                typeof object[param] === 'object'
-            ) {
-                self.log(object[param]);
-            } else {
-                self.log(vorpal.chalk.yellow(object[param]));
-            }
-            await interactiveObjectInspection(object);
+            let promptChoices = modifiedKeys;
+            console.log('promptChoices: rent.js 45', promptChoices)
+
+            // let inspectionPrompt = await self.prompt({
+            //     type: 'list',
+            //     message: 'View your receipt',
+            //     name: 'option',
+            //     choices: promptChoices,
+            // });
+
+            // let param = inspectionPrompt.option;
+            // let splited = param.split(':');
+            // param = splited[0];
+            // if (Array.isArray(object[param]) ||
+            //     typeof object[param] === 'object' ) {   
+            //     console.log(object[param]);
+            // } else {
+            //     console.log(object[param]);
+            // }
+            // await interactiveObjectInspection(object);
         }
 
         spartan.onRentalSuccess(() => {});
@@ -73,28 +70,25 @@ module.exports = function(options) {
         async function onRentalFnFinish(rental_info) {
             switch (rental_info.status) {
                 case NORMAL:
-                    self.log(vorpal.chalk.green(`Rental was a success!`));
+                    console.log(`Rental was a success!`);
                     break;
                 case WARNING:
-                    self.log(vorpal.chalk.yellow(`Status: Warning`));
+                    console.log(`Status: Warning`);
                     break;
                 case ERROR:
-                    self.log(
-                        vorpal.chalk.red(
-                            `There was an error attempting to rent.`
-                        )
-                    );
-                    self.log(rental_info);
+                   console.log( `There was an error attempting to rent.` );
+                    console.log(rental_info);
                     break;
                 default:
-                    self.log('Rental info not of expected type!');
+                    console.log('Rental info not of expected type!');
             }
             await interactiveObjectInspection(rental_info);
         }
         spartan.emitter.on('RentalFunctionFinish', onRentalFnFinish);
 
-        if (rentType === 'Manual') {
-            await manualRent(self, vorpal, spartan);
+        if (options.rentType === 'Manual') {
+
+            await manualRent(options);
         }
 
         if (rentType === 'Spot') {
@@ -105,5 +99,4 @@ module.exports = function(options) {
 
         if (rentType === 'Collective Defense') {
         }
-    } // run this function rent().  END
 };
