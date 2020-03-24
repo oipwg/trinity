@@ -115,7 +115,6 @@ module.exports = {
         }
     },
 
-    // refactor, can grab ID from token
     validatePassword: async (req, res, next) => {
         try {
             const { id, password } = req.body;

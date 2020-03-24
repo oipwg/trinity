@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { API_URL } from '../../../config.js';
+import MercMode from './prefrences/merc/MercMode';
 
 const Settings = () => {
 
@@ -12,7 +13,7 @@ const Settings = () => {
         }
         console.log('setup_Provider ran', data)
         try {
-            const response = await fetch('http://localhost:5000/settings', {
+            const response = await fetch(`${API_URL}/settings`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -41,7 +42,7 @@ const Settings = () => {
                 placeholder="hashrate"/>
                 <button type="submit" className="btn btn-submit" onClick={rent}>RENT</button>
             </form>
-           
+            <MercMode />
             
         </div>
     )
