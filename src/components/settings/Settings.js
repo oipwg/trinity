@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { API_URL } from '../../../config.js';
+import { ROOT_URL } from '../../../config.js';
 
 const Settings = () => {
 
@@ -7,12 +7,12 @@ const Settings = () => {
 
         e.preventDefault()
         let data = {
-            hashrate: "1000000",
-            duration: "108000"       
+            hashrate: ".001",
+            duration: "3"       
         }
         console.log('setup_Provider ran', data)
         try {
-            const response = await fetch('http://localhost:5000/settings', {
+            const response = await fetch(ROOT_URL +'settings', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

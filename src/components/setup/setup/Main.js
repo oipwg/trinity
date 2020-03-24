@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import './setup.css';
-import { COINBASE_REDIRECT_URL, API_URL } from '../../../../config.js';
+import { ROOT_URL, API_URL } from '../../../../config.js';
 
 import { connect } from 'react-redux';
 
@@ -244,7 +244,7 @@ const Main = props => {
         return boolean
     }
     const goToSettings = () => {
-        location.href = COINBASE_REDIRECT_URL+'settings';
+        location.href = ROOT_URL+'settings';
     }
 
     const showMessage = (field, i) => {
