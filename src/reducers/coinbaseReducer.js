@@ -63,6 +63,8 @@ const coinbaseReducer = (state = initState, action) => {
                 accounts: null,
                 coinbaseLoaded: null,
                 coinbaseisLoading: false,
+                buys: null,
+                paymentMethods: null,
             };
 
         // orders
