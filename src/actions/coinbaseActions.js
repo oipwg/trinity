@@ -13,8 +13,12 @@ import {
     GET_SUCCESS,
 } from './types';
 
+// import { tokenConfig } from '../helpers/headers';
+import { tokenConfig } from './authActions'
+import { API_URL } from '../../config';
 
-// Setup config/headers and token
+
+// Setup config/headers and acess token for making a request
 const getAccessToken = (getState, cb2Fa ) => {
     const aToken = getState().auth.user.coinbase.accessToken;
 
@@ -22,6 +26,7 @@ const getAccessToken = (getState, cb2Fa ) => {
     const config = {
         headers: {
             'Content-Type': 'application/json',
+            'CB-VERSION': '2020-02-12'
         },
     };
 
@@ -32,8 +37,6 @@ const getAccessToken = (getState, cb2Fa ) => {
     if(cb2Fa){
         config.headers['CB-2FA-TOKEN'] = cb2Fa
     }
-
-    console.log(config)
 
     return config;
 };
@@ -51,14 +54,14 @@ export const listAccounts = () => (dispatch, getState) => {
     coinbase
         .get('/accounts', getAccessToken(getState))
         .then(res => {
-            console.log(res);
             dispatch({
                 type: GET_COINBASE_ACCOUNT,
                 payload: res.data,
             });
         })
         .catch(err => {
-            console.log(err);
+            console.log(err.response);
+            
             dispatch({
                 type: GET_ERRORS,
                 payload: err.response,
@@ -70,7 +73,6 @@ export const listPaymentMethods = () => (dispatch, getState) => {
     coinbase
         .get('/payment-methods', getAccessToken(getState))
         .then(res => {
-            console.log(res);
             dispatch({
                 type: GET_COINBASE_PAYMENT_METHODS,
                 payload: res.data,
@@ -111,7 +113,7 @@ export const placeBuyOrderWithoutFees = (
             console.log(res);
             return res;
         })
-        .catch(err => console.log(err));
+        .catch(err => console.log(err.response));
 };
 
 //************* Send Funds **********/
@@ -140,7 +142,7 @@ export const sendFunds = (walletId,to, amount, currency, description, fee, idem,
             return res
         })
         .catch(err => {
-            console.log(err);
+            console.log(err.response);
         });
 };
 
@@ -168,6 +170,6 @@ export const placeSellOrderWithoutFees = (
         console.log(res);
         return res;
     } catch (err) {
-        return console.log(err);
+        return console.log(err.response);
     }
 };

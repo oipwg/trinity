@@ -78,13 +78,17 @@ const SellCryptoModal = props => {
         }
     }, []);
 
+    // returns qoute
     const handleSubmit = e => {
         e.preventDefault();
 
         props.placeSellOrderWithoutFees(
             coinbaseBuyOption.id,
             buyAmount,
-            buyCurrency
+            buyCurrency,
+            primaryAcc.id,
+            false,
+            true
         ).then(res => {
             let {
                 fee,
@@ -107,6 +111,35 @@ const SellCryptoModal = props => {
             setShowConfirmBuy(!showConfirmBuy);
         });
     };
+
+    const submitWithdraw = e => {
+        e.preventDefault();
+
+        props.placeSellOrderWithoutFees(
+            coinbaseBuyOption.id,
+            buyAmount,
+            buyCurrency,
+            primaryAcc.id,
+            false,
+            true //! false would result it withdraw
+        ).then(res => {
+            let {
+                fee,
+                amount,
+                total,
+                subtotal,
+                unit_price,
+                status,
+            } = res.data.data;
+
+            console.log(res)
+
+            props.exitModal();
+
+        });
+    };
+
+    
 
     const handleReturnObj = (from, option) => {
         switch (from) {
@@ -222,8 +255,7 @@ const SellCryptoModal = props => {
                     confirmOrder={confirmOrder}
                     handleClick={() => setShowConfirmBuy(!showConfirmBuy)}
                     handleSubmit={(e) => {
-                        e.preventDefault();
-                        console.log('submit?')
+                        submitWithdraw(e)
                     }}
                     title={'Confirm order'}
                     headingOne={'Pay to'}

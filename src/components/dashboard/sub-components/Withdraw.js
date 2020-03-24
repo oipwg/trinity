@@ -16,6 +16,7 @@ import { connect } from 'react-redux';
 
 
 const Withdraw = props => {
+    console.log(props)
     const [showNetworkTransfer, setShowNetworkTransfer] = useState(false);
     const [showBuySellModal, setShowBuySellModal] = useState(false);
     const [showWithdrawCrypto, setShowWithdrawCrypto] = useState({
@@ -76,6 +77,7 @@ const Withdraw = props => {
     const renderComponents = () => {
         if (showWithdrawCrypto.visible) {
            return <DepositWithdrawOptions 
+            coinbaseInDB={props.coinbaseInDB}
             handleClick={() => {setShowWithdrawCrypto({
                 visible: !showWithdrawCrypto.visible,
                         })}}
@@ -102,6 +104,7 @@ const Withdraw = props => {
         } else if(showBuySellModal) {
             return (
                  <SellCryptoModal 
+                exitModal={props.exitModal}
                  title={"Sell"}
                  submitTitle={"Sell"}
                 handleClick={() => {

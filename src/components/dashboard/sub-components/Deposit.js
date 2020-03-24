@@ -25,11 +25,6 @@ import { connect } from 'react-redux';
 //todo: add copy element to txid - successuful <NetworkTrasnferSend />
 
 const Deposit = props => {
-    // let accounts = props.accounts ? props.accounts.data : null;
-    // let paymentMethods = props.paymentMethods
-    //     ? props.paymentMethods.data
-    //     : null;
-
     const [showCoinbaseTrasnferToWallet, setShowCoinbaseTrasnferToWallet] = useState(false);
     const [showNetworkTransfer, setShowNetworkTransfer] = useState(false);
     const [showBuySellModal, setShowBuySellModal] = useState(false);
@@ -39,22 +34,6 @@ const Deposit = props => {
         name: ''
     });
     
-
-    // useEffect(() => {
-    //     {
-    //         if (accounts && paymentMethods) {
-    //             paymentMethods.find(obj => {
-    //                 if (obj.primary_buy === true) {
-    //                     setPrimaryAcc({
-    //                         id: obj.id,
-    //                         name: obj.name,
-    //                         type: obj.type,
-    //                     });
-    //                 } else return;
-    //             });
-    //         }
-    //     }
-    // }, []);
 
 
     const DepositModal = () => {
@@ -108,7 +87,9 @@ const Deposit = props => {
 
         if (showDepositCrypto.visible) {
            return <DepositWithdrawOptions 
-            handleClick={() => {setShowDepositCrypto({
+           coinbaseInDB={props.coinbaseInDB}
+            handleClick={() => {
+                setShowDepositCrypto({
                 visible: !showDepositCrypto.visible,
                         })}}
             title={`Deposit ${showDepositCrypto.code}`}
@@ -134,6 +115,7 @@ const Deposit = props => {
         } else if(showBuySellModal) {
             return (
                  <BuyCryptoModal 
+                exitModal={props.exitModal}
                 title={'Buy'}
                 submitTitle={'Buy'}
                 handleClick={() => {
@@ -160,6 +142,7 @@ const Deposit = props => {
                 showDepositCrypto={showDepositCrypto}          
              />
             )
+            //! currently no visible - can add this as a button in wallet? 
         } else if(showCoinbaseTrasnferToWallet) {
             return <CoinbaseTrasnferToWallet
                  exitModal={props.exitModal}
