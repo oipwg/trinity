@@ -115,13 +115,14 @@ module.exports = {
         }
     },
 
-    // refactor, can grab ID from token
     validatePassword: async (req, res, next) => {
         try {
             const { id, password } = req.body;
 
-            const user = await User.findById({ _id: id });
+            console.log(req.body)
 
+            const user = await User.findById(req.user.id)
+            
             if (!user) {
                 return res.status(404).json({ error: 'User not found' });
             }
