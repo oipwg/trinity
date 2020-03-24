@@ -2,6 +2,7 @@ import React, { useEffect } from 'react';
 // import SpartanBot from './spartanbot/SpartanBot';
 import { BrowserRouter as Router, Switch, Route } from 'react-router-dom';
 import Setup from './setup/Setup';
+import Settings from './settings/Settings';
 import Home from './home/Home';
 import NavBar from './navbar/navbar';
 import Login from './login/Login';
@@ -26,6 +27,8 @@ const App = props => {
         <Router>
             <NavBar user={props.user} />
             <Switch>
+                 {/* 'Test' */}
+                 <Route path="/settings" component={Settings} /> 
                 {/* 'Test' */}
                 <Route path="/setup" component={Setup} /> 
                 {/* Public Routes */}

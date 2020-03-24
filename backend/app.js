@@ -9,6 +9,7 @@ const mongoose = require('mongoose');
 const usersRouter = require('./routes/users');
 const dashboardRouter = require('./routes/dashboard');
 const setupRouter = require('./routes/setup');
+const settingsRouter = require('./routes/settings');
 const setupWebSocket = require('./routes/socket');
 
 const app = express();
@@ -42,6 +43,7 @@ app.use(express.static('../public'));
 app.use('/users', usersRouter);
 app.use('/dashboard', dashboardRouter);
 app.use('/setup', setupRouter);
+app.use('/settings', settingsRouter);
 // app.use('/setup', setupWebSocket);
 
 // catch 404 and forward to error handler
