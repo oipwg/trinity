@@ -155,7 +155,7 @@ module.exports = async function(options) {
         let poolArray = spartan.returnPools();
         return {
             err: 'provider',
-            message: poolArray.length ? `Maximum number of providers reached: ${rentalProviders.length}.`: 
+            message: poolArray.length ? `Maximum number of providers reached: ${rentalProviders.length}.  `: 
                         `Maximum number of providers reached, showing ${poolArray.length} pools.\n Input fields below to add one.`,
             pool: poolArray.length ? true : false,
             credentials: true,
@@ -184,7 +184,7 @@ module.exports = async function(options) {
                     err: 'pool',
                     message: poolArray.length ? 'Mining Rig Rentals account already exists \n' +
                                                 'Current Limit: 1. Choose another rental provider \n' +
-                                                'to add another account.' :
+                                                'to add another account.   ' :
                                                 'Mining Rig Rentals account already exists  \n' +
                                                 'No pool found enter pool info below to add a pool.',
                     pool: poolArray.length ? true : false,
@@ -315,8 +315,6 @@ module.exports = async function(options) {
                        
                 
                         spartan.serialize();
-                        
-                        console.log('poolArray: 320', poolArray)
                         return {
                             provider: 'MiningRigRental',
                             err: 'pool',

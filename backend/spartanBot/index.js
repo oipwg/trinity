@@ -1,5 +1,5 @@
 // Import each command
-const Rent = require('./Rent');
+const Rent = require('./rent');
 // import Pools from './Pools'
 const RentalProvider = require('./RentalProvider');
 // import Wallet from './Wallet'
@@ -15,6 +15,7 @@ module.exports = async function(options) {
     options.SpartanBot = spartan;
 
     let to_do = Object.keys(options.to_do)[0];
+    console.log('to_do: 18 index.js', to_do)
 
     // Switch based on user input object
     switch (to_do) {
@@ -22,7 +23,8 @@ module.exports = async function(options) {
             let added = await RentalProvider(options).then( added_data => added_data ).catch(err => err);
             return added;
         case 'rent':
-            Rent(options);
+            let rent = Rent(options).then(data => console.log(data)).catch(e => console.log(e));
+            return rent
             break;
     }
 };
