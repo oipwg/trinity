@@ -13,6 +13,7 @@ import { connect } from 'react-redux';
 
 import { coinbaseOAuth } from '../../../actions/authActions'
 import { loadWallet, getBalance } from '../../../actions/walletActions';
+import { getBittrexBalances } from '../../../actions/bittrexActions'
 import {
     listAccounts,
     listPaymentMethods,
@@ -119,7 +120,9 @@ const WalletBalance = props => {
 
 
     const usdSum = () => {
+
         let { balance, exchangeRate } = props.account;
+        let { bittrexBalances } = props
         let sum = 0;
 
         if (balance && exchangeRate) {
@@ -127,9 +130,23 @@ const WalletBalance = props => {
                 if(typeof balance[k] === 'number'){
                     sum += exchangeRate[k] * balance[k];
                 }
-                
             }
         }
+
+
+        if(bittrexBalances){
+            for(const k in bittrexBalances){
+                switch(bittrexBalances[k].Currency){
+                    case 'BTC':
+                         sum += bittrexBalances[k].Balance * exchangeRate.bitcoin
+                    case 'FLO':
+                        sum += bittrexBalances[k].Balance * exchangeRate.flo
+                    case 'RVN':
+                        sum += bittrexBalances[k].Balance * exchangeRate.raven
+                }
+            }
+        }
+
         return Math.floor(sum * 100) / 100;
     };
 
@@ -163,6 +180,9 @@ const WalletBalance = props => {
                             typeof props.account.balance.raven === 'number'
                                 ? props.account.balance.raven.toFixed(8)
                                 : 'n/a'
+                        }
+                        bittrex={
+                            props.bittrexBalances
                         }
                         mrr={124}
                         nicehash={213}
@@ -236,7 +256,10 @@ const WalletBalance = props => {
                             {usdSum()}
                           <button 
                             style={{border: 'none', marginLeft: '10px', fontSize: '18px'}}
-                            onClick={() => props.getBalance(props.account.wallet)}>
+                            onClick={() => {props.getBalance(props.account.wallet)
+                                            props.getBittrexBalances() }
+                                
+                            }>
                             <i className="fas fa-redo"></i>
                             </button>  
 
@@ -302,6 +325,7 @@ const mapStateToProps = state => {
         error: state.error,
         user: state.auth.user,
         account: state.account,
+        bittrexBalances: state.bittrex.balances
     };
 };
 
@@ -310,5 +334,6 @@ export default connect(mapStateToProps, {
     listAccounts,
     listPaymentMethods,
     getBalance,
-    coinbaseOAuth
+    coinbaseOAuth,
+    getBittrexBalances,
 })(WalletBalance);

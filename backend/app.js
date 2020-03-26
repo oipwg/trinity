@@ -12,6 +12,7 @@ const setupRouter = require('./routes/setup');
 const settingsRouter = require('./routes/settings');
 const setupWebSocket = require('./routes/socket');
 const authRouter = require('./routes/auth');
+const bittrexRouter = require('./routes/bittrex')
 const passport = require('passport');
 
 const app = express();
@@ -50,6 +51,7 @@ app.use('/dashboard', dashboardRouter);
 app.use('/setup', setupRouter);
 app.use('/settings', settingsRouter);
 app.use('/auth', authRouter);
+app.use('/bittrex', bittrexRouter);
 // app.use('/setup', setupWebSocket);
 
 // catch 404 and forward to error handler

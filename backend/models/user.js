@@ -22,6 +22,10 @@ const userSchema = new Schema({
         accessToken: {type: String},
         refreshToken: {type: String}
     },
+    bittrex: {
+        apiKey: {type: String},
+        secret: {type: String}
+    },
     api_key: {
         type: String
     },

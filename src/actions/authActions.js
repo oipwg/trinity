@@ -38,7 +38,9 @@ export const loadUser = () => (dispatch, getState) => {
             });
         })
         .catch(err => {
-            dispatch(returnErrors(err.response.data, err.response.status));
+            //todo: handle error - currently returns undefined
+            console.log(err, err.response)
+            dispatch(returnErrors(err.response, err.response.status));
             dispatch({
                 type: AUTH_ERROR,
             });
