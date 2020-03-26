@@ -1,7 +1,9 @@
+require('dotenv').config();
 const axios = require('axios');
 const Crypto = require('crypto')
 const nonce = `76932509675239680235`
 const User = require('../models/user')
+const {API_URL} = process.env
 
 const bittrex = axios.create({
     baseURL: `https://api.bittrex.com/api/v1.1`,
@@ -117,6 +119,7 @@ module.exports = {
         let secret = user.bittrex.secret
 
         const message = `https://api.bittrex.com/api/v1.1/market/selllimit?apikey=${apiKey}&market=BTC-${market}&quantity=${quantity}&rate=${rate}&nonce=${nonce}`
+        const signature = Crypto.createHmac('sha512', secret)
         .update(message)
         .digest('hex');
 
@@ -190,6 +193,7 @@ module.exports = {
         }
     },
 
+    // BTC amount has to be 3 times greater than the fee
     withdraw: async (req,res) => {
         try {
              /*
@@ -217,7 +221,72 @@ module.exports = {
         } catch (error) {
             
         }
-    }
+    },
 
+    cancelOrder: async(req, res) => {
+        try {
+
+            const {orderUuid} = req.body
+
+
+
+            const user = await User.findById(req.user.id).select("bittrex")
+
+            let apiKey = user.bittrex.apiKey
+            let secret = user.bittrex.secret
+
+            const message = `https://api.bittrex.com/api/v1.1/market/cancel?apikey=${apiKey}&uuid=${orderUuid}&nonce=${nonce}`
+            const signature = Crypto.createHmac('sha512', secret)
+            .update(message)
+            .digest('hex');
+    
+            const response = await bittrex.get(message, {headers: {apisign: signature}})
+            console.log(response)
+        
+            res.status(201).json(response.data)
+        } catch (error) {
+            console.log(error)
+        }
+    },
+
+    updateOrder: async (req, res) => {
+        try {
+            const { orderUuid, market, quantity, rate,  timeInForce } = req.body;
+
+            const user = await User.findById(req.user.id).select("bittrex")
+
+            let apiKey = user.bittrex.apiKey
+            let secret = user.bittrex.secret
+
+            let cancelOrder = await (async () => {
+                const message = `https://api.bittrex.com/api/v1.1/market/cancel?apikey=${apiKey}&uuid=${orderUuid}&nonce=${nonce}`;
+                const signature = Crypto.createHmac('sha512', secret)
+                    .update(message)
+                    .digest('hex');
+                const response = await bittrex.get(message, { headers: { apisign: signature } });
+                return response.data;
+            })();
+
+            if(!cancelOrder.success) return res.json({"error": cancelOrder.message})
+
+            let createOrder = await (async () => {
+                const message = `https://api.bittrex.com/api/v1.1/market/selllimit?apikey=${apiKey}&market=BTC-${market}&quantity=${quantity}&rate=${rate}&nonce=${nonce}`
+                const signature = Crypto.createHmac('sha512', secret)
+                .update(message)
+                .digest('hex');
+
+                const response = await bittrex.get(message, {headers: {apisign: signature}})
+                return response.data;
+            })();
+            
+            console.log(createOrder)
+
+            if(!createOrder.success) return res.json({"error": createOrder.message})
+
+            res.status(201).json({'Success': createOrder.message})
+        } catch (error) {
+            console.log({error})
+        }
+    }
 
 }

@@ -19,5 +19,8 @@ router.get('/getBalance', auth, BittrexController.getBalance)
 
 router.post('/withdraw', auth, BittrexController.withdraw)
 
+router.post('/cancelOrder', auth, BittrexController.cancelOrder);
+
+router.post('/updateOrder', auth, BittrexController.updateOrder);
 
 module.exports = router
