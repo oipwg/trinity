@@ -133,8 +133,7 @@ const myStrategy = new CoinbaseStrategy({
                 const user = await User.findById(req.user.id).select('-password');
 
                 if(!user) {
-                    console.log('lame')
-                    return;
+                    return res.status(404).json({ error: 'User not found' });
                 }
 
                 profile = user;

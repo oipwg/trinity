@@ -1,5 +1,4 @@
 require('dotenv').config();
-const axios = require('axios');
 const JWT = require('jsonwebtoken');
 const {
     JWT_SECRET,
