@@ -3,13 +3,27 @@ import './setup.css';
 import { ROOT_URL, API_URL } from '../../../../config.js';
 
 import { connect } from 'react-redux';
-
+const socket = new WebSocket('ws://localhost:3030');
 const Main = props => {
-    console.log()
     const [userData, setUserData] = useState([]);
     const userId = useRef('');
-    
+
+    // socket.onmessage = (e) => {
+    //     console.log('Message from server ',e.data)
+    //   }
+    //   socket.addEventListener('open', function (event) {
+    //     socket.send('Hello Server!');
+    // });
+    // socket.addEventListener('error', function (event) {
+    //     console.log('WebSocket error: ', event);
+    //   });
+    // socket.addEventListener('message', function (event) {
+    //     console.log('Message from server ', event.data);
+    // });
+
+
     useEffect(() => {
+  
         if (props.user) {
             userId.current = props.user._id
         }
@@ -318,11 +332,10 @@ const Main = props => {
                         return (
                             userData.map( (userData, i)=> {
                                 let dataKeys = Object.keys(userData)
-                                
-                                console.log('length:', i)
+    
                                 return (   
-                                    <tr  key={i} className="data-table-row">
-                                        <td key={'hey'}>{i}</td>
+                                    <tr key={i} className="data-table-row">
+                                        <td >{i}</td>
                                         {dataKeys[0] && (
                                               <td>{showMessage('provider', i) }</td>
                                         )}

@@ -60,7 +60,7 @@ async function processUserInput(req, res) {
 /* POST setup wizard page */
 router.post('/', async (req, res) => {
     let userInput = await processUserInput(req, res).then(data => data).catch(err => err)
-    // console.log('processUserInput ', userInput)
+    console.log('processUserInput ', userInput)
 
     try {
         let data = await controller(userInput);

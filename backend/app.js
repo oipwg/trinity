@@ -50,7 +50,7 @@ app.use('/dashboard', dashboardRouter);
 app.use('/setup', setupRouter);
 app.use('/settings', settingsRouter);
 app.use('/auth', authRouter);
-// app.use('/setup', setupWebSocket);
+app.use('/setup', setupWebSocket);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

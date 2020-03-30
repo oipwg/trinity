@@ -10,16 +10,10 @@ exports.manualRent = async (options) => {
     let hashrate = options.hashrate
     let duration = options.duration;
 
-
-    // 1000000000 1gh per second
-    // 10800 3hours
-
     spartan.manualRent(hashrate, duration, async (preprocess, options) => {
-        console.log(' spartan.manualRent manualRent.js 35 CALLBACK')
+        console.log(' spartan.manualRent manualRent.js 35 CALLBACK', preprocess)
         //cancel any ongoing processes so that we can display preprocess prompts
- 
 
-        // self.log('preprocess: ', preprocess)
         const badges = preprocess.badges;
         if (badges.length === 0) {
             return {

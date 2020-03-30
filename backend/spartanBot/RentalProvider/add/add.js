@@ -25,7 +25,7 @@ const storage = process.cwd() +'/localStorage/spartanbot-storage';
 
 let addPool = async function(setup_success, options) {
     const provider = setup_success.proivder || setup_success
-    console.log('provider: 23', provider)
+    console.log('provider: 28', provider)
     let poolData;
     try {
         //MRRProvider.js in spartanbot creates pool profile on MMR site
@@ -45,7 +45,7 @@ let addPool = async function(setup_success, options) {
 
         if (provider.name === 'MiningRigRentals') provider.setActivePoolProfile( poolData.data.id );
         this.serialize()
-        console.log('options.provider: 42 add.js')
+        console.log('options.provider: 48 add.js')
         for (let p of this.getRentalProviders()) {
             if ( p.getUID() !== provider.getUID() ) {
                 p._addPools(options.poolData);  // Line is not working, was .addPools and not _addPools method, 
@@ -53,7 +53,9 @@ let addPool = async function(setup_success, options) {
             }
         }
         try {
+            options.poolData
             let pool = await provider._createPool(options.poolData)
+            console.log('pool: 57 add.js', pool)
             
            
             if ( pool.error ) {
@@ -61,7 +63,7 @@ let addPool = async function(setup_success, options) {
                 return {
                     provider: options.provider,
                     err: 'pool',
-                    message: `Error while creating the pool: ${pool.error}`,
+                    message: `Error while creating the pool: ${pool.message}`,
                     pool: false,
                     credentials: true,
                     success: false
@@ -70,7 +72,7 @@ let addPool = async function(setup_success, options) {
                 return {
                     rental_provider: options.provider,
                     message: `${options.provider} and Pool successfully added, \n` + 
-                             `pool id: ${pool.mrrID}  `,
+                             `pool id: ${pool.mrrID || pool.id}  `,
                     pool: true,
                     credentials: true,
                     success: true
@@ -113,7 +115,7 @@ const getCurrentProvider = function(options) {
 /**
  * Delete a pool
  * @param {(number|string)} id - Pool id
- * @returns {Promise<*>}
+ * @return {Promise<*>}
  */
 const deletePool = async function(id){
     let deletedPool = await this.deletePool().then(res => console.log('deletedPool: ',res))
@@ -152,7 +154,7 @@ module.exports = async function(options) {
     let rentalProviders = spartan.getRentalProviders();
 
     if (rentalProviders.length === 2 && options.poolData === undefined) {
-        let poolArray = spartan.returnPools();
+        let poolArray = await spartan.returnPools();
         return {
             err: 'provider',
             message: poolArray.length ? `Maximum number of providers reached: ${rentalProviders.length}.  `: 
@@ -173,10 +175,12 @@ module.exports = async function(options) {
         }
     };
 
-    let poolArray = await spartan.returnPools();
-    console.log('poolArray: 176', poolArray)
+ 
+    console.log('RENTAL PROVIDER :', rental_provider_type )
+
 
     if (rental_provider_type === MiningRigRentals) {
+        let poolArray = await spartan.returnPools(MiningRigRentals);
         if (checkProviders(MiningRigRentals)) {
             // No pool input data sent from user and no pools exist for user
             if (options.poolData === undefined ) {
@@ -210,7 +214,7 @@ module.exports = async function(options) {
             }
         }
     } else if (rental_provider_type === NiceHash) {
-        
+        let poolArray = await spartan.returnPools(NiceHash);
         if (checkProviders(NiceHash)){
             // No pool input data sent from user and no pools exist for user
             if (options.poolData === undefined ) {
@@ -243,7 +247,6 @@ module.exports = async function(options) {
     }
 
     try {
-
         // Setup either NiceHash or Mining Rig Rentals and finds out if pools or rigs are added to the account also signs you in
         let setup_success = await spartan.setupRentalProvider({
             type: rental_provider_type,
@@ -259,9 +262,8 @@ module.exports = async function(options) {
 
         if (setup_success.success) {
             if (setup_success.type === MiningRigRentals) {
-                let poolArray = await spartan.returnPools();
-                console.log('poolArray: 240', poolArray)
-                console.log('setup_success poolProfiles length:', setup_success.poolProfiles.length)
+                let poolArray = await spartan.returnPools(setup_success.type);
+                console.log('poolArray: 265', poolArray)
 
                 /**
                  * @param {Object} - Add profile and pool 
@@ -286,16 +288,12 @@ module.exports = async function(options) {
                      ********   let poolToAdd = 'the id of the pool you\'re trying to add' ************
                     **/
                     if (options.poolData === undefined) {
-                        console.log('options.poolData: line 269')
                         let poolProfiles = setup_success.poolProfiles;
-                        console.log('poolProfiles:', poolProfiles)
                         let profileArray = [];
                         let profileIDs = [];
                         for (let profile of poolProfiles) {
                             console.log('profile:', profile.id)
-                            profileArray.push(
-                                `Name: ${profile.name} - ID: ${profile.id}`
-                            );
+                            profileArray.push(`Name: ${profile.name} - ID: ${profile.id}`);
                             profileIDs.push(profile.id);
                         }
                       
@@ -346,11 +344,8 @@ module.exports = async function(options) {
                     }
                 }
             }
-            if (setup_success.type === 'NiceHash') {
-                
-                console.log('setup_success.provider: 337', setup_success.provider)
-               
-                let poolArray = await spartan.returnPools();
+            if (setup_success.type === NiceHash) {
+                let poolArray = await spartan.returnPools(setup_success.type);
                 console.log('poolArray: 342 Nice Hash', poolArray)
 
                 //if on pools, ask if they want to create one
@@ -359,7 +354,7 @@ module.exports = async function(options) {
                     if (options.poolData === undefined){
                         return {
                             err: 'pool',
-                            message: `No pools found, input pool info below to continue:`,
+                            message: `No pools found, input pool info below to continue.`,
                             pool: false,
                             credentials: true,
                             success: false
@@ -367,7 +362,6 @@ module.exports = async function(options) {
                     } else {
                         const currentProvider = getCurrentProvider.call(rentalProviders, options)
                         const pool = await addPool.call(spartan, currentProvider ,options)
-                        console.log('setup_success:', setup_success)
                     }
                         
         
@@ -388,7 +382,7 @@ module.exports = async function(options) {
                     }
                     console.log('PoolArray:', PoolArray)
                     return {
-                        provider: 'MiningRigRental',
+                        provider: 'NiceHash',
                         err: 'pool',
                         message: `You have ${ PoolArray.length} pool(s). \n`+
                                  `Pool id: ${PoolArray} `,
@@ -410,7 +404,6 @@ module.exports = async function(options) {
             if (setup_success.message === 'settings.api_key is required!') {
                 console.log('You must input an API Key!')
                 return {
-                    
                     err: 'credentials',
                     message: 'settings.api_key is required!',
                     credentials: false,
