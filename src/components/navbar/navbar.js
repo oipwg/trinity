@@ -122,6 +122,13 @@ class Navbar extends React.Component {
                 >
                     Setup
                 </Link>
+                <Link
+                    onClick={(this.handleClick, this.handleCollapse)}
+                    className="dropdown-item"
+                    to="settings"
+                >
+                    Settings
+                </Link>
                 <div className="dropdown-divider"></div>
                 <Link
                     onClick={(this.handleClick, this.handleCollapse)}

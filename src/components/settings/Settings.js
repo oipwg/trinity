@@ -1,5 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { API_URL } from '../../../config.js';
+import { API_URL, ROOT_URL } from '../../../config.js';
+// import { ROOT_URL } from '../../../config.js';
+import MercMode from './prefrences/merc/MercMode';
 
 const Settings = () => {
 
@@ -44,6 +46,8 @@ const Settings = () => {
                 placeholder="hashrate"/>
                 <button type="submit" className="btn btn-submit" onClick={rent}>RENT</button>
             </form>
+            <MercMode />
+            
         </div>
     )
 }

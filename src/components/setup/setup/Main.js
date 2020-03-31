@@ -3,7 +3,7 @@ import './setup.css';
 import { ROOT_URL, API_URL } from '../../../../config.js';
 
 import { connect } from 'react-redux';
-const socket = new WebSocket('ws://localhost:3030');
+const socket = new WebSocket('ws://localhost:3031');
 const Main = props => {
     const [userData, setUserData] = useState([]);
     const userId = useRef('');

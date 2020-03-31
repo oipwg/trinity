@@ -2,6 +2,8 @@ require('dotenv').config();
 const fs = require('fs');
 const fsPromise = fs.promises;
 const storage = process.cwd() +'/localStorage/spartanbot-storage';
+const User = require('../../../models/user');
+
 /**
  * TO DO LIST
  * @param {FIX NiceHash.js functions => convertIDtoAlgo, checkAlgo, convertAlgoToID } Not.working
@@ -144,11 +146,8 @@ const NiceHash = 'NiceHash';
 
 module.exports = async function(options) {
     let spartan = options.SpartanBot;
-    
-    /**
-	 * Get all Rental Providers from SpartanBot
-	 * @return {Array.<MRRProvider NiceHashProvider>} Returns an array containing all the available providers
-	 */
+ 
+
     let rental_provider_type = options.rental_provider;
     console.log('rental_provider_type:', rental_provider_type)
     let rentalProviders = spartan.getRentalProviders();
@@ -193,7 +192,7 @@ module.exports = async function(options) {
                                                 'No pool found enter pool info below to add a pool.',
                     pool: poolArray.length ? true : false,
                     credentials: true,
-                    success: poolArray.length ? true : false,
+                    success: poolArray.length ? true : false
                 }
             } 
             else {
@@ -218,14 +217,16 @@ module.exports = async function(options) {
         if (checkProviders(NiceHash)){
             // No pool input data sent from user and no pools exist for user
             if (options.poolData === undefined ) {
-                console.log( `NiceHash account already exists. 'Current Limit: 1.'`);
+                console.log( `NiceHash account already exists. 'Current Limit: 1. add.js line 223'`);
                 return {
                     err: 'pool',
-                    message: 'Nice Hash account already exists. Current Limit: 1. \n'+ 
-                                'No pool found enter pool info below to add a pool',
-                    pool:  false,
+                    message: poolArray.length ? 'Nice Hash account already exists. Current Limit: 1. \n'+ 
+                             `With ${poolArray.length} pool(s)   `: 
+                             'Nice Hash account already exists. Current Limit: 1. \n'+
+                             'No pool found enter pool info below to add a pool',
+                    pool:  poolArray.length ? true : false,
                     credentials: true,
-                    success: false
+                    success: poolArray.length ? true : false
                 }
             } else {
                 try {
@@ -319,7 +320,7 @@ module.exports = async function(options) {
                             message: `Profile successfully added, profile id(s): ${profileIDs} \n`+
                                      `You have ${setup_success.pools.length} pool(s), fill out pool info below \n`+
                                      `to add another or click continue  `,
-                            pool: false,
+                            pool: setup_success.pools.length ? true : false,
                             credentials: true,
                             success: true
                         }
@@ -385,7 +386,7 @@ module.exports = async function(options) {
                         provider: 'NiceHash',
                         err: 'pool',
                         message: `You have ${ PoolArray.length} pool(s). \n`+
-                                 `Pool id: ${PoolArray} `,
+                                 `Pool id: ${PoolArray}  `,
                         pool: true,
                         credentials: true,
                         success: true
@@ -420,7 +421,7 @@ module.exports = async function(options) {
             } else if ( setup_success.message === 'Provider Authorization Failed') {
                 console.log('Unable to login to Account using API Key & API Secret, please check your keys and try again');
                 return {
-                    err: 'provider',
+                    err: 'credentials',
                     message: 'Unable to login to Account using API Key or API Secret,\n'+
                              'please check your credentials and try again',
                     credentials: false,
@@ -429,7 +430,7 @@ module.exports = async function(options) {
                 
             } else {
                 return {
-                    err: 'provider',
+                    err: 'credentials',
                     message: setup_success.message,
                     credentials: false,
                     success: false

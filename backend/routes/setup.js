@@ -9,10 +9,12 @@ const User = require('../models/user');
 async function processUserInput(req, res) {
     let options = req.body
    
-    let { userId, rental_provider } = options
-    console.log('userId:', userId)
+    let { userId, rental_provider, credentials } = options
+
     try {
+     
         const user = await User.findById({ _id: userId });
+
         if (!user) {
             return 'Can\'t find user. setup.js line#16'
         }
@@ -29,24 +31,48 @@ async function processUserInput(req, res) {
             console.log('rental_provider:', rental_provider)
             for (let provider of user.providerData) {
                 if (provider.rental_provider === rental_provider) {
+                    console.log('PROVIDER RR', provider)
                     return provider
                 }
             }
         }
         let newProvider = { rental_provider, api_key: options.api_key, api_secret: options.api_secret, api_id: options.api_id }
+        let providerData = user.providerData;
+        let providerLength = providerData.length
+        // When users credentials come back wrong, UPDATE CREDENTIALS.
+        // if (!credentials && providerLength) {
+            // console.log('OPTIONS ERROR : ', options.err)
+            if (options.err === "credentials") {
+        console.log('RAN')
+            for (let i = 0; i < providerLength; i++) {
+                if (providerData[i].rental_provider === rental_provider) {
+                    providerData[i].api_key = options.api_key
+                    providerData[i].api_secret = options.api_secret
+                    providerData[i].api_id = options.api_id
+                    user.save()
+                }
+            }
+            // console.log('OPTIONS add.js 50', options)
 
+        }
         // When adding credentials for the first time
-        if (!user.providerData.length) {
+        else if (!user.providerData.length) {
+            console.log('ELSE IF RAN')
             user.providerData.push( newProvider )
             user.save()
+
+        // When Credentials are good & input fields don't exist get key and secret from database
         } else {  
+            console.log('ELSE RAN')
             let provider = isRentalProvider(rental_provider)
-            // When Credentials fields don't exist get key and secret from database
+            
             if (provider) {
+                console.log('IF RAN')
                 options.api_key = provider.api_key
                 options.api_secret = provider.api_secret
                 options.api_id = provider.api_id
             } else {
+                console.log('ELSE ELSE: ', user)
                 user.providerData.push( newProvider )
                 user.save()
             }
@@ -66,7 +92,7 @@ router.post('/', async (req, res) => {
         let data = await controller(userInput);
         res.status(200).json({data})
     } catch (err) {
-        console.log('route setup.js 69 catch error', err);
+        console.log('route setup.js line 91 catch error', err);
         res.status(500).json({err: err})
     }
 });
