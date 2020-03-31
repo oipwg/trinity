@@ -22,7 +22,7 @@ async function processUserInput(req, res) {
                 rent: true,
             }
         }
-        options.rentType = 'Manual'
+        options.rentType = 'Manual' 
         return options
     // } catch (e) {
     //     return {err: 'Can\'t find user or input is wrong.'+ e}
