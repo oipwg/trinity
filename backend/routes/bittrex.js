@@ -11,7 +11,7 @@ router.get('/exchangerate', BittrexController.exchangeRate)
 
 router.get('/deposit-addresses', auth, BittrexController.getDepositAddresses)
 
-router.post('/createSell', auth, BittrexController.createSell)
+router.post('/createSellOrder', auth, BittrexController.createSellOrder)
 
 router.get('/openOrders', auth, BittrexController.openOrders)
 
@@ -22,5 +22,7 @@ router.post('/withdraw', auth, BittrexController.withdraw)
 router.post('/cancelOrder', auth, BittrexController.cancelOrder);
 
 router.post('/updateOrder', auth, BittrexController.updateOrder);
+
+router.post('/createBuyOrder', auth, BittrexController.createBuyOrder);
 
 module.exports = router

@@ -16,6 +16,9 @@ import { loadUser } from '../actions/authActions';
 import { connect } from 'react-redux';
 
 import PrivateRoute from './PrivateRoute';
+import { API_URL } from '../../config';
+
+
 
 const App = props => {
     
