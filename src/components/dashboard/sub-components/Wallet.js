@@ -13,6 +13,7 @@ import { connect } from 'react-redux';
 
 import { coinbaseOAuth } from '../../../actions/authActions'
 import { loadWallet, getBalance } from '../../../actions/walletActions';
+import { getBittrexBalances } from '../../../actions/bittrexActions'
 import {
     listAccounts,
     listPaymentMethods,
@@ -119,7 +120,9 @@ const WalletBalance = props => {
 
 
     const usdSum = () => {
+
         let { balance, exchangeRate } = props.account;
+        let { bittrexBalances } = props
         let sum = 0;
 
         if (balance && exchangeRate) {
@@ -127,9 +130,23 @@ const WalletBalance = props => {
                 if(typeof balance[k] === 'number'){
                     sum += exchangeRate[k] * balance[k];
                 }
-                
             }
         }
+
+
+        if(bittrexBalances){
+            for(const k in bittrexBalances){
+                switch(bittrexBalances[k].Currency){
+                    case 'BTC':
+                         sum += bittrexBalances[k].Balance * exchangeRate.bitcoin
+                    case 'FLO':
+                        sum += bittrexBalances[k].Balance * exchangeRate.flo
+                    case 'RVN':
+                        sum += bittrexBalances[k].Balance * exchangeRate.raven
+                }
+            }
+        }
+
         return Math.floor(sum * 100) / 100;
     };
 
@@ -145,7 +162,7 @@ const WalletBalance = props => {
                     aria-haspopup="true"
                     aria-expanded="false"
                 >
-                    Available for immediate renting
+                    View Wallets
                 </a>
                 {dropdownState && (
                     <WalletBalanceBreakdown
@@ -163,6 +180,9 @@ const WalletBalance = props => {
                             typeof props.account.balance.raven === 'number'
                                 ? props.account.balance.raven.toFixed(8)
                                 : 'n/a'
+                        }
+                        bittrex={
+                            props.bittrexBalances
                         }
                         mrr={124}
                         nicehash={213}
@@ -221,11 +241,24 @@ const WalletBalance = props => {
                     handleClick={() => setWithdrawModal(!withdrawModal)}
                 />
             )}
-
-            <div className="card-header">Wallet</div>
+            <div className="card-header">Combine Wallet Balance</div>
+            {/* Wallet Box */}
+            <div 
+                style={{
+                    display: 'inherit'
+                }}
+            >
             <div
-                className="card-body"
-                style={{ display: 'flex', flexDirection: 'column' }}
+                style={{ 
+                    display: 'flex', 
+                    justifyContent: 'center',
+                    border: '1px solid black', 
+                    alignItems: 'center',
+                    paddingTop: '25px',
+                    paddingBottom: '25px',
+                    width: '50%',
+                    backgroundColor: 'rgba(0,0,0,.2)'
+                }}
             >
                 <div>
                     <h3>
@@ -236,7 +269,10 @@ const WalletBalance = props => {
                             {usdSum()}
                           <button 
                             style={{border: 'none', marginLeft: '10px', fontSize: '18px'}}
-                            onClick={() => props.getBalance(props.account.wallet)}>
+                            onClick={() => {props.getBalance(props.account.wallet)
+                                            props.getBittrexBalances() }
+                                
+                            }>
                             <i className="fas fa-redo"></i>
                             </button>  
 
@@ -248,7 +284,9 @@ const WalletBalance = props => {
                                 {
                                     showSpinner 
                                     ?
+                                        <span style={{margin: '5px'}}>    
                                         <Spinner />
+                                        </span>
                                     :
                                         <button
                                             type="button"
@@ -268,9 +306,12 @@ const WalletBalance = props => {
 
                 {/* Deposit/Withdraw Buttons */}
                 <div>
+                    <div style={{
+                        margin: '5px',
+                    }}>
                     <button
+                        style={{width: '94.48px'}}
                         disabled={walletLock}
-                        style={{marginRight: '.25rem'}}
                         onClick={() => {
                             setDepositModal(!depositModal);
                         }}
@@ -279,6 +320,11 @@ const WalletBalance = props => {
                     >
                         Deposit
                     </button>
+                    </div>
+                    <div style={{
+                        margin: '5px'
+                    }}>
+                   
                     <button
                         disabled={walletLock}
                         onClick={() => {
@@ -289,10 +335,17 @@ const WalletBalance = props => {
                     >
                         Withdraw
                     </button>
+                    </div>
                 </div>
-                {props.account.balance && renderBreakdown()}
             </div>
-            <Link to="#">View Transactions</Link>
+            <div style={{margin: '10px'}}>
+            <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. 
+                Suspendisse dictum, dui sit amet rhoncus vehicula, felis leo suscipit turpis, in tempus enim neque eget eros. Phasellus vel magna eget purus tincidunt efficitur. Suspendisse at congue felis. Sed scelerisque quam eget pharetra venenatis.
+            </p>
+            </div>
+            {props.account.balance && renderBreakdown()}
+            </div>
+            {props.account.balance && renderBreakdown()}
         </div>
     );
 };
@@ -302,6 +355,7 @@ const mapStateToProps = state => {
         error: state.error,
         user: state.auth.user,
         account: state.account,
+        bittrexBalances: state.bittrex.balances
     };
 };
 
@@ -310,5 +364,6 @@ export default connect(mapStateToProps, {
     listAccounts,
     listPaymentMethods,
     getBalance,
-    coinbaseOAuth
+    coinbaseOAuth,
+    getBittrexBalances,
 })(WalletBalance);

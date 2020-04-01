@@ -1,7 +1,7 @@
 import React from 'react';
-import './ToggleSwitch.css'
+import './Checkbox.css'
 
-const ToggleSwitch = ({isOn, handleToggle, style}) => {
+const Checkbox = ({isOn, handleToggle}) => {
     return (
       <>
         <input
@@ -22,4 +22,4 @@ const ToggleSwitch = ({isOn, handleToggle, style}) => {
     );
   };
   
-  export default ToggleSwitch;
+  export default Checkbox;

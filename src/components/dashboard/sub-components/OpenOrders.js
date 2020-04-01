@@ -1,4 +1,6 @@
 import React, { useState } from 'react';
+import { formatToDate , formatTime} from '../../../helpers/dateFormatter';
+
 
 const OpenOrders = () => {
     const [fakeData, setFakeData] = useState({
@@ -30,14 +32,14 @@ const OpenOrders = () => {
     const renderTableData = () => {
         return fakeData.data.map((data, i) => {
             const { date, numOfFlo, amountOfFlo, margin, revenue } = data;
-
+            console.log((new Date(date)).toUTCString())
             return (
                 <tr key={i}>
-                    <td>{date}</td>
+                    <td>{formatToDate(date) + ' ' + formatTime(date)}</td>
                     <td>{numOfFlo}</td>
                     <td>${amountOfFlo}</td>
                     <td>{margin}%</td>
-                    <td>{revenue}</td>
+                    <td>${revenue}</td>
                 </tr>
             );
         });
@@ -70,6 +72,7 @@ const OpenOrders = () => {
                         {renderTableData()}
                     </tbody>
                 </table>
+                <a href="#">Show More</a>
             </div>
         </div>
     );

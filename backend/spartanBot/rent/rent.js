@@ -13,8 +13,6 @@ const ERROR = 'ERROR';
 module.exports = async function(options) {
     let spartan = options.SpartanBot;
 
-    // if (command === 'rent')
-
         let rental_providers = spartan.getRentalProviders();
         console.log('rental_providers:', rental_providers)
 

@@ -12,11 +12,13 @@ const setupRouter = require('./routes/setup');
 const settingsRouter = require('./routes/settings');
 const setupWebSocket = require('./routes/socket');
 const authRouter = require('./routes/auth');
+const bittrexRouter = require('./routes/bittrex')
 const passport = require('passport');
+const { NODE_ENV, MONGO_URL } = process.env;
+
 
 const app = express();
 
-const { NODE_ENV, MONGO_URL } = process.env;
 
 mongoose
     .connect(MONGO_URL, {
@@ -51,6 +53,8 @@ app.use('/setup', setupRouter);
 app.use('/settings', settingsRouter);
 app.use('/auth', authRouter);
 // app.use('/setup', setupWebSocket);
+app.use('/bittrex', bittrexRouter);
+
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
@@ -67,5 +71,48 @@ app.use(function(err, req, res, next) {
     res.status(err.status || 500);
     res.send('error');
 });
+
+
+// BITTREX SOCKET
+// const util = require('util');
+// const SignalRClient = require('bittrex-signalr-client');
+// let client = new SignalRClient({
+//     // websocket will be automatically reconnected if server does not respond to ping after 10s
+//     pingTimeout:10000,
+//     // use cloud scraper to bypass Cloud Fare (default)
+//     useCloudScraper:true
+// });
+
+// //-- event handlers
+// client.on('ticker', function(data){
+//     console.log(util.format("Got ticker update for pair '%s'", data.pair));
+// });
+
+// //-- start subscription
+// console.log("=== Subscribing to 'USDT-BTC' pair");
+// client.subscribeToTickers(['USDT-BTC']);
+
+//-- event handlers
+// client.on('orderBook', function(data){
+//     console.log(data.data)
+//     console.log(util.format("Got full order book for pair '%s' : cseq = %d", data.pair, data.cseq));
+// });
+// client.on('orderBookUpdate', function(data){
+//     console.log(data.data)
+//     console.log(util.format("Got order book update for pair '%s' : cseq = %d", data.pair, data.cseq));
+// });
+// client.on('trades', function(data){
+//     console.log(data)
+//     console.log(util.format("Got trades for pair '%s'", data.pair));
+// });
+
+// //-- start subscription
+// console.log("=== Subscribing to 'BTC-FLO' pair");
+// client.subscribeToMarkets(['BTC-FLO']);
+
+
+// this._client = client;
+
+// this._client.connect();
 
 module.exports = app;
