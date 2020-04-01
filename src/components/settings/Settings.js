@@ -1,24 +1,28 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { ROOT_URL } from '../../../config.js';
+import { API_URL, ROOT_URL } from '../../../config.js';
+// import { ROOT_URL } from '../../../config.js';
 import MercMode from './prefrences/merc/MercMode';
 
 const Settings = () => {
 
     // async function rent(e) {
 
-    //     e.preventDefault()
-    //     let data = {
-    //         hashrate: ".001",
-    //         duration: "3"       
-    //     }
-    //     console.log('setup_Provider ran', data)
-    //     try {
-    //         const response = await fetch(`${ROOT_URL}/settings`, {
-    //             method: 'POST',
-    //             headers: {
-    //                 'Content-Type': 'application/json',
-    //             },
-    //             body: JSON.stringify(data)
+        e.preventDefault()
+        // 1 TH/s = 1,000 GH/s = 1,000,000 MH/s = 1,000,000,000 kH/s
+        let data = {
+            // hashrate: ".0079",
+            hashrate: ".01",
+            // hashrate: ".001",
+            duration: "3"       
+        }
+        console.log('setup_Provider ran', data)
+        try {
+            const response = await fetch(API_URL+'/settings', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(data) 
           
     //         });
         
@@ -26,10 +30,10 @@ const Settings = () => {
     //         console.log('res:', res)
 
 
-    //     } catch (e) {
-    //         console.log('Catch error: Settings.js line 20',e)
-    //     }
-    // }
+        } catch (e) {
+            console.log('Catch error: Settings.js line 30',e)
+        }
+    }
 
     return (
         <div>

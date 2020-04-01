@@ -44,8 +44,7 @@
     "react-spring": "^8.0.27",
     "redux": "^4.0.5",
     "redux-thunk": "^2.3.0",
-    "socket.io": "^2.3.0",
-    "spartanbot": "git+https://github.com/oipwg/spartanbot.git#up",
+    "spartanbot": "git+https://github.com/bradicalone/spartanbot.git",
     "timestring": "^6.0.0",
     "ws": "^7.2.3"
   },

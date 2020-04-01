@@ -52,8 +52,9 @@ app.use('/dashboard', dashboardRouter);
 app.use('/setup', setupRouter);
 app.use('/settings', settingsRouter);
 app.use('/auth', authRouter);
-app.use('/bittrex', bittrexRouter);
 // app.use('/setup', setupWebSocket);
+app.use('/bittrex', bittrexRouter);
+
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
