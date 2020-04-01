@@ -7,6 +7,7 @@ import { tokenConfig } from '../../helpers/headers';
 import { decrypt } from '../../helpers/crypto';
 import logo from '../../../public/images/alexandria/alexandria-bookmark-100.png';
 import RenderError from '../helpers/errors';
+import MercMode from '../settings/prefrences/merc/MercMode';
 
 // todo: If (no token is present) - Foward to Login - No Menu Options
 // todo: CSS Navebar - Dashboard on the Left - Backup, User Right
@@ -24,6 +25,7 @@ class Navbar extends React.Component {
             downloadmnemonic: false,
             error: null,
             showMnemonic: null,
+            showSettingsMercModal: false
         };
     }
 
@@ -35,6 +37,16 @@ class Navbar extends React.Component {
 
     componentWillUnmount() {
         document.removeEventListener('mousedown', this.handleClickOutside);
+    }
+
+    handleSave = () => {
+        console.log('Saved!...')
+        
+
+        this.setState({
+            showSettingsMercModal: !this.state.showSettingsMercModal
+        });
+
     }
 
     handleClick = () => {
@@ -67,6 +79,11 @@ class Navbar extends React.Component {
             showMnemonic: null,
             downloadmnemonic: false,
             password: '',
+        });
+    };
+    handleSettingsMercModal = () => {
+        this.setState({
+            showSettingsMercModal: !this.state.showSettingsMercModal
         });
     };
 
@@ -122,13 +139,12 @@ class Navbar extends React.Component {
                 >
                     Setup
                 </Link>
-                <Link
-                    onClick={(this.handleClick, this.handleCollapse)}
+                <div
+                    onClick={(this.handleClick, this.handleCollapse, this.handleSettingsMercModal)}
                     className="dropdown-item"
-                    to="settings"
                 >
                     Settings
-                </Link>
+                </div>
                 <div className="dropdown-divider"></div>
                 <Link
                     onClick={(this.handleClick, this.handleCollapse)}
@@ -327,6 +343,29 @@ class Navbar extends React.Component {
                                     </p>
                                 </>
                             }
+                        />
+                    )}
+                            {/* Settings */}
+                {this.state.showSettingsMercModal && (
+                        <Modal
+                            handleClick={this.handleSettingsMercModal}
+                            handleSubmit={this.handleSave}
+                            // title={}
+                            sendButtonTitle={<i className="fas fa-unlock"></i>}
+                            submitType={'submit'}
+                            modalBody={
+                                <>
+                                    <MercMode />
+                                </>
+                            }
+                            footer={
+                    <div className="deposit-footer">
+                        <div className="deposit-footer-card">
+                        </div>
+                    </div>
+                            }
+                        submitType={'submit'}
+                        sendButtonTitle={`Save`}
                         />
                     )}
                 </div>

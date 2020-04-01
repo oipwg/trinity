@@ -1,17 +1,36 @@
 #merc {
   .grid-container {
-    padding-top: 1.5rem;
     display: grid;
     // grid-template-columns: repeat(auto-fill);
-    grid-gap: 1rem;
+    grid-gap: 0.5rem;
     grid-template-rows: auto;
+    // grid-template-areas:
+    //   "header-a item-1 item-2"
+    //   "header-b item-3 item-4"
+    //   "header-c item-5 item-6"
+    //   "header-d item-7 item-8"
+    //   "header-e item item"
+    //   "header-f item item";
     grid-template-areas:
+      ".       iconFlo iconRvn"
       "header-a item-1 item-2"
       "header-b item-3 item-4"
       "header-c item-5 item-6"
-      "header-d item-7 item-8"
-      "header-e item item"
-      "header-f item item";
+      "header-d item-7 item-8";
+  }
+
+  h3 {
+    font-size: 1.4em;
+  }
+
+  .iconFlo {
+    grid-area: iconFlo;
+    text-align: center;
+  }
+
+  .iconRvn {
+    grid-area: iconRvn;
+    text-align: center;
   }
 
   .header-a {
@@ -41,21 +60,33 @@
 
   .item-1 {
     grid-area: item-1;
+    text-align: center;
+    text-align: -webkit-center;
   }
   .item-2 {
     grid-area: item-2;
+    text-align: center;
+    text-align: -webkit-center;
   }
   .item-3 {
     grid-area: item-3;
+    text-align: center;
+    text-align: -webkit-center;
   }
   .item-4 {
     grid-area: item-4;
+    text-align: center;
+    text-align: -webkit-center;
   }
   .item-5 {
     grid-area: item-5;
+    text-align: center;
+    text-align: -webkit-center;
   }
   .item-6 {
     grid-area: item-6;
+    text-align: center;
+    text-align: -webkit-center;
   }
 
   input {

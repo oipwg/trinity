@@ -33,7 +33,7 @@ const WalletBalanceBreakdown = ({ localFlo, localBtc, localRvn, mrr, nicehash, b
                 <div className="card-header">Bittrex</div>
                 <div className="card-body" style={{ display: 'flex' }}>
                     <div>
-                        {
+                        {bittrex &&
                             Object.keys(bittrex).map((k, i) => {
 
                                 if(bittrex[k].Currency === 'BTXCRD'){

@@ -18,6 +18,7 @@
     "acorn": "^7.1.1",
     "axios": "^0.19.2",
     "bcrypt": "^3.0.8",
+    "bittrex-signalr-client": "^1.1.10",
     "cookie-parser": "~1.4.4",
     "crypto-js": "^4.0.0",
     "debug": "~2.6.9",
@@ -43,9 +44,10 @@
     "react-spring": "^8.0.27",
     "redux": "^4.0.5",
     "redux-thunk": "^2.3.0",
+    "socket.io": "^2.3.0",
     "spartanbot": "git+https://github.com/oipwg/spartanbot.git#up",
     "timestring": "^6.0.0",
-    "ws": "^7.2.1"
+    "ws": "^7.2.3"
   },
   "devDependencies": {
     "@babel/cli": "^7.7.7",

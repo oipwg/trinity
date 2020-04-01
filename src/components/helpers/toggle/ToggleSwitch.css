@@ -1,0 +1,50 @@
+.toggle-switch {
+  height: 0;
+  width: 0;
+  visibility: hidden;
+}
+
+.toggle-switch-label {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+  -webkit-box-pack: justify;
+  -ms-flex-pack: justify;
+  justify-content: space-between;
+  cursor: pointer;
+  width: 50px;
+  height: 25px;
+  background: grey;
+  border-radius: 100px;
+  position: relative;
+  -webkit-transition: background-color 0.2s;
+  transition: background-color 0.2s;
+}
+
+.toggle-switch-label .toggle-switch-button {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 22.5px;
+  height: 22.5px;
+  border-radius: 45px;
+  -webkit-transition: 0.2s;
+  transition: 0.2s;
+  background: #fff;
+  -webkit-box-shadow: 0 0 2px 0 rgba(10, 10, 10, 0.29);
+  box-shadow: 0 0 2px 0 rgba(10, 10, 10, 0.29);
+}
+
+.toggle-switch:checked + .toggle-switch-label .toggle-switch-button {
+  left: calc(100% - 2px);
+  -webkit-transform: translateX(-100%);
+  transform: translateX(-100%);
+}
+
+.toggle-switch:active .toggle-switch-button {
+  width: 60px;
+}
+/*# sourceMappingURL=ToggleSwitch.css.map */

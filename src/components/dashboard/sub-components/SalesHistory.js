@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { formatToDate , formatTime} from '../../../helpers/dateFormatter';
 
-const CurrentRentals = () => {
+
+const SalesHistory = () => {
     const [fakeData, setFakeData] = useState({
         data: [
             {
@@ -11,7 +12,6 @@ const CurrentRentals = () => {
                 margin: 10,
                 revenue: '20',
                 link: '#'
-
             },
             {
                 date: Date.now(),
@@ -20,7 +20,6 @@ const CurrentRentals = () => {
                 margin: 10,
                 revenue: '20',
                 link: '#'
-
             },
             {
                 date: Date.now(),
@@ -37,8 +36,6 @@ const CurrentRentals = () => {
     const renderTableData = () => {
         return fakeData.data.map((data, i) => {
             const { date, numOfFlo, amountOfFlo, margin, revenue, link } = data;
-            console.log(new Date(date))
-            
 
             return (
                 <tr key={i}>
@@ -61,7 +58,7 @@ const CurrentRentals = () => {
 
         return (
             <>
-                <th scope="col">Started On</th>
+                <th scope="col">Completed On</th>
                 <th scope="col"># of FLO</th>
                 <th scope="col">$ per FLO</th>
                 <th scope="col">Margin</th>
@@ -73,7 +70,7 @@ const CurrentRentals = () => {
 
     return (
         <div className="card open-orders">
-            <div className="card-header">Current Rentals</div>
+            <div className="card-header">Sales History</div>
             <div className="card-body">
                 <table className="table table-bordered" id="open-orders">
                     <tbody>
@@ -81,10 +78,10 @@ const CurrentRentals = () => {
                         {renderTableData()}
                     </tbody>
                 </table>
-                <a href="#">Show More</a>
+            <a href="#">Show More</a>
             </div>
         </div>
     );
 };
 
-export default CurrentRentals;
+export default SalesHistory;
