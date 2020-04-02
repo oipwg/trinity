@@ -1,5 +1,5 @@
 import React from 'react';
-import { crypto } from './crypto';
+import { crypto } from '../../../../helpers-functions/cryptoCurrencies';
 
 
 const ActiveRentals = () => {

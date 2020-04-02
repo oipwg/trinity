@@ -3,7 +3,6 @@ import Modal from '../../helpers/modal';
 import { API_URL } from '../../../../config';
 
 const DepositWithdrawOptions = (props) => {
-    console.log(props)
     return (
         <Modal
         handleClick={props.handleClick}

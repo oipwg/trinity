@@ -1,5 +1,5 @@
 import React, {useState} from 'react'
-import ToggleSwitch from '../../helpers/toggle/ToggleSwitch';
+import ToggleSwitch from '../../../helpers/toggle/ToggleSwitch';
 
 
 

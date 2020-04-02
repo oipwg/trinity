@@ -15,6 +15,8 @@ router.post('/createSellOrder', auth, BittrexController.createSellOrder)
 
 router.get('/openOrders', auth, BittrexController.openOrders)
 
+router.get('/salesHistory', auth, BittrexController.salesHistory)
+
 router.get('/getBalance', auth, BittrexController.getBalance)
 
 router.post('/withdraw', auth, BittrexController.withdraw)

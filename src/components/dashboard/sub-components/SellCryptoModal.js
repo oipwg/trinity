@@ -15,7 +15,6 @@ import { connect } from 'react-redux';
 import { placeSellOrderWithoutFees } from '../../../actions/coinbaseActions';
 
 const SellCryptoModal = props => {
-    console.log(props)
 
     let accounts = props.accounts ? props.accounts.data : null;
     let paymentMethods = props.paymentMethods ? props.paymentMethods.data

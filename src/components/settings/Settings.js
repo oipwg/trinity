@@ -5,6 +5,7 @@ import MercMode from './prefrences/merc/MercMode';
 
 const Settings = () => {
 
+    /*
     // async function rent(e) {
 
         e.preventDefault()
@@ -35,6 +36,8 @@ const Settings = () => {
         }
     }
 
+    */
+
     return (
         <div>
             {/* <form>
@@ -46,7 +49,6 @@ const Settings = () => {
                 placeholder="hashrate"/>
                 <button type="submit" className="btn btn-submit" onClick={rent}>RENT</button>
             </form> */}
-            <MercMode />
             
         </div>
     )

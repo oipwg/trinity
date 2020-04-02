@@ -12,9 +12,6 @@ const coinbase = axios.create({
     },
 });
 
-const accesstoken = "46c2ce5af89db2e6b49cba913155d1302e33df744020e5313306ee0db3e86587"
-
-
 export const listAccounts = () => {
     coinbase
         .get('/accounts', {

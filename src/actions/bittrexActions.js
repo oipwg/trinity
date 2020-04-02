@@ -11,7 +11,9 @@ GET_BITTREX_EX_PRICES,
 GET_BITTREX_RVN_EX_PRICE,
 GET_BITTREX_FLO_EX_PRICE,
 BITTREX_WITHDRAW,
-GET_BITTREX_BALANCES
+GET_BITTREX_BALANCES,
+GET_BITTREX_OPENORDERS,
+GET_BITTREX_SALESHISTORY,
 } from './types'
 
 
@@ -35,7 +37,35 @@ export const getBittrexBalances = () => async (dispatch, getState) => {
         })
 
     } catch (error) {
-        console.log(error)
+        console.log(error.response)
     }
+}
 
+export const getOpenOrder = () => async(dispatch,getState) => {
+    try {
+        const res = await axios.get(`${API_URL}/bittrex/openOrders`, tokenConfig(getState))
+        console.log(res);
+
+        dispatch({
+            type: GET_BITTREX_OPENORDERS,
+            payload: res.data.openOrders
+        })
+
+    } catch (error) {
+        console.log(error.response)
+    }
+}
+
+export const getSalesHistory = () => async(dispatch,getState) => {
+    try {
+        const res = await axios.get(`${API_URL}/bittrex/salesHistory`, tokenConfig(getState))
+
+        dispatch({
+            type: GET_BITTREX_SALESHISTORY,
+            payload: res.data.salesHistory
+        })
+
+    } catch (error) {
+        console.log(error.response)
+    }
 }

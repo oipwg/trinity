@@ -2,7 +2,6 @@ import React from 'react';
 import './ToggleSwitch.css'
 
 const ToggleSwitch = ({isOn, handleToggle, style}) => {
-    console.log(isOn)
 
     return (
       <>
