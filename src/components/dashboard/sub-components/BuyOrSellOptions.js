@@ -3,7 +3,6 @@ import Modal from '../../helpers/modal';
 import './subcomponent.css';
 
 const BuyOrSellOptions = props => {
-    console.log({ props });
 
     return (
         <Modal

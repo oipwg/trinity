@@ -1,27 +1,27 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 
-import Modal from '../../helpers/modal';
+import Modal from '../../../helpers/modal';
 import WalletBalanceBreakdown from './WalletBalanceBreakdown';
-import RenderError from '../../helpers/errors';
-import Deposit from './Deposit';
+import RenderError from '../../../helpers/errors';
+import Deposit from '../Deposit';
 // import BuyCryptoModal from './BuyCryptoModal';
-import Withdraw from './Withdraw';
-import Spinner from '../../helpers/spinner';
+import Withdraw from '../Withdraw';
+import Spinner from '../../../helpers/spinner';
 
 import { connect } from 'react-redux';
 
-import { coinbaseOAuth } from '../../../actions/authActions'
-import { loadWallet, getBalance } from '../../../actions/walletActions';
-import { getBittrexBalances } from '../../../actions/bittrexActions'
+import { coinbaseOAuth } from '../../../../actions/authActions'
+import { loadWallet, getBalance } from '../../../../actions/walletActions';
+import { getBittrexBalances } from '../../../../actions/bittrexActions'
 import {
     listAccounts,
     listPaymentMethods,
-} from '../../../actions/coinbaseActions';
+} from '../../../../actions/coinbaseActions';
 
 import { Link } from 'react-router-dom';
-import { API_URL } from '../../../../config';
-import { tokenConfig } from '../../../helpers/headers';
+import { API_URL } from '../../../../../config';
+import { tokenConfig } from '../../../../helpers-functions/headers';
 
 const WalletBalance = props => {
 
@@ -92,6 +92,10 @@ const WalletBalance = props => {
             password,
         });
 
+        if(props.user.bittrex){
+            props.getBittrexBalances();
+        }
+
         axios
             .post(`${API_URL}/users/validatePassword`, body, tokenConfig())
             .then(res => res)
@@ -100,6 +104,7 @@ const WalletBalance = props => {
                 setModalState(false);
                 setShowSpinner(!showSpinner);
                 setWalletLock(false)
+
             })
             .catch(err => setErrorMessage(err.response.data));
     };
@@ -256,7 +261,7 @@ const WalletBalance = props => {
                     alignItems: 'center',
                     paddingTop: '25px',
                     paddingBottom: '25px',
-                    width: '50%',
+                    width: '70%',
                     backgroundColor: 'rgba(0,0,0,.2)'
                 }}
             >
@@ -268,7 +273,7 @@ const WalletBalance = props => {
                             <>
                             {usdSum()}
                           <button 
-                            style={{border: 'none', marginLeft: '10px', fontSize: '18px'}}
+                            style={{border: 'none', marginLeft: '8px', fontSize: '18px', backgroundColor: 'transparent'}}
                             onClick={() => {props.getBalance(props.account.wallet)
                                             props.getBittrexBalances() }
                                 
@@ -343,7 +348,6 @@ const WalletBalance = props => {
                 Suspendisse dictum, dui sit amet rhoncus vehicula, felis leo suscipit turpis, in tempus enim neque eget eros. Phasellus vel magna eget purus tincidunt efficitur. Suspendisse at congue felis. Sed scelerisque quam eget pharetra venenatis.
             </p>
             </div>
-            {props.account.balance && renderBreakdown()}
             </div>
             {props.account.balance && renderBreakdown()}
         </div>
