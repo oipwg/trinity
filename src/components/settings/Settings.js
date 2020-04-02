@@ -5,7 +5,8 @@ import MercMode from './prefrences/merc/MercMode';
 
 const Settings = () => {
 
-    async function rent(e) {
+    /*
+    // async function rent(e) {
 
         e.preventDefault()
         // 1 TH/s = 1,000 GH/s = 1,000,000 MH/s = 1,000,000,000 kH/s
@@ -24,19 +25,21 @@ const Settings = () => {
                 },
                 body: JSON.stringify(data) 
           
-            });
+    //         });
         
-            let res = await response.json()
-            console.log('res:', res)
+    //         let res = await response.json()
+    //         console.log('res:', res)
 
         } catch (e) {
             console.log('Catch error: Settings.js line 30',e)
         }
     }
 
+    */
+
     return (
         <div>
-            <form>
+            {/* <form>
             <input
                 type="text"
                 id="hashrate"
@@ -44,8 +47,7 @@ const Settings = () => {
                 aria-describedby="hashrate"
                 placeholder="hashrate"/>
                 <button type="submit" className="btn btn-submit" onClick={rent}>RENT</button>
-            </form>
-            <MercMode />
+            </form> */}
             
         </div>
     )

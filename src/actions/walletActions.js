@@ -1,7 +1,7 @@
 // import axios from 'axios';
 
 // Might not need this
-import { decrypt } from '../helpers/crypto';
+import { decrypt } from '../helpers-functions/crypto';
 import HDMW from '@oipwg/hdmw';
 const Wallet = HDMW.Wallet;
 

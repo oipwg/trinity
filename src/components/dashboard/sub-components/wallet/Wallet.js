@@ -1,27 +1,27 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 
-import Modal from '../../helpers/modal';
+import Modal from '../../../helpers/modal';
 import WalletBalanceBreakdown from './WalletBalanceBreakdown';
-import RenderError from '../../helpers/errors';
-import Deposit from './Deposit';
+import RenderError from '../../../helpers/errors';
+import Deposit from '../Deposit';
 // import BuyCryptoModal from './BuyCryptoModal';
-import Withdraw from './Withdraw';
-import Spinner from '../../helpers/spinner';
+import Withdraw from '../Withdraw';
+import Spinner from '../../../helpers/spinner';
 
 import { connect } from 'react-redux';
 
-import { coinbaseOAuth } from '../../../actions/authActions'
-import { loadWallet, getBalance } from '../../../actions/walletActions';
-import { getBittrexBalances } from '../../../actions/bittrexActions'
+import { coinbaseOAuth } from '../../../../actions/authActions'
+import { loadWallet, getBalance } from '../../../../actions/walletActions';
+import { getBittrexBalances } from '../../../../actions/bittrexActions'
 import {
     listAccounts,
     listPaymentMethods,
-} from '../../../actions/coinbaseActions';
+} from '../../../../actions/coinbaseActions';
 
 import { Link } from 'react-router-dom';
-import { API_URL } from '../../../../config';
-import { tokenConfig } from '../../../helpers/headers';
+import { API_URL } from '../../../../../config';
+import { tokenConfig } from '../../../../helpers-functions/headers';
 
 const WalletBalance = props => {
 
@@ -92,6 +92,10 @@ const WalletBalance = props => {
             password,
         });
 
+        if(props.user.bittrex){
+            props.getBittrexBalances();
+        }
+
         axios
             .post(`${API_URL}/users/validatePassword`, body, tokenConfig())
             .then(res => res)
@@ -100,6 +104,7 @@ const WalletBalance = props => {
                 setModalState(false);
                 setShowSpinner(!showSpinner);
                 setWalletLock(false)
+
             })
             .catch(err => setErrorMessage(err.response.data));
     };
@@ -162,7 +167,7 @@ const WalletBalance = props => {
                     aria-haspopup="true"
                     aria-expanded="false"
                 >
-                    Available for immediate renting
+                    View Wallets
                 </a>
                 {dropdownState && (
                     <WalletBalanceBreakdown
@@ -241,11 +246,24 @@ const WalletBalance = props => {
                     handleClick={() => setWithdrawModal(!withdrawModal)}
                 />
             )}
-
-            <div className="card-header">Wallet</div>
+            <div className="card-header">Combine Wallet Balance</div>
+            {/* Wallet Box */}
+            <div 
+                style={{
+                    display: 'inherit'
+                }}
+            >
             <div
-                className="card-body"
-                style={{ display: 'flex', flexDirection: 'column' }}
+                style={{ 
+                    display: 'flex', 
+                    justifyContent: 'center',
+                    border: '1px solid black', 
+                    alignItems: 'center',
+                    paddingTop: '25px',
+                    paddingBottom: '25px',
+                    width: '70%',
+                    backgroundColor: 'rgba(0,0,0,.2)'
+                }}
             >
                 <div>
                     <h3>
@@ -255,7 +273,7 @@ const WalletBalance = props => {
                             <>
                             {usdSum()}
                           <button 
-                            style={{border: 'none', marginLeft: '10px', fontSize: '18px'}}
+                            style={{border: 'none', marginLeft: '8px', fontSize: '18px', backgroundColor: 'transparent'}}
                             onClick={() => {props.getBalance(props.account.wallet)
                                             props.getBittrexBalances() }
                                 
@@ -271,7 +289,9 @@ const WalletBalance = props => {
                                 {
                                     showSpinner 
                                     ?
+                                        <span style={{margin: '5px'}}>    
                                         <Spinner />
+                                        </span>
                                     :
                                         <button
                                             type="button"
@@ -291,9 +311,12 @@ const WalletBalance = props => {
 
                 {/* Deposit/Withdraw Buttons */}
                 <div>
+                    <div style={{
+                        margin: '5px',
+                    }}>
                     <button
+                        style={{width: '94.48px'}}
                         disabled={walletLock}
-                        style={{marginRight: '.25rem'}}
                         onClick={() => {
                             setDepositModal(!depositModal);
                         }}
@@ -302,6 +325,11 @@ const WalletBalance = props => {
                     >
                         Deposit
                     </button>
+                    </div>
+                    <div style={{
+                        margin: '5px'
+                    }}>
+                   
                     <button
                         disabled={walletLock}
                         onClick={() => {
@@ -312,10 +340,16 @@ const WalletBalance = props => {
                     >
                         Withdraw
                     </button>
+                    </div>
                 </div>
-                {props.account.balance && renderBreakdown()}
             </div>
-            <Link to="#">View Transactions</Link>
+            <div style={{margin: '10px'}}>
+            <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. 
+                Suspendisse dictum, dui sit amet rhoncus vehicula, felis leo suscipit turpis, in tempus enim neque eget eros. Phasellus vel magna eget purus tincidunt efficitur. Suspendisse at congue felis. Sed scelerisque quam eget pharetra venenatis.
+            </p>
+            </div>
+            </div>
+            {props.account.balance && renderBreakdown()}
         </div>
     );
 };

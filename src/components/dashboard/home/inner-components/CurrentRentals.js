@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
+import { formatToDate , formatTime} from '../../../../helpers-functions/dateFormatter';
 
-const OpenOrders = () => {
+const CurrentRentals = () => {
     const [fakeData, setFakeData] = useState({
         data: [
             {
@@ -9,6 +10,8 @@ const OpenOrders = () => {
                 amountOfFlo: 21,
                 margin: 10,
                 revenue: '20',
+                link: '#'
+
             },
             {
                 date: Date.now(),
@@ -16,6 +19,8 @@ const OpenOrders = () => {
                 amountOfFlo: 21,
                 margin: 10,
                 revenue: '20',
+                link: '#'
+
             },
             {
                 date: Date.now(),
@@ -23,21 +28,24 @@ const OpenOrders = () => {
                 amountOfFlo: 21,
                 margin: 10,
                 revenue: '20',
+                link: '#'
+
             },
         ],
     });
 
     const renderTableData = () => {
         return fakeData.data.map((data, i) => {
-            const { date, numOfFlo, amountOfFlo, margin, revenue } = data;
+            const { date, numOfFlo, amountOfFlo, margin, revenue, link } = data;            
 
             return (
                 <tr key={i}>
-                    <td>{date}</td>
+                    <td>{formatToDate(date) + ' ' + formatTime(date)}</td>
                     <td>{numOfFlo}</td>
                     <td>${amountOfFlo}</td>
                     <td>{margin}%</td>
-                    <td>{revenue}</td>
+                    <td>${revenue}</td>
+                    <td><a href={link}>view</a></td>
                 </tr>
             );
         });
@@ -51,18 +59,19 @@ const OpenOrders = () => {
 
         return (
             <>
-                <th scope="col">Open Date</th>
+                <th scope="col">Started On</th>
                 <th scope="col"># of FLO</th>
                 <th scope="col">$ per FLO</th>
                 <th scope="col">Margin</th>
                 <th scope="col">Revenue</th>
+                <th scope="col">Explorer</th>
             </>
         );
     };
 
     return (
         <div className="card open-orders">
-            <div className="card-header">Open Orders</div>
+            <div className="card-header">Current Rentals</div>
             <div className="card-body">
                 <table className="table table-bordered" id="open-orders">
                     <tbody>
@@ -70,9 +79,10 @@ const OpenOrders = () => {
                         {renderTableData()}
                     </tbody>
                 </table>
+                <a href="#">Show More</a>
             </div>
         </div>
     );
 };
 
-export default OpenOrders;
+export default CurrentRentals;

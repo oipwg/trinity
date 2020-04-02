@@ -4,6 +4,8 @@ import {
     GET_BITTREX_ADDYS,
     GET_BITTREX_EX_PRICES,
     GET_BITTREX_BALANCES,
+    GET_BITTREX_OPENORDERS,
+    GET_BITTREX_SALESHISTORY,
     GET_BITTREX_RVN_EX_PRICE,
     GET_BITTREX_FLO_EX_PRICE,
     BITTREX_WITHDRAW,
@@ -20,6 +22,8 @@ const initState = {
     addresses: null,
     orderBook: null,
     exchangePrice: null,
+    openOrders: null,
+    salesHistory: null,
 }
 
 
@@ -40,9 +44,16 @@ const bittrexReducer = (state = initState, action ) => {
                 ...state,
                 balances: action.payload
             }
-
-
-
+        case GET_BITTREX_OPENORDERS: 
+            return {
+                ...state,
+                openOrders: action.payload
+            }
+        case GET_BITTREX_SALESHISTORY: 
+            return {
+                ...state,
+                salesHistory: action.payload
+            }
 
 
 
@@ -57,6 +68,8 @@ const bittrexReducer = (state = initState, action ) => {
                 addresses: null,
                 orderBook: null,
                 exchangePrice: null,
+                openOrders: null,
+                salesHistory: null,
             }
         
         default:
