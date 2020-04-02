@@ -138,7 +138,7 @@ exports.manualRent = async (options) => {
                     if (fmtObject[id] === selection[0]) badgeID = id;
                 }
                 for (let badge of badges) {
-                    console.log('badge: manualRent.js 165', badge)
+                    // console.log('badge: manualRent.js 165', badge)
                     if (badge.id === badgeID) _badge = badge;
                 }
             }

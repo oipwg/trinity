@@ -2,12 +2,11 @@ require('dotenv').config();
 const fs = require('fs');
 const fsPromise = fs.promises;
 const storage = process.cwd() +'/localStorage/spartanbot-storage';
-const User = require('../../../models/user');
 
 /**
  * TO DO LIST
  * @param {FIX NiceHash.js functions => convertIDtoAlgo, checkAlgo, convertAlgoToID } Not.working
- * @param {Change this.host = 'https://api-test.nicehash.com' to 'https://api2.nicehash.com'
+ * @param {Change this.host = 'https://api-test.nicehash.com' to 'https://api2.nicehash.com' 
  *           In production, and use keys from https://www.nicehash.com instead.}
  */
 /**
@@ -100,7 +99,7 @@ let addPool = async function(setup_success, options) {
 
 /**
  * Gets the current class from spartanbot MRRProvider NiceHashProvider
- * @param {Object} options
+ * @param {Object} options 
  * @param {Object <MRRProvider NiceHashProvider>} this - spartan.getRentalProviders()
 */
 
@@ -120,7 +119,7 @@ const getCurrentProvider = function(options) {
  * @return {Promise<*>}
  */
 const deletePool = async function(id){
-    let deletedPool = await this.deletePool().then(res => console.log('deletedPool: ',res))
+    let deletedPool = await this.deletePool().then(res => console.log('deletedPool: ',res).catch(err => console.log('Failed to delete ', err)))
 }
 
 /**
@@ -132,14 +131,9 @@ const deletePoolProfile = async function(id = '') {
     let deletedPoolProfile = await this.deletePoolProfile(id).then(res => console.log('deletedPoolProfile: ',res))
 }
 
-
 const {
-    Prompt_AddOrCreatePool,
-    Prompt_AddPool,
     Prompt_NiceHashCreatePool,
 } = require('./promptFunctions');
-
-const { fmtPool, serPool } = require('../../utils');
 
 const MiningRigRentals = 'MiningRigRentals';
 const NiceHash = 'NiceHash';
@@ -174,12 +168,11 @@ module.exports = async function(options) {
         }
     };
 
- 
-    console.log('RENTAL PROVIDER :', rental_provider_type )
-
+     console.log('RENTAL PROVIDER :', rental_provider_type )
 
     if (rental_provider_type === MiningRigRentals) {
         let poolArray = await spartan.returnPools(MiningRigRentals);
+        console.log('poolArray: add.js 176', poolArray)
         if (checkProviders(MiningRigRentals)) {
             // No pool input data sent from user and no pools exist for user
             if (options.poolData === undefined ) {
@@ -213,8 +206,11 @@ module.exports = async function(options) {
             }
         }
     } else if (rental_provider_type === NiceHash) {
-        let poolArray = await spartan.returnPools(NiceHash);
+       
+        // console.log('poolArray: add.js 210', poolArray)
         if (checkProviders(NiceHash)){
+            let poolArray = await spartan.returnPools(NiceHash);
+            console.log('poolArray: ADD.JS 214', poolArray)
             // No pool input data sent from user and no pools exist for user
             if (options.poolData === undefined ) {
                 console.log( `NiceHash account already exists. 'Current Limit: 1. add.js line 223'`);
@@ -258,7 +254,7 @@ module.exports = async function(options) {
         });
 
         // return setup_success.provider.deletePoolProfile(100144).then(res => console.log('deletedPoolProfile: ',res))
-        console.log('setup_success: top \n', setup_success.provider);
+        console.log('setup_success: top \n', setup_success);
 
 
         if (setup_success.success) {
@@ -427,7 +423,6 @@ module.exports = async function(options) {
                     credentials: false,
                     success: false
                 }
-                
             } else {
                 return {
                     err: 'credentials',

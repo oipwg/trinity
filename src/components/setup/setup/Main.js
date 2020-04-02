@@ -1,9 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import './setup.css';
 import { ROOT_URL, API_URL } from '../../../../config.js';
-
 import { connect } from 'react-redux';
-const socket = new WebSocket('ws://localhost:3031');
+// const socket = new WebSocket('ws://localhost:3031');
 const Main = props => {
     const [userData, setUserData] = useState([]);
     const userId = useRef('');
@@ -229,7 +228,7 @@ const Main = props => {
 
             process_returned_data(res.data)
         } catch (e) {
-            console.log('Catch error: Main.js line 215',e)
+            console.log('Catch error: Main.js line 232',e)
             process_returned_data({err: e})
         }
     }
@@ -258,7 +257,7 @@ const Main = props => {
         return boolean
     }
     const goToSettings = () => {
-        location.href = ROOT_URL+'settings';
+        location.href = ROOT_URL+'/settings';
     }
 
     const showMessage = (field, i) => {

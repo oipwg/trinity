@@ -29,7 +29,6 @@ const Settings = () => {
             let res = await response.json()
             console.log('res:', res)
 
-
         } catch (e) {
             console.log('Catch error: Settings.js line 30',e)
         }
