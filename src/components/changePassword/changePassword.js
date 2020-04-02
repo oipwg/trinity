@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { encrypt, decrypt } from '../../helpers/crypto';
+import { encrypt, decrypt } from '../../helpers-functions/crypto';
 import './changePassword.css';
 import { connect } from 'react-redux';
 import { changePassword } from '../../actions/authActions';
