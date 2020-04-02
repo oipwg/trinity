@@ -1,8 +1,18 @@
-import React, { useState } from 'react';
-import { formatToDate , formatTime} from '../../../helpers/dateFormatter';
+import React, { useState, useEffect } from 'react';
+import { formatToDate , formatTime} from '../../../../helpers-functions/dateFormatter';
+import { connect } from 'react-redux';
+import {getOpenOrder} from '../../../../actions/bittrexActions'
 
 
-const OpenOrders = () => {
+
+const OpenOrders = (props) => {
+    console.log(props)
+
+    useEffect(() => {
+        props.getOpenOrder();
+}, [props.user])
+
+
     const [fakeData, setFakeData] = useState({
         data: [
             {
@@ -29,21 +39,36 @@ const OpenOrders = () => {
         ],
     });
 
+    console.log(props.openOrders)
+
     const renderTableData = () => {
-        return fakeData.data.map((data, i) => {
-            const { date, numOfFlo, amountOfFlo, margin, revenue } = data;
-            console.log((new Date(date)).toUTCString())
-            return (
-                <tr key={i}>
-                    <td>{formatToDate(date) + ' ' + formatTime(date)}</td>
-                    <td>{numOfFlo}</td>
-                    <td>${amountOfFlo}</td>
-                    <td>{margin}%</td>
-                    <td>${revenue}</td>
-                </tr>
-            );
-        });
-    };
+               if(!props.openOrders){
+            return;
+        }
+
+
+        for(const k in props.openOrders){
+            let x = props.openOrders[k]
+
+            let price = (x.Quantity * x.Limit).toFixed(8); 
+            switch(x.Exchange){
+                case 'BTC-FLO': {
+                    return (
+                        <tr key={x.OrderUuid}>
+                        <td>{formatToDate(x.Opened) + ' ' + formatTime(x.Opened)}</td>
+                        <td>{x.Quantity}</td>
+                        <td>${x.Price || price}</td>
+                        {/* <td>{margin}%</td>
+                        <td>${revenue}</td> */}
+                        {/* <td><a href={link}>view</a></td> */}
+                        </tr>
+                    )
+                }
+            }
+
+
+        }
+    }
 
     const renderTableHeader = () => {
         // let header = Object.keys(fakeData.students[0]);
@@ -78,4 +103,13 @@ const OpenOrders = () => {
     );
 };
 
-export default OpenOrders;
+const mapStateToProps = state => {
+    return {
+        error: state.error,
+        user: state.auth.user,
+        account: state.account,
+        openOrders: state.bittrex.openOrders
+    };
+};
+
+export default connect(mapStateToProps, {getOpenOrder})(OpenOrders);

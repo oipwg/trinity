@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { formatToDate , formatTime} from '../../../helpers/dateFormatter';
+import { formatToDate , formatTime} from '../../../../helpers-functions/dateFormatter';
 
 const CurrentRentals = () => {
     const [fakeData, setFakeData] = useState({
@@ -36,9 +36,7 @@ const CurrentRentals = () => {
 
     const renderTableData = () => {
         return fakeData.data.map((data, i) => {
-            const { date, numOfFlo, amountOfFlo, margin, revenue, link } = data;
-            console.log(new Date(date))
-            
+            const { date, numOfFlo, amountOfFlo, margin, revenue, link } = data;            
 
             return (
                 <tr key={i}>

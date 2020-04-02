@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import './MercMode.css'
-import { crypto } from '../../../dashboard/sub-components/crypto';
+import { crypto } from '../../../../helpers-functions/cryptoCurrencies';
 import Checkbox from '../../../helpers/checkbox/Checkbox';
 
 const MercMode = () => {

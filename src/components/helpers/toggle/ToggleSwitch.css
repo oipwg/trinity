@@ -1,4 +1,5 @@
 .toggle-switch {
+  border: 1px solid red;
   height: 0;
   width: 0;
   visibility: hidden;
@@ -9,11 +10,11 @@
   display: -ms-flexbox;
   display: flex;
   -webkit-box-align: center;
-  -ms-flex-align: center;
-  align-items: center;
+      -ms-flex-align: center;
+          align-items: center;
   -webkit-box-pack: justify;
-  -ms-flex-pack: justify;
-  justify-content: space-between;
+      -ms-flex-pack: justify;
+          justify-content: space-between;
   cursor: pointer;
   width: 50px;
   height: 25px;
@@ -35,13 +36,13 @@
   transition: 0.2s;
   background: #fff;
   -webkit-box-shadow: 0 0 2px 0 rgba(10, 10, 10, 0.29);
-  box-shadow: 0 0 2px 0 rgba(10, 10, 10, 0.29);
+          box-shadow: 0 0 2px 0 rgba(10, 10, 10, 0.29);
 }
 
-.toggle-switch:checked + .toggle-switch-label .toggle-switch-button {
+.toggle-switch-checkbox:checked + .toggle-switch-label .toggle-switch-button {
   left: calc(100% - 2px);
   -webkit-transform: translateX(-100%);
-  transform: translateX(-100%);
+          transform: translateX(-100%);
 }
 
 .toggle-switch:active .toggle-switch-button {

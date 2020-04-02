@@ -1,8 +1,18 @@
-import React, { useState } from 'react';
-import { formatToDate , formatTime} from '../../../helpers/dateFormatter';
+import React, { useState, useEffect } from 'react';
+import { formatToDate , formatTime} from '../../../../helpers-functions/dateFormatter';
+import { connect } from 'react-redux';
+import { getSalesHistory } from '../../../../actions/bittrexActions'
 
 
-const SalesHistory = () => {
+
+const SalesHistory = (props) => {
+    console.log(props)
+
+    useEffect(() => {
+            props.getSalesHistory();
+    }, [props.user])
+
+
     const [fakeData, setFakeData] = useState({
         data: [
             {
@@ -34,20 +44,36 @@ const SalesHistory = () => {
     });
 
     const renderTableData = () => {
-        return fakeData.data.map((data, i) => {
-            const { date, numOfFlo, amountOfFlo, margin, revenue, link } = data;
 
-            return (
-                <tr key={i}>
-                    <td>{formatToDate(date) + ' ' + formatTime(date)}</td>
-                    <td>{numOfFlo}</td>
-                    <td>${amountOfFlo}</td>
-                    <td>{margin}%</td>
-                    <td>${revenue}</td>
-                    <td><a href={link}>view</a></td>
-                </tr>
-            );
-        });
+        if(!props.saleHistory){
+            return;
+        }
+
+
+        for(const k in props.saleHistory){
+            let x = props.saleHistory[k]
+            switch(x.Exchange){
+                case 'BTC-FLO': {
+                    return (
+                        <tr key={x.OrderUuid}>
+                        <td>{formatToDate(x.Closed) + ' ' + formatTime(x.Closed)}</td>
+                        <td>{x.Quantity}</td>
+                        <td>${x.Price}</td>
+                        {/* <td>{margin}%</td>
+                        <td>${revenue}</td> */}
+                        {/* <td><a href={link}>view</a></td> */}
+                        </tr>
+                    )
+                }
+            }
+
+
+        }
+
+
+
+
+
     };
 
     const renderTableHeader = () => {
@@ -84,4 +110,14 @@ const SalesHistory = () => {
     );
 };
 
-export default SalesHistory;
+const mapStateToProps = state => {
+    return {
+        error: state.error,
+        user: state.auth.user,
+        account: state.account,
+        saleHistory: state.bittrex.salesHistory
+    };
+};
+
+
+export default connect(mapStateToProps, {getSalesHistory})(SalesHistory);

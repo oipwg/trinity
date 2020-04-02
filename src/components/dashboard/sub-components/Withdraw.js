@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import Modal from '../../helpers/modal';
 import coinbaseLogo from '../../../../public/images/icons/coinbase.png';
-import { crypto } from './crypto';
+import { crypto } from '../../../helpers-functions/cryptoCurrencies';
 
 import './subcomponent.css';
 

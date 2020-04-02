@@ -344,6 +344,10 @@ module.exports = {
             let apiKey = user.bittrex.apiKey
             let secret = user.bittrex.secret
 
+            if(!apiKey) {
+                return res.status(400).json({"error": "no keys"})
+            }
+
             const message = `https://api.bittrex.com/api/v1.1/market/buylimit?apikey=${apiKey}&market=BTC-${market}&quantity=${quantity}&rate=${rate}&nonce=${nonce}`
             const signature = Crypto.createHmac('sha512', secret)
             .update(message)
@@ -357,6 +361,50 @@ module.exports = {
         } catch (error) {
             console.log(error)
         }
-    }
+    },
+
+    salesHistory: async(req, res) => {
+        try {
+
+            const user = await User.findById(req.user.id).select("bittrex")
+
+            let apiKey = user.bittrex.apiKey
+            let secret = user.bittrex.secret
+
+            if(!apiKey) {
+                return res.status(400).json({"error": "no keys"})
+            }
+        
+            let salesHistory = {}
+
+            let getSalesHistory = await (async () => 
+                {
+                    const message = `https://api.bittrex.com/api/v1.1/account/getorderhistory?apikey=${apiKey}&nonce=${nonce}`
+                    const signature = Crypto.createHmac('sha512', secret)
+                    .update(message)
+                    .digest('hex');
+
+
+                    const response = await bittrex.get(message, {headers: {apisign: signature}})
+                    
+                    console.log(response)
+                    return response.data;
+                }
+            )();
+
+                if(!getSalesHistory.success) return res.status(400).json({"error": getSalesHistory.message})
+
+                getSalesHistory.result.map((arr, i) => {
+                        salesHistory[arr.Exchange] = arr 
+                        }
+                ) 
+            
+            
+            res.status(201).json({salesHistory})
+        } catch (error) {
+            console.log(error)
+        }
+    },
+
 
 }
