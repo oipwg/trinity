@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { encrypt } from '../../helpers/crypto';
+import { encrypt } from '../../helpers-functions/crypto';
 import './signup.css';
 import { Link } from 'react-router-dom';
 // import PropTypes from 'prop-types'; //todo: maybe ? del me
