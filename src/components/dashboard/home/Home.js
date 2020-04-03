@@ -7,17 +7,14 @@ import Preferences from './inner-components/Prefrences'
 import SalesHistory from './inner-components/SalesHistory';
 import CurrentRentals from './inner-components/CurrentRentals';
 import MiningOperations from './inner-components/MiningOperations';
+import './home.css'
 
+//todo: Tables - show current 5; if there is more than 5, 'Show more'. If none - display 'none'
 
 
 const Home = props => {
     return (
-        <main
-            style={{
-                margin: '0 auto',
-                width: '85vw',
-            }}
-        >   
+        <main>   
             <Profile />
             <Preferences />
             <Wallet />

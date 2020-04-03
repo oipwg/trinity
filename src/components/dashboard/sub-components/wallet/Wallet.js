@@ -198,7 +198,7 @@ const WalletBalance = props => {
     };
 
     return (
-        <div className="card">
+        <div className="card wallet">
             {modalState && (
                 <Modal
                     handleClick={handleClick}
@@ -248,22 +248,11 @@ const WalletBalance = props => {
             )}
             <div className="card-header">Combine Wallet Balance</div>
             {/* Wallet Box */}
-            <div 
-                style={{
-                    display: 'inherit'
-                }}
+            <div
+                className="wallet-body"
             >
             <div
-                style={{ 
-                    display: 'flex', 
-                    justifyContent: 'center',
-                    border: '1px solid black', 
-                    alignItems: 'center',
-                    paddingTop: '25px',
-                    paddingBottom: '25px',
-                    width: '70%',
-                    backgroundColor: 'rgba(0,0,0,.2)'
-                }}
+                className="wallet-balance-box"
             >
                 <div>
                     <h3>

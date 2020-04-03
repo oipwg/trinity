@@ -12,7 +12,7 @@ let { budget, margin, profitReinvestment, updateUnsoldOffers } = fakeState;
 
 const MiningOperations = () => {
     return (
-        <div className="card mining-budget">
+        <div className="card mining-operation">
             <div className="card-header">Mining Operations</div>
             <div className="card-body" 
             >

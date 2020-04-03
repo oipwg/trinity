@@ -2,7 +2,6 @@ require('dotenv').config();
 const express = require('express');
 const router = express.Router();
 const controller = require('../spartanBot');
-const http = require('http');
 const User = require('../models/user');
 
 
@@ -39,11 +38,9 @@ async function processUserInput(req, res) {
         let newProvider = { rental_provider, api_key: options.api_key, api_secret: options.api_secret, api_id: options.api_id }
         let providerData = user.providerData;
         let providerLength = providerData.length
-        // When users credentials come back wrong, UPDATE CREDENTIALS.
-        // if (!credentials && providerLength) {
-            // console.log('OPTIONS ERROR : ', options.err)
-            if (options.err === "credentials") {
-        console.log('RAN')
+
+        // When users credentials come back wrong, UPDATE CREDENTIALS AGAIN.
+        if (options.err === "credentials") {
             for (let i = 0; i < providerLength; i++) {
                 if (providerData[i].rental_provider === rental_provider) {
                     providerData[i].api_key = options.api_key
@@ -52,8 +49,6 @@ async function processUserInput(req, res) {
                     user.save()
                 }
             }
-            // console.log('OPTIONS add.js 50', options)
-
         }
         // When adding credentials for the first time
         else if (!user.providerData.length) {
@@ -63,16 +58,12 @@ async function processUserInput(req, res) {
 
         // When Credentials are good & input fields don't exist get key and secret from database
         } else {  
-            console.log('ELSE RAN')
             let provider = isRentalProvider(rental_provider)
-            
             if (provider) {
-                console.log('IF RAN')
                 options.api_key = provider.api_key
                 options.api_secret = provider.api_secret
                 options.api_id = provider.api_id
             } else {
-                console.log('ELSE ELSE: ', user)
                 user.providerData.push( newProvider )
                 user.save()
             }

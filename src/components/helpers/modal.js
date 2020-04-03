@@ -1,9 +1,11 @@
 import React from 'react';
+import './modal.css'
+
 const Modal = props => {
     return (
         <>
             <div
-                className="modal fade show"
+                className={`modal fade show ${props.classname}`}
                 id="exampleModalCenter"
                 tabIndex="-1"
                 role="dialog"
