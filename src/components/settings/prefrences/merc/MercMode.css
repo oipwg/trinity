@@ -4,7 +4,7 @@
   grid-gap: 0.5rem;
   -ms-grid-rows: auto;
       grid-template-rows: auto;
-      grid-template-areas: ".       iconFlo iconRvn" "header-a item-1 item-2" "header-b item-3 item-4" "header-c item-5 item-6" "header-d item-7 item-8";
+      grid-template-areas: '.       iconFlo iconRvn' 'header-a item-1 item-2' 'header-b item-3 item-4' 'header-c item-5 item-6' 'header-d item-7 item-8';
 }
 
 #merc h3 {
@@ -18,11 +18,19 @@
   text-align: center;
 }
 
+#merc .iconFlo div {
+  padding-top: 0.5rem;
+}
+
 #merc .iconRvn {
   -ms-grid-row: 1;
   -ms-grid-column: 3;
   grid-area: iconRvn;
   text-align: center;
+}
+
+#merc .iconRvn div {
+  padding-top: 0.5rem;
 }
 
 #merc .header-a {
@@ -119,5 +127,45 @@
 
 #merc input {
   margin-right: 10px;
+}
+
+@media screen and (max-width: 500px) {
+  #merc {
+    top: 0;
+    max-width: 100vw;
+    height: 10%;
+    font-size: 0.75rem;
+  }
+  #merc img {
+    width: 4.25rem;
+  }
+  .merc-modal {
+    margin: 0;
+    height: 100%;
+    overflow: hidden;
+  }
+  .merc-modal .modal-content {
+    margin: 0;
+    height: 100vh;
+    width: 100vw;
+    overflow: hidden;
+  }
+  .merc-modal .modal-footer {
+    width: 100%;
+    -webkit-box-orient: vertical;
+    -webkit-box-direction: reverse;
+        -ms-flex-flow: column-reverse;
+            flex-flow: column-reverse;
+    -webkit-box-align: 'unset';
+        -ms-flex-align: 'unset';
+            align-items: 'unset';
+  }
+  .merc-modal .modal-body {
+    padding: 0.5rem 0.5rem 0 0.5rem;
+  }
+}
+
+#merc img {
+  width: 4.25rem;
 }
 /*# sourceMappingURL=MercMode.css.map */

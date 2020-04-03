@@ -12,11 +12,11 @@
     //   "header-e item item"
     //   "header-f item item";
     grid-template-areas:
-      ".       iconFlo iconRvn"
-      "header-a item-1 item-2"
-      "header-b item-3 item-4"
-      "header-c item-5 item-6"
-      "header-d item-7 item-8";
+      '.       iconFlo iconRvn'
+      'header-a item-1 item-2'
+      'header-b item-3 item-4'
+      'header-c item-5 item-6'
+      'header-d item-7 item-8';
   }
 
   h3 {
@@ -26,11 +26,19 @@
   .iconFlo {
     grid-area: iconFlo;
     text-align: center;
+
+    div {
+      padding-top: 0.5rem;
+    }
   }
 
   .iconRvn {
     grid-area: iconRvn;
     text-align: center;
+
+    div {
+      padding-top: 0.5rem;
+    }
   }
 
   .header-a {
@@ -91,5 +99,47 @@
 
   input {
     margin-right: 10px;
+  }
+}
+
+@media screen and (max-width: 500px) {
+  #merc {
+    top: 0;
+    max-width: 100vw;
+    height: 10%;
+    font-size: 0.75rem;
+
+    img {
+      width: 4.25rem;
+    }
+  }
+
+  .merc-modal {
+    margin: 0;
+    height: 100%;
+    overflow: hidden;
+
+    .modal-content {
+      margin: 0;
+      height: 100vh;
+      width: 100vw;
+      overflow: hidden;
+    }
+
+    .modal-footer {
+      width: 100%;
+      flex-flow: column-reverse;
+      align-items: 'unset';
+    }
+
+    .modal-body {
+      padding: 0.5rem 0.5rem 0 0.5rem;
+    }
+  }
+}
+
+#merc {
+  img {
+    width: 4.25rem;
   }
 }

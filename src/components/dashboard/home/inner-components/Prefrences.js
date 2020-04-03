@@ -9,7 +9,7 @@ const Preferences = () => {
 
 
     return (
-        <div className="card">
+        <div className="card prefrences">
         <div className="card-body" style={{display: 'flex', alignItems: 'center'}}>
         <span style={{paddingRight: '15px'}}>
             <ToggleSwitch 
@@ -17,7 +17,7 @@ const Preferences = () => {
                 handleToggle={() => setValue(!value)}
             />
         </span>
-        <div style={{border: '1px solid black', padding: '15px'}}>
+        <div className="prefrence-description">
             <h5>Automatic Renting</h5>
             <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. 
                 Suspendisse dictum, dui sit amet rhoncus vehicula, felis leo suscipit turpis, in tempus enim neque eget eros. Phasellus vel magna eget purus tincidunt efficitur. Suspendisse at congue felis. Sed scelerisque quam eget pharetra venenatis.
@@ -33,7 +33,7 @@ const Preferences = () => {
                     handleToggle={() => setValue(!value2)}                    
                 />
         </span>
-        <div style={{border: '1px solid black', padding: '15px'}}>
+        <div className="prefrence-description">
             <h5>Engage Phalanx</h5>
             <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. 
                 Suspendisse dictum, dui sit amet rhoncus vehicula, felis leo suscipit turpis, in tempus enim neque eget eros. Phasellus vel magna eget purus tincidunt efficitur. Suspendisse at congue felis. Sed scelerisque quam eget pharetra venenatis.

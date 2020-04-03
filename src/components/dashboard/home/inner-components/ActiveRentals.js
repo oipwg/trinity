@@ -13,7 +13,7 @@ const ActiveRentals = () => {
     let { ghz, rigs, cost, algo } = fakeState;
 
     return (
-        <div className="card">
+        <div className="card active-rentals">
             <div className="card-header">Active Rentals</div>
             <div className="card-body" style={{ display: 'flex',
                 justifyContent: 'space-evenly' }}>

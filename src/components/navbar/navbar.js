@@ -3,8 +3,8 @@ import axios from 'axios';
 import Modal from '../helpers/modal';
 import { Link } from 'react-router-dom';
 import { API_URL } from '../../../config';
-import { tokenConfig } from '../../helpers/headers';
-import { decrypt } from '../../helpers/crypto';
+import { tokenConfig } from '../../helpers-functions/headers';
+import { decrypt } from '../../helpers-functions/crypto';
 import logo from '../../../public/images/alexandria/alexandria-bookmark-100.png';
 import RenderError from '../helpers/errors';
 import MercMode from '../settings/prefrences/merc/MercMode';
@@ -348,6 +348,7 @@ class Navbar extends React.Component {
                             {/* Settings */}
                 {this.state.showSettingsMercModal && (
                         <Modal
+                            classname={'merc-modal'}
                             handleClick={this.handleSettingsMercModal}
                             handleSubmit={this.handleSave}
                             // title={}
