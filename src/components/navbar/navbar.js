@@ -348,6 +348,7 @@ class Navbar extends React.Component {
                             {/* Settings */}
                 {this.state.showSettingsMercModal && (
                         <Modal
+                            classname={'merc-modal'}
                             handleClick={this.handleSettingsMercModal}
                             handleSubmit={this.handleSave}
                             // title={}

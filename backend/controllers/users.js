@@ -82,9 +82,9 @@ module.exports = {
 
     changePassword: async (req, res, next) => {
         try {
-            const { id, oldPassword, password, mnemonic } = req.body;
+            const { oldPassword, password, mnemonic } = req.body;
 
-            const user = await User.findById({ _id: id });
+            const user = await User.findById(req.user.id)
 
             const isMatch = await user.isValidPassword(oldPassword);
 

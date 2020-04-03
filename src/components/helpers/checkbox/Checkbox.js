@@ -3,7 +3,7 @@ import './Checkbox.css'
 
 const Checkbox = ({isOn, handleToggle}) => {
     return (
-      <>
+      <span className="checkbox-component">
         <input
           checked={isOn}
           onChange={handleToggle}
@@ -18,7 +18,7 @@ const Checkbox = ({isOn, handleToggle}) => {
         >
           <span className={`react-switch-button`} />
         </label>
-      </>
+      </span>
     );
   };
   
