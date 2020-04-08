@@ -1,7 +1,6 @@
 import React, { useEffect } from 'react';
-// import SpartanBot from './spartanbot/SpartanBot';
 import { BrowserRouter as Router, Switch, Route } from 'react-router-dom';
-import Setup from './setup/Setup';
+import Setup from './setup/main/Setup';
 import Settings from './settings/Settings';
 import Home from './home/Home';
 import NavBar from './navbar/navbar';
@@ -11,7 +10,6 @@ import SignUp from './signup/SignUp';
 import ChangePassword from './changePassword/ChangePassword';
 import Dashboard from './dashboard/Dashboard';
 import NoMatch404 from './noMatch404/noMatch404';
-
 import { loadUser } from '../actions/authActions';
 import { connect } from 'react-redux';
 

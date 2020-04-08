@@ -8,7 +8,7 @@ const User = require('../models/user');
 
 async function processUserInput(req, res) {
     let options = req.body
-    console.log('options:', options)
+    console.log('options: settings.js 11', options)
    
     // let { userId, rental_provider } = options
 

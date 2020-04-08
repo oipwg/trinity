@@ -8,14 +8,14 @@ const User = require('../models/user');
 async function processUserInput(req, res) {
     let options = req.body
    
-    let { userId, rental_provider, credentials } = options
+    let { userId, rental_provider } = options
 
     try {
      
         const user = await User.findById({ _id: userId });
 
         if (!user) {
-            return 'Can\'t find user. setup.js line#16'
+            return 'Can\'t find user. setup.js line #19'
         }
         options.to_do = {
             rentalProvider: {
