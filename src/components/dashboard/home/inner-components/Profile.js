@@ -3,12 +3,20 @@ import { connect } from 'react-redux';
 
 
 const Profile = (props) => {
+    console.log(props)
+    let user = ''
+
+    if(props.user){
+        user = props.user.userName
+    }
+
+
     return (        
-        <div className="card" style={{ display: 'block', margin: '20px'}}>
+        <div className="card profile">
             <div className="card-body">
             <label htmlFor="profile-select" style={{marginRight: '35px'}}>Select Profile:</label>
                 <select style={{width: "8rem"}}name="profiles" id="profile-select">
-                <option value="bob">tiger king</option>
+                <option value={user}>{user}</option>
                 </select>    
             </div>
         </div>

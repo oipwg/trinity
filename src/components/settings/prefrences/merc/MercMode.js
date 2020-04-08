@@ -12,13 +12,13 @@ const MercMode = () => {
         <div id="merc">
                 <div className="grid-container">
                     <div className="iconFlo">
-                        <img src={crypto.flo.icon} alt={crypto.flo.name} style={{width: "4.5rem"}} />
+                        <img src={crypto.flo.icon} alt={crypto.flo.name} />
                         <div>
                         FLO
                         </div>
                     </div>
                     <div className="iconRvn">
-                    <img src={crypto.raven.icon} alt={crypto.raven.name} style={{width: "4.5rem"}} />
+                    <img src={crypto.raven.icon} alt={crypto.raven.name} />
                         <div>RVN</div>
                     </div>
                     <div className="header-a">
