@@ -203,3 +203,16 @@
         display: block;
     }
 }
+
+@media (max-width: 890px) {
+    .credential-container {
+        position: static;
+    }
+    .setup-container {
+        flex-direction: column;
+        align-items: normal;
+    }
+    .credential-container {
+        display: block;
+    }
+}

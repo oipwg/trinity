@@ -45,6 +45,14 @@ body {
     z-index: 9999;
 }
 
+
+
 .navbar-light .navbar-nav .nav-link {
     color: #ffffff;
+}
+
+@media (min-width: 992px) {
+    .navbar-expand-lg .navbar-nav .dropdown-menu {
+        left: -75px !important;
+    }
 }
