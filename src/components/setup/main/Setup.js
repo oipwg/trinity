@@ -6,6 +6,7 @@ import Navigation from '../nav/Navigation';
 // const socket = new WebSocket('ws://localhost:3031');
 const Setup = props => {
     const [userData, setUserData] = useState([]);
+    const [bittrexData, setBittrexData] = useState({});
     const userId = useRef('');
 
     // socket.onmessage = (e) => {
@@ -23,7 +24,7 @@ const Setup = props => {
 
 
     useEffect(() => {
-  
+        console.log(bittrexData)
         if (props.user) {
             userId.current = props.user._id
         }
@@ -215,38 +216,43 @@ const Setup = props => {
 
     
     function process_returned_data(data) {
-        let responseData = {}
-        for (let key in data) {
-            let value = data[key]
-            let property = key
-    
-            switch (property) {
-                case 'err': 
-                    responseData[property] = value
-                case 'message':
-                    responseData[property] = value    
-                case 'pool':
-                    responseData[property] = value
-                case 'credentials':
-                    responseData[property] = value
-                case 'success':
-                    responseData[property] = value
-            }
-        }
-
-        // Top exsisting data / object, and response object that came back merged together
-        let allData = {...userData[0], ...responseData}
-        
-        if ( userData.length > 1) {
-            setUserData(merge(allData, userData[1]))
+        console.log('RETURNEDD DATA ', data)
+        if (data.provider === "Bittrex") {
+            setBittrexData({...data})
         } else {
-            setUserData([allData])
+            let responseData = {}
+            for (let key in data) {
+                let value = data[key]
+                let property = key
+        
+                switch (property) {
+                    case 'err': 
+                        responseData[property] = value
+                    case 'message':
+                        responseData[property] = value    
+                    case 'pool':
+                        responseData[property] = value
+                    case 'credentials':
+                        responseData[property] = value
+                    case 'success':
+                        responseData[property] = value
+                }
+            }
+
+            // Top exsisting data / object, and response object that came back merged together
+            let allData = {...userData[0], ...responseData}
+            
+            if ( userData.length > 1) {
+                setUserData(merge(allData, userData[1]))
+            } else {
+                setUserData([allData])
+            }
         }
     };
 
     async function setup_Provider(data) {
         console.log('setup_Provider ran', data)
-
+        console.log(localStorage.getItem('token'))
         // Hits bittrex endpoint when adding credentials the rest hits setup
         let endPoint = data.bittrex ? '/auth/bittrex' : '/setup'
 
@@ -278,10 +284,11 @@ const Setup = props => {
     const showCredentials = userdata => {
         let height = (() => {
             if ( userdata.length ) {
-                return userdata[0].provider === 'MiningRigRentals' ? '119px' : '195px'
+                return userdata[0].provider === 'MiningRigRentals' ? '126px' : '169px'
             } else 
                 return '0px'
         })();
+   
         let boolean = !userdata.length ? true : userdata[0].credentials
 
         return {boolean, height}
@@ -360,14 +367,32 @@ const Setup = props => {
         <div className="setup-container">
             <Navigation />
         <div className="credential-container">
-        
-        <section className="bittrex-section">
+            <section className="bittrex-section">
              <form className="bittrex-form">
                 <div className="credentials">
                 <div>
                     {/* <div style={{height: showCredentials(userData).boolean ? '0px' : showCredentials(userData).height }} className="provider-credentials"> */}
-                        <h4>Bittrex</h4>
-                        <h6>Bittrex Documentation</h6>
+                        <header>
+                            <h4>Bittrex</h4>
+                            <div className="bittrex-success">
+                                <p>Success</p>
+                                <i className="fas fa-thumbs-up"></i>
+                            </div>
+                        </header>
+                        <div className="setup-documentation">
+                            <div className="bittrex-visit-link">
+                                {/* <h6>Bittrex Documentation</h6> */}
+                                <aside>
+                                    <p className="bittrex-info">
+                                        <strong>Create a <a href="https://bittrex.com/account/register" target="_blank">bittrex</a> account first if you haven't already.</strong>
+                                    </p>
+                                </aside>
+                            </div>
+                            <div className="bittrex-video">
+
+                            </div>
+                        </div>
+                        
                         <div className="form-inline">
                             <input type="hidden" value="bittrex" id="bittrex" name="bittrex" />
                             <div className="form-groups">
@@ -398,7 +423,7 @@ const Setup = props => {
                 </button>
             </form>
         </section>
-        <section className="provider-section">
+            <section className="provider-section">
             <table className="table">
                 <thead id="wizard-tableHeader">
                     <tr>
@@ -441,6 +466,20 @@ const Setup = props => {
             <form className="wizard-form">
                 <div className="form-inline rental-provider">
                     <h4>Provider</h4>
+                    <div className="setup-documentation">
+                            <div className="bittrex-visit-link">
+                                {/* <h6>Bittrex Documentation</h6> */}
+                                <aside>
+                                    <p className="bittrex-info">
+                                        <strong>Create a <a href="https://www.nicehash.com/my/register" target="_blank">Nice hash</a> or  
+                                        <a href="https://www.miningrigrentals.com/" target="_blank"> Mining rig rental</a> account first if you haven't already.</strong>
+                                    </p>
+                                </aside>
+                            </div>
+                            <div className="bittrex-video">
+
+                            </div>
+                        </div>
                     <div className="form-groups">
                         <label className="my-1 mr-2">Rental provider</label>
                         <select

@@ -5,10 +5,11 @@ const Navigation = () => {
     return (
         <nav className='nav-setup'>
             <div className="nav-item-container">
-                <h4>Trinity</h4>
+                <h5 className="nav-header">SETUP</h5>
                 <ul>
-                    <li className="nav-item">Update Provider</li>
                     <li className="nav-item">Show Providers</li>
+                    <li className="nav-item">Update Provider</li>
+                    <li className="nav-item">Update Bittrex</li>
                     <li className="nav-item">Profile</li>
                     <li className="nav-item">Wallet</li>
                 </ul>
