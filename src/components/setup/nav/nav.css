@@ -1,6 +1,5 @@
 .nav-setup {
     color: #fff;
-    padding: 5px;
     position: relative;
     border-radius: 4px;
     left: 0;
@@ -14,4 +13,14 @@
 .nav-setup ul {
     padding: 0;
     list-style: none;
+}
+
+.nav-setup ul li {
+    padding: 5px;
+}
+
+.nav-header {
+    padding: 5px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #9a9a9a;
 }

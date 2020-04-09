@@ -53,7 +53,7 @@ router.get('/coinbase/callback', auth, passportCoinbase, async (req, res) => {
 
       await user.save({validateBeforeSave: false})
 
-      res.status(201).json({ data: {success: 'Keys successfully stored!'} })
+      res.status(201).json({ data: {provider: 'Bittrex', credentials: true} })
     } catch (error) {
       console.log(error);
     }
