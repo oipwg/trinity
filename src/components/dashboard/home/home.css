@@ -33,9 +33,18 @@ main {
   padding: 0.5rem;
 }
 
+.card {
+  margin: 0 0 2rem 0;
+}
+
 .profile {
-  display: 'block';
-  margin: 20px;
+  margin-top: 2rem;
+}
+
+.wallet-body {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
 }
 
 .wallet-balance-box {
@@ -52,8 +61,32 @@ main {
   padding-top: 25px;
   padding-bottom: 25px;
   width: 25vw;
-  background-color: rgba(0, 0, 0, 0.2);
+  background-color: rgba(218, 218, 218, 0.85);
   margin: 0 auto;
+  -webkit-box-flex: 1;
+      -ms-flex: 1 1 100%;
+          flex: 1 1 100%;
+}
+
+.profile-container {
+  width: 100%;
+}
+
+.profile-container label {
+  margin-right: 35px;
+}
+
+.profile-container #profile-select {
+  height: 2.5rem;
+  width: 12rem;
+}
+
+.profile-container #profile-notes {
+  width: 50%;
+}
+
+.new-profile-modal label {
+  margin-right: 35px;
 }
 
 /* Moblie */

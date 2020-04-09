@@ -3,7 +3,6 @@ const axios = require('axios');
 const Crypto = require('crypto')
 const nonce = `76932509675239680235`
 const User = require('../models/user')
-const {API_URL} = process.env
 
 const bittrex = axios.create({
     baseURL: `https://api.bittrex.com/api/v1.1`,

@@ -15,9 +15,9 @@ import './home.css'
 const Home = props => {
     return (
         <main>   
+            <Wallet />
             <Profile />
             <Preferences />
-            <Wallet />
             <ActiveRentals />
             <MiningOperations />
             <OpenOrders />
