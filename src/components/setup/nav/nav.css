@@ -1,6 +1,5 @@
 .nav-setup {
     color: #fff;
-    padding: 5px;
     position: relative;
     border-radius: 4px;
     left: 0;
@@ -15,3 +14,23 @@
     padding: 0;
     list-style: none;
 }
+
+.nav-setup ul li {
+    padding: 5px;
+}
+
+.nav-header {
+    padding: 5px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #9a9a9a;
+}
+
+/* @media (max-width: 890px) {
+    .nav-setup {
+        position: fixed;
+        top: 70px;
+        border-radius: 0;
+        z-index: 100;
+        left: -116px;
+    }
+} */

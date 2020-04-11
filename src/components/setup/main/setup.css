@@ -1,6 +1,8 @@
 .setup {
     display: flex;
     justify-content: center;
+    -webkit-font-smoothing: antialiased;
+    font-family: -apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Helvetica Neue,Ubuntu,sans-serif;
 }
 .setup-container {
     position: relative;
@@ -8,6 +10,47 @@
     padding-bottom: 25px;
     display: flex;
     align-items: flex-start;
+}
+
+.setup-documentation {
+    display: flex;
+}
+
+.bittrex-form header {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+}
+
+.bittrex-success {
+    width: 50px;
+    position: relative;
+    left: -50px;
+    display: flex;
+}
+
+.bittrex-success p {
+    font-weight: bold;
+}
+
+.bittrex-success .fas {
+    /* top 2px due to icon off set */
+    top: 2px; 
+    position: relative;
+    left: 10px;
+}
+
+.setup-documentation aside {
+    margin: 20px 0;
+    padding: 10px 10px 10px 40px;
+    border: 1px solid #e3e8ee;
+    border-radius: 4px;
+    background-color: #f7fafc;
+}
+
+.setup-documentation aside p {
+    font-size: .9rem;
+    margin: 0;
 }
 .credential-container {
     position: relative;
@@ -17,7 +60,12 @@
 }
 
 .credential-container section:nth-child(2) {
+    color: #1f1a47;
     margin-top: 20px;
+}
+
+.credential-container h4 {
+    margin: 15px 0;
 }
 .provider-section, .bittrex-section {
     position: relative;
@@ -33,7 +81,6 @@
 .provider-section label, .bittrex-section label {
     width: 232px;
     font-size: 16px;
-    color: #545454;
     width: 232px;
     justify-content: end;
     white-space: nowrap;
@@ -69,7 +116,7 @@
     box-shadow: 0 8px 6px -6px #000;
     display: inline-block;
     padding: 6px 12px;
-    margin-top: 20px;
+    margin-top: 15px;
     font-size: 14px;
     font-weight: 400;
     line-height: 1.42857143;
@@ -153,6 +200,19 @@
 @media (max-width: 576px) {
     .provider-section .form-groups,
     .rental-provider {
+        display: block;
+    }
+}
+
+@media (max-width: 890px) {
+    .credential-container {
+        position: static;
+    }
+    .setup-container {
+        flex-direction: column;
+        align-items: normal;
+    }
+    .credential-container {
         display: block;
     }
 }
