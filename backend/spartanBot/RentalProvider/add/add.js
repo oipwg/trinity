@@ -140,11 +140,10 @@ const NiceHash = 'NiceHash';
 
 module.exports = async function(options) {
     let spartan = options.SpartanBot;
- 
-
     let rental_provider_type = options.rental_provider;
-    console.log('rental_provider_type:', rental_provider_type)
     let rentalProviders = spartan.getRentalProviders();
+
+    console.log('rental_provider_type:', rental_provider_type)
 
     if (rentalProviders.length === 2 && options.poolData === undefined) {
         let poolArray = await spartan.returnPools();
@@ -154,7 +153,8 @@ module.exports = async function(options) {
                         `Maximum number of providers reached, showing ${poolArray.length} pools.\n Input fields below to add one.`,
             pool: poolArray.length ? true : false,
             credentials: true,
-            success: poolArray.length ? true : false
+            success: poolArray.length ? true : false,
+            pools: poolArray.length
         }
     }
         
@@ -185,7 +185,8 @@ module.exports = async function(options) {
                                                 'No pool found enter pool info below to add a pool.',
                     pool: poolArray.length ? true : false,
                     credentials: true,
-                    success: poolArray.length ? true : false
+                    success: poolArray.length ? true : false,
+                    pools: poolArray.length
                 }
             } 
             else {
@@ -222,7 +223,8 @@ module.exports = async function(options) {
                              'No pool found enter pool info below to add a pool',
                     pool:  poolArray.length ? true : false,
                     credentials: true,
-                    success: poolArray.length ? true : false
+                    success: poolArray.length ? true : false,
+                    pools: poolArray.length
                 }
             } else {
                 try {
@@ -237,6 +239,7 @@ module.exports = async function(options) {
                         pool:  false,
                         credentials: true,
                         success: false,
+                        pools: poolArray.length
                     }
                 }
             }

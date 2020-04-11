@@ -85,11 +85,12 @@ exports.manualRent = async (options) => {
         }
 
         const fmtPool = (badge) => {
-            return `${'Market'}: ` +
+                    return `${'Market'}: ` +
                     `${badge.market} ${'Price'}: ` +
                     `${badge.price} BTC/TH/DAY ` +
                     `${'Amount:'} ` +
                     `${badge.amount.toFixed(6)} BTC ` +
+                    // `${badge.last10AvgCostMrrScrypt.toFixed(6)} BTC ` +
                     `${'Hash Limit:'} ` +
                     `${badge.limit * 1000 * 1000} MH ` +
                     `${`Duration:`} ` +
@@ -106,7 +107,7 @@ exports.manualRent = async (options) => {
         }
 
         for (let status in statuses) {
-            if (statuses[status]) console.log('manualRent.js 133 \n' ,statusMessages[status]);
+            if (statuses[status]) console.log('manualRent.js 109 \n' ,statusMessages[status]);
         }
 
         // let rentPrompt = await self.prompt({
@@ -134,8 +135,8 @@ exports.manualRent = async (options) => {
             } else {
                 for (let id in fmtObject) {
                     // console.log('FMTOBJECT', fmtObject[id])
-                    // console.log('SELECTION ', selection[0])
-                    if (fmtObject[id] === selection[0]) badgeID = id;
+                    // console.log('SELECTION ', selection)
+                    if (fmtObject[id] === selection) badgeID = id;
                 }
                 for (let badge of badges) {
                     // console.log('badge: manualRent.js 165', badge)
@@ -150,3 +151,53 @@ exports.manualRent = async (options) => {
         };
     });
 };
+
+
+
+
+// Each rig hashrate:  250.635 / 1000 / 1000
+// Each rig hashrate:  250.66299999999998 / 1000 / 1000
+// Each rig hashrate:  5277.826999999999 / 1000 / 1000
+// Each rig hashrate:  5279.191999999999 / 1000 / 1000
+// Each rig hashrate:  5279.231999999999 / 1000 / 1000
+// Each rig hashrate:  5683.734999999999 / 1000 / 1000
+// Each rig hashrate:  6077.536999999998 / 1000 / 1000
+// Each rig hashrate:  6627.608999999999 / 1000 / 1000
+// Each rig hashrate:  7254.196999999998 / 1000 / 1000
+// Each rig hashrate:  7856.675999999999 / 1000 / 1000
+// Each rig hashrate:  8525.347999999998 / 1000 / 1000
+// Each rig hashrate:  9089.276999999998 / 1000 / 1000
+// Each rig hashrate:  9498.968999999997 / 1000 / 1000
+// Each rig hashrate:  9987.437999999996  / 1000 / 1000
+
+// badges:
+//     { market: 'MiningRigRentals',
+//       status: { status: 'NORMAL' },
+//       amount: 0.00049257,
+//       totalHashesTH: 107.86433039999997,
+//       hashesDesiredTH: 108,
+//       duration: '3',
+//       limit: 0.009987437999999996,
+//       price: 0.394552,
+//       balance: 0.00429233,
+//       query:
+//        { hashrate_found: 9987.437999999996,
+//          cost_found: 0.00049257,
+//          duration: '3' },
+//       uid: 'uuydvt5',
+//       rigs:
+//        [ [Object],
+//          [Object],
+//          [Object],
+//          [Object],
+//          [Object],
+//          [Object],
+//          [Object],
+//          [Object],
+//          [Object],
+//          [Object],
+//          [Object],
+//          [Object],
+//          [Object],
+//          [Object]
+

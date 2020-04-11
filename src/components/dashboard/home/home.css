@@ -89,6 +89,48 @@ main {
   margin-right: 35px;
 }
 
+.active-rentals-items-container {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -ms-flex-pack: distribute;
+      justify-content: space-around;
+}
+
+.active-rentals-items-container img {
+  margin-right: 2rem;
+}
+
+.active-rentals-items-container > div:not(:first-child) {
+  width: 50%;
+  border: 1px solid black;
+}
+
+.active-rentals-item {
+  text-align: center;
+  margin: 0 auto;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+      -ms-flex-direction: column;
+          flex-direction: column;
+  -webkit-box-pack: center;
+      -ms-flex-pack: center;
+          justify-content: center;
+}
+
+.active-rentals a {
+  display: block;
+  text-align: right;
+  padding-top: 0.25rem;
+}
+
+.new-profile-modal label:first-child {
+  margin: 1rem;
+}
+
 /* Moblie */
 @media screen and (max-width: 500px) {
   body {

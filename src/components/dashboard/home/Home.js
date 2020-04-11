@@ -18,7 +18,6 @@ const Home = props => {
             <Wallet />
             <Profile />
             <Preferences />
-            <ActiveRentals />
             <MiningOperations />
             <OpenOrders />
             <SalesHistory />

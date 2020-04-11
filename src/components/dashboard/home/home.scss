@@ -76,6 +76,41 @@ main {
   }
 }
 
+.active-rentals-items-container {
+  display: flex;
+  justify-content: space-around;
+
+  img {
+    margin-right: 2rem;
+  }
+}
+
+.active-rentals-items-container > div:not(:first-child) {
+  width: 50%;
+  border: 1px solid black;
+}
+
+.active-rentals-item {
+  text-align: center;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+.active-rentals {
+  a {
+    display: block;
+    text-align: right;
+    padding-top: 0.25rem;
+  }
+}
+
+.new-profile-modal {
+  label:first-child {
+    margin: 1rem;
+  }
+}
+
 /* Moblie */
 @media screen and (max-width: 500px) {
   body {

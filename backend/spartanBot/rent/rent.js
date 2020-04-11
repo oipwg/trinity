@@ -40,7 +40,7 @@ module.exports = async function(options) {
             }
 
             let promptChoices = modifiedKeys;
-            console.log('promptChoices: rent.js 45', promptChoices)
+            console.log('promptChoices: rent.js 45')
 
             // let inspectionPrompt = await self.prompt({
             //     type: 'list',
@@ -85,7 +85,6 @@ module.exports = async function(options) {
         spartan.emitter.on('RentalFunctionFinish', onRentalFnFinish);
 
         if (options.rentType === 'Manual') {
-
             await manualRent(options);
         }
 

@@ -184,8 +184,13 @@ module.exports = {
 
             let apiKey = user.bittrex.apiKey
             let secret = user.bittrex.secret
+            
+            if(!apiKey) {
+                return res.status(400).json({"error": "no keys"})
+            }
         
             let openOrders = {}
+
 
             let getOrders = await (async () => 
                 {

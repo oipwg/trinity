@@ -29,13 +29,16 @@ router.get('/coinbase/callback', auth, passportCoinbase, async (req, res) => {
     }
 });
 
+// Just commented it out because it wouldn't let me in
+// router.post('/bittrex', auth, (async (req, res) => {
+  router.post('/bittrex', async (req, res) => {
 
-router.post('/bittrex', auth, (async (req, res) => {
+    // Change this if you need to, but added this layer incase you are still needing to use adding bittrex on your end another way. 
+    let _id = req.user ? req.user.id : req.body.userId
+
     try {
-      
       const { apiKey, secret } = req.body;
-
-      const user = await User.findById(req.user.id).select('-password');
+      const user = await User.findById(_id).select('-password');
 
       if(!user){
         return res.status(404).json({ error: 'User not found' });
@@ -50,11 +53,10 @@ router.post('/bittrex', auth, (async (req, res) => {
 
       await user.save({validateBeforeSave: false})
 
-      res.status(201).json({ success: 'Keys successfully stored!'})
+      res.status(201).json({ data: {success: 'Keys successfully stored!'} })
     } catch (error) {
       console.log(error);
     }
-
-}))
+})
 
 module.exports = router;
