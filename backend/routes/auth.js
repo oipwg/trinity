@@ -30,7 +30,6 @@ router.get('/coinbase/callback', auth, passportCoinbase, async (req, res) => {
 });
 
 // Just commented it out because it wouldn't let me in
-// router.post('/bittrex', auth, (async (req, res) => {
   router.post('/bittrex', async (req, res) => {
 
     // Change this if you need to, but added this layer incase you are still needing to use adding bittrex on your end another way. 
@@ -44,8 +43,6 @@ router.get('/coinbase/callback', auth, passportCoinbase, async (req, res) => {
         return res.status(404).json({ error: 'User not found' });
       }
 
-      console.log(user)
-
       user.bittrex = {
         apiKey,
         secret
@@ -56,6 +53,7 @@ router.get('/coinbase/callback', auth, passportCoinbase, async (req, res) => {
       res.status(201).json({ data: {provider: 'Bittrex', credentials: true} })
     } catch (error) {
       console.log(error);
+      res.statusCode
     }
 })
 

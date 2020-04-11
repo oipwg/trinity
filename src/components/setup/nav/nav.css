@@ -25,12 +25,9 @@
     border-bottom: 1px solid #9a9a9a;
 }
 
-/* @media (max-width: 890px) {
+@media (max-width: 890px) {
     .nav-setup {
-        position: fixed;
-        top: 70px;
-        border-radius: 0;
-        z-index: 100;
-        left: -116px;
+        bottom: 10px;
+        width: 100%;
     }
-} */
+}

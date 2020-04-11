@@ -1,9 +1,8 @@
 import React from 'react';
 import Wallet from '../sub-components/wallet/Wallet';
-import ActiveRentals from './inner-components/ActiveRentals';
+// import ActiveRentals from './inner-components/ActiveRentals';
 import OpenOrders from './inner-components/OpenOrders';
 import Profile from './inner-components/Profile'
-import Preferences from './inner-components/Prefrences'
 import SalesHistory from './inner-components/SalesHistory';
 import CurrentRentals from './inner-components/CurrentRentals';
 import MiningOperations from './inner-components/MiningOperations';
@@ -17,7 +16,6 @@ const Home = props => {
         <main>   
             <Wallet />
             <Profile />
-            <Preferences />
             <MiningOperations />
             <OpenOrders />
             <SalesHistory />
