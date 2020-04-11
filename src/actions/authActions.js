@@ -2,6 +2,7 @@ import axios from 'axios';
 import { returnErrors } from './errorAction';
 import { API_URL } from '../../config';
 import { returnSuccess } from './successAction';
+import { getProfile } from './profileActions'
 
 import {
     USER_LOADED,
@@ -14,6 +15,9 @@ import {
     SIGNUP_FAIL,
     CHANGE_PW_FAIL,
     CHANGE_PW_SUCCESS,
+    // On Load
+    PROFILE_GET
+
 } from './types';
 
 const config = {
@@ -36,6 +40,8 @@ export const loadUser = () => (dispatch, getState) => {
                 type: USER_LOADED,
                 payload: res.data,
             });
+        }).then(() => {
+            dispatch(getProfile())
         })
         .catch(err => {
             //todo: handle error - currently returns undefined

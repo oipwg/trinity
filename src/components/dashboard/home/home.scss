@@ -155,8 +155,66 @@ main {
   padding-top: 25px;
   padding-bottom: 25px;
   width: 25vw;
-  background-color: rgba(0, 0, 0, 0.2);
+  background-color: rgba(218, 218, 218, 0.85);
   margin: 0 auto;
+  flex: 1 1 100%;
+}
+
+.profile-container {
+  width: 100%;
+
+  label {
+    margin-right: 35px;
+  }
+
+  #profile-select {
+    height: 2.5rem;
+    width: 12rem;
+  }
+  #profile-notes {
+    width: 50%;
+  }
+}
+
+.new-profile-modal {
+  label {
+    margin-right: 35px;
+  }
+}
+
+.active-rentals-items-container {
+  display: flex;
+  justify-content: space-around;
+
+  img {
+    margin-right: 2rem;
+  }
+}
+
+.active-rentals-items-container > div:not(:first-child) {
+  width: 50%;
+  border: 1px solid black;
+}
+
+.active-rentals-item {
+  text-align: center;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+.active-rentals {
+  a {
+    display: block;
+    text-align: right;
+    padding-top: 0.25rem;
+  }
+}
+
+.new-profile-modal {
+  label:first-child {
+    margin: 1rem;
+  }
 }
 
 /* Moblie */

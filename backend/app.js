@@ -5,7 +5,6 @@ const path = require('path');
 const cookieParser = require('cookie-parser');
 const logger = require('morgan');
 const mongoose = require('mongoose');
-
 const usersRouter = require('./routes/users');
 const dashboardRouter = require('./routes/dashboard');
 const setupRouter = require('./routes/setup');
@@ -13,6 +12,7 @@ const settingsRouter = require('./routes/settings');
 const setupWebSocket = require('./routes/socket');
 const authRouter = require('./routes/auth');
 const bittrexRouter = require('./routes/bittrex')
+const userProfiles = require('./routes/userProfiles')
 const passport = require('passport');
 const { NODE_ENV, MONGO_URL } = process.env;
 
@@ -54,6 +54,7 @@ app.use('/settings', settingsRouter);
 app.use('/auth', authRouter);
 // app.use('/setup', setupWebSocket);
 app.use('/bittrex', bittrexRouter);
+app.use('/profile', userProfiles)
 
 
 // catch 404 and forward to error handler

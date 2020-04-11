@@ -14,7 +14,7 @@ kinda red - #AE003E
 
 html,
 body {
-    /* background: -moz-linear-gradient(
+  /* background: -moz-linear-gradient(
         180deg,
         rgba(0, 0, 0, 1) 0%,
         rgba(66, 70, 86, 1) 50%,
@@ -33,22 +33,34 @@ body {
         rgba(0, 130, 249, 1) 100%
     );
     filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="#000000",endColorstr="#0082f9",GradientType=1); */
-    height: 100%;
-    font-family: 'Avenir';
+  height: 100%;
+  font-family: 'Avenir';
+  font-size: 16px;
 }
 
 .bg-primary {
-    background-color: #0082f9 !important;
+  background-color: #0082f9 !important;
 }
 
 #header-navbar {
-    z-index: 9999;
+  z-index: 9999;
 }
 
 
 
 .navbar-light .navbar-nav .nav-link {
-    color: #ffffff;
+  color: #ffffff;
+}
+
+@media screen and (max-width: 500px) {
+  main {
+    margin: 0px;
+  }
+
+  .modal-dialog {
+    margin: 0;
+    max-width: 100vw;
+  }
 }
 
 @media (min-width: 992px) {

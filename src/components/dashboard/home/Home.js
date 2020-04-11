@@ -1,6 +1,6 @@
 import React from 'react';
 import Wallet from '../sub-components/wallet/Wallet';
-import ActiveRentals from './inner-components/ActiveRentals';
+// import ActiveRentals from './inner-components/ActiveRentals';
 import OpenOrders from './inner-components/OpenOrders';
 import Profile from './inner-components/Profile'
 import SalesHistory from './inner-components/SalesHistory';
@@ -14,9 +14,8 @@ import './home.css'
 const Home = props => {
     return (
         <main>   
-            <Profile />
             <Wallet />
-            <ActiveRentals />
+            <Profile />
             <MiningOperations />
             <OpenOrders />
             <SalesHistory />
