@@ -9,6 +9,7 @@
     top: 30px;
     padding-bottom: 25px;
     display: flex;
+    right: 5px;
     align-items: flex-start;
 }
 
@@ -54,7 +55,7 @@
 }
 .credential-container {
     position: relative;
-    left: 20px;
+    left: 10px;
     display: flex;
     flex-direction: column;
 }
@@ -193,10 +194,6 @@
     white-space: pre-wrap;
 }
 
-.pool-add  {
-    /* display: none; */
-}
-
 @media (max-width: 576px) {
     .provider-section .form-groups,
     .rental-provider {
@@ -211,8 +208,15 @@
     .setup-container {
         flex-direction: column;
         align-items: normal;
+        right: 0;
+        
     }
     .credential-container {
         display: block;
+    }
+}
+@media (max-width: 768px) {
+    .setup {
+        padding: 0 5px;
     }
 }

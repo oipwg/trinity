@@ -4,8 +4,11 @@ import './nav.css';
 const Navigation = () => {
     return (
         <nav className='nav-setup'>
-            <div className="nav-item-container">
+            <header>
                 <h5 className="nav-header">SETUP</h5>
+            </header>
+            <div className="nav-item-container">
+                
                 <ul>
                     <li className="nav-item">Show Providers</li>
                     <li className="nav-item">Update Provider</li>
