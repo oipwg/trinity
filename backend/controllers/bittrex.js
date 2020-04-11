@@ -3,7 +3,6 @@ const axios = require('axios');
 const Crypto = require('crypto')
 const nonce = `76932509675239680235`
 const User = require('../models/user')
-const {API_URL} = process.env
 
 const bittrex = axios.create({
     baseURL: `https://api.bittrex.com/api/v1.1`,
@@ -185,8 +184,13 @@ module.exports = {
 
             let apiKey = user.bittrex.apiKey
             let secret = user.bittrex.secret
+            
+            if(!apiKey) {
+                return res.status(400).json({"error": "no keys"})
+            }
         
             let openOrders = {}
+
 
             let getOrders = await (async () => 
                 {

@@ -2,9 +2,11 @@ import React, { useState, useEffect, useRef } from 'react';
 import './setup.css';
 import { ROOT_URL, API_URL } from '../../../../config.js';
 import { connect } from 'react-redux';
+import Navigation from '../nav/Navigation';
 // const socket = new WebSocket('ws://localhost:3031');
-const Main = props => {
+const Setup = props => {
     const [userData, setUserData] = useState([]);
+    const [bittrexData, setBittrexData] = useState({});
     const userId = useRef('');
 
     // socket.onmessage = (e) => {
@@ -22,7 +24,7 @@ const Main = props => {
 
 
     useEffect(() => {
-  
+        console.log(bittrexData)
         if (props.user) {
             userId.current = props.user._id
         }
@@ -88,6 +90,7 @@ const Main = props => {
             setUserData([options])
         }
     }
+
     function set_pool_values(e) {
         e.preventDefault();
         const form = document.getElementsByClassName('wizard-form')[0]
@@ -138,7 +141,34 @@ const Main = props => {
 
         setup_Provider(sentData)
     }
-
+    function set_bittrex_values(e) {
+        console.log(e)
+        e.preventDefault();
+        const form = document.getElementsByClassName('bittrex-form')[0]
+        const form_inputs = form.elements
+        let length = form_inputs.length
+        let options = {}
+        for (let i = 0; i < length; i++) {
+            const el = form_inputs[i];
+            
+            switch (el.id) {
+                case 'bittrex':
+                    options.bittrex = el.value
+                    break;
+                case 'bittrex_key':
+                    options.apiKey = el.value
+                    el.value = ''
+                    break;
+                case 'bittrex_secret':
+                    options.secret = el.value
+                    el.value = ''
+                    break;
+            }    
+        }
+        options.userId = userId.current
+        console.log(options)
+        setup_Provider(options)
+    }
     function set_provider_values(e) {
         e.preventDefault();
         const form = document.getElementsByClassName('wizard-form')[0]
@@ -165,10 +195,11 @@ const Main = props => {
                     case 'id':
                         options.api_id = el.value
                         el.value = ''
-                        break;  
+                        break;
                 }    
             }
         }
+
         // **** WILL COME BACK AND CHECK MAKE SURE FIELDS ALL EXIST  ****
         for(let prop in options ) {
             if (options.hasOwnProperty(prop)) {
@@ -178,45 +209,55 @@ const Main = props => {
 
         // Merges the existing data when selecting provider with added data from "Add Provider" button
         let sentData = {...userData[0], ...options}
+        console.log('sentData:', sentData)
 
         setup_Provider(sentData)
     }
 
     
     function process_returned_data(data) {
-        let responseData = {}
-        for (let key in data) {
-            let value = data[key]
-            let property = key
-    
-            switch (property) {
-                case 'err': 
-                    responseData[property] = value
-                case 'message':
-                    responseData[property] = value    
-                case 'pool':
-                    responseData[property] = value
-                case 'credentials':
-                    responseData[property] = value
-                case 'success':
-                    responseData[property] = value
-            }
-        }
-
-        // Top exsisting data / object, and response object that came back merged together
-        let allData = {...userData[0], ...responseData}
-        
-        if ( userData.length > 1) {
-            setUserData(merge(allData, userData[1]))
+        console.log('RETURNEDD DATA ', data)
+        if (data.provider === "Bittrex") {
+            setBittrexData({...data})
         } else {
-            setUserData([allData])
+            let responseData = {}
+            for (let key in data) {
+                let value = data[key]
+                let property = key
+        
+                switch (property) {
+                    case 'err': 
+                        responseData[property] = value
+                    case 'message':
+                        responseData[property] = value    
+                    case 'pool':
+                        responseData[property] = value
+                    case 'credentials':
+                        responseData[property] = value
+                    case 'success':
+                        responseData[property] = value
+                }
+            }
+
+            // Top exsisting data / object, and response object that came back merged together
+            let allData = {...userData[0], ...responseData}
+            
+            if ( userData.length > 1) {
+                setUserData(merge(allData, userData[1]))
+            } else {
+                setUserData([allData])
+            }
         }
     };
 
     async function setup_Provider(data) {
         console.log('setup_Provider ran', data)
+        console.log(localStorage.getItem('token'))
+        // Hits bittrex endpoint when adding credentials the rest hits setup
+        let endPoint = data.bittrex ? '/auth/bittrex' : '/setup'
+
         try {
-            const response = await fetch(API_URL+'/setup', {
+            const response = await fetch(API_URL + endPoint, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -225,7 +266,7 @@ const Main = props => {
             });
         
             let res = await response.json()
-
+            console.log(res)
             process_returned_data(res.data)
         } catch (e) {
             console.log('Catch error: Main.js line 232',e)
@@ -243,10 +284,11 @@ const Main = props => {
     const showCredentials = userdata => {
         let height = (() => {
             if ( userdata.length ) {
-                return userdata[0].provider === 'MiningRigRentals' ? '119px' : '195px'
+                return userdata[0].provider === 'MiningRigRentals' ? '126px' : '169px'
             } else 
                 return '0px'
         })();
+   
         let boolean = !userdata.length ? true : userdata[0].credentials
 
         return {boolean, height}
@@ -256,6 +298,7 @@ const Main = props => {
         let boolean = !userData.length ? false : userData[0].success
         return boolean
     }
+
     const goToSettings = () => {
         location.href = ROOT_URL+'/settings';
     }
@@ -282,9 +325,14 @@ const Main = props => {
                 if (data.err === field && data.success) {
                     return [
                         data.message,
-                        <button key={i} type="submit" className="btn btn-success" onClick={goToSettings}>
-                            Continue  >
-                        </button>
+                        <div key={'pool'}>
+                            <button type="submit" className="btn btn-primary add-pool" onClick={goToSettings}>
+                                Add Pool
+                            </button>
+                            <button type="submit" className="btn btn-success" onClick={goToSettings}>
+                                Continue  >
+                            </button>
+                        </div>
                     ]    
                 } else if (data.err === field) {
                     return (
@@ -314,7 +362,68 @@ const Main = props => {
     }
 
     return (
-        <section className="wizard">
+        <>
+        <div className="setup">
+        <div className="setup-container">
+            <Navigation />
+        <div className="credential-container">
+            <section className="bittrex-section">
+             <form className="bittrex-form">
+                <div className="credentials">
+                <div>
+                    {/* <div style={{height: showCredentials(userData).boolean ? '0px' : showCredentials(userData).height }} className="provider-credentials"> */}
+                        <header>
+                            <h4>Bittrex</h4>
+                            <div className="bittrex-success">
+                                <p>Success</p>
+                                <i className="fas fa-thumbs-up"></i>
+                            </div>
+                        </header>
+                        <div className="setup-documentation">
+                            <div className="bittrex-visit-link">
+                                {/* <h6>Bittrex Documentation</h6> */}
+                                <aside>
+                                    <p className="bittrex-info">
+                                        <strong>Create a <a href="https://bittrex.com/account/register" target="_blank">bittrex</a> account first if you haven't already.</strong>
+                                    </p>
+                                </aside>
+                            </div>
+                            <div className="bittrex-video">
+
+                            </div>
+                        </div>
+                        
+                        <div className="form-inline">
+                            <input type="hidden" value="bittrex" id="bittrex" name="bittrex" />
+                            <div className="form-groups">
+                                <label htmlFor="key">API key</label>
+                                <input
+                                    id="bittrex_key"
+                                    type="password"
+                                    className="form-control mx-sm-4"
+                                    aria-describedby="key"
+                                    placeholder="Your api key"/>
+                            </div>
+                        </div>
+                        <div className="form-inline secret">
+                            <div className="form-groups">
+                                <label htmlFor="secret">Secret</label>
+                                <input
+                                    id="bittrex_secret"
+                                    type="password"
+                                    className="form-control mx-sm-4"
+                                    aria-describedby="secret"
+                                    placeholder="Your secret"/>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <button type="submit" className="btn-submit" onClick={set_bittrex_values}>
+                    Add Bittrex
+                </button>
+            </form>
+        </section>
+            <section className="provider-section">
             <table className="table">
                 <thead id="wizard-tableHeader">
                     <tr>
@@ -327,7 +436,6 @@ const Main = props => {
                 </thead>
                 <tbody>
                     {(()=> {
-                        {console.log(userData)}
                         return (
                             userData.map( (userData, i)=> {
                                 let dataKeys = Object.keys(userData)
@@ -358,6 +466,20 @@ const Main = props => {
             <form className="wizard-form">
                 <div className="form-inline rental-provider">
                     <h4>Provider</h4>
+                    <div className="setup-documentation">
+                            <div className="bittrex-visit-link">
+                                {/* <h6>Bittrex Documentation</h6> */}
+                                <aside>
+                                    <p className="bittrex-info">
+                                        <strong>Create a <a href="https://www.nicehash.com/my/register" target="_blank">Nice hash</a> or  
+                                        <a href="https://www.miningrigrentals.com/" target="_blank"> Mining rig rental</a> account first if you haven't already.</strong>
+                                    </p>
+                                </aside>
+                            </div>
+                            <div className="bittrex-video">
+
+                            </div>
+                        </div>
                     <div className="form-groups">
                         <label className="my-1 mr-2">Rental provider</label>
                         <select
@@ -415,7 +537,7 @@ const Main = props => {
                
                 {/* End of rental passwords */}
                 <Pools poolBoolean ={showPool}/>
-                {/* End of pool information */}
+        
                 <button type="submit" className="btn-submit" onClick={set_provider_values}
                 style={{display: showPool() ? 'block' : 'none'}}>
                     Add Provider
@@ -427,8 +549,13 @@ const Main = props => {
                 </button>
             </form>
         </section>
+        </div>
+        </div>
+        </div>
+        </>
     );
 };
+
 const Pools = (props) => {
     return (  
         <div className="pools">
@@ -548,4 +675,5 @@ const mapStateToProps = state => {
     };
 };
 
-export default connect(mapStateToProps)(Main);
+export default connect(mapStateToProps)(Setup);
+
