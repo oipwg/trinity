@@ -2,6 +2,73 @@ const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
 const Schema = mongoose.Schema;
 
+const profileSchema = new Schema({
+    name: {
+        type: String,
+        require: true,
+        unique: true,
+        default: null,
+    },
+    token: {
+        type: String,
+        require: true,
+        default: null,
+    },
+    autoRent: {
+        on: {
+            type: Boolean,
+            default: null,
+        },
+        mode: {
+            spot: {
+                type: Boolean,
+                default: null,
+            },
+            alwaysMineXPercent: {
+                type: Boolean,
+                default: null,
+            },
+        }
+    },
+    autoTrade: {
+        on: {
+            type: Boolean,
+            default: null,
+        },
+        mode: {
+            morphie:  {
+                type: Boolean,
+                default: null,
+            },
+            supportedExchanges:  {
+                type: Boolean,
+                default: null,
+            },
+        }
+    },
+    targetMargin:  {
+        type: Number,
+        default: null,
+    },
+    profitReinvestment:  {
+        type: Number,
+        default: null,
+    },
+    updateUnsold:  {
+        type: String,
+        default: null,
+    },
+    dailyBudget:  {
+        type: Number,
+        default: null,
+    },
+    notes: {
+        type: String,
+        default: ''
+    }
+});
+
+
 const userSchema = new Schema({
     userName: {
         type: String,
@@ -37,7 +104,8 @@ const userSchema = new Schema({
         api_key: String,
         api_secret: String,
         api_id: String
-    }]
+    }],
+    profiles: [profileSchema]
 });
 
 userSchema.pre('save', async function(next) {
