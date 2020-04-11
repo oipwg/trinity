@@ -69,6 +69,13 @@ const Profile = (props) => {
         if(profiles) {
             let profile = profiles.find(obj => { return obj.name == value})
             setSelectedProfile(profile)
+
+            if(selectedProfile){
+               setNotes(selectedProfile.notes)
+            }
+
+
+            // setNotes(selectedProfile.notes)
         }
     }, [profiles, value])
 
@@ -82,6 +89,12 @@ const Profile = (props) => {
         }
     })
 
+    useEffect(() => {
+        if(profileModal){
+            setNotes('')
+            setValue('')
+        }
+    }, [profileModal])
 
     const handleSelect = e =>{
         setValue(e.target.value)
@@ -124,8 +137,7 @@ const Profile = (props) => {
         <>    
             {profileModal && <NewProfile
                     handleClick={
-                        () => {setProfileModal(!profileModal)
-                                setValue('')}}
+                        () => {setProfileModal(!profileModal)}}
                     handleSubmit={(e) => handleSubmit(e)}
                     handleInputChange={(e) => {setNewProfile({
                         ...newProfile,
@@ -168,6 +180,7 @@ const Profile = (props) => {
                     }
                     onFocus={e => setFocus(!focus)}
                     onBlur={e => setBlur(!blur)}
+                    value={selectedProfile ? selectedProfile.notes : notes}
                 />   
             </div>
             </div>

@@ -38,19 +38,21 @@ module.exports = {
 
     update: async( req, res ) => {
         try {
-            const {_id, autoRent, autoTrade, targetMargin, profitReinvestment,
-                updateUnsold, dailyBudget, notes,
-            } = req.body;
+
+            const {_id} = req.body
 
             const user = await User.findById(req.user.id).select('profiles')
 
             let profileIndex = user.profiles.findIndex(profile => profile._id == _id)
 
-            user.profiles[profileIndex] = {_id, autoRent, autoTrade, targetMargin, profitReinvestment,
-                updateUnsold, dailyBudget, notes}
+            let profile = user.profiles[profileIndex]
 
-            console.log(user)
+            profile = req.body
 
+            user.profiles[profileIndex] = profile;
+
+            await user.save()
+            res.status(200).json({success: 'Updated profiles', profiles: user.profiles})
         } catch (error) {
             console.log(error)
         }
