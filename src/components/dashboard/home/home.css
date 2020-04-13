@@ -166,22 +166,6 @@ main {
   left: 12px;
 }
 
-.card {
-  margin: 0 0 2rem 0;
-}
-
-.profile {
-  /* margin-top: 2rem; */
-  display: block;
-  margin: 20px;
-}
-
-.wallet-body {
-  display: -webkit-box;
-  display: -ms-flexbox;
-  display: flex;
-}
-
 .wallet-balance-box {
   display: -webkit-box;
   display: -ms-flexbox;

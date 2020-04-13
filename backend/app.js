@@ -40,11 +40,13 @@ let allowCrossDomain = function(req, res, next) {
 };
 app.use(allowCrossDomain);
 
+
 app.use(express.static('../dist'));
 app.use(cookieParser());
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(passport.initialize());
+
 
 // Routes
 app.use('/users', usersRouter);
