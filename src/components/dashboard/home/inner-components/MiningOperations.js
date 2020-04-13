@@ -185,7 +185,7 @@ const MiningOperations = () => {
   
                 <div className="automatic-renting-container">
                     <div className="rent-toggle-switch">
-                        <span className="on">ON</span>
+                        <span style={{color: '#007bff'}}className="on">ON</span>
                         <div className="slider-container" style={{transform: `translateX(0)`}}>
                             <span className="round-toggle" />
                             <label className="auto-label-after" htmlFor="autoRent">OFF</label>
