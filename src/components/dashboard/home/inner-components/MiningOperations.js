@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { ROOT_URL, API_URL } from '../../../../../config.js';
 
 let fakeState = {
     budget: 50.00,
@@ -14,20 +15,21 @@ let { budget, margin, profitReinvestment, updateUnsoldOffers } = fakeState;
 const MiningOperations = () => {
     const [err, setError] = useState({autoRent: false, autoTrade: false})
     const [miningOperations, setOperations] = useState({
+            targetMargin: '',
+            profitReinvestment: 0,
+            updateUnsold: '',
+            dailyBudget: '',
             autoRent: false,
             spot: false,
             alwaysMineXPercent: false,
             autoTrade: false,
             morphie: false,
             supportedExchange: false,
-            targetMargin: '',
-            profitReinvestment: 0,
-            updateUnsold: '',
-            dailyBudget: 0,
+            Xpercent: 0
         });
 
     useEffect(() => {
-        checkInputsAndCreate(miningOperations)
+        rent(miningOperations)
     },[miningOperations.autoRent, miningOperations.autoTrade ])
 
     const toggleSlider = (e) => {
@@ -35,6 +37,7 @@ const MiningOperations = () => {
         const current = e.target.parentNode;
         const sliders = document.querySelectorAll('.slider-container')
         let targetPos = current.style.transform.match(regex)[0]
+
         let obj = {}
         let i = 0
         
@@ -57,38 +60,77 @@ const MiningOperations = () => {
             } else {
                 let target = slider.childNodes[2].id
                 obj[target] = false
-                // slider.style.transform = targetPos === "50" ? "translateX(50px)" : "translateX(0px)"; // If wanted to toggle back and forth 
-                slider.style.transform = "translateX(0px)"; 
+                // If wanted to toggle back and forth 
+                // slider.style.transform = targetPos === "50" ? "translateX(50px)" : "translateX(0px)"; 
+                slider.style.transform = "translateX(0px)";
             }
             i++
         }
         setOperations({...miningOperations, ...obj})
     }
 
-    const checkInputsAndCreate = (state) => {
+    const rent = (profile) => {
+        console.log(profile)
+        return
+        fetch(API_URL+'/rent', {
+            method: 'POST',
+            headers: {
+              Accept: 'application/json',
+            },
+            body: JSON.stringify(profile),
+        }).then((response) => {
+            return response.json();
+          })
+          .then((data) => {
+            console.log(data);
+          }).catch((err)=> {
+              console.log(err)
+          });
+    }
+
+    const checkInputsAndRent = (e) => {
+  
         let profile = {}
-        for (let key in state) {
-            if (key === "autoRent") {
-                if (state[key] === true) {
+       
+        for (let key in miningOperations) {
+            console.log(key)
+            switch (key) {
+                case 'targetMargin':
+                    // console.log(miningOperations[key])
+                    if (miningOperations[key] === '') 
+                        return setError({targetMargin: true})
+                    break;
+                case 'profitReinvestment':
+                    if (miningOperations[key] === '') 
+                        return setError({profitReinvestment: true})
+                case 'updateUnsold':
+                    if (miningOperations[key] === '') 
+                        return setError({updateUnsold: true})
+                case 'dailyBudget':
+                    if (miningOperations[key] === '') 
+                        return setError({dailyBudget: true})
+                case 'updateUnsold':
+                    if (miningOperations[key] === '') 
+                        return setError({updateUnsold: true})
+                case 'autoRent':
                     if (miningOperations.spot === miningOperations.alwaysMineXPercent) {
                         // If neither radios are checked
                         return setError({autoRent: true})
                     }
-                }
-            }
-            if (key === "autoTrade") {
-                if (state[key] === true) {
+                    toggleSlider(e)
+                    break;
+                case 'autoTrade':
                     if (miningOperations.morphie === miningOperations.supportedExchange) {
                         // If neither radios are checked
                         return setError({autoTrade: true})
                     }
-                } 
+                    toggleSlider(e)
+                    break;
             }
         }
-        console.log(profile)
     }
 
-    const dataInputs = (e) => {
+    const dataInputs = e => {
         const targetElem = e.target.id
         console.log('targetElem:', targetElem)
         switch ( targetElem ) {
@@ -105,13 +147,13 @@ const MiningOperations = () => {
                 setOperations({...miningOperations, dailyBudget: e.target.value})
         }
     }
-    const toggleInputs = (e) => {
+    const toggleInputs = e => {
 
         const targetElem = e.target.id
        
         switch ( targetElem ) {
             case "autoRent":
-                toggleSlider(e)
+                checkInputsAndRent(e)
                 break;
             case "spot":
                 setOperations({...miningOperations, spot: true, alwaysMineXPercent: false})
@@ -120,7 +162,7 @@ const MiningOperations = () => {
                 setOperations({...miningOperations, alwaysMineXPercent: true, spot: false})
                 break;
             case "autoTrade":
-                toggleSlider(e)
+                checkInputsAndRent(e)
                 break;
             case "morphie":
                 setOperations({...miningOperations, morphie: true, supportedExhange: false})
@@ -129,11 +171,16 @@ const MiningOperations = () => {
                 setOperations({...miningOperations, supportedExchange: true, morphie: false})
         }
     }
-    
+
+    const editPercent = e => {
+        let value = e.target.value
+        setOperations({...miningOperations, Xpercent: value})
+    }
     
     return (
         
         <div className="card mining-operation">
+            {console.log(err)}
             {console.log(miningOperations)}
             <div className="card-header">Mining Operations</div>
             <div className="card-body">
@@ -142,10 +189,9 @@ const MiningOperations = () => {
                         <label htmlFor="basic-url">Target Margin</label>
                         <div className="input-group">
                             <input type="text" id="targetMargin" className="form-control" aria-label="Target margin reinvest"
-                             onKeyUp={(e) => {dataInputs(e)}} />
+                             onKeyUp={(e) => {dataInputs(e)}} maxLength="2"/>
                             <div className="input-group-append">
                                 <span className="input-group-text">%</span>
-                                <span className="input-group-text">0</span>
                             </div>
                         </div>
                     </div>
@@ -153,10 +199,9 @@ const MiningOperations = () => {
                         <label htmlFor="basic-url">Profit Reinvestment</label>
                         <div className="input-group">
                             <input type="text" id="profit-reinvestment" className="form-control" aria-label="Target margin reinvest"
-                            onKeyUp={(e) => {dataInputs(e)}} />
+                            onKeyUp={(e) => {dataInputs(e)}} maxLength="2"/>
                             <div className="input-group-append">
                                 <span className="input-group-text">%</span>
-                                <span className="input-group-text">0</span>
                             </div>
                         </div>
                     </div>
@@ -208,15 +253,29 @@ const MiningOperations = () => {
                                 Mine only when spot profitable
                             </label>
                         </div>
-                        <div className="form-check">
-                            <input className="form-check-input" type="radio" id="alwaysMineXPercent"
-                            value="alwaysMineXPercent"
-                            name="auto-rent"
-                            onChange={(e) => {toggleInputs(e)}} />
-                            <label className="form-check-label" htmlFor="alwaysMineXPercent">
-                                Always mine 10% of the network
-                            </label>
+                        <div className="percent-container">
+                            <div className="form-check">
+                                <input className="form-check-input" type="radio" id="alwaysMineXPercent"
+                                value="alwaysMineXPercent"
+                                name="auto-rent"
+                                onChange={(e) => {toggleInputs(e)}} />
+                                <label className="form-check-label" htmlFor="alwaysMineXPercent">
+                                    Always mine {miningOperations.Xpercent}% of the network
+                                </label>
+                            </div>
+                            <div className="percent-input-container" >
+                            {/* <label for="validationCustom02">Last name</label> */}
+                            <input type="text" className="form-control percent-field" id="Xpercent" 
+                             required placeholder="0" onChange={(e) => {editPercent(e)}} maxLength="2"/>
+                            <span>%</span>
+                            <button className="edit-percent-btn">edit percentage</button>
+                            </div>
                         </div>
+                        <div className="error-dialog">
+                            <span className="error-arrow"></span>
+                            <p>Need at least one checked before renting!</p>
+                        </div>
+                        
                     </div>
                 </div>
                 <div className="automatic-trading-container">
