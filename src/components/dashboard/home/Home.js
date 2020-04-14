@@ -1,6 +1,5 @@
 import React from 'react';
 import Wallet from '../sub-components/wallet/Wallet';
-// import ActiveRentals from './inner-components/ActiveRentals';
 import OpenOrders from './inner-components/OpenOrders';
 import Profile from './inner-components/Profile'
 import SalesHistory from './inner-components/SalesHistory';

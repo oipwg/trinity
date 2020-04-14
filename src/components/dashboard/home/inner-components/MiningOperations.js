@@ -85,7 +85,6 @@ const MiningOperations = () => {
                 } 
             }
         }
-        console.log(profile)
     }
 
     const dataInputs = (e) => {
@@ -134,7 +133,6 @@ const MiningOperations = () => {
     return (
         
         <div className="card mining-operation">
-            {console.log(miningOperations)}
             <div className="card-header">Mining Operations</div>
             <div className="card-body">
                 <div className="mining-operation-inputs">
@@ -145,7 +143,6 @@ const MiningOperations = () => {
                              onKeyUp={(e) => {dataInputs(e)}} />
                             <div className="input-group-append">
                                 <span className="input-group-text">%</span>
-                                <span className="input-group-text">0</span>
                             </div>
                         </div>
                     </div>
@@ -156,7 +153,6 @@ const MiningOperations = () => {
                             onKeyUp={(e) => {dataInputs(e)}} />
                             <div className="input-group-append">
                                 <span className="input-group-text">%</span>
-                                <span className="input-group-text">0</span>
                             </div>
                         </div>
                     </div>

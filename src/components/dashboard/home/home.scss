@@ -143,6 +143,10 @@ main {
   left: 12px;
 }
 
+.wallet-body {
+  display: flex;
+}
+
 .wallet-balance-box {
   display: flex;
   justify-content: center;
@@ -150,9 +154,10 @@ main {
   align-items: center;
   padding-top: 25px;
   padding-bottom: 25px;
-  width: 25vw;
-  margin: 0 auto;
-  flex: 1 1 100%;
+  flex: 1 0 35vw;
+}
+.wallet-description {
+  margin-left: 10px;
 }
 
 .profile-container {
@@ -160,6 +165,10 @@ main {
 
   label {
     margin-right: 35px;
+  }
+
+  .btn-danger {
+    margin-left: 16px;
   }
 
   #profile-select {
@@ -212,6 +221,23 @@ main {
   }
 }
 
+.fade-in {
+  opacity: 1;
+  animation-name: fadeInOpacity;
+  animation-iteration-count: 1;
+  animation-timing-function: ease-in-out;
+  animation-duration: 0.8s;
+}
+
+@keyframes fadeInOpacity {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
 /* Moblie */
 @media screen and (max-width: 500px) {
   body {
@@ -236,6 +262,10 @@ main {
     width: 100vw;
     margin: 20px 0 20px 0;
     padding: 0.5rem;
+
+    #profile-notes {
+      width: 80vw;
+    }
   }
 
   .prefrences {
@@ -246,18 +276,44 @@ main {
     width: 100vw;
   }
 
+  .wallet-balance-box {
+    display: flex;
+    border: none;
+
+    h3 {
+      padding-right: 2rem;
+    }
+  }
+
+  .view-wallets {
+    text-align: center;
+  }
+
   .active-rentals {
+    text-align: center;
     width: 100vw;
+
+    img {
+      margin: 0;
+    }
 
     div {
       flex-direction: column;
       align-items: center;
       margin-bottom: 1rem;
     }
+
+    .active-rentals-items-container > div:not(:first-child) {
+      border: none;
+    }
+    a {
+      text-align: center;
+    }
   }
 
   .mining-operation {
     width: 100vw;
+    text-align: center;
 
     span label {
       margin: 1rem;
@@ -274,6 +330,8 @@ main {
 
   .open-orders {
     width: 100vw;
+    text-align: center;
+
     padding: 0;
 
     a {
@@ -301,7 +359,6 @@ main {
 
 @media screen and (width: 2560px) {
   main {
-    border: 1px solid blue;
     margin: 0 auto;
     max-width: 50vw;
   }

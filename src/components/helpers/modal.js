@@ -6,7 +6,7 @@ const Modal = props => {
     return (
         <>
             <div
-                className={`modal fade show ${props.classname}`}
+                className={`modal fade show ${props.classname} modal-fade-in`}
                 id="exampleModalCenter"
                 tabIndex="-1"
                 role="dialog"

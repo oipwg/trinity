@@ -13,34 +13,6 @@ const OpenOrders = (props) => {
 }, [props.user])
 
 
-    const [fakeData, setFakeData] = useState({
-        data: [
-            {
-                date: Date.now(),
-                numOfFlo: 43.324,
-                amountOfFlo: 21,
-                margin: 10,
-                revenue: '20',
-            },
-            {
-                date: Date.now(),
-                numOfFlo: 43.324,
-                amountOfFlo: 21,
-                margin: 10,
-                revenue: '20',
-            },
-            {
-                date: Date.now(),
-                numOfFlo: 43.324,
-                amountOfFlo: 21,
-                margin: 10,
-                revenue: '20',
-            },
-        ],
-    });
-
-    console.log(props.openOrders)
-
     const renderTableData = () => {
                if(!props.openOrders){
             return;
@@ -64,10 +36,35 @@ const OpenOrders = (props) => {
                         </tr>
                     )
                 }
+                case 'BTC-RVN': {
+                    return (
+                        <tr key={x.OrderUuid}>
+                        <td>{formatToDate(x.Opened) + ' ' + formatTime(x.Opened)}</td>
+                        <td>{x.Quantity}</td>
+                        <td>${x.Price || price}</td>
+                        {/* <td>{margin}%</td>
+                        <td>${revenue}</td> */}
+                        {/* <td><a href={link}>view</a></td> */}
+                        </tr>
+                    )
+                }
             }
 
 
         }
+    }
+
+    const ShowMore = () => {
+
+        if(!props.openOrders) {
+            return null;
+        }
+
+        if(!props.openOrders.length < 5){
+            return null;
+        }
+
+        return <div>Show More</div>
     }
 
     const renderTableHeader = () => {
@@ -97,7 +94,7 @@ const OpenOrders = (props) => {
                         {renderTableData()}
                     </tbody>
                 </table>
-                <a href="#">Show More</a>
+                    <ShowMore />
             </div>
         </div>
     );
