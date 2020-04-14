@@ -36,6 +36,7 @@ main {
 .profit-reinvestment-container,
 .unusoled-offers-container,
 .daily-budget-container {
+  position: relative;
   width: 150px;
 }
 .daily-budget-text {
@@ -100,9 +101,10 @@ main {
     margin-right: 5px;
   }
   .percent-input-container {
+    position: relative;
     width: 220px;
     display: flex;
-    align-items: flex-end;
+    left: 5px;
   }
   .edit-percent-btn {
     background: none;
@@ -122,6 +124,8 @@ main {
   padding: 10px;
   background: red;
   border-radius: 5px;
+  z-index: 4;
+  transition: transform .4s cubic-bezier(.34,1.56,.88,1.05);
 }
 
 .error-dialog span {
