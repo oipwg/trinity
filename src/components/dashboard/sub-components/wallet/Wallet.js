@@ -157,7 +157,7 @@ const WalletBalance = props => {
 
     const renderBreakdown = () => {
         return (
-            <li className="nav-item dropdown" style={{ listStyle: 'none' }}>
+            <li className="nav-item dropdown view-wallets" style={{ listStyle: 'none' }}>
                 <a
                     onClick={handleCollapse}
                     className="nav-link dropdown-toggle"
@@ -318,7 +318,7 @@ const WalletBalance = props => {
                     <div style={{
                         margin: '5px'
                     }}>
-                   
+                
                     <button
                         disabled={walletLock}
                         onClick={() => {
@@ -332,13 +332,13 @@ const WalletBalance = props => {
                     </div>
                 </div>
             </div>
-            <div style={{margin: '10px'}}>
+            {props.account.balance && renderBreakdown()}
+            <div className="wallet-description">
             <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. 
-                Suspendisse dictum, dui sit amet rhoncus vehicula, felis leo suscipit turpis, in tempus enim neque eget eros. Phasellus vel magna eget purus tincidunt efficitur. Suspendisse at congue felis. Sed scelerisque quam eget pharetra venenatis.
+                Suspendisse dictum, dui sit amet rhoncus vehicula, felis leo suscipit turpis, in tempus enim neque eget eros.
             </p>
             </div>
             </div>
-            {props.account.balance && renderBreakdown()}
         </div>
     );
 };

@@ -13,5 +13,7 @@ router.post('/update', auth, ProfileController.update)
 
 router.get('/get', auth, ProfileController.get)
 
+router.delete('/delete/:_id', auth, ProfileController.delete)
+
 
 module.exports = router

@@ -169,7 +169,6 @@ module.exports = {
 
         const response = await bittrex.get(message, {headers: {apisign: signature}})
         
-        console.log(response);
 
         res.status(201).json(response.data)
         } catch (error) {
@@ -225,8 +224,6 @@ module.exports = {
 
             const user = await User.findById(req.user.id).select("bittrex")
 
-            console.log(user)
-
             let apiKey = user.bittrex.apiKey
             let secret = user.bittrex.secret
 
@@ -265,7 +262,6 @@ module.exports = {
             .digest('hex');
     
             const response = await bittrex.get(message, {headers: {apisign: signature}})
-            console.log(response)
         
             res.status(201).json(response.data)
         } catch (error) {
@@ -291,7 +287,6 @@ module.exports = {
             .digest('hex');
     
             const response = await bittrex.get(message, {headers: {apisign: signature}})
-            console.log(response)
         
             res.status(201).json(response.data)
         } catch (error) {
@@ -360,7 +355,6 @@ module.exports = {
 
             const response = await bittrex.get(message, {headers: {apisign: signature}})
             
-            console.log(response);
             res.status(201).json(response.data)
         } catch (error) {
             console.log(error)
@@ -391,7 +385,6 @@ module.exports = {
 
                     const response = await bittrex.get(message, {headers: {apisign: signature}})
                     
-                    console.log(response)
                     return response.data;
                 }
             )();

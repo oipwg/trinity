@@ -56,6 +56,26 @@ module.exports = {
         } catch (error) {
             console.log(error)
         }
+    },
+
+    delete: async (req, res ) => {
+        try {
+            const user = await User.findById(req.user.id).select('profiles')
+
+            let { _id } = req.params
+
+            console.log(_id)
+
+
+         let filteredProfiles = user.profiles.filter(profile => profile._id != _id)
+
+            user.profiles = filteredProfiles
+
+            await user.save();
+                res.status(200).json({success: 'Profile deleted', profiles: user.profiles})
+        } catch (error) {
+            console.log(error)
+        }
     }
 
 };

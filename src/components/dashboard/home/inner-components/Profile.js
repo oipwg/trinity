@@ -1,12 +1,9 @@
 import React, {useState, useEffect} from 'react';
 import Modal from '../../../helpers/modal';
 import { connect } from 'react-redux';
-import { newProfile, updateProfile } from '../../../../actions/profileActions'
+import { newProfile, updateProfile, deleteProfile } from '../../../../actions/profileActions'
 import ActiveRentals from './ActiveRentals';
 import RenderError from '../../../helpers/errors';
-
-
-
 
 const NewProfile = (props) => {
 
@@ -59,11 +56,10 @@ const Profile = (props) => {
         token: '',
     })
     const [notes, setNotes] = useState('')
-    const [selectedProfile, setSelectedProfile] = useState({});
+    const [selectedProfile, setSelectedProfile] = useState(undefined);
     const [error, setError] = useState(null);
     const [blur, setBlur] = useState(false);
     const [focus, setFocus] = useState(false);
-
 
     useEffect(() => {
         if(profiles) {
@@ -71,7 +67,7 @@ const Profile = (props) => {
             setSelectedProfile(profile)
 
             if(selectedProfile){
-               setNotes(selectedProfile.notes)
+                setNotes(selectedProfile.notes)
             }
 
 
@@ -121,6 +117,13 @@ const Profile = (props) => {
 
     }
 
+    const handleDelete = () => {
+        props.deleteProfile(selectedProfile._id)
+        setSelectedProfile(undefined)
+        setValue('')
+        setNotes('')
+    }
+
     const Dropdown = () => {
 
         if(!profiles) return null;
@@ -164,7 +167,10 @@ const Profile = (props) => {
                 <option value={'new'}>
                         add new
                 </option>
-                </select>    
+                </select>
+                {selectedProfile &&
+                    <button onClick={handleDelete} className="btn btn-danger">Delete</button>
+                }   
             </div>
             <div style={{marginBottom: '1rem'}}>
             <label htmlFor="profile-token" >Profile Token:</label>
@@ -185,7 +191,8 @@ const Profile = (props) => {
             </div>
             </div>
         </div>
-        <ActiveRentals profile={selectedProfile} />
+        <ActiveRentals profile={selectedProfile}
+        />
         </>
     
 )
@@ -198,4 +205,4 @@ const mapStateToProps = state => {
 };
 
 
-export default connect(mapStateToProps, {newProfile, updateProfile})(Profile)
+export default connect(mapStateToProps, {newProfile, updateProfile, deleteProfile})(Profile)
