@@ -332,13 +332,13 @@ const WalletBalance = props => {
                     </div>
                 </div>
             </div>
-            {props.account.balance && renderBreakdown()}
             <div className="wallet-description">
             <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. 
                 Suspendisse dictum, dui sit amet rhoncus vehicula, felis leo suscipit turpis, in tempus enim neque eget eros.
             </p>
             </div>
             </div>
+            {props.account.balance && renderBreakdown()}
         </div>
     );
 };

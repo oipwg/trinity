@@ -1,18 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { ROOT_URL, API_URL } from '../../../../../config.js';
 
-let fakeState = {
-    budget: 50.00,
-    margin: 10,
-    profitReinvestment: 37,
-    updateUnsoldOffers: 'SCRYPT',
-    translate: 0
-};
-
-
-let { budget, margin, profitReinvestment, updateUnsoldOffers } = fakeState;
-
-const MiningOperations = () => {
+const MiningOperations = (props) => {
     const [err, setError] = useState({autoRent: false, autoTrade: false})
     const [miningOperations, setOperations] = useState({
             targetMargin: '',
@@ -27,6 +16,22 @@ const MiningOperations = () => {
             supportedExchange: false,
             Xpercent: 0
         });
+    const [blur, setBlur] = useState(false);
+    const [focus, setFocus] = useState(false);
+
+    console.log(miningOperations)
+    console.log(props)
+
+    useEffect(() => {
+        if(blur && focus && (miningOperations)){
+            console.log('running update')
+            // console.log(selectedProfile)
+            // props.updateProfile(selectedProfile)
+            // setBlur(!blur)
+            // setFocus(!focus)
+        }
+    })
+
 
     useEffect(() => {
         rent(miningOperations)
@@ -70,7 +75,6 @@ const MiningOperations = () => {
     }
 
     const rent = (profile) => {
-        console.log(profile)
         return
         fetch(API_URL+'/rent', {
             method: 'POST',
@@ -131,7 +135,6 @@ const MiningOperations = () => {
 
     const dataInputs = e => {
         const targetElem = e.target.id
-        console.log('targetElem:', targetElem)
         switch ( targetElem ) {
             case "targetMargin":
                 setOperations({...miningOperations, targetMargin: e.target.value})
@@ -179,8 +182,6 @@ const MiningOperations = () => {
     return (
         
         <div className="card mining-operation">
-            {console.log(err)}
-            {console.log(miningOperations)}
             <div className="card-header">Mining Operations</div>
             <div className="card-body">
                 <div className="mining-operation-inputs">
@@ -319,4 +320,5 @@ const MiningOperations = () => {
     );
 };
 
-export default MiningOperations;
+
+export default MiningOperations
