@@ -2,7 +2,7 @@ import {
     PROFILE_CREATE_NEW,
     PROFILE_CREATE_UPDATE,
     PROFILE_CREATE_EDIT,
-    PROFILE_CREATE_DELETE,
+    PROFILE_DELETE,
     PROFILE_OBJECT,
     PROFILE_GET,
     LOGIN_SUCCESS,
@@ -19,6 +19,7 @@ import {
         switch(action.type){
             case PROFILE_CREATE_NEW:
             case PROFILE_CREATE_UPDATE:
+            case PROFILE_DELETE:
                 return {
                     ...state,
                     profileList: action.payload,

@@ -17,7 +17,7 @@ main {
     display: block;
     padding: 5px 1px;
     margin-bottom: -2px;
-    font-size: .9rem;
+    font-size: 0.9rem;
   }
 
   input:disabled {
@@ -28,36 +28,37 @@ main {
 }
 
 .target-margin-container {
- .input-group {
-   flex-wrap: nowrap;
- }
+  .input-group {
+    flex-wrap: nowrap;
+  }
 }
-.target-margin-container, .profit-reinvestment-container, .unusoled-offers-container,   
+.target-margin-container,
+.profit-reinvestment-container,
+.unusoled-offers-container,
 .daily-budget-container {
   width: 150px;
 }
 .daily-budget-text {
   display: -ms-flexbox;
-    display: flex;
-    -ms-flex-align: center;
-    align-items: center;
-    padding: .375rem .75rem;
-    margin-bottom: 0;
-    font-size: .9rem;
-    font-weight: 400;
-    line-height: 1.5;
-    color: #0080ff;
-    text-align: center;
-    white-space: nowrap;
-    border-radius: 0px .25rem .25rem 0px;
-    border: 1px solid #ced4da;
+  display: flex;
+  -ms-flex-align: center;
+  align-items: center;
+  padding: 0.375rem 0.75rem;
+  margin-bottom: 0;
+  font-size: 0.9rem;
+  font-weight: 400;
+  line-height: 1.5;
+  color: #0080ff;
+  text-align: center;
+  white-space: nowrap;
+  border-radius: 0px 0.25rem 0.25rem 0px;
+  border: 1px solid #ced4da;
 }
 
 .mining-operation-inputs {
   display: flex;
   justify-content: space-around;
 }
-
 
 
 .automatic-renting-container, .automatic-trading-container {
@@ -81,7 +82,7 @@ main {
     background: white;
   }
   .form-check-label {
-    font-size: .9rem;
+    font-size: 0.9rem;
   }
 
   .percent-container {
@@ -146,23 +147,22 @@ main {
   width: 85px;
   height: 35px;
   border-radius: 60px;
-  border: 2px solid #b8abff;
+  border: 2px solid #007bff85;
   background: #cfe9ff;
   margin: 10px;
 }
 
 .slider-container {
-  transition: transform .4s;
+  transition: transform 0.4s;
   width: 77px;
   display: flex;
   width: 160px;
-  
 }
 .slider-container span {
   display: block;
   width: 31px;
   height: 31px;
-  background-color: #463186;
+  background-color: #007bff;
   border-radius: 100%;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
   position: absolute;
@@ -202,6 +202,10 @@ main {
   left: 12px;
 }
 
+.wallet-body {
+  display: flex;
+}
+
 .wallet-balance-box {
   display: flex;
   justify-content: center;
@@ -209,10 +213,10 @@ main {
   align-items: center;
   padding-top: 25px;
   padding-bottom: 25px;
-  width: 25vw;
-  background-color: rgba(218, 218, 218, 0.85);
-  margin: 0 auto;
-  flex: 1 1 100%;
+  flex: 1 0 35vw;
+}
+.wallet-description {
+  margin-left: 10px;
 }
 
 .profile-container {
@@ -220,6 +224,10 @@ main {
 
   label {
     margin-right: 35px;
+  }
+
+  .btn-danger {
+    margin-left: 16px;
   }
 
   #profile-select {
@@ -272,6 +280,23 @@ main {
   }
 }
 
+.fade-in {
+  opacity: 1;
+  animation-name: fadeInOpacity;
+  animation-iteration-count: 1;
+  animation-timing-function: ease-in-out;
+  animation-duration: 0.8s;
+}
+
+@keyframes fadeInOpacity {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
 /* Moblie */
 @media screen and (max-width: 500px) {
   body {
@@ -296,6 +321,10 @@ main {
     width: 100vw;
     margin: 20px 0 20px 0;
     padding: 0.5rem;
+
+    #profile-notes {
+      width: 80vw;
+    }
   }
 
   .prefrences {
@@ -306,18 +335,44 @@ main {
     width: 100vw;
   }
 
+  .wallet-balance-box {
+    display: flex;
+    border: none;
+
+    h3 {
+      padding-right: 2rem;
+    }
+  }
+
+  .view-wallets {
+    text-align: center;
+  }
+
   .active-rentals {
+    text-align: center;
     width: 100vw;
+
+    img {
+      margin: 0;
+    }
 
     div {
       flex-direction: column;
       align-items: center;
       margin-bottom: 1rem;
     }
+
+    .active-rentals-items-container > div:not(:first-child) {
+      border: none;
+    }
+    a {
+      text-align: center;
+    }
   }
 
   .mining-operation {
     width: 100vw;
+    text-align: center;
 
     span label {
       margin: 1rem;
@@ -334,6 +389,8 @@ main {
 
   .open-orders {
     width: 100vw;
+    text-align: center;
+
     padding: 0;
 
     a {
@@ -361,7 +418,6 @@ main {
 
 @media screen and (width: 2560px) {
   main {
-    border: 1px solid blue;
     margin: 0 auto;
     max-width: 50vw;
   }

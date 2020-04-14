@@ -96,7 +96,6 @@ const MiningOperations = () => {
             console.log(key)
             switch (key) {
                 case 'targetMargin':
-                    // console.log(miningOperations[key])
                     if (miningOperations[key] === '') 
                         return setError({targetMargin: true})
                     break;

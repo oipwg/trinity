@@ -5,7 +5,7 @@ import {
 PROFILE_CREATE_NEW,
 PROFILE_CREATE_UPDATE,
 PROFILE_CREATE_EDIT,
-PROFILE_CREATE_DELETE,
+PROFILE_DELETE,
 PROFILE_OBJECT,
 PROFILE_GET,
 USER_LOADING,
@@ -47,8 +47,6 @@ export const getProfile = () => async (dispatch, getState) => {
 export const updateProfile = (body) => async (dispatch, getState) => {
     try {
 
-        console.log(body)
-
         const res = await axios.post(`${API_URL}/profile/update`, body, tokenConfig(getState))
 
 
@@ -63,5 +61,21 @@ export const updateProfile = (body) => async (dispatch, getState) => {
     } catch (error) {
         console.log(error.response)
         return error.response
+    }
+}
+
+export const deleteProfile = (_id) => async (dispatch, getState) => {
+    try {
+        const res = await axios.delete(`${API_URL}/profile/delete/${_id}`, tokenConfig(getState))
+
+        dispatch({
+            type: PROFILE_DELETE,
+            payload: res.data.profiles
+        })
+
+        return res;
+
+    } catch (error) {
+        console.log(error.response)
     }
 }
