@@ -9,12 +9,12 @@ const Setup = props => {
     const [bittrexData, setBittrexData] = useState({data: {}});
     const userId = useRef('');
 
-    // socket.onmessage = (e) => {
-    //     console.log('Message from server ',e.data)
-    //   }
     //   socket.addEventListener('open', function (event) {
     //     socket.send('Hello Server!');
     // });
+    // socket.onmessage = (e) => {
+    //     console.log('Message from server ',e.data)
+    //   }
     // socket.addEventListener('error', function (event) {
     //     console.log('WebSocket error: ', event);
     //   });
@@ -387,10 +387,7 @@ const Setup = props => {
                                     <h4>Bittrex</h4>
                                     <div className="bittrex-success">
                                         <p>Success</p>
-                                        {
-                                        <i style={showBittrexThumb(bittrexData)} 
-                                        className="fas fa-thumbs-up"></i>
-                                        }
+                                        <i style={showBittrexThumb(bittrexData)} className="fas fa-thumbs-up"></i>
                                     </div>
                                 </header>
                                 <div className="setup-documentation">

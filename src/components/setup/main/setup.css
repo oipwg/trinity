@@ -108,10 +108,6 @@
     display: flex;
 }
 
-.type.my-1.mr-2 {
-    /* width: 338px; */
-}
-
 .selector-group-child select {
     width: 73% !important;
 }

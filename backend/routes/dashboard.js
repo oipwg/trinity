@@ -9,6 +9,9 @@ const controller = require('../spartanBot');
 
 /* GET dashboard */
 router.get('/', function(req, res) {
+    request({url: 'http://flo.cash//api/getnetworkhashps'}, (err, res)=> {
+        console.log(res)
+    })
     res.render('index.html');
 });
 
