@@ -6,7 +6,7 @@ import Navigation from '../nav/Navigation';
 // const socket = new WebSocket('ws://localhost:3031');
 const Setup = props => {
     const [userData, setUserData] = useState([]);
-    const [bittrexData, setBittrexData] = useState({});
+    const [bittrexData, setBittrexData] = useState({data: {}});
     const userId = useRef('');
 
     // socket.onmessage = (e) => {
@@ -24,7 +24,6 @@ const Setup = props => {
 
 
     useEffect(() => {
-        console.log(bittrexData)
         if (props.user) {
             userId.current = props.user._id
         }
@@ -142,12 +141,12 @@ const Setup = props => {
         setup_Provider(sentData)
     }
     function set_bittrex_values(e) {
-        console.log(e)
         e.preventDefault();
         const form = document.getElementsByClassName('bittrex-form')[0]
         const form_inputs = form.elements
         let length = form_inputs.length
         let options = {}
+
         for (let i = 0; i < length; i++) {
             const el = form_inputs[i];
             
@@ -216,7 +215,6 @@ const Setup = props => {
 
     
     function process_returned_data(data) {
-        console.log('RETURNEDD DATA ', data)
         if (data.provider === "Bittrex") {
             setBittrexData({...data})
         } else {
@@ -251,10 +249,8 @@ const Setup = props => {
     };
 
     async function setup_Provider(data) {
-        console.log('setup_Provider ran', data)
-        console.log(localStorage.getItem('token'))
-        // Hits bittrex endpoint when adding credentials the rest hits setup
-        let endPoint = data.bittrex ? '/auth/bittrex' : '/setup'
+        // Hits /bittrex endpoint when adding credentials the rest hits /setup
+        const endPoint = data.bittrex ? '/auth/bittrex' : '/setup';
 
         try {
             const response = await fetch(API_URL + endPoint, {
@@ -292,6 +288,21 @@ const Setup = props => {
         let boolean = !userdata.length ? true : userdata[0].credentials
 
         return {boolean, height}
+    }
+
+    const showBittrexThumb = (bittrexData) => {
+        console.log('bittrexData:', bittrexData)
+        if (bittrexData.credentials) {
+            return {
+                transform: 'translate(0)',
+                opacity: 1
+            }
+        } else {
+            return {
+                transform: 'translate(20px)',
+                opacity: 0
+            }
+        }
     }
 
     const showSuccessBtn = () => {
@@ -366,190 +377,193 @@ const Setup = props => {
         <div className="setup">
         <div className="setup-container">
             <Navigation />
-        <div className="credential-container">
-            <section className="bittrex-section">
-             <form className="bittrex-form">
-                <div className="credentials">
-                <div>
-                    {/* <div style={{height: showCredentials(userData).boolean ? '0px' : showCredentials(userData).height }} className="provider-credentials"> */}
-                        <header>
-                            <h4>Bittrex</h4>
-                            <div className="bittrex-success">
-                                <p>Success</p>
-                                <i className="fas fa-thumbs-up"></i>
-                            </div>
-                        </header>
-                        <div className="setup-documentation">
-                            <div className="bittrex-visit-link">
-                                {/* <h6>Bittrex Documentation</h6> */}
-                                <aside>
-                                    <p className="bittrex-info">
-                                        <strong>Create a <a href="https://bittrex.com/account/register" target="_blank">bittrex</a> account first if you haven't already.</strong>
-                                    </p>
-                                </aside>
-                            </div>
-                            <div className="bittrex-video">
+            {console.log(bittrexData.credentials)}
+            <div className="credential-container">
+            
+                <section className="bittrex-section" style={{height: bittrexData.credentials ? '90px' : '315px'}}>
+                    <form className="bittrex-form">
+                        <div className="credentials">
+                                <header>
+                                    <h4>Bittrex</h4>
+                                    <div className="bittrex-success">
+                                        <p>Success</p>
+                                        {
+                                        <i style={showBittrexThumb(bittrexData)} 
+                                        className="fas fa-thumbs-up"></i>
+                                        }
+                                    </div>
+                                </header>
+                                <div className="setup-documentation">
+                                    <div className="bittrex-visit-link">
+                                        {/* <h6>Bittrex Documentation</h6> */}
+                                        <aside>
+                                            <p className="bittrex-info">
+                                                <strong>Create a <a href="https://bittrex.com/account/register" target="_blank">
+                                                    bittrex</a> account first if you haven't already.</strong>
+                                            </p>
+                                        </aside>
+                                    </div>
+                                    <div className="bittrex-video">
 
-                            </div>
+                                    </div>
+                                </div>
+                                
+                                <div className="form-inline">
+                                    <input type="hidden" value="bittrex" id="bittrex" name="bittrex" />
+                                    <div className="form-groups">
+                                        <label htmlFor="key">API key</label>
+                                        <input
+                                            id="bittrex_key"
+                                            type="password"
+                                            className="form-control mx-sm-4"
+                                            aria-describedby="key"
+                                            placeholder="Your api key"/>
+                                    </div>
+                                </div>
+                                <div className="form-inline secret">
+                                    <div className="form-groups">
+                                        <label htmlFor="secret">Secret</label>
+                                        <input
+                                            id="bittrex_secret"
+                                            type="password"
+                                            className="form-control mx-sm-4"
+                                            aria-describedby="secret"
+                                            placeholder="Your secret"/>
+                                    </div>
+                                </div>
+                            {/* </div> */}
                         </div>
-                        
-                        <div className="form-inline">
-                            <input type="hidden" value="bittrex" id="bittrex" name="bittrex" />
-                            <div className="form-groups">
-                                <label htmlFor="key">API key</label>
-                                <input
-                                    id="bittrex_key"
-                                    type="password"
-                                    className="form-control mx-sm-4"
-                                    aria-describedby="key"
-                                    placeholder="Your api key"/>
-                            </div>
-                        </div>
-                        <div className="form-inline secret">
-                            <div className="form-groups">
-                                <label htmlFor="secret">Secret</label>
-                                <input
-                                    id="bittrex_secret"
-                                    type="password"
-                                    className="form-control mx-sm-4"
-                                    aria-describedby="secret"
-                                    placeholder="Your secret"/>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <button type="submit" className="btn-submit" onClick={set_bittrex_values}>
-                    Add Bittrex
-                </button>
-            </form>
-        </section>
-            <section className="provider-section">
-            <table className="table">
-                <thead id="wizard-tableHeader">
-                    <tr>
-                        <th id="rowNumber" scope="col">#</th>
-                        <th id="provider" scope="col">Provider</th>
-                        <th id="credentials" scope="col">Credentials</th>
-                        <th id="pool" scope="col">Pool</th>
-                        <th id="success" scope="col">Success</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {(()=> {
-                        return (
-                            userData.map( (userData, i)=> {
-                                let dataKeys = Object.keys(userData)
-    
-                                return (   
-                                    <tr key={i} className="data-table-row">
-                                        <td >{i}</td>
-                                        {dataKeys[0] && (
-                                              <td>{showMessage('provider', i) }</td>
-                                        )}
-                                        {dataKeys[1] && (
-                                            <td>{showMessage('credentials', i)}</td>
-                                        )}
-                                        {dataKeys[2] && (
-                                        <td>{showMessage('pool', i)}{showSuccessBtn() ? '' :
-                                        ''}</td> 
-                                        )}
-                                        {dataKeys[3] && (
-                                            <td>{showMessage('success', i)}</td> 
-                                        )}
-                                    </tr>
+                        <button type="submit" className="btn-submit" onClick={set_bittrex_values}>
+                            Add Bittrex
+                        </button>
+                    </form>
+                </section>
+                <section className="provider-section">
+                    <table className="table">
+                        <thead id="wizard-tableHeader">
+                            <tr>
+                                <th id="rowNumber" scope="col">#</th>
+                                <th id="provider" scope="col">Provider</th>
+                                <th id="credentials" scope="col">Credentials</th>
+                                <th id="pool" scope="col">Pool</th>
+                                <th id="success" scope="col">Success</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {(()=> {
+                                return (
+                                    userData.map( (userData, i)=> {
+                                        let dataKeys = Object.keys(userData)
+            
+                                        return (   
+                                            <tr key={i} className="data-table-row">
+                                                <td >{i}</td>
+                                                {dataKeys[0] && (
+                                                    <td>{showMessage('provider', i) }</td>
+                                                )}
+                                                {dataKeys[1] && (
+                                                    <td>{showMessage('credentials', i)}</td>
+                                                )}
+                                                {dataKeys[2] && (
+                                                <td>{showMessage('pool', i)}{showSuccessBtn() ? '' :
+                                                ''}</td> 
+                                                )}
+                                                {dataKeys[3] && (
+                                                    <td>{showMessage('success', i)}</td> 
+                                                )}
+                                            </tr>
+                                        )
+                                    })
                                 )
-                            })
-                        )
-                    })()}
-                </tbody>
-            </table>
-            <form className="wizard-form">
-                <div className="form-inline rental-provider">
-                    <h4>Provider</h4>
-                    <div className="setup-documentation">
-                            <div className="bittrex-visit-link">
-                                {/* <h6>Bittrex Documentation</h6> */}
-                                <aside>
-                                    <p className="bittrex-info">
-                                        <strong>Create a <a href="https://www.nicehash.com/my/register" target="_blank">Nice hash</a> or  
-                                        <a href="https://www.miningrigrentals.com/" target="_blank"> Mining rig rental</a> account first if you haven't already.</strong>
-                                    </p>
-                                </aside>
-                            </div>
-                            <div className="bittrex-video">
+                            })()}
+                        </tbody>
+                    </table>
+                    <form className="wizard-form">
+                        <div className="form-inline rental-provider">
+                            <h4>Provider</h4>
+                            <div className="setup-documentation">
+                                    <div className="bittrex-visit-link">
+                                        <aside>
+                                            <p className="bittrex-info">
+                                                <strong>Create a <a href="https://www.nicehash.com/my/register" target="_blank">Nice hash</a> or  
+                                                <a href="https://www.miningrigrentals.com/" target="_blank"> Mining rig rental</a> account first if you haven't already.</strong>
+                                            </p>
+                                        </aside>
+                                    </div>
+                                    <div className="bittrex-video">
 
-                            </div>
-                        </div>
-                    <div className="form-groups">
-                        <label className="my-1 mr-2">Rental provider</label>
-                        <select
-                            id="rental_provider"
-                            className="provider custom-select mx-sm-4"
-                            onChange={set_rental_provider}>
-                            <option defaultValue value="">
-                                Select provider
-                            </option>
-                            <option value="MiningRigRentals">
-                                MiningRigRentals
-                            </option>
-                            <option value="NiceHash">NiceHash</option>
-                        </select>
-                    </div>
-                </div>
-                <div className="credentials">
-                    <div style={{height: showCredentials(userData).boolean ? '0px' : showCredentials(userData).height }} className="provider-credentials">
-                        <h4>Provider Credentials</h4>
-                        <div className="form-inline API-key">
+                                    </div>
+                                </div>
                             <div className="form-groups">
-                                <label htmlFor="key">API key</label>
-                                <input
-                                    type="password"
-                                    id="key"
-                                    className="form-control mx-sm-4"
-                                    aria-describedby="key"
-                                    placeholder="Your api key"/>
+                                <label className="my-1 mr-2">Rental provider</label>
+                                <select
+                                    id="rental_provider"
+                                    className="provider custom-select mx-sm-4"
+                                    onChange={set_rental_provider}>
+                                    <option defaultValue value="">
+                                        Select provider
+                                    </option>
+                                    <option value="MiningRigRentals">
+                                        MiningRigRentals
+                                    </option>
+                                    <option value="NiceHash">NiceHash</option>
+                                </select>
                             </div>
                         </div>
-                        <div className="form-inline secret">
-                            <div className="form-groups">
-                                <label htmlFor="secret">Secret</label>
-                                <input
-                                    type="password"
-                                    id="secret"
-                                    className="form-control mx-sm-4"
-                                    aria-describedby="secret"
-                                    placeholder="Your secret"/>
+                        <div className="credentials">
+                            <div style={{height: showCredentials(userData).boolean ? '0px' : showCredentials(userData).height }} className="provider-credentials">
+                                <h4>Provider Credentials</h4>
+                                <div className="form-inline API-key">
+                                    <div className="form-groups">
+                                        <label htmlFor="key">API key</label>
+                                        <input
+                                            type="password"
+                                            id="key"
+                                            className="form-control mx-sm-4"
+                                            aria-describedby="key"
+                                            placeholder="Your api key"/>
+                                    </div>
+                                </div>
+                                <div className="form-inline secret">
+                                    <div className="form-groups">
+                                        <label htmlFor="secret">Secret</label>
+                                        <input
+                                            type="password"
+                                            id="secret"
+                                            className="form-control mx-sm-4"
+                                            aria-describedby="secret"
+                                            placeholder="Your secret"/>
+                                    </div>
+                                </div>
+                                <div className="form-inline id">
+                                    <div className="form-groups">
+                                        <label htmlFor="secret">ID</label>
+                                        <input
+                                            type="text"
+                                            id="id"
+                                            className="form-control mx-sm-4"
+                                            aria-describedby="id"
+                                            placeholder="Organization ID"/>
+                                    </div>
+                                </div>
                             </div>
                         </div>
-                        <div className="form-inline id">
-                            <div className="form-groups">
-                                <label htmlFor="secret">ID</label>
-                                <input
-                                    type="text"
-                                    id="id"
-                                    className="form-control mx-sm-4"
-                                    aria-describedby="id"
-                                    placeholder="Organization ID"/>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-               
-                {/* End of rental passwords */}
-                <Pools poolBoolean ={showPool}/>
-        
-                <button type="submit" className="btn-submit" onClick={set_provider_values}
-                style={{display: showPool() ? 'block' : 'none'}}>
-                    Add Provider
-                </button>
                     
-                <button type="submit" className="btn-submit" onClick={set_pool_values}
-                style={{display: showPool() ? 'none' : 'block'}}>
-                    Add Pool
-                </button>
-            </form>
-        </section>
-        </div>
+                        {/* End of rental passwords */}
+                        <Pools poolBoolean ={showPool}/>
+                
+                        <button type="submit" className="btn-submit" onClick={set_provider_values}
+                        style={{display: showPool() ? 'block' : 'none'}}>
+                            Add Provider
+                        </button>
+                            
+                        <button type="submit" className="btn-submit" onClick={set_pool_values}
+                        style={{display: showPool() ? 'none' : 'block'}}>
+                            Add Pool
+                        </button>
+                    </form>
+                </section>
+            </div>
         </div>
         </div>
         </>

@@ -6,42 +6,11 @@ import { getSalesHistory } from '../../../../actions/bittrexActions'
 
 
 const SalesHistory = (props) => {
-    console.log(props)
 
     useEffect(() => {
             props.getSalesHistory();
     }, [props.user])
 
-
-    const [fakeData, setFakeData] = useState({
-        data: [
-            {
-                date: Date.now(),
-                numOfFlo: 43.324,
-                amountOfFlo: 21,
-                margin: 10,
-                revenue: '20',
-                link: '#'
-            },
-            {
-                date: Date.now(),
-                numOfFlo: 43.324,
-                amountOfFlo: 21,
-                margin: 10,
-                revenue: '20',
-                link: '#'
-            },
-            {
-                date: Date.now(),
-                numOfFlo: 43.324,
-                amountOfFlo: 21,
-                margin: 10,
-                revenue: '20',
-                link: '#'
-
-            },
-        ],
-    });
 
     const renderTableData = () => {
 
@@ -65,16 +34,35 @@ const SalesHistory = (props) => {
                         </tr>
                     )
                 }
+                case 'BTC-RVN': {
+                    return (
+                        <tr key={x.OrderUuid}>
+                        <td>{formatToDate(x.Closed) + ' ' + formatTime(x.Closed)}</td>
+                        <td>{x.Quantity}</td>
+                        <td>${x.Price}</td>
+                        {/* <td>{margin}%</td>
+                        <td>${revenue}</td> */}
+                        {/* <td><a href={link}>view</a></td> */}
+                        </tr>
+                    )
+                }
             }
+        }
+    };
 
 
+    const ShowMore = () => {
+
+        if(!props.openOrders) {
+            return null;
         }
 
+        if(!props.openOrders.length < 5){
+            return null;
+        }
 
-
-
-
-    };
+        return <div>Show More</div>
+    }
 
     const renderTableHeader = () => {
         // let header = Object.keys(fakeData.students[0]);
@@ -104,7 +92,7 @@ const SalesHistory = (props) => {
                         {renderTableData()}
                     </tbody>
                 </table>
-            <a href="#">Show More</a>
+                <ShowMore />
             </div>
         </div>
     );

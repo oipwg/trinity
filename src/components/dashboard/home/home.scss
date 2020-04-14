@@ -2,17 +2,22 @@ main {
   margin: 0 auto;
   max-width: 80vw;
 }
-
-.mining-operation {
-  .card-body {
-    display: flex;
-    justify-content: space-evenly;
-    align-items: flex-end;
+.card {
+  margin-bottom: 1em;
+  box-shadow: 0 15px 35px rgba(50, 50, 93, 0.1), 0 5px 15px rgba(0, 0, 0, 0.07);
+  border: none;
+}
+.mining-operation-inputs {
+  input {
+    text-align: center;
+    border: 1px solid #ced4da;
+    padding: 0.5rem;
   }
-
   label {
     display: block;
+    padding: 5px 1px;
     margin-bottom: -2px;
+    font-size: 0.9rem;
   }
 
   input:disabled {
@@ -20,21 +25,122 @@ main {
     border-left: none;
     position: relative;
   }
+}
 
-  input {
-    text-align: center;
-    border: 1px solid #42465685;
-    border-radius: 5%;
-    padding: 0.5rem;
+.target-margin-container {
+  .input-group {
+    flex-wrap: nowrap;
+  }
+}
+.target-margin-container,
+.profit-reinvestment-container,
+.unusoled-offers-container,
+.daily-budget-container {
+  width: 150px;
+}
+.daily-budget-text {
+  display: -ms-flexbox;
+  display: flex;
+  -ms-flex-align: center;
+  align-items: center;
+  padding: 0.375rem 0.75rem;
+  margin-bottom: 0;
+  font-size: 0.9rem;
+  font-weight: 400;
+  line-height: 1.5;
+  color: #0080ff;
+  text-align: center;
+  white-space: nowrap;
+  border-radius: 0px 0.25rem 0.25rem 0px;
+  border: 1px solid #ced4da;
+}
+
+.mining-operation-inputs {
+  display: flex;
+  justify-content: space-around;
+}
+
+.automatic-renting-container,
+.automatic-trading-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px;
+}
+
+.automatic-renting-content {
+  flex-grow: 1;
+  padding: 10px;
+  margin: 10px;
+  border: 1px solid #d6d6d6;
+  border-radius: 5px;
+}
+.automatic-renting-content {
+  .form-check-label {
+    font-size: 0.9rem;
   }
 }
 
-.card {
-  margin: 0 0 2rem 0;
+.rent-toggle-switch {
+  position: relative;
+  overflow: hidden;
+  padding: 2px;
+  width: 85px;
+  height: 35px;
+  border-radius: 60px;
+  border: 2px solid #007bff85;
+  background: #cfe9ff;
+  margin: 10px;
 }
 
-.profile {
-  margin-top: 2rem;
+.slider-container {
+  transition: transform 0.4s;
+  width: 77px;
+  display: flex;
+  width: 160px;
+}
+.slider-container span {
+  display: block;
+  width: 31px;
+  height: 31px;
+  background-color: #007bff;
+  border-radius: 100%;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+  position: absolute;
+  top: -1.5px;
+  z-index: 1;
+  left: -2px;
+  pointer-events: none;
+}
+.auto-toggle {
+  position: absolute;
+  width: 140px;
+  height: 53px;
+  left: -55px;
+  z-index: 10;
+  top: -9px;
+  opacity: 0;
+}
+
+.auto-label-after {
+  cursor: pointer;
+  user-select: none;
+  position: relative;
+  background-color: #ffffff;
+  width: 102px;
+  height: 40px;
+  border-radius: 60px;
+  top: -4px;
+  text-align: center;
+  margin: 0;
+  padding: 0;
+  line-height: 2.4;
+}
+
+.on {
+  position: absolute;
+  bottom: 2px;
+  left: 12px;
 }
 
 .wallet-body {
@@ -48,10 +154,10 @@ main {
   align-items: center;
   padding-top: 25px;
   padding-bottom: 25px;
-  width: 25vw;
-  background-color: rgba(218, 218, 218, 0.85);
-  margin: 0 auto;
-  flex: 1 1 100%;
+  flex: 1 0 35vw;
+}
+.wallet-description {
+  margin-left: 10px;
 }
 
 .profile-container {
@@ -59,6 +165,10 @@ main {
 
   label {
     margin-right: 35px;
+  }
+
+  .btn-danger {
+    margin-left: 16px;
   }
 
   #profile-select {
@@ -111,6 +221,23 @@ main {
   }
 }
 
+.fade-in {
+  opacity: 1;
+  animation-name: fadeInOpacity;
+  animation-iteration-count: 1;
+  animation-timing-function: ease-in-out;
+  animation-duration: 0.8s;
+}
+
+@keyframes fadeInOpacity {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
 /* Moblie */
 @media screen and (max-width: 500px) {
   body {
@@ -135,6 +262,10 @@ main {
     width: 100vw;
     margin: 20px 0 20px 0;
     padding: 0.5rem;
+
+    #profile-notes {
+      width: 80vw;
+    }
   }
 
   .prefrences {
@@ -145,18 +276,44 @@ main {
     width: 100vw;
   }
 
+  .wallet-balance-box {
+    display: flex;
+    border: none;
+
+    h3 {
+      padding-right: 2rem;
+    }
+  }
+
+  .view-wallets {
+    text-align: center;
+  }
+
   .active-rentals {
+    text-align: center;
     width: 100vw;
+
+    img {
+      margin: 0;
+    }
 
     div {
       flex-direction: column;
       align-items: center;
       margin-bottom: 1rem;
     }
+
+    .active-rentals-items-container > div:not(:first-child) {
+      border: none;
+    }
+    a {
+      text-align: center;
+    }
   }
 
   .mining-operation {
     width: 100vw;
+    text-align: center;
 
     span label {
       margin: 1rem;
@@ -173,6 +330,8 @@ main {
 
   .open-orders {
     width: 100vw;
+    text-align: center;
+
     padding: 0;
 
     a {
@@ -200,7 +359,6 @@ main {
 
 @media screen and (width: 2560px) {
   main {
-    border: 1px solid blue;
     margin: 0 auto;
     max-width: 50vw;
   }

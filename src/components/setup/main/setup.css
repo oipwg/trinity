@@ -9,6 +9,7 @@
     top: 30px;
     padding-bottom: 25px;
     display: flex;
+    right: 5px;
     align-items: flex-start;
 }
 
@@ -27,6 +28,11 @@
     position: relative;
     left: -50px;
     display: flex;
+}
+
+.bittrex-success > .fas.fa-thumbs-up {
+    transform: translate(20px);
+    transition: opacity .3s .4s, transform .5s cubic-bezier(.34,1.56,.88,1.07) .4s;
 }
 
 .bittrex-success p {
@@ -54,7 +60,7 @@
 }
 .credential-container {
     position: relative;
-    left: 20px;
+    left: 10px;
     display: flex;
     flex-direction: column;
 }
@@ -72,10 +78,14 @@
     padding: 10px;
     background: #fff;
     max-width: 900px;
-    flex: 1 0 100%;
     border-radius: 4px;
     -webkit-box-shadow: 0 15px 35px rgba(50,50,93,.1), 0 5px 15px rgba(0,0,0,.07);
     box-shadow: 0 15px 35px rgba(50,50,93,.1), 0 5px 15px rgba(0,0,0,.07);
+}
+
+.bittrex-section {
+    transition: height .4s ease;
+    overflow: hidden;
 }
 
 .provider-section label, .bittrex-section label {
@@ -193,10 +203,6 @@
     white-space: pre-wrap;
 }
 
-.pool-add  {
-    /* display: none; */
-}
-
 @media (max-width: 576px) {
     .provider-section .form-groups,
     .rental-provider {
@@ -211,8 +217,15 @@
     .setup-container {
         flex-direction: column;
         align-items: normal;
+        right: 0;
+        
     }
     .credential-container {
         display: block;
+    }
+}
+@media (max-width: 768px) {
+    .setup {
+        padding: 0 5px;
     }
 }
