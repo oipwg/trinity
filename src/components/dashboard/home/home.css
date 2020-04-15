@@ -103,9 +103,7 @@ main {
   display: -webkit-box;
   display: -ms-flexbox;
   display: flex;
-  -webkit-box-align: baseline;
-      -ms-flex-align: baseline;
-          align-items: baseline;
+  line-height: 2rem;
 }
 
 .automatic-renting-content .percent-container {
@@ -121,7 +119,7 @@ main {
   border-left: 0;
   border-radius: 0;
   max-width: 45px;
-  height: calc(1rem + 5px);
+  height: calc(1rem + 7px);
   margin-right: 5px;
   outline: none;
 }
@@ -151,9 +149,7 @@ main {
   font-weight: 400;
   color: #0080ff;
   display: block;
-  width: 29px;
-  height: 21px;
-  padding: 0 5px;
+  padding: 0 2px 0 5px;
 }
 
 .automatic-renting-content .edit-percent-btn {
