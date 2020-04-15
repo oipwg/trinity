@@ -1,42 +1,61 @@
-.toggle-switch {
-  border: 1px solid red;
-  height: 0;
-  width: 0;
-  visibility: hidden;
-}
-
-.toggle-switch-label {
-  display: -webkit-box;
-  display: -ms-flexbox;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  cursor: pointer;
-  width: 50px;
-  height: 25px;
-  background: grey;
-  border-radius: 100px;
+.rent-toggle-switch {
   position: relative;
-  transition: background-color 0.2s;
+  overflow: hidden;
+  padding: 2px;
+  width: 85px;
+  height: 35px;
+  border-radius: 60px;
+  border: 2px solid #007bff85;
+  background: #cfe9ff;
+  margin: 10px;
 }
 
-.toggle-switch-label .toggle-switch-button {
+.slider-container {
+  transition: transform 0.4s;
+  width: 77px;
+  display: flex;
+  width: 160px;
+}
+.slider-container span {
+  display: block;
+  width: 31px;
+  height: 31px;
+  background-color: #007bff;
+  border-radius: 100%;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
   position: absolute;
-  top: 2px;
-  left: 2px;
-  width: 22.5px;
-  height: 22.5px;
-  border-radius: 45px;
-  transition: 0.2s;
-  background: #fff;
-  box-shadow: 0 0 2px 0 rgba(10, 10, 10, 0.29);
+  top: -1.5px;
+  z-index: 1;
+  left: -2px;
+  pointer-events: none;
+}
+.auto-toggle {
+  position: absolute;
+  width: 140px;
+  height: 53px;
+  left: -55px;
+  z-index: 10;
+  top: -9px;
+  opacity: 0;
 }
 
-.toggle-switch-checkbox:checked + .toggle-switch-label .toggle-switch-button {
-  left: calc(100% - 2px);
-  transform: translateX(-100%);
+.auto-label-after {
+  cursor: pointer;
+  user-select: none;
+  position: relative;
+  background-color: #ffffff;
+  width: 102px;
+  height: 40px;
+  border-radius: 60px;
+  top: -4px;
+  text-align: center;
+  margin: 0;
+  padding: 0;
+  line-height: 2.4;
 }
 
-.toggle-switch:active .toggle-switch-button {
-  width: 60px;
+.on {
+  position: absolute;
+  bottom: 2px;
+  left: 12px;
 }
