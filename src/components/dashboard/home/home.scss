@@ -84,11 +84,13 @@ main {
   }
   .form-check-label {
     font-size: 0.9rem;
+    display: flex;
+    line-height: 2rem;
   }
 
   .percent-container {
     display: flex;
-
+    padding-top: 5px;
   }
 
   .percent-field {
@@ -97,14 +99,29 @@ main {
     border-left: 0;
     border-radius: 0;
     max-width: 45px;
-    height: calc(1rem + 5px);
+    height: calc(1rem + 7px);
     margin-right: 5px;
+    outline: none;
   }
+
+  .percent-field:focus {
+    box-shadow: none;
+  }
+
   .percent-input-container {
+    transform: translate(-73px);
+    transition: transform .4s cubic-bezier(.34,1.56,.88,1.05);
     position: relative;
     width: 220px;
     display: flex;
     left: 5px;
+  }
+  .percent-update {
+    font-size: 1.05rem;
+    font-weight: 400;
+    color: #0080ff;
+    display: block;
+    padding: 0 2px 0 5px;
   }
   .edit-percent-btn {
     background: none;
@@ -113,7 +130,9 @@ main {
     margin-left: 5px;
     font-weight: 600;
     color: #0080ff;
-
+  }
+  .edit-percent-btn {
+    outline: none;
   }
 }
 
@@ -125,7 +144,7 @@ main {
   background: red;
   border-radius: 5px;
   z-index: 4;
-  transition: transform .4s cubic-bezier(.34,1.56,.88,1.05);
+  transition: transform .4s cubic-bezier(.34,1.30,.88,1.05);
 }
 
 .error-dialog span {

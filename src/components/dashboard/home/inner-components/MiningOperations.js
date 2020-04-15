@@ -71,7 +71,7 @@ const MiningOperations = () => {
 
     const rent = (profile) => {
         console.log(profile)
-        return
+
         fetch(API_URL+'/rent', {
             method: 'POST',
             headers: {
@@ -80,19 +80,18 @@ const MiningOperations = () => {
             body: JSON.stringify(profile),
         }).then((response) => {
             return response.json();
-          })
-          .then((data) => {
+        })
+        .then((data) => {
             console.log(data);
-          }).catch((err)=> {
+        }).catch((err)=> {
               console.log(err)
-          });
+        });
     }
 
     const checkInputsAndRent = (e, slider) => {
         let profile = {}
        
         for (let key in miningOperations) {
-            console.log(key)
             switch (key) {
                 case 'targetMargin':
                     if (miningOperations[key] === '')
@@ -112,8 +111,8 @@ const MiningOperations = () => {
                     break;
                 case 'autoRent':
                     if (slider === 'autoRent') {
+                        // If neither radios are checked
                         if (miningOperations.spot === miningOperations.alwaysMineXPercent) {
-                            // If neither radios are checked
                             return setError({autoRent: true})
                         }
                         toggleSlider(e)
@@ -121,29 +120,28 @@ const MiningOperations = () => {
                     break;
                 case 'autoTrade':
                     if (slider === 'autoTrade') {
+                        // If neither radios are checked
                         if (miningOperations.morphie === miningOperations.supportedExchange) {
-                            // If neither radios are checked
                             return setError({autoTrade: true})
                         }
                         toggleSlider(e)
                     }
-                    break;
             }
         }
     }
 
 
-    const updateInputs = (e, error) => {
+    const updateInputs = (e) => {
 
         const targetElem = e.target.id
    
         switch ( targetElem ) {
             case "targetMargin":
-                if (err.targetMargin) setError({...err, targetMargin: false})
+                if (err.targetMargin) setError({targetMargin: false})
                 setOperations({...miningOperations, targetMargin: e.target.value})
                 break;
             case "profitReinvestment":
-                if (err.profitReinvestment) setError({...err, profitReinvestment: false})
+                if (err.profitReinvestment) setError({profitReinvestment: false})
                 setOperations({...miningOperations, profitReinvestment: e.target.value})
                 break;
             case "updateUnsold":
@@ -178,15 +176,23 @@ const MiningOperations = () => {
         }
     }
 
-    const editPercent = e => {
+    const updatePercent = e => {
         let value = e.target.value
         setOperations({...miningOperations, Xpercent: value})
     }
+    const showPercentInput = () => {
+        let elem = document.getElementsByClassName('percent-input-container')[0]
+        let pos = elem.style.transform
+        if (pos === '') {
+            elem.style.transform = 'translate(0px)'
+        } else {
+            elem.style = ''
+        }
+        console.log(pos)
+    }
     
     return (
-        
         <div className="card mining-operation">
-            {console.log('ERROR ',err)}
             {console.log(miningOperations)}
             <div className="card-header">Mining Operations</div>
             <div className="card-body">
@@ -195,7 +201,7 @@ const MiningOperations = () => {
                         <label htmlFor="basic-url">Target Margin</label>
                         <div className="input-group">
                             <input type="text" id="targetMargin" className="form-control" aria-label="Target margin reinvest"
-                             onKeyUp={(e) => {updateInputs(e)}} maxLength="2"/>
+                             onChange={(e) => {updateInputs(e)}} maxLength="2"/>
                             <div className="input-group-append">
                                 <span className="input-group-text">%</span>
                             </div>
@@ -283,15 +289,14 @@ const MiningOperations = () => {
                                 name="auto-rent"
                                 onChange={(e) => {updateInputs(e)}} />
                                 <label className="form-check-label" htmlFor="alwaysMineXPercent">
-                                    Always mine {miningOperations.Xpercent}% of the network
+                                    Always mine <span className="percent-update">{miningOperations.Xpercent}</span>% of the network
                                 </label>
                             </div>
-                            <div className="percent-input-container" >
-                            {/* <label for="validationCustom02">Last name</label> */}
-                            <input type="text" className="form-control percent-field" id="Xpercent" 
-                             required placeholder="0" onChange={(e) => {editPercent(e)}} maxLength="2"/>
-                            <span>%</span>
-                            <button className="edit-percent-btn">edit percentage</button>
+                            <div className="percent-input-container">
+                                <input type="text" className="form-control percent-field" id="Xpercent" 
+                                required placeholder="0" onChange={(e) => {updatePercent(e)}} maxLength="2"/>
+                                <span>%</span>
+                                <button className="edit-percent-btn" onClick={showPercentInput}>edit percentage</button>
                             </div>
                         </div>
                         <div style={{transform: err.autoRent ? 'scale(1)' : 'scale(0)'}} className="error-dialog">
