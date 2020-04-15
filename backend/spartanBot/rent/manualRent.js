@@ -29,21 +29,6 @@ exports.manualRent = async (options) => {
             low_balance: '*LOW_BALANCE',
         };
 
-        const statusMessages = {
-            normal: console.log(
-                `*NORMAL - Normal status. Provider found approx. what user requested.`
-            ),
-            extension: console.log(
-                `*EXTENSION - Warning status. Minimum rental requirements apply. Duration will be extended.`
-            ),
-            cutoff: console.log(
-                `*CUTOFF - Warning status. Attempt to bypass minimum rental requirements by cancelling at requested time. Application must remain running to cancel.`
-            ),
-            low_balance: console.log(
-                `*LOW_BALANCE - Warning status. Provider has low balance, cannot rent for desired duration/limit.`
-            ),
-        };
-
         let statuses = {
             normal: false,
             extension: false,
@@ -105,17 +90,6 @@ exports.manualRent = async (options) => {
             fmtBadges.push(fmtPool(badge));
             fmtObject[badge.id] = fmtPool(badge);
         }
-
-        for (let status in statuses) {
-            if (statuses[status]) console.log('manualRent.js 109 \n' ,statusMessages[status]);
-        }
-
-        // let rentPrompt = await self.prompt({
-        //     type: 'list',
-        //     message: 'Select from the following: ',
-        //     name: 'options',
-        //     choices: [...fmtBadges, exit],
-        // });
   
         let rentPrompt = [...fmtBadges];
         // console.log('rentPrompt: manualRent.js 141', rentPrompt)

@@ -257,20 +257,18 @@ module.exports = async function(options) {
         });
 
         // return setup_success.provider.deletePoolProfile(100144).then(res => console.log('deletedPoolProfile: ',res))
-        console.log('setup_success: top \n', setup_success);
+        console.log('setup_success: top \n', setup_success.success);
 
 
         if (setup_success.success) {
             if (setup_success.type === MiningRigRentals) {
                 let poolArray = await spartan.returnPools(setup_success.type);
                 console.log('poolArray: 265', poolArray)
-
                 /**
                  * @param {Object} - Add profile and pool 
                  * */
                 
                 if ( setup_success.poolProfiles.length === 0 ) {
-    
                     //if user has no poolProfiles, prompt to create one
                     if (options.poolData === undefined){
                         return {
@@ -282,7 +280,6 @@ module.exports = async function(options) {
                         }
                     }
                 } else {
-      
                     /**
                      * @param {Array} - If User wants to add another Pool, they need just their id below
                      ********   let poolToAdd = 'the id of the pool you\'re trying to add' ************
@@ -310,9 +307,7 @@ module.exports = async function(options) {
                                 // }
                             // }
                         }
-                       
-                
-                        spartan.serialize();
+
                         return {
                             provider: 'MiningRigRental',
                             err: 'pool',

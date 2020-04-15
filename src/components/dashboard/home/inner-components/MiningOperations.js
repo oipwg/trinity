@@ -359,7 +359,6 @@ const MiningOperations = (props) => {
 
                             onChange={(e) => {
                                 updateInputs(e)
-                                handleOptionChange(e.target.value)
                             }} />
                             <label className="form-check-label" htmlFor="spotProfitable">
                                 Mine only when spot profitable
