@@ -3,8 +3,6 @@ import { ROOT_URL, API_URL } from '../../../../../config.js';
 import ToggleSwitch from '../../../helpers/toggle/ToggleSwitch';
 
 const MiningOperations = (props) => {
-    console.log(props)
-
     const [err, setError] = useState({autoRent: false, autoTrade: false})
     const [miningOperations, setOperations] = useState({
             targetMargin: '',
@@ -197,7 +195,7 @@ const MiningOperations = (props) => {
                             // If neither radios are checked
                             return setError({autoRent: true})
                         }
-                        setOperations({...miningOperations, autoRent: !autoRent})
+                        setOperations({...miningOperations, autoRent: !autoRent, autoTrade: false})
 
                     }
                     break;
@@ -207,7 +205,7 @@ const MiningOperations = (props) => {
                             // If neither radios are checked
                             return setError({autoTrade: true})
                         }
-                        setOperations({...miningOperations, autoTrade: !autoTrade})
+                        setOperations({...miningOperations, autoRent: false, autoTrade: !autoTrade})
 
                     }
                     break;
