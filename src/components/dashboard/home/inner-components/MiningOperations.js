@@ -3,6 +3,8 @@ import { ROOT_URL, API_URL } from '../../../../../config.js';
 import ToggleSwitch from '../../../helpers/toggle/ToggleSwitch';
 
 const MiningOperations = (props) => {
+    console.log(props)
+
     const [err, setError] = useState({autoRent: false, autoTrade: false})
     const [miningOperations, setOperations] = useState({
             targetMargin: '',
@@ -63,7 +65,19 @@ const MiningOperations = (props) => {
             })
 
         }
-        else return;
+        else setOperations({
+            targetMargin: '',
+            profitReinvestment:'',
+            updateUnsold: '',
+            dailyBudget: '',
+            autoRent: false,
+            spot: false,
+            alwaysMineXPercent: false,
+            autoTrade: false,
+            morphie: false,
+            supportedExchange: false,
+            Xpercent: 0
+        })
     }, [props.profile])
 
 
