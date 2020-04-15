@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { ROOT_URL, API_URL } from '../../../../../config.js';
-import ToggleSwitch from '../../../helpers/toggle/ToggleSwitch';
 
 const MiningOperations = (props) => {
     const [err, setError] = useState({autoRent: false, autoTrade: false})
@@ -18,6 +17,7 @@ const MiningOperations = (props) => {
             Xpercent: 0
         });
     const [selectedOption, setSelectedOption] = useState('')
+
 
 
         let {            
@@ -63,19 +63,7 @@ const MiningOperations = (props) => {
             })
 
         }
-        else setOperations({
-            targetMargin: '',
-            profitReinvestment:'',
-            updateUnsold: '',
-            dailyBudget: '',
-            autoRent: false,
-            spot: false,
-            alwaysMineXPercent: false,
-            autoTrade: false,
-            morphie: false,
-            supportedExchange: false,
-            Xpercent: 0
-        })
+        else return;
     }, [props.profile])
 
 
@@ -108,47 +96,48 @@ const MiningOperations = (props) => {
             dailyBudget,
             }
           }
+
         let profile = {...props.profile, ...formatedState.profile}
         props.updateProfile(profile)
 
     },[miningOperations.autoRent, miningOperations.autoTrade ])
 
-    // const toggleSlider = (e) => {
-    //     const regex = /\d+/i;
-    //     const current = e.target.parentNode;
-    //     const sliders = document.querySelectorAll('.slider-container')
-    //     // let targetPos = current.style.transform.match(regex)[0]
+    const toggleSlider = (e) => {
+        const regex = /\d+/i;
+        const current = e.target.parentNode;
+        const sliders = document.querySelectorAll('.slider-container')
+        let targetPos = current.style.transform.match(regex)[0]
 
-    //     let obj = {}
-    //     let i = 0
+        let obj = {}
+        let i = 0
         
-    //     while(i < 2) {
-    //         let slider = sliders[i]
-    //         let pos = slider.style.transform.match(regex)[0]
-    //         // Current slider clicked
-    //         if (current === slider) {
-    //             let target = slider.childNodes[2].id
+        while(i < 2) {
+            let slider = sliders[i]
+            let pos = slider.style.transform.match(regex)[0]
+            // Current slider clicked
+            if (current === slider) {
+                let target = slider.childNodes[2].id
                 
-    //             if (pos === "50") {
-    //                 obj[target] = false
-    //                 slider.style.transform = "translateX(0px)"
-    //             }
-    //             if( pos === "0") {
-    //                 obj[target] = true
-    //                 slider.style.transform = "translateX(50px)"
-    //             }
-    //         // Everything but current slider 
-    //         } else {
-    //             let target = slider.childNodes[2].id
-    //             obj[target] = false
-    //             // If wanted to toggle back and forth 
-    //             // slider.style.transform = targetPos === "50" ? "translateX(50px)" : "translateX(0px)"; 
-    //             slider.style.transform = "translateX(0px)";
-    //         }
-    //         i++
-    //     }
-    //     setOperations({...miningOperations, ...obj})
-    // }
+                if (pos === "50") {
+                    obj[target] = false
+                    slider.style.transform = "translateX(0px)"
+                }
+                if( pos === "0") {
+                    obj[target] = true
+                    slider.style.transform = "translateX(50px)"
+                }
+            // Everything but current slider 
+            } else {
+                let target = slider.childNodes[2].id
+                obj[target] = false
+                // If wanted to toggle back and forth 
+                // slider.style.transform = targetPos === "50" ? "translateX(50px)" : "translateX(0px)"; 
+                slider.style.transform = "translateX(0px)";
+            }
+            i++
+        }
+        setOperations({...miningOperations, ...obj})
+    }
 
     const rent = (profile) => {
         return
@@ -195,8 +184,7 @@ const MiningOperations = (props) => {
                             // If neither radios are checked
                             return setError({autoRent: true})
                         }
-                        setOperations({...miningOperations, autoRent: !autoRent, autoTrade: false})
-
+                        toggleSlider(e)
                     }
                     break;
                 case 'autoTrade':
@@ -205,8 +193,7 @@ const MiningOperations = (props) => {
                             // If neither radios are checked
                             return setError({autoTrade: true})
                         }
-                        setOperations({...miningOperations, autoRent: false, autoTrade: !autoTrade})
-
+                        toggleSlider(e)
                     }
                     break;
             }
@@ -214,18 +201,19 @@ const MiningOperations = (props) => {
     }
 
 
-    const updateInputs = (e) => {
+    const updateInputs = (e, error) => {
 
         const targetElem = e.target.id
 
+        console.log(targetElem)
         
         switch ( targetElem ) {
             case "targetMargin":
-                if (err.targetMargin) setError({targetMargin: false})
+                if (err.targetMargin) setError({...err, targetMargin: false})
                 setOperations({...miningOperations, targetMargin: e.target.value})
                 break;
             case "profitReinvestment":
-                if (err.profitReinvestment) setError({profitReinvestment: false})
+                if (err.profitReinvestment) setError({...err, profitReinvestment: false})
                 setOperations({...miningOperations, profitReinvestment: e.target.value})
                 break;
             case "updateUnsold":
@@ -343,20 +331,32 @@ const MiningOperations = (props) => {
 
                 {/* AUTO RENTING CONTAINER */}
                 <div className="automatic-renting-container">
-                    <ToggleSwitch  
-                        handleChange={(e) => {updateInputs(e)}}
-                        id={"autoRent"}
-                        htmlFor={"autoRent"}
-                        isOn={autoRent}
-    
-                    />
+                    {/* toggle switch */}
+                    <div className="rent-toggle-switch">
+                        <span className="on">ON</span>
+                        <div className="slider-container" style={{transform: `translateX(0)`}}>
+                            <span className="round-toggle" />
+                            <label className="auto-label-after" htmlFor="autoRent">OFF</label>
+                            <input id="auto-toggle" className="auto-toggle" 
+                            id="autoRent"
+                            type="checkbox"
+                            name="auto-slider"
+                            onChange={(e) => {
+                                    updateInputs(e)
+                                }
+                            } />
+                        </div>
+                    </div>
 
                     <div className="automatic-renting-content">
                         <h5>Automatic Renting</h5>
+                        {/* radio buttons */}
                         <div className="form-check">
                             <input className="form-check-input" type="radio" id="spot" 
                             value='spot'
+                            checked={selectedOption === 'spot'}
                             name="auto-rent"
+
                             onChange={(e) => {
                                 updateInputs(e)
                             }} />
@@ -368,6 +368,7 @@ const MiningOperations = (props) => {
                             <div className="form-check">
                                 <input className="form-check-input" type="radio" id="alwaysMineXPercent"
                                 value='alwaysMineXPercent'
+                                checked={selectedOption === 'alwaysMineXPercent'}
                                 name="auto-rent"
                                 onChange={(e) => {updateInputs(e)}} />
                                 <label className="form-check-label" htmlFor="alwaysMineXPercent">
@@ -394,13 +395,21 @@ const MiningOperations = (props) => {
 
                 {/* AUTO TRADING CONTAINER */}
                 <div className="automatic-trading-container">
-                    <ToggleSwitch  
-                            handleChange={(e) => {updateInputs(e)}}
-                            id={"autoTrade"}
-                            htmlFor={"autoTrade"}
-                            isOn={autoTrade}
-        
-                        />
+                    <div className="rent-toggle-switch">
+                        <span className="on">ON</span>
+                        <div className="slider-container" style={{transform: `translateX(0)`}}>
+                            <span className="round-toggle" />
+                            <label className="auto-label-after" htmlFor="autoTrade">OFF</label>
+                            <input className="auto-toggle" 
+                            // On change updates oppisite of current state
+                            // value={autoTrade}
+                            checked={autoTrade}
+                            name="auto-slider"
+                            id="autoTrade"
+                            type="checkbox" 
+                            onChange={(e) => {updateInputs(e)}} />
+                        </div>
+                    </div>
                     <div className="automatic-renting-content">
                         <h5>Automatic Trading</h5>
                         <div className="form-check">
@@ -416,6 +425,7 @@ const MiningOperations = (props) => {
                         <div className="form-check">
                             <input className="form-check-input" type="radio" id="supportedExchange"
                             // value={supportedExchange}
+                            checked={supportedExchange}
                             name="auto-trading"
                             onChange={(e) => {updateInputs(e)}} />
                             <label className="form-check-label" htmlFor="supportedExchange">
@@ -428,7 +438,6 @@ const MiningOperations = (props) => {
                         </div>
                     </div>
                 </div>
-                    <button className="select-trading-ex">Select Trading Exchanges</button>
             </div>
         </div>
     );
