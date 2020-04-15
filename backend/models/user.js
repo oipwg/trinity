@@ -17,32 +17,33 @@ const profileSchema = new Schema({
     autoRent: {
         on: {
             type: Boolean,
-            default: null,
+            default: false,
         },
         mode: {
             spot: {
                 type: Boolean,
-                default: null,
+                default: false,
             },
             alwaysMineXPercent: {
-                type: Boolean,
-                default: null,
+                on: {type: Boolean,
+                default: false},
+                Xpercent: {type: Number, default: 0}
             },
         }
     },
     autoTrade: {
         on: {
             type: Boolean,
-            default: null,
+            default: false,
         },
         mode: {
             morphie:  {
                 type: Boolean,
-                default: null,
+                default: false,
             },
             supportedExchanges:  {
                 type: Boolean,
-                default: null,
+                default: false,
             },
         }
     },

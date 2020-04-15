@@ -41,6 +41,8 @@ module.exports = {
 
             const {_id} = req.body
 
+            console.log(req.body)
+
             const user = await User.findById(req.user.id).select('profiles')
 
             let profileIndex = user.profiles.findIndex(profile => profile._id == _id)
