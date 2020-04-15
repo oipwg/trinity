@@ -427,8 +427,8 @@ const MiningOperations = (props) => {
                             <p>Need at least one checked before renting!</p>
                         </div>
                     </div>
-                    
                 </div>
+                    <button className="select-trading-ex">Select Trading Exchanges</button>
             </div>
         </div>
     );

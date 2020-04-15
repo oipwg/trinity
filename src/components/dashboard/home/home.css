@@ -166,6 +166,26 @@ main {
   outline: none;
 }
 
+.automatic-trading-container {
+  padding-bottom: 0;
+  margin-bottom: 0;
+}
+
+.select-trading-ex {
+  position: relative;
+  left: 8rem;
+  background: none;
+  border: none;
+  font-size: 0.9rem;
+  margin-left: 5px;
+  font-weight: 600;
+  color: #0080ff;
+}
+
+.select-trading-ex {
+  outline: none !important;
+}
+
 .error-dialog {
   bottom: -41px;
   position: absolute;
@@ -424,6 +444,10 @@ main {
   }
   tbody {
     max-width: 10vw;
+  }
+  .select-trading-ex {
+    left: 0;
+    padding-bottom: 1rem;
   }
 }
 
