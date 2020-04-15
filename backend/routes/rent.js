@@ -4,20 +4,44 @@ const router = express.Router();
 const controller = require('../spartanBot');
 const request = require('request');
 
-const NetworkHhshrateFlo = () => {
-    request({url: 'https://livenet.flocha.in/api/status?q=getInfos'}, (err, res, body)=> {
-        let data = JSON.parse(body)
-        let blocks = data.info.difficulty
-        let hashrate = blocks * Math.pow(2, 32) / 40
-        let hashrateTH = hashrate / 1000000000000
-        return  hashrateTH
+const NetworkHhshrateFlo = async () => {
+    return await new Promise((resolve, reject) => {
+        request({url: 'https://livenet.flocha.in/api/status?q=getInfos'}, (err, res, body)=> {
+            if (err) {
+                reject( err )
+            }
+            let data = JSON.parse(body)
+            let blocks = data.info.difficulty
+            let hashrate = blocks * Math.pow(2, 32) / 40
+            let hashrateTH = hashrate / 1000000000000
+            resolve( hashrateTH )
+        })
     })
 }
-console.log(NetworkHhshrateFlo())
+const NetworkHhshrateRvn = async () => {
+    return await new Promise((resolve, reject) => {
+        request({ url: 'https://rvn.2miners.com/api/stats' }, (err, res, body) => {
+            if (err) {
+                reject( err ) 
+            }
+            let data = JSON.parse(body);
+            let blocks = data.nodes[0].difficulty;
+            let hashrate = blocks * Math.pow(2, 32) / 40;
+            let hashrateTH = hashrate / 1000000000000;
+        
+            resolve(hashrateTH);
+        })
+    })
+}
 async function processUserInput(req, res) {
+    let networkHhshrateFlo = await NetworkHhshrateFlo()
+    // let networkHhshrateRvn = await NetworkHhshrateRvn()
+
     let options = req.body
-    console.log('options: rent.js 11', options)
-   
+    console.log('options: rent.js 41', options)
+    options.duration = 3
+    options.hashrate = networkHhshrateFlo
+    options.percent = 
     // let { userId, rental_provider } = options
 
     // try {
@@ -41,7 +65,7 @@ async function processUserInput(req, res) {
 router.post('/',  async (req, res) => {
     let userInput = await processUserInput(req, res).then(data => data).catch(err => err)
     console.log('processUserInput ', userInput)
-
+    return
     try {
         let data = await controller(userInput);
         console.log('data:', data)

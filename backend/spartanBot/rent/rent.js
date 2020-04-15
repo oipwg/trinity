@@ -1,4 +1,3 @@
-// import { manualRent } from './manualRent'
 const manualRent = require('./manualRent').manualRent;
 
 //This file doesn't exist
@@ -9,7 +8,6 @@ const WARNING = 'WARNING';
 const ERROR = 'ERROR';
 
 // Function ran from index.js as a command of Rent
-// export default function(vorpal, options) {
 module.exports = async function(options) {
     let spartan = options.SpartanBot;
 
@@ -90,10 +88,11 @@ module.exports = async function(options) {
 
         if (rentType === 'Spot') {
         }
-
+        //Morphie
         if (rentType === 'Tradebot') {
         }
 
         if (rentType === 'Collective Defense') {
+
         }
 };
