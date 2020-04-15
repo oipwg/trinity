@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { ROOT_URL, API_URL } from '../../../../../config.js';
+import { connect } from 'react-redux';
 
 let fakeState = {
     budget: 50.00,
@@ -12,7 +13,8 @@ let fakeState = {
 
 let { budget, margin, profitReinvestment, updateUnsoldOffers } = fakeState;
 
-const MiningOperations = () => {
+const MiningOperations = (props) => {
+    console.log(props)
     const [err, setError] = useState({autoRent: false, autoTrade: false})
     const [miningOperations, setOperations] = useState({
             targetMargin: '',
@@ -29,7 +31,8 @@ const MiningOperations = () => {
         });
 
     useEffect(() => {
-        rent(miningOperations)
+        // If either Automatic Trading or Automatic Renting is switched on or off it rents.
+        if (miningOperations.autoRent || miningOperations.autoTrade) rent(miningOperations)
     },[miningOperations.autoRent, miningOperations.autoTrade ])
 
     const toggleSlider = (e) => {
@@ -70,12 +73,13 @@ const MiningOperations = () => {
     }
 
     const rent = (profile) => {
+        profile.userId = props.user._id
         console.log(profile)
 
         fetch(API_URL+'/rent', {
             method: 'POST',
             headers: {
-              Accept: 'application/json',
+                'Content-Type': 'application/json',
             },
             body: JSON.stringify(profile),
         }).then((response) => {
@@ -352,4 +356,11 @@ const MiningOperations = () => {
     );
 };
 
-export default MiningOperations;
+
+const mapStateToProps = state => {
+    return {
+        user: state.auth.user,
+    };
+};
+
+export default connect(mapStateToProps)(MiningOperations);

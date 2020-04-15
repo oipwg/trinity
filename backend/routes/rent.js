@@ -3,6 +3,7 @@ const express = require('express');
 const router = express.Router();
 const controller = require('../spartanBot');
 const request = require('request');
+const User = require('../models/user');
 
 const NetworkHhshrateFlo = async () => {
     return await new Promise((resolve, reject) => {
@@ -33,22 +34,30 @@ const NetworkHhshrateRvn = async () => {
         })
     })
 }
+const Amount = (duration = 3) => {
+
+}
 async function processUserInput(req, res) {
     let networkHhshrateFlo = await NetworkHhshrateFlo()
     // let networkHhshrateRvn = await NetworkHhshrateRvn()
 
     let options = req.body
-    console.log('options: rent.js 41', options)
+    let {profitReinvestment, updateUnsold, dailyBudget, autoRent, spot, alwaysMineXPercent,
+        autoTrade, morphie, supportedExchange, Xpercent, userId} = req.body
+
+
+    console.log('options: rent.js 41')
     options.duration = 3
     options.hashrate = networkHhshrateFlo
-    options.percent = 
-    // let { userId, rental_provider } = options
 
-    // try {
-    //     const user = await User.findById({ _id: userId });
-    //     if (!user) {
-    //         return 'Can\'t find user. setup.js line#16'
-    //     }
+    try {
+        const user = await User.findById({ _id: userId });
+        console.log('user:', user)
+        // let profileToken = user.profileToken
+        let profileToken = 'FLO'
+        if (!user) {
+            return 'Can\'t find user. setup.js line#16'
+        }
         options.to_do = {
             rent: {
                 rent: true,
@@ -56,9 +65,9 @@ async function processUserInput(req, res) {
         }
         options.rentType = 'Manual' 
         return options
-    // } catch (e) {
-    //     return {err: 'Can\'t find user or input is wrong.'+ e}
-    // }
+    } catch (e) {
+        return {err: 'Can\'t find user or input is wrong.'+ e}
+    }
 }
 
 /* POST settings  page */
