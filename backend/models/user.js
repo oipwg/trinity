@@ -14,6 +14,10 @@ const profileSchema = new Schema({
         require: true,
         default: null,
     },
+    address: {
+        type: String,
+        default: '',
+    },
     autoRent: {
         on: {
             type: Boolean,
@@ -66,7 +70,10 @@ const profileSchema = new Schema({
     notes: {
         type: String,
         default: ''
-    }
+    },
+    usedAddresses: [{
+        type: String
+    }]
 });
 
 
