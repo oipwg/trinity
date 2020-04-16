@@ -70,9 +70,6 @@ const Profile = (props) => {
             if(selectedProfile){
                 setNotes(selectedProfile.notes)
             }
-
-
-            // setNotes(selectedProfile.notes)
         }
     }, [profiles, value])
 

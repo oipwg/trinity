@@ -171,7 +171,7 @@ main {
   margin-bottom: 0;
 }
 
-.select-trading-ex {
+.select-markets-pools {
   position: relative;
   left: 8rem;
   background: none;
@@ -182,7 +182,7 @@ main {
   color: #0080ff;
 }
 
-.select-trading-ex {
+.select-markets-pools {
   outline: none !important;
 }
 
@@ -445,7 +445,7 @@ main {
   tbody {
     max-width: 10vw;
   }
-  .select-trading-ex {
+  .select-markets-pools {
     left: 0;
     padding-bottom: 1rem;
   }
