@@ -261,7 +261,8 @@ const WalletBalance = props => {
                         {props.account.balance ? (
                             <>
                             {usdSum()}
-                          <button 
+
+                        <button 
                             style={{border: 'none', marginLeft: '8px', fontSize: '18px', backgroundColor: 'transparent'}}
                             onClick={() => {props.getBalance(props.account.wallet)
                                             props.getBittrexBalances() }
@@ -269,7 +270,10 @@ const WalletBalance = props => {
                             }>
                             <i className="fas fa-redo"></i>
                             </button>  
-
+                            
+                        {props.account.exchangeRate && <div style={{fontSize: '0.5em'}}>
+                                ({(usdSum() / props.account.exchangeRate.bitcoin).toFixed(8)} btc)
+                            </div>}
                             </>
                         ) : (
                             <>

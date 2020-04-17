@@ -2,8 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { API_URL } from '../../../../../config.js';
 import ToggleSwitch from '../../../helpers/toggle/ToggleSwitch';
 import MarketsNPools from '../../../settings/prefrences/merc/MercMode'
-import _ from 'lodash'
- 
+import {isEqual} from 'lodash'
+
 const MiningOperations = (props) => {
 
     const [err, setError] = useState({autoRent: false, autoTrade: false})
@@ -86,11 +86,6 @@ const MiningOperations = (props) => {
     useEffect((prevProf = props.profile) => {
         // rent(miningOperations)
 
-
-        
-
-
-
         let formatedState= {
             profile: {
                 autoRent: {
@@ -105,7 +100,7 @@ const MiningOperations = (props) => {
                 },
                 autoTrade: { 
                     mode: { 
-                    morphie: morphie, 
+                    morphie,
                     supportedExchanges: supportedExchange
                 }, 
                 on: autoTrade },
@@ -117,10 +112,11 @@ const MiningOperations = (props) => {
         }
         let profile = {...props.profile, ...formatedState.profile}
 
-        if(_.isEqual(prevProf, profile)){
+        if(isEqual(prevProf, profile)){
             return;
         }
-            props.updateProfile(profile)
+
+        props.updateProfile(profile)
 
     },[autoRent, autoTrade ])
 
