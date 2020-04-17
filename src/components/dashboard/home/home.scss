@@ -36,6 +36,7 @@ main {
 .profit-reinvestment-container,
 .unusoled-offers-container,
 .daily-budget-container {
+  position: relative;
   width: 150px;
 }
 .daily-budget-text {
@@ -69,6 +70,7 @@ main {
 }
 
 .automatic-renting-content {
+  position: relative;
   flex-grow: 1;
   padding: 10px;
   margin: 10px;
@@ -76,71 +78,109 @@ main {
   border-radius: 5px;
 }
 .automatic-renting-content {
+  .form-check {
+    z-index: 1;
+    background: white;
+  }
   .form-check-label {
     font-size: 0.9rem;
+    display: flex;
+    line-height: 2rem;
+  }
+
+  .percent-container {
+    display: flex;
+    padding-top: 5px;
+  }
+
+  .percent-field {
+    border-top: 0;
+    border-right: 0;
+    border-left: 0;
+    border-radius: 0;
+    max-width: 45px;
+    height: calc(1rem + 7px);
+    margin-right: 5px;
+    outline: none;
+  }
+
+  .percent-field:focus {
+    box-shadow: none;
+  }
+
+  .percent-input-container {
+    transform: translate(-73px);
+    transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.88, 1.05);
+    position: relative;
+    width: 220px;
+    display: flex;
+    left: 5px;
+  }
+  .percent-update {
+    font-size: 1.05rem;
+    font-weight: 400;
+    color: #0080ff;
+    display: block;
+    padding: 0 2px 0 5px;
+  }
+  .edit-percent-btn {
+    background: none;
+    border: none;
+    font-size: 0.9rem;
+    margin-left: 5px;
+    font-weight: 600;
+    color: #0080ff;
+  }
+  .edit-percent-btn {
+    outline: none;
   }
 }
 
-.rent-toggle-switch {
-  position: relative;
-  overflow: hidden;
-  padding: 2px;
-  width: 85px;
-  height: 35px;
-  border-radius: 60px;
-  border: 2px solid #007bff85;
-  background: #cfe9ff;
-  margin: 10px;
+.automatic-trading-container {
+  padding-bottom: 0;
+  margin-bottom: 0;
 }
 
-.slider-container {
-  transition: transform 0.4s;
-  width: 77px;
-  display: flex;
-  width: 160px;
+.select-markets-pools {
+  position: relative;
+  left: 8rem;
+  background: none;
+  border: none;
+  font-size: 0.9rem;
+  margin-left: 5px;
+  font-weight: 600;
+  color: #0080ff;
 }
-.slider-container span {
+
+.select-markets-pools {
+  outline: none !important;
+}
+
+// ** Error dialog box **
+.error-dialog {
+  bottom: -41px;
+  position: absolute;
+  padding: 10px;
+  background: red;
+  border-radius: 5px;
+  z-index: 4;
+  transition: transform 0.4s cubic-bezier(0.34, 1.3, 0.88, 1.05);
+}
+
+.error-dialog span {
+  background: red;
+  width: 15px;
+  height: 15px;
   display: block;
-  width: 31px;
-  height: 31px;
-  background-color: #007bff;
-  border-radius: 100%;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
   position: absolute;
-  top: -1.5px;
-  z-index: 1;
-  left: -2px;
-  pointer-events: none;
-}
-.auto-toggle {
-  position: absolute;
-  width: 140px;
-  height: 53px;
-  left: -55px;
-  z-index: 10;
-  top: -9px;
-  opacity: 0;
+  top: -7px;
+  transform: rotate(45deg);
+  border-radius: 2px;
 }
 
-.auto-label-after {
-  cursor: pointer;
-  user-select: none;
-  position: relative;
-  background-color: #ffffff;
-  width: 102px;
-  height: 40px;
-  border-radius: 60px;
-  top: -4px;
-  text-align: center;
+.error-dialog p {
   margin: 0;
-  padding: 0;
-  line-height: 2.4;
-}
-
-.on {
-  position: absolute;
-  bottom: 2px;
-  left: 12px;
+  font-size: 0.85rem;
 }
 
 .wallet-body {
@@ -354,6 +394,11 @@ main {
 
   tbody {
     max-width: 10vw;
+  }
+
+  .select-markets-pools {
+    left: 0;
+    padding-bottom: 1rem;
   }
 }
 

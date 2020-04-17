@@ -2,12 +2,10 @@ import React, { useState } from 'react';
 import './MercMode.css'
 import { crypto } from '../../../../helpers-functions/cryptoCurrencies';
 import Checkbox from '../../../helpers/checkbox/Checkbox';
+import Modal from '../../../helpers/modal';
 
 const MercMode = () => {
     const [value, setValue] = useState(false);
-
-
-
    return( 
         <div id="merc">
                 <div className="grid-container">
@@ -159,9 +157,32 @@ const MercMode = () => {
                 </div>
             <div>
             </div>
-        </div>
-
-)
+        </div>)
 }
 
-export default MercMode;
+const Settings = ({handleClick, handleSave}) => {
+
+  return ( <Modal
+    classname={'merc-modal'}
+    handleClick={handleClick}
+    handleSubmit={handleSave}
+    // title={}
+    sendButtonTitle={<i className="fas fa-unlock"></i>}
+    submitType={'submit'}
+    modalBody={
+        <>
+            <MercMode />
+        </>
+    }
+    footer={
+      <div className="deposit-footer">
+      <div className="deposit-footer-card">
+      </div>
+      </div>
+          }
+      submitType={'submit'}
+      sendButtonTitle={`Save`}
+      />
+)}
+
+export default Settings;

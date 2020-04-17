@@ -34,16 +34,7 @@ export const loadWallet = (encryptedMnemonic, password) => dispatch => {
         payload: getWallet,
     });
 
-    // axios
-    //     .get(
-    //         `https://api.coingecko.com/api/v3/simple/price?ids=flo%2Cbitcoin%2Cravencoin%2Clitecoin&vs_currencies=usd`
-    //     )
-    //     .then(res => {
-    //         dispatch({
-    //             type: GET_EXCHANGE_RATE,
-    //             payload: res.data,
-    //         });
-    //     });
+
 
     getWallet.getCoinBalances().then(res => {
         dispatch({

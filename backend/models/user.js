@@ -14,58 +14,66 @@ const profileSchema = new Schema({
         require: true,
         default: null,
     },
+    address: {
+        type: String,
+        default: '',
+    },
     autoRent: {
         on: {
             type: Boolean,
-            default: null,
+            default: false,
         },
         mode: {
             spot: {
                 type: Boolean,
-                default: null,
+                default: false,
             },
             alwaysMineXPercent: {
-                type: Boolean,
-                default: null,
+                on: {type: Boolean,
+                default: false},
+                Xpercent: {type: Number, default: 0}
             },
         }
     },
     autoTrade: {
         on: {
             type: Boolean,
-            default: null,
+            default: false,
         },
         mode: {
             morphie:  {
                 type: Boolean,
-                default: null,
+                default: false,
             },
             supportedExchanges:  {
                 type: Boolean,
-                default: null,
+                default: false,
             },
         }
     },
     targetMargin:  {
         type: Number,
-        default: null,
+        default: 0,
     },
     profitReinvestment:  {
         type: Number,
-        default: null,
+        default: 0,
     },
     updateUnsold:  {
         type: String,
-        default: null,
+        default: '',
     },
     dailyBudget:  {
         type: Number,
-        default: null,
+        default: 0,
     },
     notes: {
         type: String,
         default: ''
-    }
+    },
+    usedAddresses: [{
+        type: String
+    }]
 });
 
 
