@@ -1,8 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { ROOT_URL, API_URL } from '../../../../../config.js';
+import { API_URL } from '../../../../../config.js';
 import ToggleSwitch from '../../../helpers/toggle/ToggleSwitch';
+import MarketsNPools from '../../../settings/prefrences/merc/MercMode'
+import {isEqual} from 'lodash'
 
 const MiningOperations = (props) => {
+
     const [err, setError] = useState({autoRent: false, autoTrade: false})
     const [miningOperations, setOperations] = useState({
             targetMargin: '',
@@ -15,10 +18,9 @@ const MiningOperations = (props) => {
             autoTrade: false,
             morphie: false,
             supportedExchange: false,
-            Xpercent: 0
+            Xpercent: 0,
         });
-    const [selectedOption, setSelectedOption] = useState('')
-
+    const [showSettingaModal, setShowSettingsModal] = useState(false)
 
         let {            
             targetMargin,
@@ -61,6 +63,7 @@ const MiningOperations = (props) => {
                 morphie: autoTrade.mode.morphie,
                 supportedExchange: autoTrade.mode.supportedExchanges
             })
+            setError('')
 
         }
         else setOperations({
@@ -80,26 +83,25 @@ const MiningOperations = (props) => {
 
 
 
-    useEffect(() => {
+    useEffect((prevProf = props.profile) => {
         // rent(miningOperations)
-
 
         let formatedState= {
             profile: {
-              autoRent: {
+                autoRent: {
                 mode: {
-                  spot,
-                  alwaysMineXPercent: {
-                      on: alwaysMineXPercent,
-                      Xpercent,
-                  }
+                    spot,
+                    alwaysMineXPercent: {
+                        on: alwaysMineXPercent,
+                        Xpercent,
+                    }
                 },
                 on: autoRent,
-              },
-              autoTrade: { 
-                  mode: { 
-                    morphie: miningOperations.morphie, 
-                    supportedExchanges: miningOperations.supportedExchange
+                },
+                autoTrade: { 
+                    mode: { 
+                    morphie,
+                    supportedExchanges: supportedExchange
                 }, 
                 on: autoTrade },
             targetMargin,
@@ -107,11 +109,16 @@ const MiningOperations = (props) => {
             updateUnsold,
             dailyBudget,
             }
-          }
+        }
         let profile = {...props.profile, ...formatedState.profile}
+
+        if(isEqual(prevProf, profile)){
+            return;
+        }
+
         props.updateProfile(profile)
 
-    },[miningOperations.autoRent, miningOperations.autoTrade ])
+    },[autoRent, autoTrade ])
 
     // const toggleSlider = (e) => {
     //     const regex = /\d+/i;
@@ -234,7 +241,7 @@ const MiningOperations = (props) => {
                 break;
             case "dailyBudget":
                 if (err.dailyBudget) setError({dailyBudget: false})
-                setOperations({...miningOperations, dailyBudget: e.target.value})
+                    setOperations({...miningOperations, dailyBudget: e.target.value })
                 break;
             case "autoRent":
                 checkInputsAndRent(e, targetElem)
@@ -265,16 +272,13 @@ const MiningOperations = (props) => {
         setOperations({...miningOperations, Xpercent: value})
     }
     
-    const handleOptionChange = (e) => {
-        console.log(selectedOption)
-        setSelectedOption(e.target.value)
-    }
-
     return (
-        
+        <>
+        {showSettingaModal 
+            && 
+            <MarketsNPools handleClick={() => setShowSettingsModal(!showSettingaModal)}/>
+        }
         <div className="card mining-operation">
-            {/* {console.log('ERROR ',err)}
-            {console.log(miningOperations)} */}
             <div className="card-header">Mining Operations</div>
             <div className="card-body">
                 <div className="mining-operation-inputs">
@@ -340,7 +344,6 @@ const MiningOperations = (props) => {
                     </div>
                 </div>
 
-
                 {/* AUTO RENTING CONTAINER */}
                 <div className="automatic-renting-container">
                     <ToggleSwitch  
@@ -348,7 +351,6 @@ const MiningOperations = (props) => {
                         id={"autoRent"}
                         htmlFor={"autoRent"}
                         isOn={autoRent}
-    
                     />
 
                     <div className="automatic-renting-content">
@@ -391,6 +393,8 @@ const MiningOperations = (props) => {
                     </div>
                 </div>
 
+                {/* Select Rental Markets & Mining Pool */}
+                <button onClick={() => setShowSettingsModal(!showSettingaModal)} className="select-markets-pools">Select Rental Markets & Mining Pools</button>
 
                 {/* AUTO TRADING CONTAINER */}
                 <div className="automatic-trading-container">
@@ -399,8 +403,7 @@ const MiningOperations = (props) => {
                             id={"autoTrade"}
                             htmlFor={"autoTrade"}
                             isOn={autoTrade}
-        
-                        />
+                    />
                     <div className="automatic-renting-content">
                         <h5>Automatic Trading</h5>
                         <div className="form-check">
@@ -428,9 +431,9 @@ const MiningOperations = (props) => {
                         </div>
                     </div>
                 </div>
-                    <button className="select-trading-ex">Select Trading Exchanges</button>
             </div>
         </div>
+        </>
     );
 };
 

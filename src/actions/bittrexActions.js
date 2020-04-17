@@ -22,8 +22,18 @@ const bittrex = axios.create({
     timeout: 1000,
 });
 
-export const getLatestExPrice = () => (dispatch, getState) => {
+export const getLatestExPrice = () => async (dispatch, getState) => {
+    try {
+        const res = await axios.get(`${API_URL}/bittrex/exchangerate`)
 
+        dispatch({
+            type: GET_BITTREX_EX_PRICES,
+            payload: res.data.exchangeRate
+        })
+
+    } catch (error) {
+        console.log(error.response)
+    }
 
 }
 
@@ -44,7 +54,6 @@ export const getBittrexBalances = () => async (dispatch, getState) => {
 export const getOpenOrder = () => async(dispatch,getState) => {
     try {
         const res = await axios.get(`${API_URL}/bittrex/openOrders`, tokenConfig(getState))
-        console.log(res);
 
         dispatch({
             type: GET_BITTREX_OPENORDERS,
@@ -52,7 +61,7 @@ export const getOpenOrder = () => async(dispatch,getState) => {
         })
 
     } catch (error) {
-        console.log(error.response)
+        console.log(error.message)
     }
 }
 
@@ -66,6 +75,6 @@ export const getSalesHistory = () => async(dispatch,getState) => {
         })
 
     } catch (error) {
-        console.log(error.response)
+        console.log(error.message)
     }
 }

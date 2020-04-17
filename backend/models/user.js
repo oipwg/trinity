@@ -14,6 +14,10 @@ const profileSchema = new Schema({
         require: true,
         default: null,
     },
+    address: {
+        type: String,
+        default: '',
+    },
     autoRent: {
         on: {
             type: Boolean,
@@ -49,24 +53,27 @@ const profileSchema = new Schema({
     },
     targetMargin:  {
         type: Number,
-        default: null,
+        default: 0,
     },
     profitReinvestment:  {
         type: Number,
-        default: null,
+        default: 0,
     },
     updateUnsold:  {
         type: String,
-        default: null,
+        default: '',
     },
     dailyBudget:  {
         type: Number,
-        default: null,
+        default: 0,
     },
     notes: {
         type: String,
         default: ''
-    }
+    },
+    usedAddresses: [{
+        type: String
+    }]
 });
 
 
