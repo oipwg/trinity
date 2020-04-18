@@ -9,12 +9,13 @@ const usersRouter = require('./routes/users');
 const dashboardRouter = require('./routes/dashboard');
 const setupRouter = require('./routes/setup');
 const settingsRouter = require('./routes/settings');
-const setupWebSocket = require('./routes/socket');
+// const setupWebSocket = require('./routes/socket');
 const authRouter = require('./routes/auth');
 const bittrexRouter = require('./routes/bittrex');
 const rentRouter = require('./routes/rent');
 const userProfiles = require('./routes/userProfiles')
 const passport = require('passport');
+const autoTradeRouter = require('./routes/autoTrade')
 const { NODE_ENV, MONGO_URL } = process.env;
 
 
@@ -58,8 +59,9 @@ app.use('/settings', settingsRouter);
 app.use('/auth', authRouter);
 // app.use('/setup', setupWebSocket);
 app.use('/bittrex', bittrexRouter);
-app.use('/profile', userProfiles)
-app.use('/rent', rentRouter)
+app.use('/profile', userProfiles);
+app.use('/rent', rentRouter);
+app.use('/auto-trade', autoTradeRouter);
 
 
 // catch 404 and forward to error handler
