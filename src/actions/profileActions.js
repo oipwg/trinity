@@ -49,7 +49,6 @@ export const updateProfile = (body) => async (dispatch, getState) => {
 
         const res = await axios.post(`${API_URL}/profile/update`, body, tokenConfig(getState))
 
-
         dispatch({
             type: PROFILE_CREATE_UPDATE,
             payload: res.data.profiles 
@@ -59,8 +58,8 @@ export const updateProfile = (body) => async (dispatch, getState) => {
 
 
     } catch (error) {
-        console.log(error.response)
-        return error.response
+        console.log(error.message)
+        return error.message
     }
 }
 

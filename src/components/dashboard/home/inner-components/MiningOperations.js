@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ROOT_URL, API_URL } from '../../../../../config.js';
+import { API_URL } from '../../../../../config.js';
 import ToggleSwitch from '../../../helpers/toggle/ToggleSwitch';
 import { connect } from 'react-redux';
 
@@ -214,7 +214,7 @@ const MiningOperations = (props) => {
                 break;
             case "dailyBudget":
                 if (err.dailyBudget) setError({dailyBudget: false})
-                setOperations({...miningOperations, dailyBudget: e.target.value})
+                    setOperations({...miningOperations, dailyBudget: e.target.value })
                 break;
             case "autoRent":
                 checkInputsAndRent(e, targetElem)
@@ -266,7 +266,11 @@ const MiningOperations = (props) => {
     }
 
     return (
-        
+        <>
+        {/* {showSettingaModal 
+            && 
+            <MarketsNPools handleClick={() => setShowSettingsModal(!showSettingaModal)}/>
+        } */}
         <div className="card mining-operation">
           {console.log('ERROR ',err)}
             {console.log(miningOperations)} 
@@ -335,7 +339,6 @@ const MiningOperations = (props) => {
                     </div>
                 </div>
 
-
                 {/* AUTO RENTING CONTAINER */}
                 <div className="automatic-renting-container">
                     {/* <ToggleSwitch  
@@ -398,6 +401,8 @@ const MiningOperations = (props) => {
                     </div>
                 </div>
 
+                {/* Select Rental Markets & Mining Pool */}
+                {/* <button onClick={() => setShowSettingsModal(!showSettingaModal)} className="select-markets-pools">Select Rental Markets & Mining Pools</button> */}
 
                 {/* AUTO TRADING CONTAINER */}
                 <div className="automatic-trading-container">
@@ -449,9 +454,9 @@ const MiningOperations = (props) => {
                         </div>
                     </div>
                 </div>
-                    <button className="select-trading-ex">Select Trading Exchanges</button>
             </div>
         </div>
+        </>
     );
 };
 
