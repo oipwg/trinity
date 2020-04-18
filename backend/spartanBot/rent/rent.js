@@ -9,10 +9,10 @@ const ERROR = 'ERROR';
 
 // Function ran from index.js as a command of Rent
 module.exports = async function(options) {
+
     let spartan = options.SpartanBot;
 
         let rental_providers = spartan.getRentalProviders();
-        console.log('rental_providers:', rental_providers)
 
         // *** UNCOMMENT WHEN DONE WITH RENTING ***
         // if (rental_providers.length === 0) {
@@ -90,6 +90,7 @@ module.exports = async function(options) {
         }
         //Morphie
         if (rentType === 'Tradebot') {
+
         }
 
         if (rentType === 'Collective Defense') {
