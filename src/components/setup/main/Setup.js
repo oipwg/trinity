@@ -311,7 +311,7 @@ const Setup = props => {
     }
 
     const goToSettings = () => {
-        location.href = ROOT_URL+'/settings';
+        location.href = ROOT_URL+'/dashboard';
     }
 
     const showMessage = (field, i) => {

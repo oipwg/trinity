@@ -6,7 +6,6 @@ import {getOpenOrder} from '../../../../actions/bittrexActions'
 
 
 const OpenOrders = (props) => {
-    console.log(props)
 
     useEffect(() => {
         props.getOpenOrder();

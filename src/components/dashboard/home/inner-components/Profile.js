@@ -4,6 +4,7 @@ import { connect } from 'react-redux';
 import { newProfile, updateProfile, deleteProfile } from '../../../../actions/profileActions'
 import ActiveRentals from './ActiveRentals';
 import RenderError from '../../../helpers/errors';
+import MiningOperations from './MiningOperations';
 
 const NewProfile = (props) => {
 
@@ -192,6 +193,9 @@ const Profile = (props) => {
             </div>
         </div>
         <ActiveRentals profile={selectedProfile}
+        />
+        <MiningOperations profile={selectedProfile}
+            updateProfile={props.updateProfile}
         />
         </>
     

@@ -69,7 +69,8 @@ main {
       justify-content: space-around;
 }
 
-.automatic-renting-container, .automatic-trading-container {
+.automatic-renting-container,
+.automatic-trading-container {
   display: -webkit-box;
   display: -ms-flexbox;
   display: flex;
@@ -155,7 +156,7 @@ main {
 .automatic-renting-content .edit-percent-btn {
   background: none;
   border: none;
-  font-size: .9rem;
+  font-size: 0.9rem;
   margin-left: 5px;
   font-weight: 600;
   color: #0080ff;
@@ -163,6 +164,26 @@ main {
 
 .automatic-renting-content .edit-percent-btn {
   outline: none;
+}
+
+.automatic-trading-container {
+  padding-bottom: 0;
+  margin-bottom: 0;
+}
+
+.select-trading-ex {
+  position: relative;
+  left: 8rem;
+  background: none;
+  border: none;
+  font-size: 0.9rem;
+  margin-left: 5px;
+  font-weight: 600;
+  color: #0080ff;
+}
+
+.select-trading-ex {
+  outline: none !important;
 }
 
 .error-dialog {
@@ -192,80 +213,7 @@ main {
 
 .error-dialog p {
   margin: 0;
-  font-size: .85rem;
-}
-
-.rent-toggle-switch {
-  position: relative;
-  overflow: hidden;
-  padding: 2px;
-  width: 85px;
-  height: 35px;
-  border-radius: 60px;
-  border: 2px solid #007bff85;
-  background: #cfe9ff;
-  margin: 10px;
-}
-
-.slider-container {
-  -webkit-transition: -webkit-transform 0.4s;
-  transition: -webkit-transform 0.4s;
-  transition: transform 0.4s;
-  transition: transform 0.4s, -webkit-transform 0.4s;
-  width: 77px;
-  display: -webkit-box;
-  display: -ms-flexbox;
-  display: flex;
-  width: 160px;
-}
-
-.slider-container span {
-  display: block;
-  width: 31px;
-  height: 31px;
-  background-color: #007bff;
-  border-radius: 100%;
-  -webkit-box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
-          box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
-  position: absolute;
-  top: -1.5px;
-  z-index: 1;
-  left: -2px;
-  pointer-events: none;
-}
-
-.auto-toggle {
-  position: absolute;
-  width: 140px;
-  height: 53px;
-  left: -55px;
-  z-index: 10;
-  top: -9px;
-  opacity: 0;
-}
-
-.auto-label-after {
-  cursor: pointer;
-  -webkit-user-select: none;
-     -moz-user-select: none;
-      -ms-user-select: none;
-          user-select: none;
-  position: relative;
-  background-color: #ffffff;
-  width: 102px;
-  height: 40px;
-  border-radius: 60px;
-  top: -4px;
-  text-align: center;
-  margin: 0;
-  padding: 0;
-  line-height: 2.4;
-}
-
-.on {
-  position: absolute;
-  bottom: 2px;
-  left: 12px;
+  font-size: 0.85rem;
 }
 
 .wallet-body {
@@ -496,6 +444,10 @@ main {
   }
   tbody {
     max-width: 10vw;
+  }
+  .select-trading-ex {
+    left: 0;
+    padding-bottom: 1rem;
   }
 }
 
