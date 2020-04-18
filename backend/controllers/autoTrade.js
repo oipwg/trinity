@@ -8,12 +8,17 @@ module.exports = {
     on: async(req, res ) => {
         try {
 
+            //- profiles _id as param
             const { _id } = req.params
 
             const user = await User.findById(req.user.id).select('profiles')
 
 
             let profile = user.profiles.filter(profile => profile._id == _id)
+
+            console.log()
+
+            
 
             let mnemonic = MNE;
             ATSupportedEx(...profile, mnemonic)
