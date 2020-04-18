@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { API_URL } from '../../../../../config.js';
 import ToggleSwitch from '../../../helpers/toggle/ToggleSwitch';
 import { connect } from 'react-redux';
+import MarketsNPools from '../../../settings/prefrences/merc/MercMode'
+import {isEqual} from 'lodash'
 
 const MiningOperations = (props) => {
     console.log('PROPS ', props)
@@ -20,6 +22,22 @@ const MiningOperations = (props) => {
             Xpercent: 15
         });
 
+        const [showSettingaModal, setShowSettingsModal] = useState(false)
+
+        let {            
+            targetMargin,
+            profitReinvestment,
+            updateUnsold,
+            dailyBudget,
+            autoRent,
+            spot,
+            alwaysMineXPercent,
+            autoTrade,
+            morphie,
+            supportedExchange,
+            Xpercent,
+            } = miningOperations
+
     useEffect(() => {
         console.log('hit')
         if(props.profile){
@@ -33,7 +51,7 @@ const MiningOperations = (props) => {
                 autoTrade,
             } = props.profile
 
-
+            console.log('PROPS PROFILE :', props.profile)
             setOperations({
                 targetMargin: !targetMargin ? '' : targetMargin,
                 profitReinvestment: !profitReinvestment ? '' : profitReinvestment,
@@ -56,7 +74,7 @@ const MiningOperations = (props) => {
 
     }, [props.profile, miningOperations.autoRent, miningOperations.autoTrade  ])
 
-
+    
 
     // useEffect(() => {
         // If either Automatic Trading or Automatic Renting is switched on or off it rents.
@@ -267,10 +285,10 @@ const MiningOperations = (props) => {
 
     return (
         <>
-        {/* {showSettingaModal 
+        {showSettingaModal 
             && 
             <MarketsNPools handleClick={() => setShowSettingsModal(!showSettingaModal)}/>
-        } */}
+        }
         <div className="card mining-operation">
           {console.log('ERROR ',err)}
             {console.log(miningOperations)} 
@@ -402,7 +420,7 @@ const MiningOperations = (props) => {
                 </div>
 
                 {/* Select Rental Markets & Mining Pool */}
-                {/* <button onClick={() => setShowSettingsModal(!showSettingaModal)} className="select-markets-pools">Select Rental Markets & Mining Pools</button> */}
+                <button onClick={() => setShowSettingsModal(!showSettingaModal)} className="select-markets-pools">Select Rental Markets & Mining Pools</button>
 
                 {/* AUTO TRADING CONTAINER */}
                 <div className="automatic-trading-container">
