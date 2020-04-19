@@ -9,7 +9,6 @@ const usersRouter = require('./routes/users');
 const dashboardRouter = require('./routes/dashboard');
 const setupRouter = require('./routes/setup');
 const settingsRouter = require('./routes/settings');
-const setupWebSocket = require('./routes/socket');
 const authRouter = require('./routes/auth');
 const bittrexRouter = require('./routes/bittrex');
 const rentRouter = require('./routes/rent');
@@ -56,7 +55,6 @@ app.use('/dashboard', dashboardRouter);
 app.use('/setup', setupRouter);
 app.use('/settings', settingsRouter);
 app.use('/auth', authRouter);
-// app.use('/setup', setupWebSocket);
 app.use('/bittrex', bittrexRouter);
 app.use('/profile', userProfiles)
 app.use('/rent', rentRouter)

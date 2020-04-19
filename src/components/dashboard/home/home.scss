@@ -1,6 +1,6 @@
 main {
   margin: 0 auto;
-  max-width: 80vw;
+  max-width: 1050px;
 }
 .card {
   margin-bottom: 1em;
@@ -76,6 +76,7 @@ main {
   margin: 10px;
   border: 1px solid #d6d6d6;
   border-radius: 5px;
+  margin-right: 23%;
 }
 .automatic-renting-content {
   .form-check {
@@ -216,7 +217,9 @@ main {
     width: 12rem;
   }
   #profile-notes {
+    border-radius: 4px;
     width: 50%;
+    border: 1px solid lightgrey;
   }
 }
 
@@ -281,21 +284,18 @@ main {
 /* Moblie */
 @media screen and (max-width: 500px) {
   body {
-    background-color: #dbdbdb;
+    // background-color: #dbdbdb;
   }
 
   .card {
     margin: 0 0 1rem 0;
   }
 
-  .card-body {
-    padding: 0;
-
-    div {
-      flex-direction: column;
-      align-items: center;
-      margin-bottom: 1rem;
-    }
+  .target-margin-container,
+   .profit-reinvestment-container,
+    .unusoled-offers-container, 
+    .daily-budget-container {
+      width: 90%
   }
 
   .profile {
@@ -352,8 +352,6 @@ main {
   }
 
   .mining-operation {
-    width: 100vw;
-    text-align: center;
 
     span label {
       margin: 1rem;
@@ -397,14 +395,37 @@ main {
   }
 
   .select-markets-pools {
-    left: 0;
     padding-bottom: 1rem;
   }
 }
-
-@media screen and (width: 2560px) {
-  main {
-    margin: 0 auto;
-    max-width: 50vw;
+@media screen and (max-width: 768px) {
+  #app main {
+    margin: 0 5px;
   }
+  .automatic-renting-content .form-check {
+    padding-left: 1.30rem;
+  }
+
+  .mining-operation-inputs {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .automatic-renting-content {
+    margin-right: 0;
+    width: 50px;
+  }
+
+  .automatic-renting-content .percent-container {
+    overflow: hidden;
+    flex-direction: column;
+  }
+
+  .target-margin-container,
+   .profit-reinvestment-container,
+    .unusoled-offers-container, 
+    .daily-budget-container {
+      width: 64%
+  }
+
 }

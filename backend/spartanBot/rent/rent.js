@@ -83,7 +83,8 @@ module.exports = async function(options) {
         spartan.emitter.on('RentalFunctionFinish', onRentalFnFinish);
 
         if (options.rentType === 'Manual') {
-            await manualRent(options);
+             let manual = await manualRent(options);
+             return manual
         }
 
         if (rentType === 'Spot') {

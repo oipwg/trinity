@@ -21,7 +21,7 @@ module.exports = async function(options) {
             let added = await RentalProvider(options).then( added_data => added_data ).catch(err => err);
             return added;
         case 'rent':
-            let rent = Rent(options).then(data => console.log(data)).catch(e => console.log(e));
+            let rent = Rent(options).then(data => data).catch(e => e);
             return rent
             break;
     }
