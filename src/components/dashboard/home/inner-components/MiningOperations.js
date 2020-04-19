@@ -4,8 +4,18 @@ import ToggleSwitch from '../../../helpers/toggle/ToggleSwitch';
 import { connect } from 'react-redux';
 import MarketsNPools from '../../../settings/prefrences/merc/MercMode'
 import {isEqual} from 'lodash'
-
+const socket = new WebSocket('ws://localhost:3031');
 const MiningOperations = (props) => {
+      socket.addEventListener('open', function (event) {
+        socket.send('Hello Server!');
+    });
+    socket.onmessage = (e) => {
+        console.log('Message from server ',e.data)
+      }
+    socket.addEventListener('error', function (event) {
+        console.log('WebSocket error: ', event);
+      });
+
     console.log('PROPS ', props)
     const [err, setError] = useState({autoRent: false, autoTrade: false})
     const [miningOperations, setOperations] = useState({
@@ -15,16 +25,17 @@ const MiningOperations = (props) => {
             dailyBudget: 1,
             autoRent: false,
             spot: false,
-            alwaysMineXPercent: true,
+            alwaysMineXPercent: false,
             autoTrade: false,
             morphie: false,
             supportedExchange: false,
-            Xpercent: 15
+            Xpercent: 15,
+            token: 'FLO'
         });
 
         const [showSettingaModal, setShowSettingsModal] = useState(false)
 
-        let {            
+        let {  
             targetMargin,
             profitReinvestment,
             updateUnsold,
@@ -39,9 +50,9 @@ const MiningOperations = (props) => {
             } = miningOperations
 
     useEffect(() => {
-        console.log('hit')
+        console.log('PROPS PROFILE :', props.profile)
         if(props.profile){
-
+            
             let {
                 targetMargin,
                 profitReinvestment,
@@ -49,9 +60,10 @@ const MiningOperations = (props) => {
                 dailyBudget,
                 autoRent,
                 autoTrade,
+                token,
             } = props.profile
-
-            console.log('PROPS PROFILE :', props.profile)
+        
+           
             setOperations({
                 targetMargin: !targetMargin ? '' : targetMargin,
                 profitReinvestment: !profitReinvestment ? '' : profitReinvestment,
@@ -63,7 +75,8 @@ const MiningOperations = (props) => {
                 Xpercent: autoRent.mode.alwaysMineXPercent.Xpercent,
                 autoTrade: autoTrade.on,
                 morphie: autoTrade.mode.morphie,
-                supportedExchange: autoTrade.mode.supportedExchanges
+                supportedExchange: autoTrade.mode.supportedExchanges,
+                token: token
             })
         } 
         if (miningOperations.autoRent || miningOperations.autoTrade){
@@ -74,7 +87,6 @@ const MiningOperations = (props) => {
 
     }, [props.profile, miningOperations.autoRent, miningOperations.autoTrade  ])
 
-    
 
     // useEffect(() => {
         // If either Automatic Trading or Automatic Renting is switched on or off it rents.

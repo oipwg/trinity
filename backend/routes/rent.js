@@ -3,10 +3,15 @@ const express = require('express');
 const router = express.Router();
 const controller = require('../spartanBot');
 const request = require('request');
+const events = require('events');
 const User = require('../models/user');
 
+const emitter = new events()
+const wss = require('./socket').wss;
+
+
 const Rent = async (token, percent) => {
-    console.log('p', percent)
+    console.log('percent', percent)
     if (token === "FLO") {
         return await new Promise((resolve, reject) => {
             request({url: 'https://livenet.flocha.in/api/status?q=getInfos'}, (err, res, body)=> {
@@ -45,20 +50,20 @@ const Rent = async (token, percent) => {
 async function processUserInput(req, res) {
     let options = req.body
     let {profitReinvestment, updateUnsold, dailyBudget, autoRent, spot, alwaysMineXPercent,
-        autoTrade, morphie, supportedExchange, Xpercent, userId} = options;
+        autoTrade, morphie, supportedExchange, Xpercent, userId, token} = options;
     // let token = options.token
-    let token = 'FLO'
+
     console.log('options: rent.js 41')
     
     try {
         const rent = await Rent(token, Xpercent/100)
         let MinPercentFromMinHashrate = rent.MinPercentFromMinHashrate
-        
+
         if ( MinPercentFromMinHashrate > Xpercent/100 ) {
             return {info: `Need to increase your pecent of ${Xpercent} to at least ${MinPercentFromMinHashrate*100}, or 
                         we can continute renting with ${Xpercent} for the MiningRigRental market.` }
         }
-        console.log(rent)
+
         // const user = await User.findById({ _id: userId });
         
         // if (!user) {
@@ -69,7 +74,9 @@ async function processUserInput(req, res) {
                 rent: true,
             }
         }
+        options.emitter = emitter
         options.duration = 3
+        options.newRent = Rent
         options.difficulty = rent.difficulty
         options.hashrate = rent.Rent
         options.rentType = 'Manual' 
@@ -81,17 +88,31 @@ async function processUserInput(req, res) {
 
 /* POST settings  page */
 router.post('/',  async (req, res) => {
+  
+   
+    // emitter.on('info', (data)=> {
+    //     console.log('data rent.js emitter', data)
+    //     // res.write({data: data})
+    //     let json = JSON.stringify({from: 'emiter'})
+    //     res.write(json)
+    //     writtenWrite++
+    //     if(writtenWrite === 2) {
+    //         res.end()
+    //     }
+        
+    // })  
     let userInput = await processUserInput(req, res).then(data => data).catch(err => err)
     console.log('processUserInput ', userInput)
     if (userInput['err']) {
-        return res.status(300).json(userInput)
+        return res.json(userInput)
     }
+   
     
-  
     try {
         let data = await controller(userInput);
-        console.log('data:', data)
-        res.status(200).json({data: 'from rent.js'})
+        console.log('data: rent.js route', data)
+        res.status(200).json({data: data, fromRent: data})
+        let json = JSON.stringify({hey: 'you'})
     } catch (err) {
         console.log('route rent.js 69 catch error', err);
         res.status(500).json({err: err})
