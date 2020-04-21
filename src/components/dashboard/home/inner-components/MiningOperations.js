@@ -5,12 +5,14 @@ import { connect } from 'react-redux';
 import MarketsNPools from '../../../settings/prefrences/merc/MercMode'
 import {isEqual} from 'lodash'
 const socket = new WebSocket('ws://localhost:3031');
+
 const MiningOperations = (props) => {
       socket.addEventListener('open', function (event) {
         socket.send('Hello Server!');
     });
     socket.onmessage = (e) => {
-        console.log('Message from server ',e.data)
+        let message = JSON.parse(e.data)
+        console.log('Message from server ',message)
       }
     socket.addEventListener('error', function (event) {
         console.log('WebSocket error: ', event);
