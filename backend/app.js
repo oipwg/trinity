@@ -57,7 +57,6 @@ app.use('/dashboard', dashboardRouter);
 app.use('/setup', setupRouter);
 app.use('/settings', settingsRouter);
 app.use('/auth', authRouter);
-// app.use('/setup', setupWebSocket);
 app.use('/bittrex', bittrexRouter);
 app.use('/profile', userProfiles);
 app.use('/rent', rentRouter);

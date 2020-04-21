@@ -112,7 +112,7 @@ module.exports = async function(profile, mnemonic, accessToken) {
 
     let {balance, transactions} = await getBalanceFromAddress(address);
     
-    console.log('balance first -----', balance)
+        console.log('balance 1 getBFA -----', balance)
 
             // try {
                 //todo:
