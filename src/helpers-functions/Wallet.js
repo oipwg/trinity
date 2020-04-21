@@ -1,4 +1,5 @@
-import HDMW from 'oip-hdmw';
+
+import HDMW from '@oipwg/hdmw';
 const Wallet = HDMW.Wallet;
 // import { buildOipDetails, recordProtoBuilder } from 'oip-protobufjs';
 

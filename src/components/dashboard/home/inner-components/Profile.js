@@ -172,7 +172,7 @@ const Profile = (props) => {
             </div>
             <div style={{marginBottom: '1rem'}}>
             <label htmlFor="profile-token" >Profile Token:</label>
-                    FLO
+                    {selectedProfile ? selectedProfile.token : null}
             </div>
             <div style={{display: 'flex', alignItems: 'center'}}>                
             <label htmlFor="profile-notes" >Profile Notes:</label>

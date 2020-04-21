@@ -403,5 +403,29 @@ module.exports = {
         }
     },
 
+    getDepositHistory: async(req, res) => {
+        try {
+            const user = await User.findById(req.user.id).select("bittrex")
+
+            let apiKey = user.bittrex.apiKey
+            let secret = user.bittrex.secret
+
+            if(!apiKey) {
+                return res.status(400).json({"error": "no keys"})
+            }
+        
+            const message = `https://api.bittrex.com/api/v1.1/account/getdeposithistory?currency=FLO&apikey=${apiKey}&nonce=${nonce}`
+            const signature = Crypto.createHmac('sha512', secret)
+            .update(message)
+            .digest('hex');
+
+            const response = await bittrex.get(message, {headers: {apisign: signature}})
+
+            res.status(201).json(response.data)
+        } catch (error) {
+            console.log(error)
+        }
+    }
+
 
 }
