@@ -52,11 +52,12 @@ async function processUserInput(req, res) {
     let {profitReinvestment, updateUnsold, dailyBudget, autoRent, spot, alwaysMineXPercent,
         autoTrade, morphie, supportedExchange, Xpercent, userId, token} = options;
     // let token = options.token
-
+    console.log('OOPTIONS', options)
     console.log('options: rent.js 41')
     
     try {
         const rent = await Rent(token, Xpercent/100)
+        console.log('rent:', rent)
         let MinPercentFromMinHashrate = rent.MinPercentFromMinHashrate
 
         if ( MinPercentFromMinHashrate > Xpercent/100 ) {
