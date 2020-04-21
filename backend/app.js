@@ -9,7 +9,10 @@ const usersRouter = require('./routes/users');
 const dashboardRouter = require('./routes/dashboard');
 const setupRouter = require('./routes/setup');
 const settingsRouter = require('./routes/settings');
+<<<<<<< HEAD
 // const setupWebSocket = require('./routes/socket');
+=======
+>>>>>>> a373b96cf4d1f87efe9767cda98a1fc9b32b96fa
 const authRouter = require('./routes/auth');
 const bittrexRouter = require('./routes/bittrex');
 const rentRouter = require('./routes/rent');
