@@ -40,23 +40,6 @@ module.exports = async function(options) {
             let promptChoices = modifiedKeys;
             console.log('promptChoices: rent.js 45')
 
-            // let inspectionPrompt = await self.prompt({
-            //     type: 'list',
-            //     message: 'View your receipt',
-            //     name: 'option',
-            //     choices: promptChoices,
-            // });
-
-            // let param = inspectionPrompt.option;
-            // let splited = param.split(':');
-            // param = splited[0];
-            // if (Array.isArray(object[param]) ||
-            //     typeof object[param] === 'object' ) {   
-            //     console.log(object[param]);
-            // } else {
-            //     console.log(object[param]);
-            // }
-            // await interactiveObjectInspection(object);
         }
 
         spartan.onRentalSuccess(() => {});

@@ -398,6 +398,11 @@ main {
     padding-bottom: 1rem;
   }
 }
+@media screen and (max-width: 1050px) {
+  .card {
+    margin: 0 10px 1rem 10px;
+  }
+}
 @media screen and (max-width: 768px) {
   #app main {
     margin: 0 5px;

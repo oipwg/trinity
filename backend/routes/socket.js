@@ -4,18 +4,18 @@ const router = express.Router();
 const WebSocket = require('ws');
 const wss = new WebSocket.Server({ port: 3031 });
 
+/**
+ * Works as a router, can be used in any other file as an instance of wss
+ *  @event module
+*/
 wss.on('connection', function connection(ws) {
+    let msg = JSON.stringify({ hey: 'Cool Socket beans from server' })
+    ws.send(msg)
     wss.clients.forEach((client)=>{
         // console.log('CLIENTS',client)
     })
-    // ws.on('message', function incoming(data) {
-    //     console.log(wss.clients)  // prints if more than one client is on. \
-        
-    //     let msg = JSON.stringify({ hey: 'cool beans from server' })
-    //     ws.send(msg);
-    // })
     ws.on('close', ()=> {
-        console.log('I lost a client')
+        console.log('Socket closed')
     })
 });
 
