@@ -16,22 +16,23 @@ const MiningOperations = (props) => {
       }
     socket.addEventListener('error', function (event) {
         console.log('WebSocket error: ', event);
-      });
+    });
 
     console.log('PROPS ', props)
     const [err, setError] = useState({autoRent: false, autoTrade: false})
     const [miningOperations, setOperations] = useState({
-            targetMargin: '',
-            profitReinvestment:'',
-            updateUnsold: '',
-            dailyBudget: '',
+            targetMargin: '1',
+            profitReinvestment:'1',
+            updateUnsold: '1',
+            dailyBudget: '1',
             autoRent: false,
             spot: false,
             alwaysMineXPercent: false,
             autoTrade: false,
             morphie: false,
             supportedExchange: false,
-            Xpercent: 0,
+            Xpercent: 15,
+            token: 'FLO'
     });
 
 
@@ -49,6 +50,7 @@ const MiningOperations = (props) => {
             morphie,
             supportedExchange,
             Xpercent,
+            token
             } = miningOperations
 
     useEffect(() => {
@@ -61,40 +63,42 @@ const MiningOperations = (props) => {
                 dailyBudget,
                 autoRent,
                 autoTrade,
+                token,
             } = props.profile
         
         
             setOperations({
-                targetMargin,
-                profitReinvestment,
-                updateUnsold,
-                dailyBudget,
+                targetMargin: !targetMargin ? '' : targetMargin,
+                profitReinvestment: !profitReinvestment ? '' : profitReinvestment,
+                updateUnsold: !updateUnsold ? '' : updateUnsold,
+                dailyBudget: !dailyBudget ? '' : dailyBudget,
                 autoRent: autoRent.on,
                 spot: autoRent.mode.spot,
                 alwaysMineXPercent: autoRent.mode.alwaysMineXPercent.on,
                 Xpercent: autoRent.mode.alwaysMineXPercent.Xpercent,
                 autoTrade: autoTrade.on,
                 morphie: autoTrade.mode.morphie,
-                supportedExchange: autoTrade.mode.supportedExchanges
+                supportedExchange: autoTrade.mode.supportedExchanges,
+                token: token
             })
             setError('')
 
-        }  else setOperations({
-            targetMargin: '',
-            profitReinvestment:'',
-            updateUnsold: '',
-            dailyBudget: '',
-            autoRent: false,
-            spot: false,
-            alwaysMineXPercent: false,
-            autoTrade: false,
-            morphie: false,
-            supportedExchange: false,
-            Xpercent: 0
-        })
-
-
-
+        }  else { 
+            setOperations({
+                targetMargin: '',
+                profitReinvestment: '',
+                updateUnsold: '',
+                dailyBudget: '',
+                autoRent: false,
+                spot: false,
+                alwaysMineXPercent: true,
+                autoTrade: false,
+                morphie: false,
+                supportedExchange: false,
+                Xpercent: 15,
+                token: 'FLO'
+            })
+        } 
     }, [props.profile])
 
     useEffect((prevProf = props.profile) => {
@@ -138,46 +142,8 @@ const MiningOperations = (props) => {
         } 
 
 
-    },[autoRent, autoTrade ])
+    },[autoRent, autoTrade ]);
 
-
-
-    // const toggleSlider = (e) => {
-    //     const regex = /\d+/i;
-    //     const current = e.target.parentNode;
-    //     const sliders = document.querySelectorAll('.slider-container')
-    //     // let targetPos = current.style.transform.match(regex)[0]
-
-    //     let obj = {}
-    //     let i = 0
-        
-    //     while(i < 2) {
-    //         let slider = sliders[i]
-    //         let pos = slider.style.transform.match(regex)[0]
-    //         // Current slider clicked
-    //         if (current === slider) {
-    //             let target = slider.childNodes[2].id
-                
-    //             if (pos === "50") {
-    //                 obj[target] = false
-    //                 slider.style.transform = "translateX(0px)"
-    //             }
-    //             if( pos === "0") {
-    //                 obj[target] = true
-    //                 slider.style.transform = "translateX(50px)"
-    //             }
-    //         // Everything but current slider 
-    //         } else {
-    //             let target = slider.childNodes[2].id
-    //             obj[target] = false
-    //             // If wanted to toggle back and forth 
-    //             // slider.style.transform = targetPos === "50" ? "translateX(50px)" : "translateX(0px)"; 
-    //             slider.style.transform = "translateX(0px)";
-    //         }
-    //         i++
-    //     }
-    //     setOperations({...miningOperations, ...obj})
-    // }
 
     const rent = (profile) => {
         // profile.userId = props.user._id
@@ -190,12 +156,12 @@ const MiningOperations = (props) => {
             body: JSON.stringify(profile),
         }).then((response) => {
             return response.json();
-          })
+        })
           .then((data) => {
             console.log(data);
-          }).catch((err)=> {
+        }).catch((err)=> {
               console.log(err)
-          });
+        });
     }
 
     const checkInputsAndRent = (e, slider) => {
@@ -399,7 +365,7 @@ const MiningOperations = (props) => {
                             <input className="form-check-input" type="radio" id="spot" 
                             value={spot}
                             name="auto-rent"
-                            checked={spot ? true  : false}
+                            checked={miningOperations.spot ? true  : false}
                             onChange={(e) => {
                                 updateInputs(e)
                             }} />
@@ -412,7 +378,7 @@ const MiningOperations = (props) => {
                                 <input className="form-check-input" type="radio" id="alwaysMineXPercent"
                                 value={alwaysMineXPercent}
                                 name="auto-rent"
-                                checked={alwaysMineXPercent ? true  : false}
+                                checked={miningOperations.alwaysMineXPercent ? true  : false}
                                 onChange={(e) => {updateInputs(e)}} />
                                 <label className="form-check-label" htmlFor="alwaysMineXPercent">
                                     Always mine {Xpercent}% of the network
@@ -451,8 +417,9 @@ const MiningOperations = (props) => {
                         <h5>Automatic Trading</h5>
                         <div className="form-check">
                             <input className="form-check-input" type="radio" id="morphie" 
-                            // value={morphie}
-                            checked={morphie}
+                            value={morphie}
+                            // checked={morphie}
+                            checked={miningOperations.morphie ? true  : false}
                             name="auto-trading"
                             onChange={(e) => {updateInputs(e)}}  />
                             <label className="form-check-label" htmlFor="morphie">
@@ -463,6 +430,7 @@ const MiningOperations = (props) => {
                             <input className="form-check-input" type="radio" id="supportedExchange"
                             // value={supportedExchange}
                             name="auto-trading"
+                            checked={miningOperations.supportedExchange ? true  : false}
                             onChange={(e) => {updateInputs(e)}} />
                             <label className="form-check-label" htmlFor="supportedExchange">
                                 Supported exchanges
