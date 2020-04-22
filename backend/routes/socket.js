@@ -9,14 +9,14 @@ const wss = new WebSocket.Server({ port: 3031 });
  *  @event module
 */
 function connect() {
-    wss.on('connection', function connection(ws) {
-        let msg = JSON.stringify({ hey: 'Cool Socket beans from server' })
+    wss.on('connection', (ws) => {
+        let msg = JSON.stringify({ hey: 'Cool Socket beans from server started' })
         ws.send(msg)
         wss.clients.forEach((client)=>{
             // console.log('CLIENTS',client)
         })
         ws.on('close', ()=> {
-            console.log('Socket closed will reconnect')
+            console.log('Socket closed, and will reconnect')
             setTimeout(()=> {
                 connect()
             }, 1000)

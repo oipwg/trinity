@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { API_URL } from '../../../../../config.js';
+import { API_URL, WEB_SOCKET_URL } from '../../../../../config.js';
 import ToggleSwitch from '../../../helpers/toggle/ToggleSwitch';
 import { connect } from 'react-redux';
 import MarketsNPools from '../../../settings/prefrences/merc/MercMode'
 import {isEqual} from 'lodash'
-const socket = new WebSocket('ws://localhost:3031');
+const socket = new WebSocket( WEB_SOCKET_URL );
 
 const MiningOperations = (props) => {
-      socket.addEventListener('open', function (event) {
+    socket.addEventListener('open', function (event) {
         socket.send('Hello Server!');
     });
     socket.onmessage = (e) => {
@@ -21,10 +21,10 @@ const MiningOperations = (props) => {
     console.log('PROPS ', props)
     const [err, setError] = useState({autoRent: false, autoTrade: false})
     const [miningOperations, setOperations] = useState({
-            targetMargin: '1',
-            profitReinvestment:'1',
-            updateUnsold: '1',
-            dailyBudget: '1',
+            targetMargin: '',
+            profitReinvestment:'',
+            updateUnsold: '',
+            dailyBudget: '',
             autoRent: false,
             spot: false,
             alwaysMineXPercent: false,
@@ -32,7 +32,8 @@ const MiningOperations = (props) => {
             morphie: false,
             supportedExchange: false,
             Xpercent: 15,
-            token: 'FLO'
+            token: 'FLO',
+            address: ''
     });
 
 
@@ -83,7 +84,11 @@ const MiningOperations = (props) => {
             })
             setError('')
 
-        }  else { 
+        }  else if(props.address) { 
+            console.log(props.address.mnemonic)
+            setOperations({...miningOperations, address: props.address.mnemonic})
+            
+        } else {
             setOperations({
                 targetMargin: '',
                 profitReinvestment: '',
@@ -99,7 +104,7 @@ const MiningOperations = (props) => {
                 token: 'FLO'
             })
         } 
-    }, [props.profile])
+    }, [props.profile, props.address])
 
     useEffect((prevProf = props.profile) => {
         // rent(miningOperations)
@@ -275,7 +280,6 @@ const MiningOperations = (props) => {
         } else {
             elem.style = ''
         }
-        console.log(pos)
     }
 
     return (
@@ -285,7 +289,6 @@ const MiningOperations = (props) => {
             <MarketsNPools handleClick={() => setShowSettingsModal(!showSettingaModal)}/>
         }
         <div className="card mining-operation">
-            {console.log('ERROR ',err)}
             {console.log(miningOperations)} 
             <div className="card-header">Mining Operations</div>
             <div className="card-body">
@@ -452,6 +455,7 @@ const MiningOperations = (props) => {
 const mapStateToProps = state => {
     return {
         user: state.auth.user,
+        address: state.account.wallet
     };
 };
 
