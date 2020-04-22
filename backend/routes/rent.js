@@ -5,7 +5,10 @@ const controller = require('../spartanBot');
 const request = require('request');
 const events = require('events');
 const User = require('../models/user');
-
+const Wallet = require('../util/Wallet.js');
+let mnemonic = "exclude humor denial unfold join buyer price regret obey zone welcome tobacco"
+// let wallet = new Wallet(mnemonic)
+// console.log(wallet.createAddress().then(address => console.log('Address ',address)))
 const emitter = new events()
 const wss = require('./socket').wss;
 
