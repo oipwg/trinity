@@ -33,6 +33,10 @@ module.exports = async function(profile, mnemonic, accessToken) {
         console.log('no access token');
         return 'ERROR; No Access Token'
     }
+    if(!profile){
+        console.log('no profile');
+        return 'ERROR; Profile Not Found'
+    }
 
     const config = {
         headers: {
@@ -46,8 +50,8 @@ module.exports = async function(profile, mnemonic, accessToken) {
         return (ReceivedQty + FeeFloTx1);
     }
 
-    const getOfferPriceBtx = (CostOfRentalBTC, TradeFee, margin, EstFeeBtcTx1, TotalQty, FeeFloTx1, FeeFloTx2) => {
-        return ( CostOfRentalBTC * ( TradeFee + 1 ) * ( margin + 1 ) + EstFeeBtcTx1 ) / ( TotalQty - FeeFloTx1 - FeeFloTx2 );
+    const getOfferPriceBtc = (CostOfRentalBTC, TradeFee, margin, EstFeeBtcTx1, TotalQty, FeeFloTx1, FeeFloTx2) => {
+        return (CostOfRentalBTC * ( TradeFee + 1 ) * ( margin + 1 ) + EstFeeBtcTx1 ) / ( TotalQty - FeeFloTx1 - FeeFloTx2 );
     }
 
     const getSellableQty = (TotalQty, FeeFloTx2) => {
@@ -90,10 +94,27 @@ module.exports = async function(profile, mnemonic, accessToken) {
         }
     }
 
-    if(!profile){
-        console.log('no profile');
-        return 'ERROR; Profile Not Found'
+    const createSellOrder = async (market, quantity, rate) => {
+                
+        let body = {
+            market,
+            quantity,
+            rate: rate.toFixed(8)
+        }
+        
+        console.log('running createSellOrder -------', body)
+
+        try {
+            const res = await axios.post(`${API_URL}/bittrex/createSellOrder`, body, config)
+            console.log(res.data)
+            return res.data.result.uuid
+        } catch (error) {
+            console.log('error ---', error)
+        }
+        
     }
+
+
 
     const {
         address,
@@ -111,32 +132,35 @@ module.exports = async function(profile, mnemonic, accessToken) {
     const myWallet = new Wallet(mnemonic);
 
     let {balance, transactions} = await getBalanceFromAddress(address);
-    
-        console.log('balance 1 getBFA -----', balance)
 
-            // try {
-                //todo:
-                // async function getTotalFees() {
+    let feesArray = []
+
+    const getFees = async (transactions) => {
+        transactions.map(
+            async (tx) => {
+                try {
+
                     
 
-                //     for(let i = 0; i < transactions.length; i++){
-                        
-                //         // let res = await axios.get(`https://livenet.flocha.in/api/tx/${transactions[i]}`)
-                    
-                //         console.log(res.data.fees)
-                //     }
-                    
-                // }
-            // } catch (error) {
-            //     console.log(error)
-            // }
 
-            // ! Grab this from loop - //TODO: ^
-            FeeFloTx1 = 0.000226;
+                    let  res = await axios.get(`https://livenet.flocha.in/api/tx/${tx}`)
+
+                   
+                    return feesArray.push(res.data.fees)
+
+                } catch (error) {
+                    console.log('Error getFeeFloTx1 ----', error)
+                }
+            }
+        )
+    }
+            
+            feesArray = await getFees(transactions);
+
+            console.log(feesArray)
             
             ReceivedQty = balance; 
 
-            TotalQty = getTotalQty(ReceivedQty + FeeFloTx1);
 
             let floBittrexAddress = await getBittrexAddress(token);
 
@@ -145,6 +169,12 @@ module.exports = async function(profile, mnemonic, accessToken) {
             //TXID
             // Sent to Bittrex. Get network Fee for moving tokens
             console.log('pre call -----', {ReceivedQty, FeeFloTx1, TotalQty, floBittrexAddress})
+
+            if(balance == 0){
+               return console.log('NO BALANCE', balance)
+            }
+
+            
             let bittrexTX = await send_a_payment(floBittrexAddress, TotalQty).catch(() => { 
                 console.error("Unable to send Transaction!", error) 
             })
@@ -154,35 +184,11 @@ module.exports = async function(profile, mnemonic, accessToken) {
                 return;
             }
 
-            const createSellOrder = async (market, quantity, rate) => {
-                
-                let body = {
-                    market,
-                    quantity,
-                    rate: rate.toFixed(8)
-                }
-                
-                console.log('running createSellOrder -------', body)
-
-                try {
-                    const res = await axios.post(`${API_URL}/bittrex/createSellOrder`, body, config)
-                    console.log(res.data)
-                    return res.data.result.uuid
-                } catch (error) {
-                    console.log('error ---', error)
-                }
-                
-            }
-
             try {
 
                 let confirmed = false;
                 let isUpdate = false;
                 let orderReceiptID = ''
-
-
-
-
 
                 const checkConfirmations = async () => {
                     try {
@@ -191,23 +197,20 @@ module.exports = async function(profile, mnemonic, accessToken) {
                         let res = await axios.get(`https://livenet.flocha.in/api/tx/${bittrexTX}`)
 
                         let {fees, confirmations } = res.data
-                        console.log('fees', fees)
                         console.log('conformiations', confirmations)
 
                         FeeFloTx2 = fees
-
                         CostOfRentalBTC=0.0003686 //! get this form AutoRent
                         TradeFee= .002 //!
                         EstFeeBtcTx1=0.00001551 //! get from somewhere
                         // TotalQty=56.40661617
-                        // FeeFloTx2=0.000522 //! here cause of rate limited
             
-                        OfferPriceBtc = ( CostOfRentalBTC * ( TradeFee + 1 ) * ( margin + 1 ) + EstFeeBtcTx1 ) / ( TotalQty - FeeFloTx1 - FeeFloTx2 )
+                        ReceivedQty= balance
+                        TotalQty = getTotalQty(ReceivedQty, FeeFloTx1)
+                        SellableQty = getSellableQty(TotalQty, FeeFloTx2)
+                        
+                        OfferPriceBtc = getOfferPriceBtc(CostOfRentalBTC,TradeFee,margin,EstFeeBtcTx1,TotalQty,FeeFloTx1,FeeFloTx2)
                     
-                        SellableQty = TotalQty - FeeFloTx2
-
-
-            
                         console.log(
                             { 
                                 TotalQty,
@@ -227,14 +230,14 @@ module.exports = async function(profile, mnemonic, accessToken) {
                             }
                             )
     
-
+                        // bittrex need 150 confirmations 
                         if(confirmations > 150){
                             if(isUpdate){
-                                //search open order that matches orderReciptID
+                                //search open order that matches orderReciptID?
                                 // update it;
 
                                 SellableQty  = getSellableQty(TotalQty, FeeFloTx2)
-                                OfferPriceBtc = getOfferPriceBtx(CostOfRentalBTC, TradeFee,margin, EstFeeBtcTx1,TotalQty,FeeFloTx1,FeeFloTx2);
+                                OfferPriceBtc = getOfferPriceBtc(CostOfRentalBTC, TradeFee,margin, EstFeeBtcTx1,TotalQty,FeeFloTx1,FeeFloTx2);
 
                                 
                                 console.log(
@@ -256,7 +259,7 @@ module.exports = async function(profile, mnemonic, accessToken) {
                                     
                                     })
 
-                                SellableQty += SellableQtyUp;
+                                // SellableQty += SellableQtyUp;
                                 // OfferPriceBtc += OfferPriceBtcUp;
 
                                 console.log({SellableQtyUp, OfferPriceBtcUp})
@@ -280,7 +283,7 @@ module.exports = async function(profile, mnemonic, accessToken) {
 
                 const timer = setInterval(() => {
                     checkConfirmations()
-                }, (2 * min))
+                }, (2 * ONE_MINUTE))
 
 
 
@@ -340,18 +343,21 @@ module.exports = async function(profile, mnemonic, accessToken) {
                         console.log('runing updating')
                         const res = await getBalanceFromAddress(address);
 
-                        newToken = res.balance
+                        updatedBalance = res.balance
                         transactions = res.transactions
 
                         // will need to create a variable for the least amount, I can push up to bittrex wallet.
                         if(updatedBalance > 10){
-                            console.log(updatedBalance)
+                            console.log('pre', {balance, updatedBalance})
                             balance += updatedBalance
+                            console.log('post', {balance})
+                            // transactions function updates add new fees to 
+                            // FeeFloTx1
 
 
                             isUpdate = true;
-                            //push to wallet
-                            bittrexTX = await send_a_payment(floBittrexAddress, newToken).catch(() => { 
+                            //push new tokens to wallet
+                            bittrexTX = await send_a_payment(floBittrexAddress, updatedBalance).catch(() => { 
                                 console.error("Unable to send Transaction!", error) 
                             })
 
@@ -362,15 +368,16 @@ module.exports = async function(profile, mnemonic, accessToken) {
                     } catch (error) {
                         console.log(error)
                     }
-
-                    
                 }
 
                 const update = setInterval(() => {
                     shouldIUpdated()
-                },(updateUnsold * (3 * min)))
+                },(updateUnsold * (3 * ONE_MINUTE)))
 
             } catch (error) {
                 console.log(error)
             }
+
+            //Kill intervals after orders have ended.
+            
 }
