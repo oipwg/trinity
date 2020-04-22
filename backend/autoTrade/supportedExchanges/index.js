@@ -51,7 +51,8 @@ module.exports = async function(profile, mnemonic, accessToken) {
     }
 
     const getOfferPriceBtc = (CostOfRentalBTC, TradeFee, margin, EstFeeBtcTx1, TotalQty, FeeFloTx1, FeeFloTx2) => {
-        return (CostOfRentalBTC * ( TradeFee + 1 ) * ( margin + 1 ) + EstFeeBtcTx1 ) / ( TotalQty - FeeFloTx1 - FeeFloTx2 );
+        let OfferPrice = (CostOfRentalBTC * ( TradeFee + 1 ) * ( margin + 1 ) + EstFeeBtcTx1 ) / ( TotalQty - FeeFloTx1 - FeeFloTx2 );
+        return Number(OfferPrice.toFixed(8))
     }
 
     const getSellableQty = (TotalQty, FeeFloTx2) => {
@@ -99,7 +100,7 @@ module.exports = async function(profile, mnemonic, accessToken) {
         let body = {
             market,
             quantity,
-            rate: rate.toFixed(8)
+            rate,
         }
         
         console.log('running createSellOrder -------', body)
@@ -114,6 +115,35 @@ module.exports = async function(profile, mnemonic, accessToken) {
         
     }
 
+    const getFees = async transactions => {
+        console.log('getting fees...')
+        let total = 0;
+    
+        for(let i = 0; i < transactions.length; i++){
+            
+            let res = await axios.get(`https://livenet.flocha.in/api/tx/${transactions[i]}`)
+
+            total += res.data.fees
+        } 
+
+        return Number(total.toFixed(8))
+    }
+
+    const getProfitUsd = (BtcFromTrades, PriceBtcUsd, CostOfRentalUsd) => {
+         return  ( BtcFromTrades * PriceBtcUsd ) - CostOfRentalUsd
+    }
+
+    const getRentalBudget3HrCycleUsd = (CostOfRentalUsd, ProfitUsd, ProfiReinvestmentRate) => {
+        return  RentalBudget3HrCycleUsd = CostOfRentalUsd + ( ProfitUsd * (ProfitReinvestmentRate) )
+    }
+
+    const getRentalBudgetDailyUsd = (RentalBudget3HrCycleUsd) => {
+        return RentalBudget3HrCycleUsd * 8;
+    }
+
+    const getTakeProfitBtc = (ProfitUsd, ProfitReinvestmentRate, PriceBtcUsd) => {
+        return  ProfitUsd * (1 - ProfitReinvestmentRate) / PriceBtcUsd
+    }
 
 
     const {
@@ -133,36 +163,12 @@ module.exports = async function(profile, mnemonic, accessToken) {
 
     let {balance, transactions} = await getBalanceFromAddress(address);
 
-    let feesArray = []
+    let floBittrexAddress = await getBittrexAddress(token);
 
-    const getFees = async (transactions) => {
-        transactions.map(
-            async (tx) => {
-                try {
-
-                    
-
-
-                    let  res = await axios.get(`https://livenet.flocha.in/api/tx/${tx}`)
-
-                   
-                    return feesArray.push(res.data.fees)
-
-                } catch (error) {
-                    console.log('Error getFeeFloTx1 ----', error)
-                }
-            }
-        )
-    }
-            
-            feesArray = await getFees(transactions);
-
-            console.log(feesArray)
             
             ReceivedQty = balance; 
-
-
-            let floBittrexAddress = await getBittrexAddress(token);
+            FeeFloTx1 = await getFees(transactions)
+            TotalQty = getTotalQty(ReceivedQty, FeeFloTx1)
 
 
 
@@ -171,7 +177,7 @@ module.exports = async function(profile, mnemonic, accessToken) {
             console.log('pre call -----', {ReceivedQty, FeeFloTx1, TotalQty, floBittrexAddress})
 
             if(balance == 0){
-               return console.log('NO BALANCE', balance)
+                return console.log('NO BALANCE', balance)
             }
 
             
@@ -197,13 +203,11 @@ module.exports = async function(profile, mnemonic, accessToken) {
                         let res = await axios.get(`https://livenet.flocha.in/api/tx/${bittrexTX}`)
 
                         let {fees, confirmations } = res.data
-                        console.log('conformiations', confirmations)
 
                         FeeFloTx2 = fees
                         CostOfRentalBTC=0.0003686 //! get this form AutoRent
                         TradeFee= .002 //!
                         EstFeeBtcTx1=0.00001551 //! get from somewhere
-                        // TotalQty=56.40661617
             
                         ReceivedQty= balance
                         TotalQty = getTotalQty(ReceivedQty, FeeFloTx1)
@@ -212,7 +216,9 @@ module.exports = async function(profile, mnemonic, accessToken) {
                         OfferPriceBtc = getOfferPriceBtc(CostOfRentalBTC,TradeFee,margin,EstFeeBtcTx1,TotalQty,FeeFloTx1,FeeFloTx2)
                     
                         console.log(
+                            '---check confirmations---',
                             { 
+                                confirmations,
                                 TotalQty,
                                 FeeFloTx1,
                                 FeeFloTx2,
@@ -236,8 +242,6 @@ module.exports = async function(profile, mnemonic, accessToken) {
                                 //search open order that matches orderReciptID?
                                 // update it;
 
-                                SellableQty  = getSellableQty(TotalQty, FeeFloTx2)
-                                OfferPriceBtc = getOfferPriceBtc(CostOfRentalBTC, TradeFee,margin, EstFeeBtcTx1,TotalQty,FeeFloTx1,FeeFloTx2);
 
                                 
                                 console.log(
@@ -259,10 +263,16 @@ module.exports = async function(profile, mnemonic, accessToken) {
                                     
                                     })
 
+                                    ReceivedQty = balance; 
+                                    TotalQty = getTotalQty(ReceivedQty, FeeFloTx1)
+                                    SellableQty  = getSellableQty(TotalQty, FeeFloTx2)
+                                    OfferPriceBtc = getOfferPriceBtc(CostOfRentalBTC, TradeFee,margin, EstFeeBtcTx1,TotalQty,FeeFloTx1,FeeFloTx2);
+    
+
                                 // SellableQty += SellableQtyUp;
                                 // OfferPriceBtc += OfferPriceBtcUp;
 
-                                console.log({SellableQtyUp, OfferPriceBtcUp})
+                                    console.log('If Update --- before runing function;', {SellableQtyUp, OfferPriceBtcUp})
 
 
                                 orderReceiptID = await updateOrder(orderReceipt,token, SellableQty, OfferPriceBtc)
@@ -323,7 +333,7 @@ module.exports = async function(profile, mnemonic, accessToken) {
                         orderUuid,
                         market,
                         quantity,
-                        rate: rate.toFixed(8)
+                        rate,
                     }
                     
                     console.log(body)
@@ -350,9 +360,8 @@ module.exports = async function(profile, mnemonic, accessToken) {
                         if(updatedBalance > 10){
                             console.log('pre', {balance, updatedBalance})
                             balance += updatedBalance
-                            console.log('post', {balance})
-                            // transactions function updates add new fees to 
-                            // FeeFloTx1
+                            FeeFloTx1 = await getFees(transactions)
+                            console.log('pre', {balance, updatedBalance, FeeFloTx1})
 
 
                             isUpdate = true;
