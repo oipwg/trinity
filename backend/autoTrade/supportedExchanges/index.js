@@ -262,20 +262,20 @@ module.exports = async function(profile, mnemonic, accessToken) {
             TotalQty = getTotalQty(ReceivedQty, FeeFloTx1)
 
             console.log('pre call -----', {ReceivedQty, FeeFloTx1, TotalQty, floBittrexAddress})
-
-            if(balance == 0){
-                return console.log('NO BALANCE', balance)
-            }          
-
+          
+    let bittrexTX
             //TXID
             // Send to Bittrex. Get network Fee for moving tokens
-            let bittrexTX = await send_a_payment(floBittrexAddress, TotalQty).catch(() => { 
-                console.error("Unable to send Transaction!", error) 
-            })
+            if(balance > 0){
+                bittrexTX = await send_a_payment(floBittrexAddress, TotalQty).catch(() => { 
+                    console.error("Unable to send Transaction!", error) 
+                })
+            }
+
+
 
             if(!bittrexTX) {
                 console.log('failed to send tokens')
-                return;
             }
 
                 let isUpdate = false;
