@@ -29,4 +29,5 @@ router.post('/updateOrder', auth, BittrexController.updateOrder);
 
 router.post('/createBuyOrder', auth, BittrexController.createBuyOrder);
 
+
 module.exports = router
