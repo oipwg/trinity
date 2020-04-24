@@ -144,6 +144,11 @@ module.exports = async function(profile, mnemonic, accessToken) {
     const getFees = async transactions => {
         console.log('getting fees...')
         let total = 0;
+
+        if(!transactions){
+            return;
+        }
+
     
         for(let i = 0; i < transactions.length; i++){
             
@@ -260,7 +265,7 @@ module.exports = async function(profile, mnemonic, accessToken) {
 
             if(balance == 0){
                 return console.log('NO BALANCE', balance)
-            }
+            }          
 
             //TXID
             // Send to Bittrex. Get network Fee for moving tokens
@@ -472,7 +477,7 @@ module.exports = async function(profile, mnemonic, accessToken) {
             //Todo: fix loop times.
             let timer = setInterval(() => {
                 checkConfirmations()
-            }, (0.5 * ONE_MINUTE))
+            }, (1 * ONE_MINUTE))
 
             let update = setInterval(() => {
                 shouldIUpdated()
@@ -480,7 +485,7 @@ module.exports = async function(profile, mnemonic, accessToken) {
 
             let orderStatus = setInterval(() => {
                 checkOrderStatus()
-            },(updateUnsold * (1 * ONE_MINUTE)))
+            },(updateUnsold * (5 * ONE_MINUTE)))
 
             const clearAllIntervals = (timer, update, orderStatus) => {
                     console.log('--- TRADE END ---')
