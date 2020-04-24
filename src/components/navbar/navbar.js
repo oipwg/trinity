@@ -139,12 +139,6 @@ class Navbar extends React.Component {
                 >
                     Setup
                 </Link>
-                <div
-                    onClick={(this.handleClick, this.handleCollapse, this.handleSettingsMercModal)}
-                    className="dropdown-item"
-                >
-                    Settings
-                </div>
                 <div className="dropdown-divider"></div>
                 <Link
                     onClick={(this.handleClick, this.handleCollapse)}
@@ -343,30 +337,6 @@ class Navbar extends React.Component {
                                     </p>
                                 </>
                             }
-                        />
-                    )}
-                            {/* Settings */}
-                {this.state.showSettingsMercModal && (
-                        <Modal
-                            classname={'merc-modal'}
-                            handleClick={this.handleSettingsMercModal}
-                            handleSubmit={this.handleSave}
-                            // title={}
-                            sendButtonTitle={<i className="fas fa-unlock"></i>}
-                            submitType={'submit'}
-                            modalBody={
-                                <>
-                                    <MercMode />
-                                </>
-                            }
-                            footer={
-                    <div className="deposit-footer">
-                        <div className="deposit-footer-card">
-                        </div>
-                    </div>
-                            }
-                        submitType={'submit'}
-                        sendButtonTitle={`Save`}
                         />
                     )}
                 </div>

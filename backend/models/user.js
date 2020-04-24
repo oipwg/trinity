@@ -5,14 +5,11 @@ const Schema = mongoose.Schema;
 const profileSchema = new Schema({
     name: {
         type: String,
-        require: true,
-        unique: true,
-        default: null,
+        default: '',
     },
     token: {
         type: String,
-        require: true,
-        default: null,
+        default: '',
     },
     address: {
         type: String,

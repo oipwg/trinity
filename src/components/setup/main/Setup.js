@@ -5,6 +5,7 @@ import { connect } from 'react-redux';
 import Navigation from '../nav/Navigation';
 
 const Setup = props => {
+    console.log(props)
     const [userData, setUserData] = useState([]);
     const [bittrexData, setBittrexData] = useState({data: {}});
     const userId = useRef('');
@@ -297,7 +298,7 @@ const Setup = props => {
     }
 
     const goToSettings = () => {
-        location.href = ROOT_URL+'/dashboard';
+        return props.history.push('/dashboard');
     }
 
     const showMessage = (field, i) => {

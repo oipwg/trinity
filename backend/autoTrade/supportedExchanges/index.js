@@ -235,6 +235,13 @@ module.exports = async function(profile, mnemonic, accessToken) {
     } = profile
 
 
+    console.log({address})
+
+    if(!address){
+        console.log('no address')
+        return 'No Address'
+    }
+
     const margin = targetMargin / 100;
     const ProfitReinvestmentRate = profitReinvestment / 100;
 
