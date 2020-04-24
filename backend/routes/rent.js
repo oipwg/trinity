@@ -5,12 +5,13 @@ const controller = require('../spartanBot');
 const request = require('request');
 const events = require('events');
 const User = require('../models/user');
-const Wallet = require('../util/Wallet.js');
-let mnemonic = "exclude humor denial unfold join buyer price regret obey zone welcome tobacco"
-// let wallet = new Wallet(mnemonic)
-// console.log(wallet.createAddress().then(address => console.log('Address ',address)))
 const emitter = new events()
 const wss = require('./socket').wss;
+const bip32 = require('bip32');
+const { Account, Networks, Wallet } = require('@oipwg/hdmw');
+// const Wallet = HDMW.Wallet;
+
+
 
 
 const Rent = async (token, percent) => {
@@ -57,15 +58,25 @@ async function processUserInput(req, res) {
     // let token = options.token
     console.log('OOPTIONS', options)
     console.log('options: rent.js 41')
-    
+
+    let accountMaster = bip32.fromBase58("Fprv4xQSjQhWzrCVzvgkjam897LUV1AfxMuG8FBz5ouGAcbyiVcDYmqh7R2Fi22wjA56GQdmoU1AzfxsEmVnc5RfjGrWmAiqvfzmj4cCL3fJiiC", Networks.flo.network)
+    let account = new Account(accountMaster, Networks.flo, false);
+    let extPublicKey = account.getExtendedPublicKey()
+    console.log('extPublicKey:', extPublicKey)
+
     try {
         const rent = await Rent(token, Xpercent/100)
         console.log('rent:', rent)
         let MinPercentFromMinHashrate = rent.MinPercentFromMinHashrate
 
         if ( MinPercentFromMinHashrate > Xpercent/100 ) {
-            return {info: `Need to increase your pecent of ${Xpercent} to at least ${MinPercentFromMinHashrate*100}, or 
-                        we can continute renting with ${Xpercent} for the MiningRigRental market.` }
+            return {
+                    update: true,
+                    message: `Your pecent of the network ${Xpercent} changed to ${(MinPercentFromMinHashrate*100).toFixed(2)}%, or `+
+                    `you can continute renting with ${Xpercent}% for the MiningRigRental market change percentage and switch renting on again.`,
+                    Xpercent: (MinPercentFromMinHashrate*100).toFixed(2),
+                    autoRent: false
+                }
         }
 
         // const user = await User.findById({ _id: userId });
@@ -84,6 +95,7 @@ async function processUserInput(req, res) {
         options.difficulty = rent.difficulty
         options.hashrate = rent.Rent
         options.rentType = 'Manual' 
+        options.address = "somelongaddress3456"
         return options
     } catch (e) {
         return {err: 'Can\'t find user or input is wrong.'+ e}
@@ -92,22 +104,11 @@ async function processUserInput(req, res) {
 
 /* POST settings  page */
 router.post('/',  async (req, res) => {
-  
-   
-    // emitter.on('info', (data)=> {
-    //     console.log('data rent.js emitter', data)
-    //     // res.write({data: data})
-    //     let json = JSON.stringify({from: 'emiter'})
-    //     res.write(json)
-    //     writtenWrite++
-    //     if(writtenWrite === 2) {
-    //         res.end()
-    //     }
-        
-    // })  
+ 
     let userInput = await processUserInput(req, res).then(data => data).catch(err => err)
     console.log('processUserInput ', userInput)
-    if (userInput['err']) {
+    // Any data that has been updated, it updates the user to proceed again
+    if (userInput['update']) {
         return res.json(userInput)
     }
    
@@ -116,9 +117,9 @@ router.post('/',  async (req, res) => {
         let data = await controller(userInput);
         console.log('data: rent.js route', data)
         res.status(200).json({data: data, fromRent: data})
-        let json = JSON.stringify({hey: 'you'})
+
     } catch (err) {
-        console.log('route rent.js 69 catch error', err);
+        console.log('route rent.js line #129 catch error', err);
         res.status(500).json({err: err})
     }
 });

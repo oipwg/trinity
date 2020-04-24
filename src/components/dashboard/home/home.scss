@@ -7,6 +7,31 @@ main {
   box-shadow: 0 15px 35px rgba(50, 50, 93, 0.1), 0 5px 15px rgba(0, 0, 0, 0.07);
   border: none;
 }
+
+.card.mining-operation {
+  .header-container {
+    display: flex;
+    align-items: center;
+  }
+  p {
+    width: 50%;
+    margin: 0;
+  }
+  .table {
+    margin-bottom: 0;
+  }
+  .table-container {
+    width: 50%;
+  }
+  .message-field {
+    display: block;
+    transition: height 1s ease;
+    overflow: hidden;
+  }
+  #mining-op-tableHeader tr th {
+    border-top: none;
+  }
+}
 .mining-operation-inputs {
   input {
     text-align: center;
@@ -99,7 +124,7 @@ main {
     border-right: 0;
     border-left: 0;
     border-radius: 0;
-    max-width: 45px;
+    max-width: 67px;
     height: calc(1rem + 7px);
     margin-right: 5px;
     outline: none;
@@ -110,7 +135,7 @@ main {
   }
 
   .percent-input-container {
-    transform: translate(-73px);
+    transform: translate(-95px);
     transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.88, 1.05);
     position: relative;
     width: 220px;

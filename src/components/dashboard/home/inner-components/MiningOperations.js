@@ -5,26 +5,34 @@ import { connect } from 'react-redux';
 import MarketsNPools from '../../../settings/prefrences/merc/MercMode'
 import {isEqual} from 'lodash'
 const socket = new WebSocket( WEB_SOCKET_URL );
+const Wallet = require('@oipwg/hdmw').Wallet;
+// const Wallet = HDMW.Wallet;
+
 
 const MiningOperations = (props) => {
-    socket.addEventListener('open', function (event) {
+    socket.onopen = (e) => {
         socket.send('Hello Server!');
-    });
+    };
     socket.onmessage = (e) => {
         let message = JSON.parse(e.data)
         console.log('Message from server ',message)
       }
+    socket.onclose = (e) => {
+        socket.send('Client socket closed')
+    }
     socket.addEventListener('error', function (event) {
         console.log('WebSocket error: ', event);
     });
 
+
+
     console.log('PROPS ', props)
     const [err, setError] = useState({autoRent: false, autoTrade: false})
     const [miningOperations, setOperations] = useState({
-            targetMargin: '',
-            profitReinvestment:'',
-            updateUnsold: '',
-            dailyBudget: '',
+            targetMargin: '1',
+            profitReinvestment:'1',
+            updateUnsold: '1',
+            dailyBudget: '1',
             autoRent: false,
             spot: false,
             alwaysMineXPercent: false,
@@ -33,7 +41,7 @@ const MiningOperations = (props) => {
             supportedExchange: false,
             Xpercent: 15,
             token: 'FLO',
-            address: ''
+            message: ''
     });
 
 
@@ -68,7 +76,7 @@ const MiningOperations = (props) => {
             } = props.profile
         
         
-            setOperations({
+            let profile = {
                 targetMargin: !targetMargin ? '' : targetMargin,
                 profitReinvestment: !profitReinvestment ? '' : profitReinvestment,
                 updateUnsold: !updateUnsold ? '' : updateUnsold,
@@ -81,33 +89,21 @@ const MiningOperations = (props) => {
                 morphie: autoTrade.mode.morphie,
                 supportedExchange: autoTrade.mode.supportedExchanges,
                 token: token
-            })
+            }
+            setOperations({...miningOperations, ...profile})
             setError('')
 
-        }  else if(props.address) { 
-            console.log(props.address.mnemonic)
-            setOperations({...miningOperations, address: props.address.mnemonic})
+        }  else if (props.address) { 
+            // let mnemonic = props.address.mnemonic
+            // console.log('mnemonic:', mnemonic)
+            // const myWallet =  new Wallet(mnemonic).coins.flo.accounts[0].addresses;
+            // setOperations({...miningOperations, addresses: myWallet})
+
             
-        } else {
-            setOperations({
-                targetMargin: '',
-                profitReinvestment: '',
-                updateUnsold: '',
-                dailyBudget: '',
-                autoRent: false,
-                spot: false,
-                alwaysMineXPercent: true,
-                autoTrade: false,
-                morphie: false,
-                supportedExchange: false,
-                Xpercent: 15,
-                token: 'FLO'
-            })
-        } 
+        }
     }, [props.profile, props.address])
 
     useEffect((prevProf = props.profile) => {
-        // rent(miningOperations)
 
         let formatedState= {
             profile: {
@@ -149,6 +145,14 @@ const MiningOperations = (props) => {
 
     },[autoRent, autoTrade ]);
 
+    const processReturnData = (data) => {
+        let newValues = {}
+        for (let key in data) {
+            newValues[key] = data[key]
+        }
+        console.log(newValues)
+        setOperations({...miningOperations, ...newValues})
+    }
 
     const rent = (profile) => {
         // profile.userId = props.user._id
@@ -163,7 +167,7 @@ const MiningOperations = (props) => {
             return response.json();
         })
           .then((data) => {
-            console.log(data);
+            processReturnData(data)
         }).catch((err)=> {
               console.log(err)
         });
@@ -290,7 +294,28 @@ const MiningOperations = (props) => {
         }
         <div className="card mining-operation">
             {console.log(miningOperations)} 
-            <div className="card-header">Mining Operations</div>
+            <div className="card-header">
+                <div className="header-container">
+                <p>Mining Operations</p>
+                <div className="table-container message-field" style={{height: miningOperations.message ? '140px' : '55px'}}>
+                <table className="table">
+                        <thead id="mining-op-tableHeader">
+                            <tr>
+                                <th id="updateMessage" scope="col">Messages</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr className="data-table-row">
+                                <td>
+                                    {miningOperations.message}
+                                </td>
+                            </tr>
+                        </tbody>
+                </table>
+                </div>
+                </div>
+                
+            </div>
             <div className="card-body">
                 <div className="mining-operation-inputs">
                     <div className="target-margin-container">
