@@ -10,6 +10,39 @@ main {
   border: none;
 }
 
+.card.mining-operation .header-container {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+}
+
+.card.mining-operation p {
+  width: 50%;
+  margin: 0;
+}
+
+.card.mining-operation .table {
+  margin-bottom: 0;
+}
+
+.card.mining-operation .table-container {
+  width: 50%;
+}
+
+.card.mining-operation .message-field {
+  display: block;
+  -webkit-transition: height 1s ease;
+  transition: height 1s ease;
+  overflow: hidden;
+}
+
+.card.mining-operation #mining-op-tableHeader tr th {
+  border-top: none;
+}
+
 .mining-operation-inputs input {
   text-align: center;
   border: 1px solid #ced4da;
@@ -120,7 +153,7 @@ main {
   border-right: 0;
   border-left: 0;
   border-radius: 0;
-  max-width: 45px;
+  max-width: 67px;
   height: calc(1rem + 7px);
   margin-right: 5px;
   outline: none;
@@ -132,8 +165,8 @@ main {
 }
 
 .automatic-renting-content .percent-input-container {
-  -webkit-transform: translate(-73px);
-          transform: translate(-73px);
+  -webkit-transform: translate(-95px);
+          transform: translate(-95px);
   -webkit-transition: -webkit-transform 0.4s cubic-bezier(0.34, 1.56, 0.88, 1.05);
   transition: -webkit-transform 0.4s cubic-bezier(0.34, 1.56, 0.88, 1.05);
   transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.88, 1.05);

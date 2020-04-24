@@ -21,6 +21,9 @@ function connect() {
                 connect()
             }, 1000)
         })
+        ws.on('message',( message )=> {
+            console.log('message from client: '+ message)
+        })
     });
 }
 connect()
