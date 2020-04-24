@@ -74,7 +74,7 @@ const NetworkTransfer = props => {
                                 </button>
 
                                 {/* Get new addy */}
-                                <button onClick={() => setIncrement(increment += 1)} style={{border: 'none'}}>
+                                <button onClick={() => setIncrement(increment += 2)} style={{border: 'none'}}>
                                     <i className="fas fa-redo"></i>
                                 </button>
                             </div>

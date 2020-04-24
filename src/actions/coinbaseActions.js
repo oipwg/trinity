@@ -174,6 +174,19 @@ export const placeSellOrderWithoutFees = (
     }
 };
 
+export const getCoinbaseBTCUSD = () => {
+
+    coinbase
+        .get('/exchange-rates?currency=BTC')
+        .then(res => {
+            return res.data
+        })
+        .catch(err => {
+            console.log(err.response);
+        });
+};
+
+
 
         // Working
         // listAccounts(); //coinbase - wallet accounts BTC, ETH, USD, etc.,

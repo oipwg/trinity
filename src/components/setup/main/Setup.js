@@ -3,25 +3,11 @@ import './setup.css';
 import { ROOT_URL, API_URL } from '../../../../config.js';
 import { connect } from 'react-redux';
 import Navigation from '../nav/Navigation';
-// const socket = new WebSocket('ws://localhost:3031');
+
 const Setup = props => {
     const [userData, setUserData] = useState([]);
     const [bittrexData, setBittrexData] = useState({data: {}});
     const userId = useRef('');
-
-    //   socket.addEventListener('open', function (event) {
-    //     socket.send('Hello Server!');
-    // });
-    // socket.onmessage = (e) => {
-    //     console.log('Message from server ',e.data)
-    //   }
-    // socket.addEventListener('error', function (event) {
-    //     console.log('WebSocket error: ', event);
-    //   });
-    // socket.addEventListener('message', function (event) {
-    //     console.log('Message from server ', event.data);
-    // });
-
 
     useEffect(() => {
         if (props.user) {
@@ -311,7 +297,7 @@ const Setup = props => {
     }
 
     const goToSettings = () => {
-        location.href = ROOT_URL+'/settings';
+        location.href = ROOT_URL+'/dashboard';
     }
 
     const showMessage = (field, i) => {

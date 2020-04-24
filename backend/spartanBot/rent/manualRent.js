@@ -10,7 +10,7 @@ exports.manualRent = async (options) => {
     let hashrate = options.hashrate
     let duration = options.duration;
 
-    spartan.manualRent(hashrate, duration, async (preprocess, options) => {
+    spartan.manualRent(options, async (preprocess, options) => {
         console.log(' spartan.manualRent manualRent.js 35 CALLBACK', preprocess)
         //cancel any ongoing processes so that we can display preprocess prompts
 
@@ -127,51 +127,4 @@ exports.manualRent = async (options) => {
 };
 
 
-
-
-// Each rig hashrate:  250.635 / 1000 / 1000
-// Each rig hashrate:  250.66299999999998 / 1000 / 1000
-// Each rig hashrate:  5277.826999999999 / 1000 / 1000
-// Each rig hashrate:  5279.191999999999 / 1000 / 1000
-// Each rig hashrate:  5279.231999999999 / 1000 / 1000
-// Each rig hashrate:  5683.734999999999 / 1000 / 1000
-// Each rig hashrate:  6077.536999999998 / 1000 / 1000
-// Each rig hashrate:  6627.608999999999 / 1000 / 1000
-// Each rig hashrate:  7254.196999999998 / 1000 / 1000
-// Each rig hashrate:  7856.675999999999 / 1000 / 1000
-// Each rig hashrate:  8525.347999999998 / 1000 / 1000
-// Each rig hashrate:  9089.276999999998 / 1000 / 1000
-// Each rig hashrate:  9498.968999999997 / 1000 / 1000
-// Each rig hashrate:  9987.437999999996  / 1000 / 1000
-
-// badges:
-//     { market: 'MiningRigRentals',
-//       status: { status: 'NORMAL' },
-//       amount: 0.00049257,
-//       totalHashesTH: 107.86433039999997,
-//       hashesDesiredTH: 108,
-//       duration: '3',
-//       limit: 0.009987437999999996,
-//       price: 0.394552,
-//       balance: 0.00429233,
-//       query:
-//        { hashrate_found: 9987.437999999996,
-//          cost_found: 0.00049257,
-//          duration: '3' },
-//       uid: 'uuydvt5',
-//       rigs:
-//        [ [Object],
-//          [Object],
-//          [Object],
-//          [Object],
-//          [Object],
-//          [Object],
-//          [Object],
-//          [Object],
-//          [Object],
-//          [Object],
-//          [Object],
-//          [Object],
-//          [Object],
-//          [Object]
 

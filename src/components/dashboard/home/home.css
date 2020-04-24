@@ -1,6 +1,6 @@
 main {
   margin: 0 auto;
-  max-width: 80vw;
+  max-width: 1050px;
 }
 
 .card {
@@ -8,6 +8,39 @@ main {
   -webkit-box-shadow: 0 15px 35px rgba(50, 50, 93, 0.1), 0 5px 15px rgba(0, 0, 0, 0.07);
           box-shadow: 0 15px 35px rgba(50, 50, 93, 0.1), 0 5px 15px rgba(0, 0, 0, 0.07);
   border: none;
+}
+
+.card.mining-operation .header-container {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+}
+
+.card.mining-operation p {
+  width: 50%;
+  margin: 0;
+}
+
+.card.mining-operation .table {
+  margin-bottom: 0;
+}
+
+.card.mining-operation .table-container {
+  width: 50%;
+}
+
+.card.mining-operation .message-field {
+  display: block;
+  -webkit-transition: height 1s ease;
+  transition: height 1s ease;
+  overflow: hidden;
+}
+
+.card.mining-operation #mining-op-tableHeader tr th {
+  border-top: none;
 }
 
 .mining-operation-inputs input {
@@ -92,6 +125,7 @@ main {
   margin: 10px;
   border: 1px solid #d6d6d6;
   border-radius: 5px;
+  margin-right: 23%;
 }
 
 .automatic-renting-content .form-check {
@@ -119,7 +153,7 @@ main {
   border-right: 0;
   border-left: 0;
   border-radius: 0;
-  max-width: 45px;
+  max-width: 67px;
   height: calc(1rem + 7px);
   margin-right: 5px;
   outline: none;
@@ -131,8 +165,8 @@ main {
 }
 
 .automatic-renting-content .percent-input-container {
-  -webkit-transform: translate(-73px);
-          transform: translate(-73px);
+  -webkit-transform: translate(-95px);
+          transform: translate(-95px);
   -webkit-transition: -webkit-transform 0.4s cubic-bezier(0.34, 1.56, 0.88, 1.05);
   transition: -webkit-transform 0.4s cubic-bezier(0.34, 1.56, 0.88, 1.05);
   transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.88, 1.05);
@@ -262,7 +296,9 @@ main {
 }
 
 .profile-container #profile-notes {
+  border-radius: 4px;
   width: 50%;
+  border: 1px solid lightgrey;
 }
 
 .new-profile-modal label {
@@ -343,24 +379,14 @@ main {
 
 /* Moblie */
 @media screen and (max-width: 500px) {
-  body {
-    background-color: #dbdbdb;
-  }
   .card {
     margin: 0 0 1rem 0;
   }
-  .card-body {
-    padding: 0;
-  }
-  .card-body div {
-    -webkit-box-orient: vertical;
-    -webkit-box-direction: normal;
-        -ms-flex-direction: column;
-            flex-direction: column;
-    -webkit-box-align: center;
-        -ms-flex-align: center;
-            align-items: center;
-    margin-bottom: 1rem;
+  .target-margin-container,
+  .profit-reinvestment-container,
+  .unusoled-offers-container,
+  .daily-budget-container {
+    width: 90%;
   }
   .profile {
     width: 100vw;
@@ -411,10 +437,6 @@ main {
   .active-rentals a {
     text-align: center;
   }
-  .mining-operation {
-    width: 100vw;
-    text-align: center;
-  }
   .mining-operation span label {
     margin: 1rem;
   }
@@ -446,15 +468,48 @@ main {
     max-width: 10vw;
   }
   .select-markets-pools {
-    left: 0;
     padding-bottom: 1rem;
   }
 }
 
-@media screen and (width: 2560px) {
-  main {
-    margin: 0 auto;
-    max-width: 50vw;
+@media screen and (max-width: 1050px) {
+  .card {
+    margin: 0 10px 1rem 10px;
+  }
+}
+
+@media screen and (max-width: 768px) {
+  #app main {
+    margin: 0 5px;
+  }
+  .automatic-renting-content .form-check {
+    padding-left: 1.30rem;
+  }
+  .mining-operation-inputs {
+    -webkit-box-orient: vertical;
+    -webkit-box-direction: normal;
+        -ms-flex-direction: column;
+            flex-direction: column;
+    -webkit-box-align: center;
+        -ms-flex-align: center;
+            align-items: center;
+  }
+  .automatic-renting-content {
+    margin-right: 0;
+    width: 50px;
+  }
+  .automatic-renting-content .percent-container {
+    overflow: hidden;
+    -webkit-box-orient: vertical;
+    -webkit-box-direction: normal;
+        -ms-flex-direction: column;
+            flex-direction: column;
+  }
+  .target-margin-container,
+  .profit-reinvestment-container,
+  .unusoled-offers-container,
+  .daily-budget-container {
+    width: 64%;
   }
 }
 /*# sourceMappingURL=home.css.map */

@@ -46,11 +46,11 @@ const App = props => {
                 <Route path="/logout" component={Logout} />
                 
                 {/* Only if isAuthenticated */}
-                <PrivateRoute
+                {/* <PrivateRoute
                     path="/dashboard"
                     component={Dashboard}
                     isAuthenticated={props.isAuthenticated}
-                />
+                /> */}
                 <PrivateRoute
                     path="/changePassword"
                     component={ChangePassword}

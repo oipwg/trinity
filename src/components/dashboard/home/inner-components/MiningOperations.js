@@ -1,28 +1,53 @@
 import React, { useState, useEffect } from 'react';
-import { API_URL } from '../../../../../config.js';
+import { API_URL, WEB_SOCKET_URL } from '../../../../../config.js';
 import ToggleSwitch from '../../../helpers/toggle/ToggleSwitch';
+import { connect } from 'react-redux';
 import MarketsNPools from '../../../settings/prefrences/merc/MercMode'
 import {isEqual} from 'lodash'
+const socket = new WebSocket( WEB_SOCKET_URL );
+const Wallet = require('@oipwg/hdmw').Wallet;
+// const Wallet = HDMW.Wallet;
+
 
 const MiningOperations = (props) => {
+    socket.onopen = (e) => {
+        socket.send('Hello Server!');
+    };
+    socket.onmessage = (e) => {
+        let message = JSON.parse(e.data)
+        console.log('Message from server ',message)
+      }
+    socket.onclose = (e) => {
+        socket.send('Client socket closed')
+    }
+    socket.addEventListener('error', function (event) {
+        console.log('WebSocket error: ', event);
+    });
 
+
+
+    console.log('PROPS ', props)
     const [err, setError] = useState({autoRent: false, autoTrade: false})
     const [miningOperations, setOperations] = useState({
-            targetMargin: '',
-            profitReinvestment:'',
-            updateUnsold: '',
-            dailyBudget: '',
+            targetMargin: '1',
+            profitReinvestment:'1',
+            updateUnsold: '1',
+            dailyBudget: '1',
             autoRent: false,
             spot: false,
             alwaysMineXPercent: false,
             autoTrade: false,
             morphie: false,
             supportedExchange: false,
-            Xpercent: 0,
-        });
-    const [showSettingaModal, setShowSettingsModal] = useState(false)
+            Xpercent: 15,
+            token: 'FLO',
+            message: ''
+    });
 
-        let {            
+
+        const [showSettingaModal, setShowSettingsModal] = useState(false)
+
+        let {  
             targetMargin,
             profitReinvestment,
             updateUnsold,
@@ -34,12 +59,12 @@ const MiningOperations = (props) => {
             morphie,
             supportedExchange,
             Xpercent,
+            token
             } = miningOperations
-
 
     useEffect(() => {
         if(props.profile){
-
+            
             let {
                 targetMargin,
                 profitReinvestment,
@@ -47,44 +72,38 @@ const MiningOperations = (props) => {
                 dailyBudget,
                 autoRent,
                 autoTrade,
+                token,
             } = props.profile
-
-
-            setOperations({
-                targetMargin,
-                profitReinvestment,
-                updateUnsold,
-                dailyBudget,
+        
+        
+            let profile = {
+                targetMargin: !targetMargin ? '' : targetMargin,
+                profitReinvestment: !profitReinvestment ? '' : profitReinvestment,
+                updateUnsold: !updateUnsold ? '' : updateUnsold,
+                dailyBudget: !dailyBudget ? '' : dailyBudget,
                 autoRent: autoRent.on,
                 spot: autoRent.mode.spot,
                 alwaysMineXPercent: autoRent.mode.alwaysMineXPercent.on,
                 Xpercent: autoRent.mode.alwaysMineXPercent.Xpercent,
                 autoTrade: autoTrade.on,
                 morphie: autoTrade.mode.morphie,
-                supportedExchange: autoTrade.mode.supportedExchanges
-            })
+                supportedExchange: autoTrade.mode.supportedExchanges,
+                token: token
+            }
+            setOperations({...miningOperations, ...profile})
             setError('')
 
+        }  else if (props.address) { 
+            // let mnemonic = props.address.mnemonic
+            // console.log('mnemonic:', mnemonic)
+            // const myWallet =  new Wallet(mnemonic).coins.flo.accounts[0].addresses;
+            // setOperations({...miningOperations, addresses: myWallet})
+
+            
         }
-        else setOperations({
-            targetMargin: '',
-            profitReinvestment:'',
-            updateUnsold: '',
-            dailyBudget: '',
-            autoRent: false,
-            spot: false,
-            alwaysMineXPercent: false,
-            autoTrade: false,
-            morphie: false,
-            supportedExchange: false,
-            Xpercent: 0
-        })
-    }, [props.profile])
-
-
+    }, [props.profile, props.address])
 
     useEffect((prevProf = props.profile) => {
-        // rent(miningOperations)
 
         let formatedState= {
             profile: {
@@ -118,61 +137,40 @@ const MiningOperations = (props) => {
 
         props.updateProfile(profile)
 
-    },[autoRent, autoTrade ])
+        if (miningOperations.autoRent || miningOperations.autoTrade){
 
-    // const toggleSlider = (e) => {
-    //     const regex = /\d+/i;
-    //     const current = e.target.parentNode;
-    //     const sliders = document.querySelectorAll('.slider-container')
-    //     // let targetPos = current.style.transform.match(regex)[0]
+            rent(miningOperations)
+        } 
 
-    //     let obj = {}
-    //     let i = 0
-        
-    //     while(i < 2) {
-    //         let slider = sliders[i]
-    //         let pos = slider.style.transform.match(regex)[0]
-    //         // Current slider clicked
-    //         if (current === slider) {
-    //             let target = slider.childNodes[2].id
-                
-    //             if (pos === "50") {
-    //                 obj[target] = false
-    //                 slider.style.transform = "translateX(0px)"
-    //             }
-    //             if( pos === "0") {
-    //                 obj[target] = true
-    //                 slider.style.transform = "translateX(50px)"
-    //             }
-    //         // Everything but current slider 
-    //         } else {
-    //             let target = slider.childNodes[2].id
-    //             obj[target] = false
-    //             // If wanted to toggle back and forth 
-    //             // slider.style.transform = targetPos === "50" ? "translateX(50px)" : "translateX(0px)"; 
-    //             slider.style.transform = "translateX(0px)";
-    //         }
-    //         i++
-    //     }
-    //     setOperations({...miningOperations, ...obj})
-    // }
+
+    },[autoRent, autoTrade ]);
+
+    const processReturnData = (data) => {
+        let newValues = {}
+        for (let key in data) {
+            newValues[key] = data[key]
+        }
+        console.log(newValues)
+        setOperations({...miningOperations, ...newValues})
+    }
 
     const rent = (profile) => {
-        return
+        // profile.userId = props.user._id
+
         fetch(API_URL+'/rent', {
             method: 'POST',
             headers: {
-              Accept: 'application/json',
+                'Content-Type': 'application/json',
             },
             body: JSON.stringify(profile),
         }).then((response) => {
             return response.json();
-          })
+        })
           .then((data) => {
-            console.log(data);
-          }).catch((err)=> {
+            processReturnData(data)
+        }).catch((err)=> {
               console.log(err)
-          });
+        });
     }
 
     const checkInputsAndRent = (e, slider) => {
@@ -198,24 +196,21 @@ const MiningOperations = (props) => {
                     break;
                 case 'autoRent':
                     if (slider === 'autoRent') {
+                        // If neither radios are checked
                         if (miningOperations.spot === miningOperations.alwaysMineXPercent) {
-                            // If neither radios are checked
                             return setError({autoRent: true})
                         }
                         setOperations({...miningOperations, autoRent: !autoRent, autoTrade: false})
-
                     }
                     break;
                 case 'autoTrade':
                     if (slider === 'autoTrade') {
+                        // If neither radios are checked
                         if (miningOperations.morphie === miningOperations.supportedExchange) {
-                            // If neither radios are checked
                             return setError({autoTrade: true})
                         }
                         setOperations({...miningOperations, autoRent: false, autoTrade: !autoTrade})
-
                     }
-                    break;
             }
         }
     }
@@ -258,8 +253,9 @@ const MiningOperations = (props) => {
                 checkInputsAndRent(e,targetElem)
                 break;
             case "morphie":
+
                 if (err.autoTrade) setError({autoTrade: false})
-                setOperations({...miningOperations, morphie: true, supportedExhange: false})
+                setOperations({...miningOperations, morphie: true, supportedExchange: false})
                 break;
             case "supportedExchange":
                 if (err.autoTrade) setError({autoTrade: false})
@@ -272,6 +268,24 @@ const MiningOperations = (props) => {
         setOperations({...miningOperations, Xpercent: value})
     }
     
+    const handleOptionChange = (e) => {
+        console.log(selectedOption)
+        setSelectedOption(e.target.value)
+    }
+    const updatePercent = e => {
+        let value = e.target.value
+        setOperations({...miningOperations, Xpercent: value})
+    }
+    const showPercentInput = () => {
+        let elem = document.getElementsByClassName('percent-input-container')[0]
+        let pos = elem.style.transform
+        if (pos === '') {
+            elem.style.transform = 'translate(0px)'
+        } else {
+            elem.style = ''
+        }
+    }
+
     return (
         <>
         {showSettingaModal 
@@ -279,7 +293,29 @@ const MiningOperations = (props) => {
             <MarketsNPools handleClick={() => setShowSettingsModal(!showSettingaModal)}/>
         }
         <div className="card mining-operation">
-            <div className="card-header">Mining Operations</div>
+            {console.log(miningOperations)} 
+            <div className="card-header">
+                <div className="header-container">
+                <p>Mining Operations</p>
+                <div className="table-container message-field" style={{height: miningOperations.message ? '140px' : '55px'}}>
+                <table className="table">
+                        <thead id="mining-op-tableHeader">
+                            <tr>
+                                <th id="updateMessage" scope="col">Messages</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr className="data-table-row">
+                                <td>
+                                    {miningOperations.message}
+                                </td>
+                            </tr>
+                        </tbody>
+                </table>
+                </div>
+                </div>
+                
+            </div>
             <div className="card-body">
                 <div className="mining-operation-inputs">
                     <div className="target-margin-container">
@@ -350,15 +386,14 @@ const MiningOperations = (props) => {
                         handleChange={(e) => {updateInputs(e)}}
                         id={"autoRent"}
                         htmlFor={"autoRent"}
-                        isOn={autoRent}
-                    />
-
+                        isOn={autoRent}/>
                     <div className="automatic-renting-content">
                         <h5>Automatic Renting</h5>
                         <div className="form-check">
                             <input className="form-check-input" type="radio" id="spot" 
-                            value='spot'
+                            value={spot}
                             name="auto-rent"
+                            checked={miningOperations.spot ? true  : false}
                             onChange={(e) => {
                                 updateInputs(e)
                             }} />
@@ -369,21 +404,22 @@ const MiningOperations = (props) => {
                         <div className="percent-container">
                             <div className="form-check">
                                 <input className="form-check-input" type="radio" id="alwaysMineXPercent"
-                                value='alwaysMineXPercent'
+                                value={alwaysMineXPercent}
                                 name="auto-rent"
+                                checked={miningOperations.alwaysMineXPercent ? true  : false}
                                 onChange={(e) => {updateInputs(e)}} />
                                 <label className="form-check-label" htmlFor="alwaysMineXPercent">
-                                    Always mine {miningOperations.Xpercent}% of the network
+                                    Always mine {Xpercent}% of the network
                                 </label>
                             </div>
                             <div className="percent-input-container" >
                             {/* <label for="validationCustom02">Last name</label> */}
                             <input type="text" className="form-control percent-field" id="Xpercent" 
-                                required placeholder="0" onChange={(e) => {editPercent(e)}} maxLength="2"
+                                required placeholder="0" onChange={(e) => {updatePercent(e)}} maxLength="2"
                                 value={Xpercent}
                             />
                             <span>%</span>
-                            <button className="edit-percent-btn">edit percentage</button>
+                            <button className="edit-percent-btn" onClick={showPercentInput}>edit percentage</button>
                             </div>
                         </div>
                         <div style={{transform: err.autoRent ? 'scale(1)' : 'scale(0)'}} className="error-dialog">
@@ -403,13 +439,15 @@ const MiningOperations = (props) => {
                             id={"autoTrade"}
                             htmlFor={"autoTrade"}
                             isOn={autoTrade}
-                    />
+        
+                        /> 
                     <div className="automatic-renting-content">
                         <h5>Automatic Trading</h5>
                         <div className="form-check">
                             <input className="form-check-input" type="radio" id="morphie" 
-                            // value={morphie}
-                            checked={morphie}
+                            value={morphie}
+                            // checked={morphie}
+                            checked={miningOperations.morphie ? true  : false}
                             name="auto-trading"
                             onChange={(e) => {updateInputs(e)}}  />
                             <label className="form-check-label" htmlFor="morphie">
@@ -420,6 +458,7 @@ const MiningOperations = (props) => {
                             <input className="form-check-input" type="radio" id="supportedExchange"
                             // value={supportedExchange}
                             name="auto-trading"
+                            checked={miningOperations.supportedExchange ? true  : false}
                             onChange={(e) => {updateInputs(e)}} />
                             <label className="form-check-label" htmlFor="supportedExchange">
                                 Supported exchanges
@@ -438,4 +477,11 @@ const MiningOperations = (props) => {
 };
 
 
-export default MiningOperations
+const mapStateToProps = state => {
+    return {
+        user: state.auth.user,
+        address: state.account.wallet
+    };
+};
+
+export default connect(mapStateToProps)(MiningOperations);
