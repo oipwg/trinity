@@ -5,9 +5,6 @@ import { connect } from 'react-redux';
 import MarketsNPools from '../../../settings/prefrences/merc/MercMode'
 import {isEqual} from 'lodash'
 const socket = new WebSocket( WEB_SOCKET_URL );
-const Wallet = require('@oipwg/hdmw').Wallet;
-// const Wallet = HDMW.Wallet;
-
 
 const MiningOperations = (props) => {
     socket.onopen = (e) => {
@@ -16,14 +13,19 @@ const MiningOperations = (props) => {
     socket.onmessage = (e) => {
         let message = JSON.parse(e.data)
         console.log('Message from server ',message)
+        processReturnData(message)
       }
     socket.onclose = (e) => {
+        console.log('Client socket closed')
         socket.send('Client socket closed')
+    }
+    socket.closing = (e) => {
+        console.log('Client socket closing')
+        socket.send('Client socket closing')
     }
     socket.addEventListener('error', function (event) {
         console.log('WebSocket error: ', event);
     });
-
 
 
     console.log('PROPS ', props)
@@ -134,7 +136,6 @@ const MiningOperations = (props) => {
         if(isEqual(prevProf, profile)){
             return;
         }
-
         props.updateProfile(profile)
 
         if (miningOperations.autoRent || miningOperations.autoTrade){
@@ -217,10 +218,8 @@ const MiningOperations = (props) => {
 
 
     const updateInputs = (e) => {
-
         const targetElem = e.target.id
 
-        
         switch ( targetElem ) {
             case "targetMargin":
                 if (err.targetMargin) setError({targetMargin: false})
@@ -253,7 +252,6 @@ const MiningOperations = (props) => {
                 checkInputsAndRent(e,targetElem)
                 break;
             case "morphie":
-
                 if (err.autoTrade) setError({autoTrade: false})
                 setOperations({...miningOperations, morphie: true, supportedExchange: false})
                 break;
@@ -274,7 +272,7 @@ const MiningOperations = (props) => {
     }
     const updatePercent = e => {
         let value = e.target.value
-        setOperations({...miningOperations, Xpercent: value})
+        setOperations({...miningOperations, Xpercent: value, message: ''})
     }
     const showPercentInput = () => {
         let elem = document.getElementsByClassName('percent-input-container')[0]
@@ -288,17 +286,14 @@ const MiningOperations = (props) => {
 
     return (
         <>
-        {showSettingaModal 
-            && 
-            <MarketsNPools handleClick={() => setShowSettingsModal(!showSettingaModal)}/>
-        }
+        {showSettingaModal && <MarketsNPools handleClick={() => setShowSettingsModal(!showSettingaModal)}/>}
         <div className="card mining-operation">
             {console.log(miningOperations)} 
             <div className="card-header">
                 <div className="header-container">
-                <p>Mining Operations</p>
-                <div className="table-container message-field" style={{height: miningOperations.message ? '140px' : '55px'}}>
-                <table className="table">
+                    <p>Mining Operations</p>
+                    <div className="table-container message-field" style={{height: miningOperations.message ? '134px' : '55px'}}>
+                        <table className="table">
                         <thead id="mining-op-tableHeader">
                             <tr>
                                 <th id="updateMessage" scope="col">Messages</th>
@@ -350,8 +345,7 @@ const MiningOperations = (props) => {
                         <label htmlFor="basic-url">Update Unsold Offers</label>
                         <div className="input-group">
                             <select className="custom-select" id="updateUnsold" onChange={(e) => {updateInputs(e)}}
-                            value={updateUnsold}
-                            >
+                            value={updateUnsold}>
                                 <option default>Hourly</option>
                                 <option value="1">1</option>
                                 <option value="2">2</option>
@@ -413,7 +407,6 @@ const MiningOperations = (props) => {
                                 </label>
                             </div>
                             <div className="percent-input-container" >
-                            {/* <label for="validationCustom02">Last name</label> */}
                             <input type="text" className="form-control percent-field" id="Xpercent" 
                                 required placeholder="0" onChange={(e) => {updatePercent(e)}} maxLength="2"
                                 value={Xpercent}

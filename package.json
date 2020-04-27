@@ -8,7 +8,6 @@
     "dev-server": "NODE_ENV=development webpack-dev-server --watch",
     "start-client": "webpack-dev-server --mode development --open --hot",
     "start-backend": "NODE_ENV=development nodemon ./backend/bin/www",
-
     "dev": "concurrently \"npm run start-client\" \"npm run start-backend\"",
     "heroku-postbuild": "ng build --prod"
   },
@@ -48,7 +47,11 @@
     "request": "^2.88.2",
     "spartanbot": "git+https://github.com/bradicalone/spartanbot.git",
     "timestring": "^6.0.0",
+    "uid": "^1.0.0",
     "ws": "^7.2.3"
+  },
+  "optionalDependencies": {
+    "fsevents": "^2.1.2"
   },
   "devDependencies": {
     "@babel/cli": "^7.7.7",
