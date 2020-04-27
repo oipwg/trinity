@@ -19,7 +19,6 @@ import {
     listPaymentMethods,
 } from '../../../../actions/coinbaseActions';
 
-import { Link } from 'react-router-dom';
 import { API_URL } from '../../../../../config';
 import { tokenConfig } from '../../../../helpers-functions/headers';
 
@@ -83,6 +82,8 @@ const WalletBalance = props => {
         if (password == '') {
             return setErrorMessage({ error: 'Enter Password ' });
         }
+
+        props.getBittrexBalances();
 
         setShowSpinner(!showSpinner);
         let { mnemonic, _id } = props.user;
@@ -264,8 +265,9 @@ const WalletBalance = props => {
 
                         <button 
                             style={{border: 'none', marginLeft: '8px', fontSize: '18px', backgroundColor: 'transparent'}}
-                            onClick={() => {props.getBalance(props.account.wallet)
-                                            props.getBittrexBalances() }
+                            onClick={() => {
+                                                props.getBalance(props.account.wallet)
+                                            }
                                 
                             }>
                             <i className="fas fa-redo"></i>

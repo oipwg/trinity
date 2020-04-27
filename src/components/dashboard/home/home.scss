@@ -86,22 +86,17 @@ main {
   justify-content: space-around;
 }
 
-.automatic-renting-container,
-.automatic-trading-container {
+.automatic-renting-container {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  padding: 10px;
+  padding: 1.5rem;
 }
 
 .automatic-renting-content {
   position: relative;
-  flex-grow: 1;
-  padding: 10px;
-  margin: 10px;
+  padding: 1.5rem;
   border: 1px solid #d6d6d6;
   border-radius: 5px;
-  margin-right: 23%;
 }
 .automatic-renting-content {
   .form-check {
@@ -154,7 +149,6 @@ main {
     border: none;
     font-size: 0.9rem;
     margin-left: 5px;
-    font-weight: 600;
     color: #0080ff;
   }
   .edit-percent-btn {
@@ -168,14 +162,12 @@ main {
 }
 
 .select-markets-pools {
-  position: relative;
-  left: 8rem;
   background: none;
   border: none;
-  font-size: 0.9rem;
-  margin-left: 5px;
-  font-weight: 600;
+  font-size: 0.8rem;
+  margin-left: 0.9rem;
   color: #0080ff;
+  margin-bottom: 2rem;
 }
 
 .select-markets-pools {
@@ -308,19 +300,15 @@ main {
 
 /* Moblie */
 @media screen and (max-width: 500px) {
-  body {
-    // background-color: #dbdbdb;
-  }
-
   .card {
     margin: 0 0 1rem 0;
   }
 
   .target-margin-container,
-   .profit-reinvestment-container,
-    .unusoled-offers-container, 
-    .daily-budget-container {
-      width: 90%
+  .profit-reinvestment-container,
+  .unusoled-offers-container,
+  .daily-budget-container {
+    width: 90%;
   }
 
   .profile {
@@ -377,7 +365,6 @@ main {
   }
 
   .mining-operation {
-
     span label {
       margin: 1rem;
     }
@@ -429,11 +416,8 @@ main {
   }
 }
 @media screen and (max-width: 768px) {
-  #app main {
-    margin: 0 5px;
-  }
   .automatic-renting-content .form-check {
-    padding-left: 1.30rem;
+    padding-left: 1.3rem;
   }
 
   .mining-operation-inputs {
@@ -441,9 +425,19 @@ main {
     align-items: center;
   }
 
+  .rent-toggle-switch {
+    margin: 0 auto;
+  }
+
+  .automatic-renting-container {
+    margin: 0;
+    padding: 0;
+    display: block;
+    margin-top: 2.5rem;
+  }
+
   .automatic-renting-content {
-    margin-right: 0;
-    width: 50px;
+    margin-top: 1rem;
   }
 
   .automatic-renting-content .percent-container {
@@ -452,10 +446,13 @@ main {
   }
 
   .target-margin-container,
-   .profit-reinvestment-container,
-    .unusoled-offers-container, 
-    .daily-budget-container {
-      width: 64%
+  .profit-reinvestment-container,
+  .unusoled-offers-container,
+  .daily-budget-container {
+    width: 64%;
   }
 
+  .card-body {
+    padding: 0;
+  }
 }
