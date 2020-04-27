@@ -70,7 +70,7 @@ const App = props => {
 };
 
 // todo: maybe enforce props type?
-
+//
 // SignUp.propTypes = {
 //     isAuthneticated: PropTypes.bool,
 //     error: PropTypes.object.isRequired,

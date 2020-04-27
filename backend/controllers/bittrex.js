@@ -391,11 +391,15 @@ module.exports = {
 
                 if(!getSalesHistory.success) return res.status(400).json({"error": getSalesHistory.message})
 
-                getSalesHistory.result.map((arr, i) => {
-                        salesHistory[arr.Exchange] = arr 
-                        }
-                ) 
-            
+            //     getSalesHistory.result.map((arr, i) => {
+            //             salesHistory[arr.Exchange] = []
+            //         }
+            //     ) 
+            // Sort later
+
+
+
+            salesHistory = getSalesHistory.result;
             
             res.status(201).json({salesHistory})
         } catch (error) {

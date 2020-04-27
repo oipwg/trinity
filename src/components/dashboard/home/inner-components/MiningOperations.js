@@ -138,9 +138,22 @@ const MiningOperations = (props) => {
         }
         props.updateProfile(profile)
 
-        if (miningOperations.autoRent || miningOperations.autoTrade){
+        if (miningOperations.autoRent){
+
+
 
             rent(miningOperations)
+
+        } 
+
+
+        if (miningOperations.autoTrade){
+
+            if(props.profile){
+
+                trade(props.profile._id)
+            }
+
         } 
 
 
@@ -173,6 +186,28 @@ const MiningOperations = (props) => {
               console.log(err)
         });
     }
+
+    const trade = (profileID) => {
+        console.log(profileID)
+
+        fetch(API_URL+'/auto-trade/on/'+profileID, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                'x-auth-token': localStorage.getItem('token')
+            },
+        }).then((response) => {
+            return response.json();
+        })
+          .then((data) => {
+            console.log(data);
+        }).catch((err)=> {
+              console.log(err)
+        });
+    }
+
+
+
 
     const checkInputsAndRent = (e, slider) => {
         let profile = {}
