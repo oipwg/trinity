@@ -10,6 +10,9 @@ const Setup = props => {
     const [bittrexData, setBittrexData] = useState({data: {}});
     const userId = useRef('');
 
+    let scale = window.devicePixelRatio
+    console.log('scale:', scale)
+
     useEffect(() => {
         if (props.user) {
             userId.current = props.user._id
@@ -266,6 +269,7 @@ const Setup = props => {
 
     const showCredentials = userdata => {
         let height = (() => {
+            let scale = window.devicePixelRatio
             if ( userdata.length ) {
                 return userdata[0].provider === 'MiningRigRentals' ? '126px' : '169px'
             } else 

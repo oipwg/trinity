@@ -146,15 +146,20 @@ module.exports = async function(options) {
     console.log('rental_provider_type:', rental_provider_type)
 
     if (rentalProviders.length === 2 && options.poolData === undefined) {
-        let poolArray = await spartan.returnPools();
+        let providers = spartan.getSupportedRentalProviders();
+        poolCount = 0
+        for (let provider of providers) {
+            let poolArray = await spartan.returnPools(provider);
+        }
+
         return {
             err: 'provider',
-            message: poolArray.length ? `Maximum number of providers reached: ${rentalProviders.length}.  `: 
-                        `Maximum number of providers reached, showing ${poolArray.length} pools.\n Input fields below to add one.`,
-            pool: poolArray.length ? true : false,
+            message: poolCount ? `Maximum number of providers reached: ${rentalProviders.length}.  `: 
+                        `Maximum number of providers reached, showing ${poolCount} pools.\n Input fields below to add one.`,
+            pool: poolCount ? true : false,
             credentials: true,
-            success: poolArray.length ? true : false,
-            pools: poolArray.length
+            success: poolCount ? true : false,
+            pools: poolCount
         }
     }
         
@@ -168,11 +173,8 @@ module.exports = async function(options) {
         }
     };
 
-     console.log('RENTAL PROVIDER :', rental_provider_type )
-
     if (rental_provider_type === MiningRigRentals) {
         let poolArray = await spartan.returnPools(MiningRigRentals);
-        console.log('poolArray: add.js 176', poolArray)
         if (checkProviders(MiningRigRentals)) {
             // No pool input data sent from user and no pools exist for user
             if (options.poolData === undefined ) {

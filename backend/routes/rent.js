@@ -12,9 +12,8 @@ const { Account, Networks, Wallet } = require('@oipwg/hdmw');
 // const Wallet = HDMW.Wallet;
 
 
-
-
 const Rent = async (token, percent) => {
+
     console.log('percent', percent)
     if (token === "FLO") {
         return await new Promise((resolve, reject) => {
@@ -61,8 +60,17 @@ async function processUserInput(req, res) {
 
     let accountMaster = bip32.fromBase58("Fprv4xQSjQhWzrCVzvgkjam897LUV1AfxMuG8FBz5ouGAcbyiVcDYmqh7R2Fi22wjA56GQdmoU1AzfxsEmVnc5RfjGrWmAiqvfzmj4cCL3fJiiC", Networks.flo.network)
     let account = new Account(accountMaster, Networks.flo, false);
-    let extPublicKey = account.getExtendedPublicKey()
-    console.log('extPublicKey:', extPublicKey)
+    let paymentRecieverXPub = account.getExtendedPublicKey()
+
+    // Load Account from xPub
+    const paymentRecieverAddressGenerator = new Account(bip32.fromBase58(paymentRecieverXPub, Networks.flo.network), Networks.flo, false)
+
+    // Generate the first 25 addresses
+    const EXTERNAL_CHAIN = 0
+    for (let i = 0; i < 25; i++) {
+        console.log(`${i}: ${paymentRecieverAddressGenerator.getAddress(EXTERNAL_CHAIN, i).getPublicAddress()}`)
+    }
+
 
     try {
         const rent = await Rent(token, Xpercent/100)
@@ -72,8 +80,8 @@ async function processUserInput(req, res) {
         if ( MinPercentFromMinHashrate > Xpercent/100 ) {
             return {
                     update: true,
-                    message: `Your pecent of the network ${Xpercent} changed to ${(MinPercentFromMinHashrate*100).toFixed(2)}%, or `+
-                    `you can continute renting with ${Xpercent}% for the MiningRigRental market change percentage and switch renting on again.`,
+                    message: `Your pecent of the network ${Xpercent} changed to ${(MinPercentFromMinHashrate*100).toFixed(2)}%, to `+
+                    `continute renting with ${Xpercent}% for the MiningRigRental market, change percentage and switch renting on again.`,
                     Xpercent: (MinPercentFromMinHashrate*100).toFixed(2),
                     autoRent: false
                 }
@@ -107,12 +115,12 @@ router.post('/',  async (req, res) => {
  
     let userInput = await processUserInput(req, res).then(data => data).catch(err => err)
     console.log('processUserInput ', userInput)
+
     // Any data that has been updated, it updates the user to proceed again
     if (userInput['update']) {
         return res.json(userInput)
     }
    
-    
     try {
         let data = await controller(userInput);
         console.log('data: rent.js route', data)
