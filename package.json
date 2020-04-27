@@ -44,6 +44,9 @@
     "uid": "^1.0.0",
     "ws": "^7.2.3"
   },
+  "optionalDependencies": {
+    "fsevents": "^2.1.2"
+  },
   "devDependencies": {
     "@babel/core": "^7.9.0",
     "@babel/plugin-proposal-object-rest-spread": "^7.9.5",
