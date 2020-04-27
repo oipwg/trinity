@@ -300,10 +300,6 @@ main {
 
 /* Moblie */
 @media screen and (max-width: 500px) {
-  body {
-    // background-color: #dbdbdb;
-  }
-
   .card {
     margin: 0 0 1rem 0;
   }
@@ -420,9 +416,6 @@ main {
   }
 }
 @media screen and (max-width: 768px) {
-  #app main {
-    margin: 0 5px;
-  }
   .automatic-renting-content .form-check {
     padding-left: 1.3rem;
   }
@@ -432,9 +425,19 @@ main {
     align-items: center;
   }
 
+  .rent-toggle-switch {
+    margin: 0 auto;
+  }
+
+  .automatic-renting-container {
+    margin: 0;
+    padding: 0;
+    display: block;
+    margin-top: 2.5rem;
+  }
+
   .automatic-renting-content {
-    margin-right: 0;
-    width: 50px;
+    margin-top: 1rem;
   }
 
   .automatic-renting-content .percent-container {
@@ -447,5 +450,9 @@ main {
   .unusoled-offers-container,
   .daily-budget-container {
     width: 64%;
+  }
+
+  .card-body {
+    padding: 0;
   }
 }
