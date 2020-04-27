@@ -43,8 +43,6 @@ module.exports = {
             
             const sendUser = await User.findOne({ userName: user.userName}).select('-password');
 
-            console.log(sendUser)
-
             res.status(200).json({
                 token: signToken(newUser),
                 user: sendUser
