@@ -9,7 +9,7 @@ const {
     JWT_SECRET,
     COINBASE_CLIENT_ID,
     COINBASE_CLIENT_SECRET,
-    COINBASE_REDIRECT_URL,
+    COINBASE_REDIRECT_URL, 
 } = process.env;
 const User = require('./models/user');
 
