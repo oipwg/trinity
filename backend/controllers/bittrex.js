@@ -227,6 +227,10 @@ module.exports = {
             let apiKey = user.bittrex.apiKey
             let secret = user.bittrex.secret
 
+            if(!apiKey) {
+                return res.status(400).json({"error": "no keys"})
+            }
+
             const message = `https://api.bittrex.com/api/v1.1/account/getbalances?apikey=${apiKey}&nonce=${nonce}`
             const signature = Crypto.createHmac('sha512', secret)
             .update(message)
@@ -256,6 +260,8 @@ module.exports = {
             let apiKey = user.bittrex.apiKey
             let secret = user.bittrex.secret
 
+            
+
             const message = `https://api.bittrex.com/api/v1.1/account/withdraw?apikey=${apiKey}&currency=${currency}&quantity=${quantity}&address=${address}&nonce=${nonce}`
             const signature = Crypto.createHmac('sha512', secret)
             .update(message)
@@ -281,6 +287,7 @@ module.exports = {
             let apiKey = user.bittrex.apiKey
             let secret = user.bittrex.secret
 
+
             const message = `https://api.bittrex.com/api/v1.1/market/cancel?apikey=${apiKey}&uuid=${orderUuid}&nonce=${nonce}`
             const signature = Crypto.createHmac('sha512', secret)
             .update(message)
@@ -302,6 +309,10 @@ module.exports = {
 
             let apiKey = user.bittrex.apiKey
             let secret = user.bittrex.secret
+
+            if(!apiKey) {
+                return res.status(400).json({"error": "no keys"})
+            }
 
             let cancelOrder = await (async () => {
                 const message = `https://api.bittrex.com/api/v1.1/market/cancel?apikey=${apiKey}&uuid=${orderUuid}&nonce=${nonce}`;
