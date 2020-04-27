@@ -12,15 +12,12 @@ const MiningOperations = (props) => {
     };
     socket.onmessage = (e) => {
         let message = JSON.parse(e.data)
-        console.log('Message from server ',message)
         processReturnData(message)
       }
     socket.onclose = (e) => {
-        console.log('Client socket closed')
         socket.send('Client socket closed')
     }
     socket.closing = (e) => {
-        console.log('Client socket closing')
         socket.send('Client socket closing')
     }
     socket.addEventListener('error', function (event) {
@@ -28,7 +25,6 @@ const MiningOperations = (props) => {
     });
 
 
-    console.log('PROPS ', props)
     const [err, setError] = useState({autoRent: false, autoTrade: false})
     const [miningOperations, setOperations] = useState({
             targetMargin: '1',
@@ -323,7 +319,6 @@ const MiningOperations = (props) => {
         <>
         {showSettingaModal && <MarketsNPools handleClick={() => setShowSettingsModal(!showSettingaModal)}/>}
         <div className="card mining-operation">
-            {console.log(miningOperations)} 
             <div className="card-header">
                 <div className="header-container">
                     <p>Mining Operations</p>

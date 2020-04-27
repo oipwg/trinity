@@ -39,15 +39,15 @@ module.exports = {
                 mnemonic,
             });
 
-            const user = await newUser.save();
+            const user = await newUser.save()
+            
+            const sendUser = await User.findOne({ userName: user.userName}).select('-password');
+
+            console.log(sendUser)
+
             res.status(200).json({
                 token: signToken(newUser),
-                user: {
-                    id: user.id,
-                    username: user.userName,
-                    email: user.email,
-                    mnemonic: user.mnemonic
-                },
+                user: sendUser
             });
         } catch (error) {
             console.log(error);
@@ -58,7 +58,7 @@ module.exports = {
         try {
             const { userName } = req.body;
 
-            const user = await User.findOne({ userName });
+            const user = await User.findOne({ userName }).select('-password');
 
             if (!user) {
                 return res.status(403).json({ error: 'User does not exist' });
@@ -66,15 +66,9 @@ module.exports = {
 
             res.status(200).json({
                 token: signToken(user),
-                user: {
-                    id: user.id,
-                    name: user.userName,
-                    email: user.email,
-                    mnemonic: user.mnemonic,
-                },
+                user
             });
 
-            console.log('successful login!');
         } catch (error) {
             console.log(error);
         }
@@ -116,7 +110,7 @@ module.exports = {
 
     validatePassword: async (req, res, next) => {
         try {
-            const { id, password } = req.body;
+            const { password } = req.body;
 
             console.log(req.body)
 
