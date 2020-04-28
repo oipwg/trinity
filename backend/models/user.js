@@ -91,8 +91,15 @@ const userSchema = new Schema({
         required: true,
     },
     wallet: {
-        xPub: { type: String, default: ''},
-        xPrv: { type: String, default: ''}
+        btc: {
+            xPrv: { type: String, default: ''}
+        },
+        flo: {
+            xPrv: { type: String, default: ''}
+        },
+        rvn: {
+            xPrv: { type: String, default: ''}
+        },
     },
     coinbase: {
         accessToken: {type: String},

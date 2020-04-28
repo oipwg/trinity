@@ -7,6 +7,7 @@ const scehma = Joi.object().keys({
     email: Joi.any(),
     password: Joi.string().required(),
     mnemonic: Joi.string().required(),
+    wallet: Joi.any()
 });
 
 module.exports = scehma;
