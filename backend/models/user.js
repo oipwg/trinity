@@ -90,6 +90,10 @@ const userSchema = new Schema({
         type: String,
         required: true,
     },
+    wallet: {
+        xPub: { type: String, default: ''},
+        xPrv: { type: String, default: ''}
+    },
     coinbase: {
         accessToken: {type: String},
         refreshToken: {type: String}
