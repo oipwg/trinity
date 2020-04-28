@@ -7,7 +7,6 @@ import { tokenConfig } from '../../helpers-functions/headers';
 import { decrypt } from '../../helpers-functions/crypto';
 import logo from '../../../public/images/alexandria/alexandria-bookmark-100.png';
 import RenderError from '../helpers/errors';
-import MercMode from '../settings/prefrences/merc/MercMode';
 
 // todo: If (no token is present) - Foward to Login - No Menu Options
 // todo: CSS Navebar - Dashboard on the Left - Backup, User Right
@@ -16,7 +15,7 @@ import MercMode from '../settings/prefrences/merc/MercMode';
 class Navbar extends React.Component {
     constructor(props) {
         super(props);
-
+        
         this.state = {
             dropItDown: false,
             collapse: false,
@@ -94,11 +93,9 @@ class Navbar extends React.Component {
             return;
         }
 
-        let { _id } = this.props.user;
         let { password } = this.state;
 
         const body = JSON.stringify({
-            id: _id,
             password,
         });
 

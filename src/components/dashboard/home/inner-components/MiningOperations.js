@@ -12,15 +12,12 @@ const MiningOperations = (props) => {
     };
     socket.onmessage = (e) => {
         let message = JSON.parse(e.data)
-        console.log('Message from server ',message)
         processReturnData(message)
       }
     socket.onclose = (e) => {
-        console.log('Client socket closed')
         socket.send('Client socket closed')
     }
     socket.closing = (e) => {
-        console.log('Client socket closing')
         socket.send('Client socket closing')
     }
     socket.addEventListener('error', function (event) {
@@ -28,7 +25,6 @@ const MiningOperations = (props) => {
     });
 
 
-    console.log('PROPS ', props)
     const [err, setError] = useState({autoRent: false, autoTrade: false})
     const [miningOperations, setOperations] = useState({
             targetMargin: '1',
@@ -139,7 +135,6 @@ const MiningOperations = (props) => {
 
         if (miningOperations.autoRent){
             // If update has a value of true it removes back to undefined to be updated once again on the backend
-            
             setOperations({...miningOperations, message: '', update: ''})
             rent(miningOperations)
 
@@ -170,7 +165,7 @@ const MiningOperations = (props) => {
     const rent = (options) => {
         options.userId = props.user._id
         options.message = ''
-        options.updte = false
+        options.update = false
         
         fetch(API_URL+'/rent', {
             method: 'POST',
@@ -308,7 +303,7 @@ const MiningOperations = (props) => {
     }
     const updatePercent = e => {
         let value = e.target.value
-        setOperations({...miningOperations, Xpercent: value, message: ''})
+        setOperations({...miningOperations, Xpercent: value})
     }
     const showPercentInput = () => {
         let elem = document.getElementsByClassName('percent-input-container')[0]
@@ -324,7 +319,6 @@ const MiningOperations = (props) => {
         <>
         {showSettingaModal && <MarketsNPools handleClick={() => setShowSettingsModal(!showSettingaModal)}/>}
         <div className="card mining-operation">
-            {console.log(miningOperations)} 
             <div className="card-header">
                 <div className="header-container">
                     <p>Mining Operations</p>
@@ -416,90 +410,83 @@ const MiningOperations = (props) => {
                         handleChange={(e) => {updateInputs(e)}}
                         id={"autoRent"}
                         htmlFor={"autoRent"}
-                        isOn={autoRent}/>
-                    <div className="automatic-renting-content">
-                        <h5>Automatic Renting</h5>
-                        <div className="form-check">
-                            <input className="form-check-input" type="radio" id="spot" 
-                            value={spot}
-                            name="auto-rent"
-                            checked={miningOperations.spot ? true  : false}
-                            onChange={(e) => {
-                                updateInputs(e)
-                            }} />
-                            <label className="form-check-label" htmlFor="spotProfitable">
-                                Mine only when spot profitable
-                            </label>
-                        </div>
-                        <div className="percent-container">
+                        isOn={autoRent}
+                    />
+                    <span style={{flex: "1 1 auto"}}>
+                        <div className="automatic-renting-content">
+                            <h5>Automatic Renting</h5>
                             <div className="form-check">
-                                <input className="form-check-input" type="radio" id="alwaysMineXPercent"
-                                value={alwaysMineXPercent}
+                                <input className="form-check-input" type="radio" id="spot" 
+                                value={spot}
                                 name="auto-rent"
-                                checked={miningOperations.alwaysMineXPercent ? true  : false}
-                                onChange={(e) => {updateInputs(e)}} />
-                                <label className="form-check-label" htmlFor="alwaysMineXPercent">
-                                    Always mine {Xpercent}% of the network
+                                checked={miningOperations.spot ? true  : false}
+                                onChange={(e) => {
+                                    updateInputs(e)
+                                }} />
+                                <label className="form-check-label" htmlFor="spotProfitable">
+                                    Mine only when spot profitable
                                 </label>
                             </div>
-                            <div className="percent-input-container" >
-                            <input type="text" className="form-control percent-field" id="Xpercent" 
-                                required placeholder="0" onChange={(e) => {updatePercent(e)}} maxLength="2"
-                                value={Xpercent}
-                            />
-                            <span>%</span>
-                            <button className="edit-percent-btn" onClick={showPercentInput}>edit percentage</button>
+                            <div className="percent-container">
+                                <div className="form-check">
+                                    <input className="form-check-input" type="radio" id="alwaysMineXPercent"
+                                    value={alwaysMineXPercent}
+                                    name="auto-rent"
+                                    checked={miningOperations.alwaysMineXPercent ? true  : false}
+                                    onChange={(e) => {updateInputs(e)}} />
+                                    <label className="form-check-label" htmlFor="alwaysMineXPercent">
+                                        Always mine {Xpercent}% of the network
+                                    </label>
+                                </div>
+                                <div className="percent-input-container" >
+                                <input type="text" className="form-control percent-field" id="Xpercent" 
+                                    required placeholder="0" onChange={(e) => {updatePercent(e)}} maxLength="5"
+                                    value={Xpercent}
+                                />
+                                <span>%</span>
+                                <button className="edit-percent-btn" onClick={showPercentInput}>edit</button>
+                                </div>
                             </div>
-                        </div>
-                        <div style={{transform: err.autoRent ? 'scale(1)' : 'scale(0)'}} className="error-dialog">
-                            <span className="error-arrow"></span>
-                            <p>Need at least one checked before renting!</p>
-                        </div>
-                    </div>
-                </div>
+                            <div style={{transform: err.autoRent ? 'scale(1)' : 'scale(0)'}} className="error-dialog">
+                                <span className="error-arrow"></span>
+                                <p>Need at least one checked before renting!</p>
+                            </div>
+                                {/* Select Rental Markets & Mining Pool */}
+                                <button onClick={() => setShowSettingsModal(!showSettingaModal)} className="select-markets-pools">Select Rental Markets & Mining Pools</button>
 
-                {/* Select Rental Markets & Mining Pool */}
-                <button onClick={() => setShowSettingsModal(!showSettingaModal)} className="select-markets-pools">Select Rental Markets & Mining Pools</button>
-
-                {/* AUTO TRADING CONTAINER */}
-                <div className="automatic-trading-container">
-                    <ToggleSwitch  
-                            handleChange={(e) => {updateInputs(e)}}
-                            id={"autoTrade"}
-                            htmlFor={"autoTrade"}
-                            isOn={autoTrade}
-        
-                        /> 
-                    <div className="automatic-renting-content">
-                        <h5>Automatic Trading</h5>
-                        <div className="form-check">
-                            <input className="form-check-input" type="radio" id="morphie" 
-                            value={morphie}
-                            // checked={morphie}
-                            checked={miningOperations.morphie ? true  : false}
-                            name="auto-trading"
-                            onChange={(e) => {updateInputs(e)}}  />
-                            <label className="form-check-label" htmlFor="morphie">
-                                Prefer the Morphie DEX
-                            </label>
+                                <br />
+                                {/* AUTO TRADING */}
+                                <h5>Automatic Trading</h5>
+                                <div className="form-check">
+                                    <input className="form-check-input" type="radio" id="morphie" 
+                                    value={morphie}
+                                    // checked={morphie}
+                                    checked={miningOperations.morphie ? true  : false}
+                                    name="auto-trading"
+                                    onChange={(e) => {updateInputs(e)}}  />
+                                    <label className="form-check-label" htmlFor="morphie">
+                                        Prefer the Morphie DEX
+                                    </label>
+                                </div>
+                                <div className="form-check">
+                                    <input className="form-check-input" type="radio" id="supportedExchange"
+                                    // value={supportedExchange}
+                                    name="auto-trading"
+                                    checked={miningOperations.supportedExchange ? true  : false}
+                                    onChange={(e) => {updateInputs(e)}} />
+                                    <label className="form-check-label" htmlFor="supportedExchange">
+                                        Supported exchanges
+                                    </label>
+                                </div>
+                                <div style={{transform: err.autoTrade ? 'scale(1)' : 'scale(0)'}} className="error-dialog">
+                                    <span className="error-arrow"></span>
+                                    <p>Need at least one checked before renting!</p>
+                                </div>
                         </div>
-                        <div className="form-check">
-                            <input className="form-check-input" type="radio" id="supportedExchange"
-                            // value={supportedExchange}
-                            name="auto-trading"
-                            checked={miningOperations.supportedExchange ? true  : false}
-                            onChange={(e) => {updateInputs(e)}} />
-                            <label className="form-check-label" htmlFor="supportedExchange">
-                                Supported exchanges
-                            </label>
-                        </div>
-                        <div style={{transform: err.autoTrade ? 'scale(1)' : 'scale(0)'}} className="error-dialog">
-                            <span className="error-arrow"></span>
-                            <p>Need at least one checked before renting!</p>
-                        </div>
-                    </div>
-                </div>
+                    </span>
+                </div>    
             </div>
+            
         </div>
         </>
     );

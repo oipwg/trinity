@@ -1,11 +1,10 @@
 import React, { useState, useEffect, useRef } from 'react';
 import './setup.css';
-import { ROOT_URL, API_URL } from '../../../../config.js';
+import { API_URL } from '../../../../config.js';
 import { connect } from 'react-redux';
 import Navigation from '../nav/Navigation';
 
 const Setup = props => {
-    console.log(props)
     const [userData, setUserData] = useState([]);
     const [bittrexData, setBittrexData] = useState({data: {}});
     const userId = useRef('');
@@ -55,14 +54,12 @@ const Setup = props => {
                     let targetElement = userData.filter(el => el.provider === target)
                     let data = merge(...targetElement, ...allOtherElements)
 
-                    console.log('data:', data)
                     
                     newState.push(data)
                     break;
                 }
                 if (prevState.provider !== target) {
                     let data = merge(options, prevState)
-                    console.log('data:', data)
                     newState.push(data)
                 }
                 i++
@@ -155,7 +152,6 @@ const Setup = props => {
             }    
         }
         options.userId = userId.current
-        console.log(options)
         setup_Provider(options)
     }
     function set_provider_values(e) {
@@ -198,7 +194,6 @@ const Setup = props => {
 
         // Merges the existing data when selecting provider with added data from "Add Provider" button
         let sentData = {...userData[0], ...options}
-        console.log('sentData:', sentData)
 
         setup_Provider(sentData)
     }
@@ -254,7 +249,6 @@ const Setup = props => {
             });
         
             let res = await response.json()
-            console.log(res)
             process_returned_data(res.data)
         } catch (e) {
             console.log('Catch error: Main.js line 232',e)
@@ -284,7 +278,6 @@ const Setup = props => {
     }
 
     const showBittrexThumb = (bittrexData) => {
-        console.log('bittrexData:', bittrexData)
         if (bittrexData.credentials) {
             return {
                 transform: 'translate(0)',
@@ -370,7 +363,6 @@ const Setup = props => {
         <div className="setup">
         <div className="setup-container">
             <Navigation />
-            {console.log(bittrexData.credentials)}
             <div className="credential-container">
             
                 <section className="bittrex-section" style={{height: bittrexData.credentials ? '90px' : '315px'}}>
@@ -563,7 +555,6 @@ const Setup = props => {
 const Pools = (props) => {
     return (  
         <div className="pools">
-            {console.log(props.poolBoolean())}
             <div style={{height: props.poolBoolean() ? '0px' : '345px' }} className="pool-add">
                 <h4>Add A Pool</h4>
                  {/* flex */}

@@ -12,7 +12,6 @@ async function processUserInput(req, res) {
     try {
      
         const user = await User.findById({ _id: userId });
-
         if (!user) {
             return 'Can\'t find user. setup.js line #19'
         }

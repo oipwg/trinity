@@ -61,36 +61,74 @@ async function processUserInput(req, res) {
     let accountMaster = bip32.fromBase58("Fprv4xQSjQhWzrCVzvgkjam897LUV1AfxMuG8FBz5ouGAcbyiVcDYmqh7R2Fi22wjA56GQdmoU1AzfxsEmVnc5RfjGrWmAiqvfzmj4cCL3fJiiC", Networks.flo.network)
     let account = new Account(accountMaster, Networks.flo, false);
     let paymentRecieverXPub = account.getExtendedPublicKey()
-
-    // Load Account from xPub
-    const paymentRecieverAddressGenerator = new Account(bip32.fromBase58(paymentRecieverXPub, Networks.flo.network), Networks.flo, false)
+    // const paymentRecieverAddressGenerator = new Account(bip32.fromBase58(paymentRecieverXPub, Networks.flo.network), Networks.flo, false)
+    
 
     // Generate the first 25 addresses
-    const EXTERNAL_CHAIN = 0
-    for (let i = 0; i < 25; i++) {
-        console.log(`${i}: ${paymentRecieverAddressGenerator.getAddress(EXTERNAL_CHAIN, i).getPublicAddress()}`)
+    let getAddress = (index, xPub) => {
+        console.log('INDEX:', index)
+        const EXTERNAL_CHAIN = 0
+        let address = ''
+        let addressIndex = 0
+        for (let i = 0; i < 25; i++) {
+            if (i === index) {
+                console.log('HIT TO MANY TIME')
+                // Load Account from xPub
+                const paymentRecieverAddressGenerator = new Account(bip32.fromBase58(xPub, Networks.flo.network), Networks.flo, false)
+                address = paymentRecieverAddressGenerator.getAddress(EXTERNAL_CHAIN, i).getPublicAddress()
+            }
+            // console.log(`${i}: ${paymentRecieverAddressGenerator.getAddress(EXTERNAL_CHAIN, i).getPublicAddress()}`)
+            
+        }
+        return address
     }
+    
 
 
     try {
         const rent = await Rent(token, Xpercent/100)
-        console.log('rent:', rent)
+
         let MinPercentFromMinHashrate = rent.MinPercentFromMinHashrate
-        console.log(MinPercentFromMinHashrate , Xpercent/100 )
+     
         if ( MinPercentFromMinHashrate > Xpercent/100 ) {
   
             return {
                     update: true,
-                    message: `Your pecent of the network ${Xpercent} changed to ${(MinPercentFromMinHashrate*100).toFixed(2)}%, to `+
+                    message: `Your pecent of the network ${Xpercent} changed to ${(MinPercentFromMinHashrate*101).toFixed(2)}%, to `+
                     `continute renting with ${Xpercent}% for the MiningRigRental market, change percentage and switch renting on again.`,
-                    Xpercent: (MinPercentFromMinHashrate*100).toFixed(2),
+                    Xpercent: (MinPercentFromMinHashrate*101).toFixed(2),
                     autoRent: false
                 }
         }
 
         const user = await User.findById({ _id: userId });
         console.log('user:', user)
+        // If user rents for first time with no xPub will save xPub ( paymentRecieverXPub ) to the DB
+        if (user.xPub === '') {
+            user.xPub = paymentRecieverXPub
+        }
         
+        for( let profile of user.profiles ) {
+            // If user doesn't have a generated address will generate a new one and save address and index to DB
+            if ( profile.poolAddress.address === '') {
+ 
+                let newAddress = getAddress(0, paymentRecieverXPub)
+                profile.poolAddress.address = newAddress
+                profile.poolAddress.index = 0
+                break;
+            } 
+            // If address already exist in database check next index and save address and index to DB
+            if ( profile.poolAddress.address !== '') {
+                let currentIndex = profile.poolAddress.index
+                let nextAddress = getAddress(++currentIndex, paymentRecieverXPub)
+
+                profile.poolAddress.address = nextAddress
+                profile.poolAddress.index = currentIndex
+
+            }
+        }
+
+        user.save()
         if (!user) {
             return 'Can\'t find user. setup.js line#16'
         }
