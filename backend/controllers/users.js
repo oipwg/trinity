@@ -53,7 +53,7 @@ module.exports = {
 
             // const EXTERNAL_CHAIN = 0
             // for (let i = 0; i < 25; i++) {
-            //   console.log(`${i}: ${account.getAddress(EXTERNAL_CHAIN, i).getPrivateAddress()}`)
+            //   console.log(`${i}: ${account.getAddress(EXTERNAL_CHAIN, i).getPublicAddress()}`)
             // }
 
             const user = await newUser.save()
