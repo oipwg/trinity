@@ -24,10 +24,10 @@ const Rent = async (token, percent) => {
                 let data = JSON.parse(body)
                 let difficulty = data.info.difficulty
                 let hashrate = difficulty * Math.pow(2, 32) / 40
-                let NetworkhashrateFlo = hashrate / 1000000000000;  // TH/s
-                let Rent = NetworkhashrateFlo * (-percent / (-1 + percent)) // * 1000000 for MRR to MH/s
+                let Networkhashrate = hashrate / 1000000000000;  // TH/s
+                let Rent = Networkhashrate * (-percent / (-1 + percent)) // * 1000000 for MRR to MH/s
                 let MinPercentFromMinHashrate = 1000000000000 * .01 / ( ( difficulty * Math.pow(2, 32) / 40 ) + (1000000000000 * .01) )
-                resolve( {Rent, MinPercentFromMinHashrate, difficulty } )
+                resolve( {Rent, MinPercentFromMinHashrate, difficulty, Networkhashrate } )
             })
         })
     }
@@ -41,10 +41,10 @@ const Rent = async (token, percent) => {
                 let data = JSON.parse(body);
                 let difficulty = data.nodes[0].difficulty;
                 let hashrate = difficulty * Math.pow(2, 32) / 60;
-                let NetworkhashrateRvn = hashrate / 1000000000000; // TH/s
-                let Rent = NetworkhashrateRvn * (-percent / (-1 + percent))   // * 1000000 for MRR to MH/s
+                let Networkhashrate = hashrate / 1000000000000; // TH/s
+                let Rent = Networkhashrate * (-percent / (-1 + percent))   // * 1000000 for MRR to MH/s
                 let MinPercentFromMinHashrate = 1000000000000 * .01 / ( ( difficulty * Math.pow(2, 32) / 40 ) + (1000000000000 * .01) )
-                resolve( {Rent, MinPercentFromMinHashrate, difficulty } );
+                resolve( {Rent, MinPercentFromMinHashrate, difficulty, Networkhashrate } )
             })
         })
     }
@@ -76,8 +76,9 @@ async function processUserInput(req, res) {
         const rent = await Rent(token, Xpercent/100)
         console.log('rent:', rent)
         let MinPercentFromMinHashrate = rent.MinPercentFromMinHashrate
-
+        console.log(MinPercentFromMinHashrate , Xpercent/100 )
         if ( MinPercentFromMinHashrate > Xpercent/100 ) {
+  
             return {
                     update: true,
                     message: `Your pecent of the network ${Xpercent} changed to ${(MinPercentFromMinHashrate*100).toFixed(2)}%, to `+
@@ -87,18 +88,22 @@ async function processUserInput(req, res) {
                 }
         }
 
-        // const user = await User.findById({ _id: userId });
+        const user = await User.findById({ _id: userId });
+        console.log('user:', user)
         
-        // if (!user) {
-        //     return 'Can\'t find user. setup.js line#16'
-        // }
+        if (!user) {
+            return 'Can\'t find user. setup.js line#16'
+        }
+        
         options.to_do = {
             rent: {
                 rent: true,
             }
         }
+        options.NetworkHashRate = rent.Networkhashrate
+        options.MinPercent = rent.MinPercentFromMinHashrate
         options.emitter = emitter
-        options.duration = 3
+        options.duration = token === "FLO" ? 24 : 3
         options.newRent = Rent
         options.difficulty = rent.difficulty
         options.hashrate = rent.Rent

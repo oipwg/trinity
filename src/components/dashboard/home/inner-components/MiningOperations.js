@@ -43,7 +43,8 @@ const MiningOperations = (props) => {
             supportedExchange: false,
             Xpercent: 15,
             token: 'FLO',
-            message: ''
+            message: '',
+            update: false
     });
 
 
@@ -66,7 +67,7 @@ const MiningOperations = (props) => {
 
     useEffect(() => {
         if(props.profile){
-            
+
             let {
                 targetMargin,
                 profitReinvestment,
@@ -79,10 +80,10 @@ const MiningOperations = (props) => {
         
         
             let profile = {
-                targetMargin: !targetMargin ? '' : targetMargin,
-                profitReinvestment: !profitReinvestment ? '' : profitReinvestment,
-                updateUnsold: !updateUnsold ? '' : updateUnsold,
-                dailyBudget: !dailyBudget ? '' : dailyBudget,
+                targetMargin: targetMargin,
+                profitReinvestment: profitReinvestment,
+                updateUnsold: updateUnsold,
+                dailyBudget: dailyBudget,
                 autoRent: autoRent.on,
                 spot: autoRent.mode.spot,
                 alwaysMineXPercent: autoRent.mode.alwaysMineXPercent.on,
@@ -100,8 +101,6 @@ const MiningOperations = (props) => {
             // console.log('mnemonic:', mnemonic)
             // const myWallet =  new Wallet(mnemonic).coins.flo.accounts[0].addresses;
             // setOperations({...miningOperations, addresses: myWallet})
-
-            
         }
     }, [props.profile, props.address])
 
@@ -139,9 +138,9 @@ const MiningOperations = (props) => {
         props.updateProfile(profile)
 
         if (miningOperations.autoRent){
-
-
-
+            // If update has a value of true it removes back to undefined to be updated once again on the backend
+            
+            setOperations({...miningOperations, message: '', update: ''})
             rent(miningOperations)
 
         } 
@@ -168,15 +167,17 @@ const MiningOperations = (props) => {
         setOperations({...miningOperations, ...newValues})
     }
 
-    const rent = (profile) => {
-        // profile.userId = props.user._id
-
+    const rent = (options) => {
+        options.userId = props.user._id
+        options.message = ''
+        options.updte = false
+        
         fetch(API_URL+'/rent', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify(profile),
+            body: JSON.stringify(options),
         }).then((response) => {
             return response.json();
         })
