@@ -1,4 +1,6 @@
 require('dotenv').config();
+
+
 const JWT = require('jsonwebtoken');
 const {
     JWT_SECRET,
@@ -24,7 +26,9 @@ signToken = user => {
 module.exports = {
     signUp: async (req, res, next) => {
         try {
-            const { userName, email, password, mnemonic } = req.body;
+            const { userName, email, password, mnemonic, wallet } = req.body;
+
+
             // check for user in DB
             const foundUser = await User.findOne({ userName });
             if (foundUser) {
@@ -37,7 +41,20 @@ module.exports = {
                 email,
                 password,
                 mnemonic,
+                wallet
             });
+
+
+            // use this to grab addresses
+
+            // let accountMaster = bip32.fromBase58(xPrv, Networks.flo.network)
+            
+            // let account = new Account(accountMaster, Networks.flo, false);
+
+            // const EXTERNAL_CHAIN = 0
+            // for (let i = 0; i < 25; i++) {
+            //   console.log(`${i}: ${account.getAddress(EXTERNAL_CHAIN, i).getPublicAddress()}`)
+            // }
 
             const user = await newUser.save()
             

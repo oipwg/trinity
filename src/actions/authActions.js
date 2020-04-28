@@ -55,7 +55,7 @@ export const loadUser = () => (dispatch, getState) => {
 
 // Register User
 export const signup = (
-    { userName, email, password, mnemonic },
+    { userName, email, password, mnemonic, wallet },
     history
 ) => dispatch => {
     // headers
@@ -65,18 +65,19 @@ export const signup = (
     //     },
     // };
 
+
     // request body
     const body = JSON.stringify({
         userName,
         email,
         password,
         mnemonic,
+        wallet
     });
 
     axios
         .post(`${API_URL}/users/signup`, body, config)
         .then(res => {
-            console.log('signup', res);
             dispatch({
                 type: SIGNUP_SUCCESS,
                 payload: res.data,

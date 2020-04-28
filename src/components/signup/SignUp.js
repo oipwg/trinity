@@ -6,8 +6,7 @@ import { Link } from 'react-router-dom';
 import { connect } from 'react-redux';
 import { signup } from '../../actions/authActions';
 import { clearErrors } from '../../actions/errorAction';
-import HDMW from '@oipwg/hdmw';
-const Wallet = HDMW.Wallet;
+import { Wallet } from '@oipwg/hdmw';
 
 const SignUp = props => {
     /**************************STATE SECTION************************/
@@ -33,6 +32,17 @@ const SignUp = props => {
 
     const [userHasMnemonic, setUserHasMnemonic] = useState('');
     const [disableMnemonic, setDisableMnemonic] = useState(true);
+    let wallet = {
+        btc: {
+            xPrv: ''
+        },
+        flo: {
+            xPrv: ''
+        },
+        rvn: {
+            xPrv: ''
+        }
+    }
 
     // const [success, setSuccessMessage] = useState(null);
 
@@ -57,9 +67,10 @@ const SignUp = props => {
             getEncryptedMnemonic().then(async encrypted => {
                 const newUser = {
                     userName: username,
-                    email: email,
-                    password: password,
+                    email,
+                    password,
                     mnemonic: encrypted,
+                    wallet: {...wallet}
                 };
                 // Attempt to Register
                 try {
@@ -71,25 +82,58 @@ const SignUp = props => {
         }
     };
 
-    const createMnemonic = async () => {
-        if (userHasMnemonic) {
-            let myWallet2 = new Wallet(userHasMnemonic, {
-                supported_coins: ['flo'],
-            });
-            let validation = myWallet2.fromMnemonic(userHasMnemonic);
 
-            if (validation) {
-                return userHasMnemonic;
-            }
+
+
+    const createMnemonic = async () => {
+        let validation;
+        let myWallet; 
+
+        if (userHasMnemonic) {
+            myWallet = new Wallet(userHasMnemonic, {
+                discover: false,
+            });
+            validation = myWallet.fromMnemonic(userHasMnemonic);
+        } else {
+            
+            myWallet = new Wallet('', {
+                discover: false,
+            });
         }
 
-        let myWallet = new Wallet('', {
-            supported_coins: ['flo'],
-            discover: false,
-        });
-
         let mnemonic = await myWallet.getMnemonic();
-        console.log('My Mnemonic: ' + mnemonic);
+        // console.log('My Mnemonic: ' + mnemonic);
+
+
+        
+        // get xPvb
+        const flo = myWallet.getCoin('flo')
+        const btc = myWallet.getCoin('bitcoin')
+        const rvn = myWallet.getCoin('raven')
+
+        const floAccount = flo.getAccount(1)
+        const btcAccount = btc.getAccount(1)
+        const ravenAccount = rvn.getAccount(1)
+
+        wallet = {
+            btc: {
+                xPrv: btcAccount.getExtendedPrivateKey()
+            },
+            flo: {
+                xPrv: floAccount.getExtendedPrivateKey()
+            },
+            rvn: {
+                xPrv: ravenAccount.getExtendedPrivateKey()
+            }
+        }
+        
+        
+
+
+        if (validation) {
+            return userHasMnemonic;
+        }
+
         return mnemonic;
     };
 
