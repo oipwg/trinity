@@ -134,26 +134,19 @@ const MiningOperations = (props) => {
         }
         props.updateProfile(profile)
 
-        if (miningOperations.autoRent){
+        if (autoRent && props.profile){
 
-
-
-            rent(miningOperations)
+            // rent(miningOperations)
 
         } 
 
 
-        if (miningOperations.autoTrade){
 
-            if(props.profile){
-
-                trade(props.profile._id)
-            }
-
-        } 
+                // trade(props.profile._id)
 
 
-    },[autoRent, autoTrade ]);
+
+    },[autoRent]);
 
     const processReturnData = (data) => {
         let newValues = {}
@@ -221,10 +214,6 @@ const MiningOperations = (props) => {
                 case 'updateUnsold':
                     if (miningOperations[key] === '') 
                         return setError({updateUnsold: true})
-                    break;
-                case 'dailyBudget':
-                    if (miningOperations[key] === '') 
-                        return setError({dailyBudget: true})
                     break;
                 case 'autoRent':
                     if (slider === 'autoRent') {
