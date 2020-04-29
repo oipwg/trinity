@@ -13,7 +13,8 @@ const profileSchema = new Schema({
     },
     address: {
         index: {type: Number, unique: true},
-        publicAddress: {type: String, default: ''}
+        publicAddress: {type: String, default: ''},
+        btcAddress: {type: String, default: ''}
     },
     autoRent: {
         on: {

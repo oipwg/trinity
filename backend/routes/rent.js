@@ -54,55 +54,41 @@ async function processUserInput(req, res) {
 
     console.log('options: rent.js 41')
 
-    let getAddress = (index, xPub) => {
+    let getAddress = (index, xPub, token) => {
+        console.log({token})
+
         const EXTERNAL_CHAIN = 0
         const currency = token.toLowerCase()
         console.log('currency:', currency)
         let address = ''
         let addressIndex = 0
 
-        for (let i = 0; i < 25; i++) {
-            if (i === index) {
-                // Load Account from xPub
-                const paymentRecieverAddressGenerator = new Account(bip32.fromBase58(xPub, Networks[currency].network), Networks[currency], false)
-                address = paymentRecieverAddressGenerator.getAddress(EXTERNAL_CHAIN, i).getPublicAddress()
-                addressIndex = index
-            }
-        }
+        // for (let i = 0; i < 25; i++) {
+        //     if (i === index) {
+        //         // Load Account from xPub
+        //         const paymentRecieverAddressGenerator = new Account(bip32.fromBase58(xPub, Networks[currency].network), Networks[currency], false)
+        //         address = paymentRecieverAddressGenerator.getAddress(EXTERNAL_CHAIN, i).getPublicAddress()
+        //         addressIndex = index
+        //     }
+        // }
+
+        const paymentRecieverAddressGenerator = new Account(bip32.fromBase58(xPub, Networks[currency].network), Networks[currency], false)
+        address = paymentRecieverAddressGenerator.getAddress(EXTERNAL_CHAIN, index).getPublicAddress()
+        addressIndex = index
+
         // LEFT OFF AT FINAL CONDITIONAL CHECK OF BALANCE
         let balance = new Address(address, Networks[currency], false).getBalance()
         if (balance > 0) {
-            getAddress(++addressIndex, xPub) // Recursion until there is an address with a 0 balance met
+            getAddress(++addressIndex, xPub, currency) // Recursion until there is an address with a 0 balance met
         }
         console.log('balance', balance)
         return address
     }
 
-    const getBtcAddress = (index, xPvr) => {
-        const EXTERNAL_CHAIN = 0
-        const currency = 'bitcoin'
-        let address = ''
-        let addressIndex = 0
 
-        for (let i = 0; i < 25; i++) {
-            if (i === index) {
-                // Load Account from xPvr
-                const paymentRecieverAddressGenerator = new Account(bip32.fromBase58(xPvr, Networks[currency].network), Networks[currency], false)
-                address = paymentRecieverAddressGenerator.getAddress(EXTERNAL_CHAIN, i).getPublicAddress()
-                addressIndex = index
-            }
-        }
-        // LEFT OFF AT FINAL CONDITIONAL CHECK OF BALANCE
-        let balance = new Address(address, Networks[currency], false).getBalance()
-        if (balance > 0) {
-            getBtcAddress(++addressIndex, xPvr) // Recursion until there is an address with a 0 balance met
-        }
-
-        return address
-    }
 
     try {
-        const rent = await Rent(token, Xpercent/100)
+        const rent = await Rent(token, Xpercent/100) 
         const user = await User.findById({ _id: userId });
 
         let MinPercentFromMinHashrate = rent.MinPercentFromMinHashrate
@@ -126,8 +112,8 @@ async function processUserInput(req, res) {
         for( let profile of user.profiles ) {
             // If user doesn't have a generated address will generate a new one and save address and index to DB
             if ( profile.address.publicAddress === '') {
-                let newAddress = getAddress(0, paymentRecieverXPub)
-                let btcAddress = getBtcAddress(0, btcxPrv)
+                let newAddress = getAddress(0, paymentRecieverXPub, token)
+                let btcAddress = getAddress(0, btcxPrv , 'bitcoin')
 
 
                 profile.address.publicAddress = newAddress
@@ -140,8 +126,8 @@ async function processUserInput(req, res) {
             // If address already exist in database check next index and save address and index to DB
             if ( profile.address.publicAddress !== '') {
                 let currentIndex = profile.address.index
-                let nextAddress = getAddress(++currentIndex, paymentRecieverXPub)
-                let btcAddress = getBtcAddress(++currentIndex, btcxPrv)
+                let nextAddress = getAddress(++currentIndex, paymentRecieverXPub, token)
+                let btcAddress = getAddress(++currentIndex, btcxPrv, 'bitcoin')
 
                 profile.address.publicAddress = nextAddress
                 profile.address.index = currentIndex
