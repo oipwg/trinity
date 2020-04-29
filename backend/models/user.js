@@ -12,8 +12,8 @@ const profileSchema = new Schema({
         default: '',
     },
     address: {
-        type: String,
-        default: '',
+        index: {type: Number, unique: true},
+        publicAddress: {type: String, default: ''}
     },
     autoRent: {
         on: {
@@ -70,11 +70,7 @@ const profileSchema = new Schema({
     },
     usedAddresses: [{
         type: String
-    }],
-    poolAddress : {
-        index: {type: Number, unique: true},
-        address: {type: String, default: ''}
-    },
+    }]
 });
 
 

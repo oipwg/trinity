@@ -8,13 +8,10 @@ const User = require('../models/user');
 const emitter = new events()
 const wss = require('./socket').wss;
 const bip32 = require('bip32');
-const { Account, Networks, Wallet, Address } = require('@oipwg/hdmw');
-// const Wallet = HDMW.Wallet;
+const { Account, Networks, Address } = require('@oipwg/hdmw');
 
 
 const Rent = async (token, percent) => {
-
-    console.log('percent', percent)
     if (token === "FLO") {
         return await new Promise((resolve, reject) => {
             request({url: 'https://livenet.flocha.in/api/status?q=getInfos'}, (err, res, body)=> {
@@ -57,15 +54,10 @@ async function processUserInput(req, res) {
 
     console.log('options: rent.js 41')
 
-    // let accountMaster = bip32.fromBase58("Fprv4xQSjQhWzrCVzvgkjam897LUV1AfxMuG8FBz5ouGAcbyiVcDYmqh7R2Fi22wjA56GQdmoU1AzfxsEmVnc5RfjGrWmAiqvfzmj4cCL3fJiiC", Networks.flo.network)
-    // let account = new Account(accountMaster, Networks.flo, false);
-    // let paymentRecieverXPub = account.getExtendedPublicKey()
-    // const paymentRecieverAddressGenerator = new Account(bip32.fromBase58(paymentRecieverXPub, Networks.flo.network), Networks.flo, false)
-    
-
     let getAddress = (index, xPub) => {
         const EXTERNAL_CHAIN = 0
         const currency = token.toLowerCase()
+        console.log('currency:', currency)
         let address = ''
         let addressIndex = 0
 
@@ -85,7 +77,6 @@ async function processUserInput(req, res) {
         console.log('balance', balance)
         return address
     }
-    
 
     try {
         const rent = await Rent(token, Xpercent/100)
@@ -109,24 +100,22 @@ async function processUserInput(req, res) {
         // If user rents for first time with no xPub will save xPub ( paymentRecieverXPub ) to the DB
         for( let profile of user.profiles ) {
             // If user doesn't have a generated address will generate a new one and save address and index to DB
-            if ( profile.poolAddress.address === '') {
-                console.log('NO ADDRESS HIT')
+            if ( profile.address.publicAddress === '') {
                 let newAddress = getAddress(0, paymentRecieverXPub)
-                profile.poolAddress.address = newAddress
-                profile.poolAddress.index = 0
+
+                profile.address.publicAddress = newAddress
+                profile.address.index = 0
                 options.address = newAddress
                 break;
             } 
             // If address already exist in database check next index and save address and index to DB
-            if ( profile.poolAddress.address !== '') {
-                console.log('ADDRESS HIT')
-                let currentIndex = profile.poolAddress.index
+            if ( profile.address.publicAddress !== '') {
+                let currentIndex = profile.address.index
                 let nextAddress = getAddress(++currentIndex, paymentRecieverXPub)
 
-                profile.poolAddress.address = nextAddress
-                profile.poolAddress.index = currentIndex
+                profile.address.publicAddress = nextAddress
+                profile.address.index = currentIndex
                 options.address = nextAddress
-
             }
         }
 
@@ -148,8 +137,6 @@ async function processUserInput(req, res) {
         options.difficulty = rent.difficulty
         options.hashrate = rent.Rent
         options.rentType = 'Manual' 
-        console.log('OPTIONS ADDRESS ', options.address)
-        // options.address = "somelongaddress3456"
         return options
     } catch (e) {
         return {err: 'Can\'t find user or input is wrong.'+ e}
@@ -172,7 +159,7 @@ router.post('/',  async (req, res) => {
         res.status(200).json({data: data, fromRent: data})
 
     } catch (err) {
-        console.log('route rent.js line #129 catch error', err);
+        console.log('route rent.js catch error', err);
         res.status(500).json({err: err})
     }
 });
