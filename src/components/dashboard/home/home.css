@@ -19,7 +19,7 @@ main {
           align-items: center;
 }
 
-.card.mining-operation p {
+.card.mining-operation .card-header p {
   width: 50%;
   margin: 0;
 }
@@ -117,6 +117,8 @@ main {
   padding: 1.5rem;
   border: 1px solid #d6d6d6;
   border-radius: 5px;
+  width: 80%;
+  margin: 1rem;
 }
 
 .automatic-renting-content .form-check {
@@ -369,6 +371,9 @@ main {
   .card {
     margin: 0 0 1rem 0;
   }
+  .card.mining-operation .card-header p {
+    margin-bottom: 1rem;
+  }
   .target-margin-container,
   .profit-reinvestment-container,
   .unusoled-offers-container,
@@ -478,17 +483,22 @@ main {
         -ms-flex-align: center;
             align-items: center;
   }
-  .rent-toggle-switch {
-    margin: 0 auto;
+  .card.mining-operation .header-container {
+    -webkit-box-orient: vertical;
+    -webkit-box-direction: normal;
+        -ms-flex-direction: column;
+            flex-direction: column;
+    -webkit-box-align: baseline;
+        -ms-flex-align: baseline;
+            align-items: baseline;
   }
   .automatic-renting-container {
     margin: 0;
     padding: 0;
-    display: block;
     margin-top: 2.5rem;
   }
   .automatic-renting-content {
-    margin-top: 1rem;
+    margin: 1rem;
   }
   .automatic-renting-content .percent-container {
     overflow: hidden;
