@@ -110,7 +110,8 @@ async function processUserInput(req, res) {
             // If address already exist in database check next index and save address and index to DB
             if ( profile.address.publicAddress !== '') {
                 let currentIndex = profile.address.index
-                let nextAddress = getAddress(++currentIndex, paymentRecieverXPub)
+                console.log('currentIndex:', currentIndex)
+                let nextAddress = getAddress(currentIndex++, paymentRecieverXPub)
 
                 profile.address.publicAddress = nextAddress
                 profile.address.index = currentIndex
@@ -152,7 +153,7 @@ router.post('/',  async (req, res) => {
     if (userInput['update']) {
         return res.json(userInput)
     }
-   
+   return
     try {
         let data = await controller(userInput);
         res.status(200).json({data: data, fromRent: data})
