@@ -55,7 +55,6 @@ async function processUserInput(req, res) {
     console.log('options: rent.js 41')
 
     let getAddress = (index, xPub, token) => {
-        console.log({token})
 
         const EXTERNAL_CHAIN = 0
         const currency = token.toLowerCase()
