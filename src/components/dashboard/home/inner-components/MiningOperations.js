@@ -30,7 +30,7 @@ const MiningOperations = (props) => {
             targetMargin: '1',
             profitReinvestment:'1',
             updateUnsold: '1',
-            dailyBudget: '1',
+            dailyBudget: '0',
             autoRent: false,
             spot: false,
             alwaysMineXPercent: false,
@@ -92,11 +92,22 @@ const MiningOperations = (props) => {
             setOperations({...miningOperations, ...profile})
             setError('')
 
-        }  else if (props.address) { 
-            // let mnemonic = props.address.mnemonic
-            // console.log('mnemonic:', mnemonic)
-            // const myWallet =  new Wallet(mnemonic).coins.flo.accounts[0].addresses;
-            // setOperations({...miningOperations, addresses: myWallet})
+        }  else {
+            {      setOperations({
+                    targetMargin: '',
+                    profitReinvestment: '',
+                    updateUnsold: '',
+                    dailyBudget: '',
+                    autoRent: false,
+                    spot: false,
+                    alwaysMineXPercent: true,
+                    autoTrade: false,
+                    morphie: false,
+                    supportedExchange: false,
+                    Xpercent: 15,
+                    token: 'FLO'
+                })
+            } 
         }
     }, [props.profile, props.address])
 
