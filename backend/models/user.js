@@ -70,7 +70,11 @@ const profileSchema = new Schema({
     },
     usedAddresses: [{
         type: String
-    }]
+    }],
+    poolAddress : {
+        index: {type: Number, unique: true},
+        address: {type: String, default: ''}
+    },
 });
 
 

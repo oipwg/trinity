@@ -39,7 +39,8 @@ const MiningOperations = (props) => {
             supportedExchange: false,
             Xpercent: 15,
             token: 'FLO',
-            message: ''
+            message: '',
+            update: false
     });
 
 
@@ -62,7 +63,7 @@ const MiningOperations = (props) => {
 
     useEffect(() => {
         if(props.profile){
-            
+
             let {
                 targetMargin,
                 profitReinvestment,
@@ -75,10 +76,10 @@ const MiningOperations = (props) => {
         
         
             let profile = {
-                targetMargin: !targetMargin ? '' : targetMargin,
-                profitReinvestment: !profitReinvestment ? '' : profitReinvestment,
-                updateUnsold: !updateUnsold ? '' : updateUnsold,
-                dailyBudget: !dailyBudget ? '' : dailyBudget,
+                targetMargin: targetMargin,
+                profitReinvestment: profitReinvestment,
+                updateUnsold: updateUnsold,
+                dailyBudget: dailyBudget,
                 autoRent: autoRent.on,
                 spot: autoRent.mode.spot,
                 alwaysMineXPercent: autoRent.mode.alwaysMineXPercent.on,
@@ -96,8 +97,6 @@ const MiningOperations = (props) => {
             // console.log('mnemonic:', mnemonic)
             // const myWallet =  new Wallet(mnemonic).coins.flo.accounts[0].addresses;
             // setOperations({...miningOperations, addresses: myWallet})
-
-            
         }
     }, [props.profile, props.address])
 
@@ -134,9 +133,16 @@ const MiningOperations = (props) => {
         }
         props.updateProfile(profile)
 
+<<<<<<< HEAD
         if (autoRent && props.profile){
 
             // rent(miningOperations)
+=======
+        if (miningOperations.autoRent){
+            // If update has a value of true it removes back to undefined to be updated once again on the backend
+            setOperations({...miningOperations, message: '', update: ''})
+            rent(miningOperations)
+>>>>>>> 1246e22b866786d33646028d2fc5c6474b6e2bfa
 
         } 
 
@@ -157,15 +163,17 @@ const MiningOperations = (props) => {
         setOperations({...miningOperations, ...newValues})
     }
 
-    const rent = (profile) => {
-        // profile.userId = props.user._id
-
+    const rent = (options) => {
+        options.userId = props.user._id
+        options.message = ''
+        options.update = false
+        
         fetch(API_URL+'/rent', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify(profile),
+            body: JSON.stringify(options),
         }).then((response) => {
             return response.json();
         })
@@ -292,7 +300,7 @@ const MiningOperations = (props) => {
     }
     const updatePercent = e => {
         let value = e.target.value
-        setOperations({...miningOperations, Xpercent: value, message: ''})
+        setOperations({...miningOperations, Xpercent: value})
     }
     const showPercentInput = () => {
         let elem = document.getElementsByClassName('percent-input-container')[0]
@@ -429,7 +437,7 @@ const MiningOperations = (props) => {
                                 </div>
                                 <div className="percent-input-container" >
                                 <input type="text" className="form-control percent-field" id="Xpercent" 
-                                    required placeholder="0" onChange={(e) => {updatePercent(e)}} maxLength="2"
+                                    required placeholder="0" onChange={(e) => {updatePercent(e)}} maxLength="5"
                                     value={Xpercent}
                                 />
                                 <span>%</span>

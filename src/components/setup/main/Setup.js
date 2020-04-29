@@ -9,11 +9,12 @@ const Setup = props => {
     const [bittrexData, setBittrexData] = useState({data: {}});
     const userId = useRef('');
 
-    let scale = window.devicePixelRatio
 
     useEffect(() => {
         if (props.user) {
-            userId.current = props.user._id
+            let id = props.user._id || props.user.id
+
+            userId.current = id
         }
     }, [props.user])
 
@@ -199,6 +200,7 @@ const Setup = props => {
 
     
     function process_returned_data(data) {
+        console.log('DATA', data)
         if (data.provider === "Bittrex") {
             setBittrexData({...data})
         } else {
@@ -235,6 +237,7 @@ const Setup = props => {
     async function setup_Provider(data) {
         // Hits /bittrex endpoint when adding credentials the rest hits /setup
         const endPoint = data.bittrex ? '/auth/bittrex' : '/setup';
+        console.log('endPoint:', endPoint)
 
         try {
             const response = await fetch(API_URL + endPoint, {
