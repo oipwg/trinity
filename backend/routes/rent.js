@@ -52,12 +52,11 @@ async function processUserInput(req, res) {
     let {profitReinvestment, updateUnsold, dailyBudget, autoRent, spot, alwaysMineXPercent,
         autoTrade, morphie, supportedExchange, Xpercent, userId, token} = options;
 
-    console.log('options: rent.js 41')
+    console.log('options: rent.js 55')
 
     let getAddress = (index, xPub) => {
         const EXTERNAL_CHAIN = 0
         const currency = token.toLowerCase()
-        console.log('currency:', currency)
         let address = ''
         let addressIndex = 0
 

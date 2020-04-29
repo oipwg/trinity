@@ -382,7 +382,7 @@ const MiningOperations = (props) => {
                     <div className="daily-budget-container">
                         <label htmlFor="basic-url">Daily Budget</label>
                         <div className="input-group">
-                            <input disabled type="text" className="form-control" id="dailyBudget" aria-label="Daily budget"
+                            <input type="text" className="form-control" id="dailyBudget" aria-label="Daily budget"
                             onChange={(e) => {updateInputs(e)}} value={dailyBudget}/>
                             <div className="input-group-append">
                                 <span className="daily-budget-text">Edit</span>
