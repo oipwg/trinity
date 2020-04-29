@@ -401,9 +401,8 @@ const MiningOperations = (props) => {
                         handleChange={(e) => {updateInputs(e)}}
                         id={"autoRent"}
                         htmlFor={"autoRent"}
-                        isOn={autoRent}
-                    />
-                    <span style={{flex: "1 1 auto"}}>
+                        isOn={autoRent}/>
+               
                         <div className="automatic-renting-content">
                             <h5>Automatic Renting</h5>
                             <div className="form-check">
@@ -474,7 +473,6 @@ const MiningOperations = (props) => {
                                     <p>Need at least one checked before renting!</p>
                                 </div>
                         </div>
-                    </span>
                 </div>    
             </div>
             
