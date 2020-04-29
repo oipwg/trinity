@@ -133,16 +133,10 @@ const MiningOperations = (props) => {
         }
         props.updateProfile(profile)
 
-<<<<<<< HEAD
-        if (autoRent && props.profile){
-
-            // rent(miningOperations)
-=======
         if (miningOperations.autoRent){
             // If update has a value of true it removes back to undefined to be updated once again on the backend
             setOperations({...miningOperations, message: '', update: ''})
             rent(miningOperations)
->>>>>>> 1246e22b866786d33646028d2fc5c6474b6e2bfa
 
         } 
 
