@@ -125,11 +125,7 @@ const userSchema = new Schema({
         api_secret: String,
         api_id: String
     }],
-    profiles: [profileSchema],
-    xPub: {
-        default: '',
-        type: String
-    }
+    profiles: [profileSchema]
 });
 
 userSchema.pre('save', async function(next) {
