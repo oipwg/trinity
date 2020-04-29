@@ -78,12 +78,37 @@ async function processUserInput(req, res) {
         return address
     }
 
+    const getBtcAddress = (index, xPvr) => {
+        const EXTERNAL_CHAIN = 0
+        const currency = 'bitcoin'
+        let address = ''
+        let addressIndex = 0
+
+        for (let i = 0; i < 25; i++) {
+            if (i === index) {
+                // Load Account from xPvr
+                const paymentRecieverAddressGenerator = new Account(bip32.fromBase58(xPvr, Networks[currency].network), Networks[currency], false)
+                address = paymentRecieverAddressGenerator.getAddress(EXTERNAL_CHAIN, i).getPublicAddress()
+                addressIndex = index
+            }
+        }
+        // LEFT OFF AT FINAL CONDITIONAL CHECK OF BALANCE
+        let balance = new Address(address, Networks[currency], false).getBalance()
+        if (balance > 0) {
+            getBtcAddress(++addressIndex, xPvr) // Recursion until there is an address with a 0 balance met
+        }
+
+        return address
+    }
+
     try {
         const rent = await Rent(token, Xpercent/100)
         const user = await User.findById({ _id: userId });
 
         let MinPercentFromMinHashrate = rent.MinPercentFromMinHashrate
         let paymentRecieverXPub = user.wallet[token.toLowerCase()].xPrv
+        let btcxPrv = user.wallet.btc.xPrv
+
 
         if ( MinPercentFromMinHashrate > Xpercent/100 ) {
             return {
@@ -102,19 +127,25 @@ async function processUserInput(req, res) {
             // If user doesn't have a generated address will generate a new one and save address and index to DB
             if ( profile.address.publicAddress === '') {
                 let newAddress = getAddress(0, paymentRecieverXPub)
+                let btcAddress = getBtcAddress(0, btcxPrv)
+
 
                 profile.address.publicAddress = newAddress
                 profile.address.index = 0
+                profile.address.btcAddress = btcAddress
                 options.address = newAddress
+            
                 break;
             } 
             // If address already exist in database check next index and save address and index to DB
             if ( profile.address.publicAddress !== '') {
                 let currentIndex = profile.address.index
                 let nextAddress = getAddress(++currentIndex, paymentRecieverXPub)
+                let btcAddress = getBtcAddress(++currentIndex, btcxPrv)
 
                 profile.address.publicAddress = nextAddress
                 profile.address.index = currentIndex
+                profile.address.btcAddress = btcAddress
                 options.address = nextAddress
             }
         }
