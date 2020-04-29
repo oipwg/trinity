@@ -70,7 +70,7 @@ const SignUp = props => {
                     email,
                     password,
                     mnemonic: encrypted,
-                    wallet: {...wallet}
+                    wallet: wallet
                 };
                 // Attempt to Register
                 try {
@@ -86,17 +86,17 @@ const SignUp = props => {
 
 
     const createMnemonic = async () => {
-        let validation;
         let myWallet; 
 
         if (userHasMnemonic) {
             myWallet = new Wallet(userHasMnemonic, {
+                supported_coins: ['raven', 'bitcoin', 'flo'],
                 discover: false,
             });
-            validation = myWallet.fromMnemonic(userHasMnemonic);
         } else {
             
             myWallet = new Wallet('', {
+                supported_coins: ['raven', 'bitcoin', 'flo'],
                 discover: false,
             });
         }
@@ -110,6 +110,16 @@ const SignUp = props => {
         const flo = myWallet.getCoin('flo')
         const btc = myWallet.getCoin('bitcoin')
         const rvn = myWallet.getCoin('raven')
+
+        if(!flo) {
+            console.log('error', flo)
+        }
+        if(!btc) {
+            console.log('error', btc)
+        }
+        if(!rvn) {
+            console.log('error', rvn)
+        }
 
         const floAccount = flo.getAccount(1)
         const btcAccount = btc.getAccount(1)
@@ -125,13 +135,6 @@ const SignUp = props => {
             rvn: {
                 xPrv: ravenAccount.getExtendedPrivateKey()
             }
-        }
-        
-        
-
-
-        if (validation) {
-            return userHasMnemonic;
         }
 
         return mnemonic;
