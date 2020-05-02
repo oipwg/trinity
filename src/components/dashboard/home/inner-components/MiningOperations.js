@@ -30,7 +30,7 @@ const MiningOperations = (props) => {
             targetMargin: '1',
             profitReinvestment:'1',
             updateUnsold: '1',
-            dailyBudget: '1',
+            dailyBudget: '0',
             autoRent: false,
             spot: false,
             alwaysMineXPercent: false,
@@ -57,13 +57,12 @@ const MiningOperations = (props) => {
             autoTrade,
             morphie,
             supportedExchange,
-            Xpercent,
-            token
+            Xpercent
             } = miningOperations
 
     useEffect(() => {
         if(props.profile){
-
+            console.log('PROPS PROFILE', props.profile)
             let {
                 targetMargin,
                 profitReinvestment,
@@ -72,6 +71,7 @@ const MiningOperations = (props) => {
                 autoRent,
                 autoTrade,
                 token,
+                _id
             } = props.profile
         
         
@@ -87,16 +87,28 @@ const MiningOperations = (props) => {
                 autoTrade: autoTrade.on,
                 morphie: autoTrade.mode.morphie,
                 supportedExchange: autoTrade.mode.supportedExchanges,
-                token: token
+                token: token,
+                profile_id : _id
             }
             setOperations({...miningOperations, ...profile})
             setError('')
 
-        }  else if (props.address) { 
-            // let mnemonic = props.address.mnemonic
-            // console.log('mnemonic:', mnemonic)
-            // const myWallet =  new Wallet(mnemonic).coins.flo.accounts[0].addresses;
-            // setOperations({...miningOperations, addresses: myWallet})
+        }  else {
+            {      setOperations({
+                    targetMargin: '',
+                    profitReinvestment: '',
+                    updateUnsold: '',
+                    dailyBudget: '',
+                    autoRent: false,
+                    spot: false,
+                    alwaysMineXPercent: true,
+                    autoTrade: false,
+                    morphie: false,
+                    supportedExchange: false,
+                    Xpercent: 15,
+                    token: 'FLO'
+                })
+            } 
         }
     }, [props.profile, props.address])
 
@@ -134,17 +146,13 @@ const MiningOperations = (props) => {
         props.updateProfile(profile)
 
         if (miningOperations.autoRent){
+            
             // If update has a value of true it removes back to undefined to be updated once again on the backend
             setOperations({...miningOperations, message: '', update: ''})
             rent(miningOperations)
 
         } 
-
-
-
                 // trade(props.profile._id)
-
-
 
     },[autoRent]);
 
@@ -158,6 +166,7 @@ const MiningOperations = (props) => {
     }
 
     const rent = (options) => {
+        console.log('HIT AUTO RENT', options)
         options.userId = props.user._id
         options.message = ''
         options.update = false
@@ -310,6 +319,7 @@ const MiningOperations = (props) => {
         <>
         {showSettingaModal && <MarketsNPools handleClick={() => setShowSettingsModal(!showSettingaModal)}/>}
         <div className="card mining-operation">
+            {console.log(miningOperations)}
             <div className="card-header">
                 <div className="header-container">
                     <p>Mining Operations</p>

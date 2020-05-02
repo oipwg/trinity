@@ -12,8 +12,8 @@ const profileSchema = new Schema({
         default: '',
     },
     address: {
-        index: {type: Number, unique: true},
-        publicAddress: {type: String, default: ''}
+        publicAddress: {type: String, default: ''},
+        btcAddress: {type: String, default: ''}
     },
     autoRent: {
         on: {
@@ -121,6 +121,7 @@ const userSchema = new Schema({
         api_secret: String,
         api_id: String
     }],
+    indexes : [],
     profiles: [profileSchema]
 });
 

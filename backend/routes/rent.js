@@ -4,12 +4,12 @@ const router = express.Router();
 const controller = require('../spartanBot');
 const request = require('request');
 const events = require('events');
+const mongoose = require('mongoose');
 const User = require('../models/user');
 const emitter = new events()
 const wss = require('./socket').wss;
 const bip32 = require('bip32');
 const { Account, Networks, Address } = require('@oipwg/hdmw');
-
 
 const Rent = async (token, percent) => {
     if (token === "FLO") {
@@ -50,39 +50,44 @@ const Rent = async (token, percent) => {
 async function processUserInput(req, res) {
     let options = req.body
     let {profitReinvestment, updateUnsold, dailyBudget, autoRent, spot, alwaysMineXPercent,
-        autoTrade, morphie, supportedExchange, Xpercent, userId, token} = options;
-
-    console.log('options: rent.js 55')
-
-    let getAddress = (index, xPub) => {
-        const EXTERNAL_CHAIN = 0
-        const currency = token.toLowerCase()
-        let address = ''
-        let addressIndex = 0
-
-        for (let i = 0; i < 25; i++) {
-            if (i === index) {
-                // Load Account from xPub
-                const paymentRecieverAddressGenerator = new Account(bip32.fromBase58(xPub, Networks[currency].network), Networks[currency], false)
-                address = paymentRecieverAddressGenerator.getAddress(EXTERNAL_CHAIN, i).getPublicAddress()
-                addressIndex = index
-            }
-        }
-        // LEFT OFF AT FINAL CONDITIONAL CHECK OF BALANCE
-        let balance = new Address(address, Networks[currency], false).getBalance()
-        if (balance > 0) {
-            getAddress(++addressIndex, xPub) // Recursion until there is an address with a 0 balance met
-        }
-        console.log('balance', balance)
-        return address
-    }
+        autoTrade, morphie, supportedExchange, profile_id, Xpercent, userId, token} = options;
 
     try {
-        const rent = await Rent(token, Xpercent/100)
-        const user = await User.findById({ _id: userId });
+        const rent = await Rent(token, Xpercent/100) 
+        let user = await User.findById({ _id: userId})
 
+        // User.findOneAndUpdate({'profiles._id': '5eac4e09e40612427b2e8531'},{profiles}, {new: true}, (err, data)=> {
+        //     if(err) console.log('err', err)
+        //     console.log('data', data)
+        // })
+
+       console.log( 'options', options)
+        let getAddress = (index, xPub, token, usedIndexes) => {
+            const EXTERNAL_CHAIN = 0
+            const currency = token === "RVN" ? 'raven' : token.toLowerCase()
+
+            if(usedIndexes.length) {
+                for(let i = 0; i < usedIndexes.length; i++) {
+                    if( usedIndexes[i] === index) index++
+                }
+            }
+            console.log('index in function',index)
+            const paymentRecieverAddressGenerator = new Account(bip32.fromBase58(xPub, Networks[currency].network), Networks[currency], false)
+            let usedAddresses = paymentRecieverAddressGenerator.getUsedAddresses(EXTERNAL_CHAIN)
+            let address = paymentRecieverAddressGenerator.getAddress(EXTERNAL_CHAIN, index).getPublicAddress(0)
+
+            // LEFT OFF AT FINAL CONDITIONAL 
+            if (usedAddresses.transactions.length > 0) {
+                getAddress(index++, xPub, currency) // Recursion until there is an address with no transactions
+            }
+            return {address, index}
+        }
+
+  
         let MinPercentFromMinHashrate = rent.MinPercentFromMinHashrate
         let paymentRecieverXPub = user.wallet[token.toLowerCase()].xPrv
+        let btcxPrv = user.wallet.btc.xPrv
+
 
         if ( MinPercentFromMinHashrate > Xpercent/100 ) {
             return {
@@ -94,32 +99,30 @@ async function processUserInput(req, res) {
             }
         }
 
-        console.log('user:', user)
-        
         // If user rents for first time with no xPub will save xPub ( paymentRecieverXPub ) to the DB
         for( let profile of user.profiles ) {
-            // If user doesn't have a generated address will generate a new one and save address and index to DB
-            if ( profile.address.publicAddress === '') {
-                let newAddress = getAddress(0, paymentRecieverXPub)
+            if (profile._id.toString() === profile_id) {
+       
+                // If user doesn't have a generated address will generate a new one and save address and index to DB
+                if ( profile.address.publicAddress === '') {
+                    let usedIndexes = user.indexes 
 
-                profile.address.publicAddress = newAddress
-                profile.address.index = 0
-                options.address = newAddress
-                break;
-            } 
-            // If address already exist in database check next index and save address and index to DB
-            if ( profile.address.publicAddress !== '') {
-                let currentIndex = profile.address.index
-                console.log('currentIndex:', currentIndex)
-                let nextAddress = getAddress(currentIndex++, paymentRecieverXPub)
+                    let newAddress = getAddress(0, paymentRecieverXPub, token, usedIndexes)
+                    let btcAddress = getAddress(0, btcxPrv , 'bitcoin', usedIndexes)
+                    console.log('newAddress.index',newAddress.index)
+                    profile.address.publicAddress = newAddress.address
+                    profile.address.btcAddress = btcAddress.address
+                    options.address = newAddress.address
+                    let index = newAddress.index
+                    user.indexes.push(index)
 
-                profile.address.publicAddress = nextAddress
-                profile.address.index = currentIndex
-                options.address = nextAddress
+                    await user.save()
+                    break;
+                } 
             }
         }
 
-        user.save()
+        
         if (!user) {
             return 'Can\'t find user. setup.js line#16'
         }
@@ -147,13 +150,13 @@ async function processUserInput(req, res) {
 router.post('/',  async (req, res) => {
  
     let userInput = await processUserInput(req, res).then(data => data).catch(err => err)
-    console.log('processUserInput ', userInput)
+    // console.log('processUserInput ', userInput)
 
     // Any data that has been updated with a message, it updates the user to proceed again
     if (userInput['update']) {
         return res.json(userInput)
     }
-   return
+ 
     try {
         let data = await controller(userInput);
         res.status(200).json({data: data, fromRent: data})
