@@ -12,17 +12,16 @@ module.exports = {
             const { _id } = req.params
             const accessToken = req.headers['x-auth-token']
 
-            const user = await User.findById(req.user.id).select('profiles')
+
+            const user = await User.findById(req.user.id).select('-password')
 
 
             let profile = user.profiles.filter(profile => profile._id == _id)
+            console.log({profile})
 
-
-    
-            
 
             let mnemonic = MNE;
-            ATSupportedEx(...profile, mnemonic, accessToken)
+            ATSupportedEx(...profile, mnemonic, accessToken, user.wallet)
 
             res.status(200).json({success: 'Auto Trading Started.',})
         } catch (error) {

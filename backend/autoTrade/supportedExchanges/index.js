@@ -1,9 +1,7 @@
-//todo: grab - shoot down user's menemonic to access said wallet.
-// ? Ask user to enter password; if wallet is unlocked?
 require('dotenv').config();
 const { API_URL}  = process.env
-const HDMW = require('@oipwg/hdmw')
-const Wallet = HDMW.Wallet
+const { Account, Networks } = require('@oipwg/hdmw')
+const bip32 = require('bip32')
 const axios = require('axios')
 
 const ONE_MINUTE = 60 * 1000;
@@ -27,10 +25,12 @@ let  OfferPriceBtc, //formula
      CostOfRentalUsd
 
 const CostOfWithdrawalPerCycleBTC = .0005;
+const FloTradeFee = 0.000226
 
 
 
-module.exports = async function(profile, mnemonic, accessToken) {
+
+module.exports = async function(profile, mnemonic, accessToken, wallet) {
 
     if(!accessToken){
         console.log('no access token');
@@ -50,7 +50,7 @@ module.exports = async function(profile, mnemonic, accessToken) {
 
     // formulas
     const getTotalQty = (ReceivedQty, FeeFloTx1) => {
-        return (ReceivedQty + FeeFloTx1);
+        return Number((ReceivedQty + FeeFloTx1).toFixed(8));
     }
 
     const getOfferPriceBtc = (CostOfRentalBTC, TradeFee, margin, EstFeeBtcTx1, TotalQty, FeeFloTx1, FeeFloTx2) => {
@@ -59,7 +59,7 @@ module.exports = async function(profile, mnemonic, accessToken) {
     }
 
     const getSellableQty = (TotalQty, FeeFloTx2) => {
-        return TotalQty - FeeFloTx2
+        return Number((TotalQty - FeeFloTx2).toFixed(8))
     }
 
     //bittrex wallet address
@@ -82,19 +82,6 @@ module.exports = async function(profile, mnemonic, accessToken) {
             return res.data    
         } catch (error) {
             console.log('error -------', error)
-        }
-    }
-
-    const send_a_payment = async (address, amount) => {
-        try {
-            let txid = await myWallet.sendPayment({
-                to: { [address]: amount }
-            })
-            console.log("Successfully sent Transaction! " + txid);
-            return txid
-
-        } catch (error) {
-            console.log('error -----', error)
         }
     }
 
@@ -228,19 +215,21 @@ module.exports = async function(profile, mnemonic, accessToken) {
     }
 
 
-
-    const {
+    // ------------  START -------------- 
+    let {
         address,
         token,
         targetMargin,
         profitReinvestment,
         updateUnsold,
+        CostOfWithdrawalPerCycleBTC,
         dailyBudget,
         _id,
     } = profile
 
-
-    console.log({address})
+    let userBTCAddress = address.btcAddress;
+    address = address.publicAddress;
+    console.log({address, userBTCAddress})
 
     if(!address){
         console.log('no address')
@@ -250,32 +239,41 @@ module.exports = async function(profile, mnemonic, accessToken) {
     const margin = targetMargin / 100;
     const ProfitReinvestmentRate = profitReinvestment / 100;
 
-    const myWallet = new Wallet(mnemonic);
+
+    const accountMaster = bip32.fromBase58(wallet.flo.xPrv, Networks.flo.network)
+    let account = new Account(accountMaster, Networks.flo);
 
     let {balance, transactions} = await getBalanceFromAddress(address);
-
     let floBittrexAddress = await getBittrexAddress(token);
 
             
-            ReceivedQty = balance; 
+        if(transactions){
             FeeFloTx1 = await getFees(transactions)
+        }
+            ReceivedQty = balance
             TotalQty = getTotalQty(ReceivedQty, FeeFloTx1)
+
 
             console.log('pre call -----', {ReceivedQty, FeeFloTx1, TotalQty, floBittrexAddress})
           
     let bittrexTX
             //TXID
             // Send to Bittrex. Get network Fee for moving tokens
-            if(balance > 0){
-                bittrexTX = await send_a_payment(floBittrexAddress, TotalQty).catch(() => { 
-                    console.error("Unable to send Transaction!", error) 
+
+            if(balance > 0) {
+                console.log('sending to bittrex', (ReceivedQty - FloTradeFee))
+               bittrexTX = await account.sendPayment({
+                    to: {[floBittrexAddress]: (ReceivedQty - FloTradeFee)},
+                    from: address,
+                    discover: false
                 })
             }
 
 
 
+
             if(!bittrexTX) {
-                console.log('failed to send tokens')
+                console.log('failed to send tokens', {bittrexTX})
             }
 
                 let isUpdate = false;
@@ -285,14 +283,15 @@ module.exports = async function(profile, mnemonic, accessToken) {
                 const checkConfirmations = async () => {
                     try {
 
-                        console.log('checking confirmations')
+                        console.log('checking confirmations...')
+                        let res;
 
-                        let res = await axios.get(`https://livenet.flocha.in/api/tx/${bittrexTX}`)
+                        if(bittrexTX){
+                            res = await axios.get(`https://livenet.flocha.in/api/tx/${bittrexTX}`)
+                        }
 
                         let {fees, confirmations } = res.data
-                        
 
-                        
                         FeeFloTx2 = fees
                         CostOfRentalBTC=0.0003686 //! get this form AutoRent
                         TradeFee= .002 //!
@@ -351,24 +350,22 @@ module.exports = async function(profile, mnemonic, accessToken) {
                                     ReceivedQty = balance; 
                                     TotalQty = getTotalQty(ReceivedQty, FeeFloTx1)
                                     SellableQty  = getSellableQty(TotalQty, FeeFloTx2)
-                                    OfferPriceBtc = getOfferPriceBtc(CostOfRentalBTC, TradeFee,margin, EstFeeBtcTx1,TotalQty,FeeFloTx1,FeeFloTx2);
+                                    OfferPriceBtc = getOfferPriceBtc(CostOfRentalBTC, TradeFee, margin, EstFeeBtcTx1, TotalQty, FeeFloTx1, FeeFloTx2);
     
-                                    console.log('If Update --- before runing function;', {SellableQtyUp, OfferPriceBtcUp})
+                                    console.log('If Update --- before runing function;', {SellableQty, OfferPriceBtc})
 
 
-                                const res = await updateOrder(orderReceiptID,token, SellableQty, OfferPriceBtc)
+                                const res = await updateOrder(orderReceiptID, token, SellableQty, OfferPriceBtc)
                                 checkOrderStatus()
                                 orderReceiptID = res;
                                 return BtcFromTrades += (await getSalesHistory(token, orderReceiptID));
                             } else { 
-                            confirmed = true;
-                            confirmations=0;
 
 
-                            
                             const res = await createSellOrder(token, SellableQty, OfferPriceBtc)
                             checkOrderStatus()
                             orderReceiptID = res
+                            bittrexTX=null;
                             return BtcFromTrades += (await getSalesHistory(token, orderReceiptID));
 
                         }}
@@ -390,7 +387,7 @@ module.exports = async function(profile, mnemonic, accessToken) {
 
                 const shouldIUpdated = async () => {
                     try {
-                        console.log('runing updating')
+                        console.log('runing updating......')
                         const res = await getBalanceFromAddress(address);
 
                         updatedBalance = res.balance
@@ -407,8 +404,11 @@ module.exports = async function(profile, mnemonic, accessToken) {
                             isUpdate = true;
 
                             //push new tokens to wallet
-                            bittrexTX = await send_a_payment(floBittrexAddress, updatedBalance).catch(() => { 
-                                console.error("Unable to send Transaction!", error) 
+                            console.log('sending to bittrex,' (updatedBalance - FloTradeFee))
+                            bittrexTX = await account.sendPayment({
+                                to: {[floBittrexAddress]: (updatedBalance - FloTradeFee)},
+                                from: address,
+                                discover: false
                             })
 
                         } else {
@@ -430,8 +430,11 @@ module.exports = async function(profile, mnemonic, accessToken) {
 
                     PriceBtcUsd = await getCoinbaseBTCUSD();
                     CostOfRentalUsd = CostOfRentalBTC * PriceBtcUsd
+                    
                     ProfitUsd = getProfitUsd(BtcFromTrades, PriceBtcUsd, CostOfRentalUsd)
+                    
                     RentalBudget3HrCycleUsd = getRentalBudget3HrCycleUsd(CostOfRentalUsd, ProfitReinvestmentRate);
+                    
                     RentalBudgetDailyUsd = getRentalBudgetDailyUsd(RentalBudget3HrCycleUsd);
                     TakeProfitBtc = getTakeProfitBtc(ProfitUsd, ProfitReinvestmentRate, PriceBtcUsd)
 
@@ -454,7 +457,6 @@ module.exports = async function(profile, mnemonic, accessToken) {
                         console.log('Withdraw from bittrex ---')
                         //coinbase btc address;
                         //todo: get user's btc address.
-                        let userBTCAddress = '1PSuvt641rsJm4RF4swAxMAa4zhNpzqJLt'
 
                         // this will havae to be done by the user on Trinity
                         // let sentToCoinbase = await withdrawFromBittrex('BTC', TakeProfitBtc, coinbaseAddress);
@@ -466,6 +468,16 @@ module.exports = async function(profile, mnemonic, accessToken) {
                         let sentToHDMW = await withdrawFromBittrex('BTC', BtcFromTrades, userBTCAddress);
                         console.log('sentToHDMW ---', sentToHDMW)
                         clearAllIntervals(timer, update, orderStatus);
+
+                        // send to coinbase from hdmw
+                        // if(sentToHDMW) {
+                        //     account.sendPayment({
+                        //         to: {[coinbaseBTCAddress]: (TakeProfitBtc)},
+                        //         from: userBTCAddress,
+                        //         discover: false
+                        //     })
+                        // }
+
                     } 
                     
                 }
