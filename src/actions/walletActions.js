@@ -3,7 +3,9 @@
 // Might not need this
 import { decrypt } from '../helpers-functions/crypto';
 import HDMW from '@oipwg/hdmw';
-const Wallet = HDMW.Wallet;
+const Wallet = HDMW.Wallet;	
+import * as bip32 from 'bip32'
+import { Account, Networks } from '@oipwg/hdmw'
 
 import {
     WALLET_LOADED,
@@ -23,16 +25,27 @@ export const loadWallet = (encryptedMnemonic, password) => dispatch => {
 
     const getWallet = new Wallet(mnemonic, { supported_coins: ['flo'] });
 
-    // bitcoin patch kinda - use patch for Demo
-    // getWallet.setExplorerUrls({
-    //     bitcoin: 'https://insight.bitpay.com/api/',
-    // });
-    // getWallet.addCoin('bitcoin');
+    const flo = getWallet.getCoin('flo')
+    const floAccount = flo.getAccount(1)
+    const prv = floAccount.getExtendedPrivateKey();
 
     dispatch({
         type: WALLET_LOADED,
         payload: getWallet,
     });
+
+
+    //todo: discover new chains - get balance - add it to account[0];
+    const account = new Account(bip32.fromBase58(prv, Networks.flo.network), Networks.flo, false)
+    account.discoverChains().then((acc) => {
+        console.log(acc.getChain(0).addresses)
+        console.log(acc.getChain(1).addresses)
+    })
+
+    account.getBalance({ discover: true }).then((balance) => {
+        console.log('balanceeeeee!!!!!------',balance);
+    })
+
 
 
 
