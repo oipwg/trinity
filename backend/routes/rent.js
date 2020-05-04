@@ -61,7 +61,7 @@ async function processUserInput(req, res) {
         //     console.log('data', data)
         // })
 
-       console.log( 'options', options)
+       console.log( 'options rent.js 64', options)
         let getAddress = (index, xPub, token, usedIndexes) => {
             const EXTERNAL_CHAIN = 0
             const currency = token === "RVN" ? 'raven' : token.toLowerCase()
@@ -71,13 +71,13 @@ async function processUserInput(req, res) {
                     if( usedIndexes[i] === index) index++
                 }
             }
-            console.log('index in function',index)
+            console.log('index in rent.js 74',index)
             const paymentRecieverAddressGenerator = new Account(bip32.fromBase58(xPub, Networks[currency].network), Networks[currency], false)
             let usedAddresses = paymentRecieverAddressGenerator.getUsedAddresses(EXTERNAL_CHAIN)
             let address = paymentRecieverAddressGenerator.getAddress(EXTERNAL_CHAIN, index).getPublicAddress(0)
 
             // LEFT OFF AT FINAL CONDITIONAL 
-            if (usedAddresses.transactions.length > 0) {
+            if (usedAddresses.length > 0) {
                 getAddress(index++, xPub, currency) // Recursion until there is an address with no transactions
             }
             return {address, index}
