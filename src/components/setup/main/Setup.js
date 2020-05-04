@@ -200,7 +200,6 @@ const Setup = props => {
 
     
     function process_returned_data(data) {
-        console.log('DATA', data)
         if (data.provider === "Bittrex") {
             setBittrexData({...data})
         } else {
