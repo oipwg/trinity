@@ -151,7 +151,6 @@ module.exports = async function(options) {
         for (let provider of providers) {
             let poolArray = await spartan.returnPools(provider);
         }
-
         return {
             err: 'provider',
             message: poolCount ? `Maximum number of providers reached: ${rentalProviders.length}.  `: 

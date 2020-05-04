@@ -1,15 +1,12 @@
 const manualRent = require('./manualRent').manualRent;
 
-//This file doesn't exist
-// import rentSelector from './manualRentSelector'
-
 const NORMAL = 'NORMAL';
 const WARNING = 'WARNING';
 const ERROR = 'ERROR';
 
 // Function ran from index.js as a command of Rent
 module.exports = async function(options) {
-
+    console.log('RENT .JS SPARTANBOT HIT')
     let spartan = options.SpartanBot;
 
         let rental_providers = spartan.getRentalProviders();
@@ -23,30 +20,11 @@ module.exports = async function(options) {
         //     );
         // }
 
-        let promptRentType = ['Manual', 'Spot', 'Tradebot', 'Collective Defense']
-        let rentType = promptRentType;
-
-        async function interactiveObjectInspection(object) {
-            let keys = Object.keys(object);
-            // [ 'status', 'message', 'error', 'timestamp', 'unixTimestamp', 'id' ]
-      
-            let modifiedKeys = [];
-            for (let key of keys) {
-                modifiedKeys.push(
-                    (key += `: ${object[key]}`)
-                );
-            }
-
-            let promptChoices = modifiedKeys;
-            console.log('promptChoices: rent.js 45')
-
-        }
-
         spartan.onRentalSuccess(() => {});
         spartan.onRentalWarning(() => {});
         spartan.onRentalError(() => {});
 
-        async function onRentalFnFinish(rental_info) {
+        function onRentalFnFinish(rental_info) {
             switch (rental_info.status) {
                 case NORMAL:
                     console.log(`Rental was a success!`);
@@ -61,13 +39,14 @@ module.exports = async function(options) {
                 default:
                     console.log('Rental info not of expected type!');
             }
-            await interactiveObjectInspection(rental_info);
+    
         }
-        spartan.emitter.on('RentalFunctionFinish', onRentalFnFinish);
+
+        spartan.emitter.once('RentalFunctionFinis', onRentalFnFinish);
 
         if (options.rentType === 'Manual') {
              let manual = await manualRent(options);
-             return manual
+     
         }
 
         if (rentType === 'Spot') {
