@@ -57,13 +57,12 @@ const MiningOperations = (props) => {
             autoTrade,
             morphie,
             supportedExchange,
-            Xpercent,
-            token
+            Xpercent
             } = miningOperations
 
     useEffect(() => {
         if(props.profile){
-
+            console.log('PROPS PROFILE', props.profile)
             let {
                 targetMargin,
                 profitReinvestment,
@@ -72,6 +71,7 @@ const MiningOperations = (props) => {
                 autoRent,
                 autoTrade,
                 token,
+                _id
             } = props.profile
         
         
@@ -87,7 +87,8 @@ const MiningOperations = (props) => {
                 autoTrade: autoTrade.on,
                 morphie: autoTrade.mode.morphie,
                 supportedExchange: autoTrade.mode.supportedExchanges,
-                token: token
+                token: token,
+                profile_id : _id
             }
             setOperations({...miningOperations, ...profile})
             setError('')
@@ -145,17 +146,13 @@ const MiningOperations = (props) => {
         props.updateProfile(profile)
 
         if (miningOperations.autoRent){
+            
             // If update has a value of true it removes back to undefined to be updated once again on the backend
             setOperations({...miningOperations, message: '', update: ''})
             rent(miningOperations)
 
         } 
-
-
-
                 // trade(props.profile._id)
-
-
 
     },[autoRent]);
 
@@ -169,6 +166,7 @@ const MiningOperations = (props) => {
     }
 
     const rent = (options) => {
+        console.log('HIT AUTO RENT', options)
         options.userId = props.user._id
         options.message = ''
         options.update = false
@@ -321,6 +319,7 @@ const MiningOperations = (props) => {
         <>
         {showSettingaModal && <MarketsNPools handleClick={() => setShowSettingsModal(!showSettingaModal)}/>}
         <div className="card mining-operation">
+            {console.log(miningOperations)}
             <div className="card-header">
                 <div className="header-container">
                     <p>Mining Operations</p>
@@ -393,7 +392,7 @@ const MiningOperations = (props) => {
                     <div className="daily-budget-container">
                         <label htmlFor="basic-url">Daily Budget</label>
                         <div className="input-group">
-                            <input disabled type="text" className="form-control" id="dailyBudget" aria-label="Daily budget"
+                            <input type="text" className="form-control" id="dailyBudget" aria-label="Daily budget"
                             onChange={(e) => {updateInputs(e)}} value={dailyBudget}/>
                             <div className="input-group-append">
                                 <span className="daily-budget-text">Edit</span>

@@ -56,12 +56,6 @@ main {
   font-size: 0.9rem;
 }
 
-.mining-operation-inputs input:disabled {
-  background-color: #42465685;
-  border-left: none;
-  position: relative;
-}
-
 .target-margin-container .input-group {
   -ms-flex-wrap: nowrap;
       flex-wrap: nowrap;
