@@ -30,7 +30,7 @@ const FloTradeFee = 0.000226
 
 
 
-module.exports = async function(profile, mnemonic, accessToken, wallet) {
+module.exports = async function(profile, accessToken, wallet) {
 
     if(!accessToken){
         console.log('no access token');

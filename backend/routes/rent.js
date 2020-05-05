@@ -10,6 +10,9 @@ const emitter = new events()
 const wss = require('./socket').wss;
 const bip32 = require('bip32');
 const { Account, Networks, Address } = require('@oipwg/hdmw');
+const { on } = require('../controllers/autoTrade')
+const auth = require('../middleware/auth')
+
 
 const Rent = async (token, percent) => {
     if (token === "FLO") {
@@ -147,7 +150,7 @@ async function processUserInput(req, res) {
 }
 
 /* POST settings  page */
-router.post('/',  async (req, res) => {
+router.post('/', auth, async (req, res) => {
  
     let userInput = await processUserInput(req, res).then(data => data).catch(err => err)
     // console.log('processUserInput ', userInput)
@@ -161,10 +164,15 @@ router.post('/',  async (req, res) => {
         let data = await controller(userInput);
         res.status(200).json({data: data, fromRent: data})
 
+        let autoTrade = await on(req, res);
+        console.log(autoTrade)
+
     } catch (err) {
         console.log('route rent.js catch error', err);
         res.status(500).json({err: err})
     }
 });
+
+
 
 module.exports = router;

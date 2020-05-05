@@ -175,6 +175,7 @@ const MiningOperations = (props) => {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
+                'x-auth-token': localStorage.getItem('token')
             },
             body: JSON.stringify(options),
         }).then((response) => {
@@ -187,24 +188,24 @@ const MiningOperations = (props) => {
         });
     }
 
-    const trade = (profileID) => {
-        console.log(profileID)
+    // const trade = (profileID) => {
+    //     console.log(profileID)
 
-        fetch(API_URL+'/auto-trade/on/'+profileID, {
-            method: 'GET',
-            headers: {
-                'Content-Type': 'application/json',
-                'x-auth-token': localStorage.getItem('token')
-            },
-        }).then((response) => {
-            return response.json();
-        })
-          .then((data) => {
-            console.log(data);
-        }).catch((err)=> {
-              console.log(err)
-        });
-    }
+    //     fetch(API_URL+'/auto-trade/on/'+profileID, {
+    //         method: 'GET',
+    //         headers: {
+    //             'Content-Type': 'application/json',
+    //             'x-auth-token': localStorage.getItem('token')
+    //         },
+    //     }).then((response) => {
+    //         return response.json();
+    //     })
+    //       .then((data) => {
+    //         console.log(data);
+    //     }).catch((err)=> {
+    //           console.log(err)
+    //     });
+    // }
 
 
 
