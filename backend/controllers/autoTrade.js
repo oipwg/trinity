@@ -1,6 +1,4 @@
 require('dotenv').config();
-const { MNE } = process.env; //! DEV - del me
-const axios = require('axios');
 const User = require('../models/user')
 const ATSupportedEx = require('../autoTrade/supportedExchanges')
 
@@ -9,8 +7,9 @@ module.exports = {
         try {
 
             //- profiles _id as param
-            const { _id } = req.params
+            const { profile_id } = req.body
             const accessToken = req.headers['x-auth-token']
+            let _id = profile_id;
 
 
             const user = await User.findById(req.user.id).select('-password')
@@ -20,13 +19,12 @@ module.exports = {
             console.log({profile})
 
 
-            let mnemonic = MNE;
-            ATSupportedEx(...profile, mnemonic, accessToken, user.wallet)
+            ATSupportedEx(...profile, accessToken, user.wallet)
 
-            res.status(200).json({success: 'Auto Trading Started.',})
+            return {success: 'Auto Trading Started.'}
         } catch (error) {
             console.log(error);
         }
-    },
+    }
 
 }
