@@ -27,10 +27,10 @@ const MiningOperations = (props) => {
 
     const [err, setError] = useState({autoRent: false, autoTrade: false})
     const [miningOperations, setOperations] = useState({
-            targetMargin: '1',
-            profitReinvestment:'1',
-            updateUnsold: '1',
-            dailyBudget: '0',
+            targetMargin: '',
+            profitReinvestment:'',
+            updateUnsold: '',
+            dailyBudget: '',
             autoRent: false,
             spot: false,
             alwaysMineXPercent: false,
@@ -41,10 +41,10 @@ const MiningOperations = (props) => {
             token: 'FLO',
             message: '',
             update: false
-    });
+        });
 
 
-        const [showSettingaModal, setShowSettingsModal] = useState(false)
+    const [showSettingaModal, setShowSettingsModal] = useState(false)
 
         let {  
             targetMargin,
@@ -63,7 +63,7 @@ const MiningOperations = (props) => {
     useEffect(() => {
         if(props.profile){
             console.log('PROPS PROFILE', props.profile)
-            let {
+            const {
                 targetMargin,
                 profitReinvestment,
                 updateUnsold,
@@ -93,22 +93,21 @@ const MiningOperations = (props) => {
             setOperations({...miningOperations, ...profile})
             setError('')
 
-        }  else {
-            {      setOperations({
-                    targetMargin: '',
-                    profitReinvestment: '',
-                    updateUnsold: '',
-                    dailyBudget: '',
-                    autoRent: false,
-                    spot: false,
-                    alwaysMineXPercent: true,
-                    autoTrade: false,
-                    morphie: false,
-                    supportedExchange: false,
-                    Xpercent: 15,
-                    token: 'FLO'
-                })
-            } 
+        } else {
+            setOperations({
+                targetMargin: '1',
+                profitReinvestment: '1',
+                updateUnsold: '1',
+                dailyBudget: '',
+                autoRent: false,
+                spot: false,
+                alwaysMineXPercent: true,
+                autoTrade: false,
+                morphie: false,
+                supportedExchange: false,
+                Xpercent: 15,
+                token: 'FLO'
+            })
         }
     }, [props.profile, props.address])
 
@@ -150,10 +149,7 @@ const MiningOperations = (props) => {
             // If update has a value of true it removes back to undefined to be updated once again on the backend
             setOperations({...miningOperations, message: '', update: ''})
             rent(miningOperations)
-
         } 
-                // trade(props.profile._id)
-
     },[autoRent]);
 
     const processReturnData = (data) => {
@@ -166,7 +162,6 @@ const MiningOperations = (props) => {
     }
 
     const rent = (options) => {
-        console.log('HIT AUTO RENT', options)
         options.userId = props.user._id
         options.message = ''
         options.update = false
@@ -179,8 +174,7 @@ const MiningOperations = (props) => {
             body: JSON.stringify(options),
         }).then((response) => {
             return response.json();
-        })
-          .then((data) => {
+        }).then((data) => {
             processReturnData(data)
         }).catch((err)=> {
               console.log(err)
@@ -264,10 +258,6 @@ const MiningOperations = (props) => {
                 if (err.updateUnsold) setError({updateUnsold: false})
                 setOperations({...miningOperations, updateUnsold: e.target.value})
                 break;
-            case "dailyBudget":
-                if (err.dailyBudget) setError({dailyBudget: false})
-                    setOperations({...miningOperations, dailyBudget: e.target.value })
-                break;
             case "autoRent":
                 checkInputsAndRent(e, targetElem)
                 break;
@@ -319,28 +309,26 @@ const MiningOperations = (props) => {
         <>
         {showSettingaModal && <MarketsNPools handleClick={() => setShowSettingsModal(!showSettingaModal)}/>}
         <div className="card mining-operation">
-            {console.log(miningOperations)}
             <div className="card-header">
                 <div className="header-container">
                     <p>Mining Operations</p>
                     <div className="table-container message-field" style={{height: miningOperations.message ? '134px' : '55px'}}>
                         <table className="table">
-                        <thead id="mining-op-tableHeader">
-                            <tr>
-                                <th id="updateMessage" scope="col">Messages</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr className="data-table-row">
-                                <td>
-                                    {miningOperations.message}
-                                </td>
-                            </tr>
-                        </tbody>
-                </table>
+                            <thead id="mining-op-tableHeader">
+                                <tr>
+                                    <th id="updateMessage" scope="col">Messages</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr className="data-table-row">
+                                    <td>
+                                        {miningOperations.message}
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
-                </div>
-                
             </div>
             <div className="card-body">
                 <div className="mining-operation-inputs">
@@ -390,7 +378,7 @@ const MiningOperations = (props) => {
                         </div>
                     </div>
                     <div className="daily-budget-container">
-                        <label htmlFor="basic-url">Daily Budget</label>
+                        <label htmlFor="basic-url">Daily Budget USD</label>
                         <div className="input-group">
                             <input type="text" className="form-control" id="dailyBudget" aria-label="Daily budget"
                             onChange={(e) => {updateInputs(e)}} value={dailyBudget}/>
@@ -398,10 +386,6 @@ const MiningOperations = (props) => {
                                 <span className="daily-budget-text">Edit</span>
                             </div>
                         </div>
-                        <div style={{transform: err.dailyBudget ? 'scale(1)' : 'scale(0)'}} className="error-dialog">
-                        <span className="error-arrow"></span>
-                        <p>Choose one!</p>
-                    </div>
                     </div>
                 </div>
 
@@ -419,7 +403,7 @@ const MiningOperations = (props) => {
                                 <input className="form-check-input" type="radio" id="spot" 
                                 value={spot}
                                 name="auto-rent"
-                                checked={miningOperations.spot ? true  : false}
+                                checked={miningOperations.spot ? true : false}
                                 onChange={(e) => {
                                     updateInputs(e)
                                 }} />

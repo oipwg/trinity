@@ -6,19 +6,10 @@ const ERROR = 'ERROR';
 
 // Function ran from index.js as a command of Rent
 module.exports = async function(options) {
-    console.log('RENT .JS SPARTANBOT HIT')
     let spartan = options.SpartanBot;
 
-        let rental_providers = spartan.getRentalProviders();
 
-        // *** UNCOMMENT WHEN DONE WITH RENTING ***
-        // if (rental_providers.length === 0) {
-        //     return console.log(
-        //         'No Rental Providers were found! Please run ' +
-        //             'rentalprovider add' +
-        //             ' to add your API keys.'
-        //     );
-        // }
+        let rental_providers = spartan.getRentalProviders();
 
         spartan.onRentalSuccess(() => {});
         spartan.onRentalWarning(() => {});
@@ -39,14 +30,12 @@ module.exports = async function(options) {
                 default:
                     console.log('Rental info not of expected type!');
             }
-    
         }
 
-        spartan.emitter.once('RentalFunctionFinis', onRentalFnFinish);
+        spartan.emitter.once('RentalFunctionFinish', onRentalFnFinish);
 
         if (options.rentType === 'Manual') {
-             let manual = await manualRent(options);
-     
+            let manual = await manualRent(options);
         }
 
         if (rentType === 'Spot') {
