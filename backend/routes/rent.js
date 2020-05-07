@@ -10,6 +10,9 @@ const wss = require('./socket').wss;
 const bip32 = require('bip32');
 const https = require('https');
 const { Account, Networks, Address } = require('@oipwg/hdmw');
+const { on } = require('../controllers/autoTrade')
+const auth = require('../middleware/auth')
+
 
 const getPriceBtcUsd = async () => {
     let promise = new Promise((resolve, reject)=> {
@@ -185,13 +188,15 @@ async function processUserInput(req, res) {
 }
 
 /* POST settings  page */
-router.post('/', async (req, res) => {
+router.post('/', auth, async (req, res) => {
     emitter.once('rented', async (msg) => {
         const user = await User.findById({ _id: req.body.userId })
   
         console.log('msg: from rented', msg)
         try {
             res.status(200).json({ data: msg })
+            let autoTrade = await on(req, res);
+            console.log(autoTrade)
         } catch (err) {
             res.status(500).json({ err: err })
         }
@@ -204,12 +209,13 @@ router.post('/', async (req, res) => {
             return res.json(userInput)
         }
         let data = controller(userInput);
-    } catch(e) {
-
-    }
-    
+    } catch (err) {
+        console.log('route rent.js catch error', err);
+    } 
     // Any data that has been updated with a message, it updates the user to proceed again
 
 });
+
+
 
 module.exports = router;
