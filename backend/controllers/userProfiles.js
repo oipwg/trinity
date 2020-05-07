@@ -14,7 +14,7 @@ module.exports = {
             if(foundDupe) return res.status(400).json({error: 'Profile already exist'})
 
             user.profiles = [...user.profiles, {name, token}]
-
+ 
             await user.save()
             res.status(200).json({success: 'New profile created', profiles: user.profiles})
 
