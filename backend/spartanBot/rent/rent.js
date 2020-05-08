@@ -25,17 +25,17 @@ module.exports = async function(options) {
                     break;
                 case ERROR:
                    console.log( `There was an error attempting to rent.` );
-                    console.log(rental_info);
+
                     break;
                 default:
                     console.log('Rental info not of expected type!');
             }
         }
 
-        spartan.emitter.once('RentalFunctionFinish', onRentalFnFinish);
+        // spartan.emitter.once('RentalFunctionFinish', onRentalFnFinish);
 
         if (options.rentType === 'Manual') {
-            let manual = await manualRent(options);
+            manualRent(options);
         }
 
         if (rentType === 'Spot') {

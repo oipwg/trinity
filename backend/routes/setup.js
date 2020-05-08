@@ -10,7 +10,6 @@ async function processUserInput(req, res) {
     let { userId, rental_provider } = options
 
     try {
-     
         const user = await User.findById({ _id: userId });
         if (!user) {
             return 'Can\'t find user. setup.js line #19'
@@ -28,7 +27,6 @@ async function processUserInput(req, res) {
             console.log('rental_provider:', rental_provider)
             for (let provider of user.providerData) {
                 if (provider.rental_provider === rental_provider) {
-                    console.log('PROVIDER RR', provider)
                     return provider
                 }
             }

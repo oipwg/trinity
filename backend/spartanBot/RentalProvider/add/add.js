@@ -296,8 +296,6 @@ module.exports = async function(options) {
                         }
                       
                         for (let id of profileIDs) {
-                            console.log('profileIDs:', profileIDs)
-                            
                             // if (poolToAdd.includes(id)) {
                                 setup_success.provider.setActivePoolProfile(id);
                                 // const len = poolProfiles.length

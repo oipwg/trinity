@@ -70,7 +70,11 @@ const profileSchema = new Schema({
     },
     usedAddresses: [{
         type: String
-    }]
+    }],
+    CostOfRentalBtc: {
+        type: Number,
+        default: 0
+    }
 });
 
 
