@@ -222,7 +222,6 @@ module.exports = async function(profile, accessToken, wallet) {
         targetMargin,
         profitReinvestment,
         updateUnsold,
-        CostOfWithdrawalPerCycleBTC,
         dailyBudget,
         _id,
         CostOfRentalBtc
