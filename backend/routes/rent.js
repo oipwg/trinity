@@ -6,13 +6,19 @@ const request = require('request');
 const events = require('events');
 const emitter = new events();
 const User = require('../models/user');
-const wss = require('./socket').wss;
+// const wss = require('./socket').wss;
 const bip32 = require('bip32');
 const https = require('https');
 const { Account, Networks, Address } = require('@oipwg/hdmw');
-const { on } = require('../controllers/autoTrade')
-const auth = require('../middleware/auth')
+const { on } = require('../controllers/autoTrade');
+const auth = require('../middleware/auth');
+const wss = require('./socket').wss;
 
+wss.on('connection', ws => {
+    emitter.on('message', msg => {
+        ws.send(msg);
+    });
+});
 
 const getPriceBtcUsd = async () => {
     let promise = new Promise((resolve, reject)=> {
@@ -65,6 +71,7 @@ const Rent = async (token, percent) => {
     }
 
     if (token === "RVN") {
+        console.log('RVN HIT')
         return await new Promise((resolve, reject) => {
             request({ url: 'https://rvn.2miners.com/api/stats' }, (err, res, body) => {
                 if (err) {
@@ -75,7 +82,7 @@ const Rent = async (token, percent) => {
                 let hashrate = difficulty * Math.pow(2, 32) / 60;
                 let Networkhashrate = hashrate / 1000000000000; // TH/s
                 let Rent = Networkhashrate * (-percent / (-1 + percent))   // * 1000000 for MRR to MH/s
-                let MinPercentFromMinHashrate = 1000000000000 * .01 / ((difficulty * Math.pow(2, 32) / 40) + (1000000000000 * .01))
+                let MinPercentFromMinHashrate = 1000000000000 * .01 / ((difficulty * Math.pow(2, 32) / 60) + (1000000000000 * .01))
                 resolve({ Rent, MinPercentFromMinHashrate, difficulty, Networkhashrate })
             })
         })
@@ -83,8 +90,17 @@ const Rent = async (token, percent) => {
 }
 
 async function processUserInput(req, res) {
-    // let msg = {data: 'hey buddy'}
-    // emitter.emit('rented', msg)
+
+        // let msg = {
+        //     update: true,
+        //     client: {dailyBudget: 0.088876.toFixed(2)},
+        //     db: 'dailyBudget',
+        //     dailyBudget: 0.88876.toFixed(2)
+        // };
+        
+        // emitter.emit('rented', msg);
+
+    
 
     let options = req.body
     let { profitReinvestment, updateUnsold, dailyBudget, autoRent, spot, alwaysMineXPercent,
@@ -92,6 +108,7 @@ async function processUserInput(req, res) {
 
     try {
         const rent = await Rent(token, Xpercent / 100)
+        console.log('rent:', rent)
         let user = await User.findById({ _id: userId })
 
         // User.findOneAndUpdate({'profiles._id': '5eac4e09e40612427b2e8531'},{profiles}, {new: true}, (err, data)=> {
@@ -127,7 +144,7 @@ async function processUserInput(req, res) {
         let btcxPrv = user.wallet.btc.xPrv
 
 
-        if (MinPercentFromMinHashrate > Xpercent / 100) {
+        if (MinPercentFromMinHashrate > Xpercent / 100 && token === 'FLO') {
             return {
                 update: true,
                 message: `Your pecent of the network ${Xpercent} changed to ${(MinPercentFromMinHashrate * 100.1).toFixed(2)}%, to ` +
@@ -187,33 +204,59 @@ async function processUserInput(req, res) {
     }
 }
 
-/* POST settings  page */
-router.post('/', auth, async (req, res) => {
-    emitter.once('rented', async (msg) => {
-        const user = await User.findById({ _id: req.body.userId })
-  
-        console.log('msg: from rented', msg)
-        try {
-            res.status(200).json({ data: msg })
-            let autoTrade = await on(req, res);
-            console.log(autoTrade)
-        } catch (err) {
-            res.status(500).json({ err: err })
-        }
-    })
+const processData = async (req, res) => {
     try {
+        // From user input this file 
         let userInput = await processUserInput(req, res).then(data => data).catch(err => err)
         console.log('processUserInput ', userInput)
-        
         if (userInput['update']) {
-            return res.json(userInput)
+            return res.status(200).json(userInput)
         }
-        let data = controller(userInput);
+        // Rent, setup provider, update provider
+        controller(userInput);
     } catch (err) {
         console.log('route rent.js catch error', err);
     } 
-    // Any data that has been updated with a message, it updates the user to proceed again
+    // From within SpartanBot only
+    emitter.once('rented', async (msg) => {
+        console.log('msg:', msg)
+        let key = msg.db
+        let value = msg[key]
+        const user = await (await User.findById({ _id: req.body.userId }).select('profiles'))
 
+        // If data needs to be saved to Database
+        if (msg.db) {
+            for(let profile of user.profiles) {
+                if(profile._id.toString() === req.body.profile_id) {
+                    profile[key] = Number(value)
+                    
+                }
+            }
+        }
+        // If update is true don't send response back , but send a socket response back instead
+        if (msg.update) {
+            let data = JSON.stringify(msg);
+            emitter.emit('message', data);
+
+        // Close response send message back to client   
+        } else {
+                console.log('MSG: ', msg)
+            try {
+                let autoTrade = await on(req, res);
+                res.status(200).json(msg)
+  
+            } catch (err) {
+                res.status(500).json({ err: err })
+            }
+        }
+        return await user.save()
+    })
+}
+
+/* POST settings  page */
+router.post('/', auth, async (req, res) => {
+    console.log('POST RAN')
+    processData(req,res)
 });
 
 
