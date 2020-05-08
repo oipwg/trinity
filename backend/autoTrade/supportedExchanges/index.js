@@ -225,9 +225,12 @@ module.exports = async function(profile, accessToken, wallet) {
         CostOfWithdrawalPerCycleBTC,
         dailyBudget,
         _id,
+        CostOfRentalBtc
     } = profile
 
     let userBTCAddress = address.btcAddress;
+    CostOfRentalBTC = CostOfRentalBtc
+
     address = address.publicAddress;
     console.log({address, userBTCAddress})
 
@@ -293,7 +296,6 @@ module.exports = async function(profile, accessToken, wallet) {
                         let {fees, confirmations } = res.data
 
                         FeeFloTx2 = fees
-                        CostOfRentalBTC=0.0003686 //! get this form AutoRent
                         TradeFee= .002 //!
                         EstFeeBtcTx1=0.00001551 //! get from somewhere
             
