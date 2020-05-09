@@ -1,10 +1,13 @@
 const timestring = require('timestring');
 
+
+
 exports.convertHumanTimeToSeconds = function(time) {
     if (time.indexOf('h') === -1 || time.indexOf('H') === 1) time = `${time}h`;
 
     return timestring(time);
 };
+
 
 exports.convertHumanHashrateToMH = function(human_hashrate) {
     const UNIT_SYMBOLS = [

@@ -94,7 +94,7 @@ const Setup = props => {
                         el.value = ''
                         break;
                     case 'algo':
-                        poolData.type = el.options[el.selectedIndex].value.toLowerCase()
+                        poolData.algo = el.options[el.selectedIndex].value.toLowerCase()
                         break;
                     case 'priority':
                         poolData.priority = el.options[el.selectedIndex].value
@@ -250,7 +250,7 @@ const Setup = props => {
             let res = await response.json()
             process_returned_data(res.data)
         } catch (e) {
-            console.log('Catch error: Main.js line 232',e)
+            console.log('Catch error: Setup.js line 232',e)
             process_returned_data({err: e})
         }
     }

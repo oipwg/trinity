@@ -162,6 +162,7 @@ const MiningOperations = (props) => {
     }
 
     const rent = (options) => {
+ 
         options.userId = props.user._id
         options.message = ''
         options.update = false
@@ -180,6 +181,7 @@ const MiningOperations = (props) => {
         }).catch((err)=> {
               console.log(err)
         });
+
     }
 
     // const trade = (profileID) => {
