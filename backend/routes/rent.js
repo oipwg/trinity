@@ -3,16 +3,20 @@ const express = require('express');
 const router = express.Router();
 const controller = require('../spartanBot');
 const request = require('request');
-const events = require('events');
-const emitter = new events();
+const EventEmitter = require('events');
+class Emitter extends EventEmitter {}
+const emitter = new Emitter();
 const User = require('../models/user');
-// const wss = require('./socket').wss;
 const bip32 = require('bip32');
 const https = require('https');
 const { Account, Networks, Address } = require('@oipwg/hdmw');
-const { on } = require('../controllers/autoTrade');
+
 const auth = require('../middleware/auth');
 const wss = require('./socket').wss;
+const Timer = require('../helpers/timer');
+
+// console.log(new Timer().setTimer())
+
 
 wss.on('connection', ws => {
     emitter.on('message', msg => {
@@ -108,15 +112,9 @@ async function processUserInput(req, res) {
 
     try {
         const rent = await Rent(token, Xpercent / 100)
-        console.log('rent:', rent)
+        console.log('rent: RENT.JS 111')
         let user = await User.findById({ _id: userId })
 
-        // User.findOneAndUpdate({'profiles._id': '5eac4e09e40612427b2e8531'},{profiles}, {new: true}, (err, data)=> {
-        //     if(err) console.log('err', err)
-        //     console.log('data', data)
-        // })
-
-        console.log('options rent.js 99', options)
         let getAddress = (index, xPub, token, usedIndexes) => {
             const EXTERNAL_CHAIN = 0
             const currency = token === "RVN" ? 'raven' : token.toLowerCase()
@@ -143,7 +141,7 @@ async function processUserInput(req, res) {
         let paymentRecieverXPub = user.wallet[token.toLowerCase()].xPrv
         let btcxPrv = user.wallet.btc.xPrv
 
-
+        // Come back to have this work without token === FLO to working with RVN also
         if (MinPercentFromMinHashrate > Xpercent / 100 && token === 'FLO') {
             return {
                 update: true,
@@ -187,6 +185,7 @@ async function processUserInput(req, res) {
                 rent: true,
             }
         }
+        options.profile_id = profile_id
         options.PriceBtcUsd = getPriceBtcUsd
         options.NetworkHashRate = rent.Networkhashrate
         options.MinPercent = rent.MinPercentFromMinHashrate
@@ -207,7 +206,7 @@ async function processUserInput(req, res) {
 const processData = async (req, res) => {
     try {
         // From user input this file 
-        let userInput = await processUserInput(req, res).then(data => data).catch(err => err)
+        var userInput = await processUserInput(req, res).then(data => data).catch(err => err)
         console.log('processUserInput ', userInput)
         if (userInput['update']) {
             return res.status(200).json(userInput)
@@ -217,45 +216,53 @@ const processData = async (req, res) => {
     } catch (err) {
         console.log('route rent.js catch error', err);
     } 
+
     // From within SpartanBot only
     emitter.once('rented', async (msg) => {
-        console.log('msg:', msg)
-        let key = msg.db
-        let value = msg[key]
-        const user = await (await User.findById({ _id: req.body.userId }).select('profiles'))
-
+        console.log('msg:', msg.message)
+  
+        const user = await User.findById({ _id: req.body.userId }).select('profiles')
+        
         // If data needs to be saved to Database
         if (msg.db) {
             for(let profile of user.profiles) {
                 if(profile._id.toString() === req.body.profile_id) {
-                    profile[key] = Number(value)
-                    
+                    for(let property in msg.db) {
+                        let key = property
+                        let value = msg.db[key]
+                        profile[key] = Number(value)
+                    }
                 }
             }
         }
-        // If update is true don't send response back , but send a socket response back instead
-        if (msg.update) {
-            let data = JSON.stringify(msg);
-            emitter.emit('message', data);
+        
+        // Send message back to client 
+        let data = JSON.stringify(msg);
+        emitter.emit('message', data);
 
-        // Close response send message back to client   
-        } else {
-                console.log('MSG: ', msg)
-            try {
-                let autoTrade = await on(req, res);
-                res.status(200).json(msg)
-  
-            } catch (err) {
-                res.status(500).json({ err: err })
-            }
+        console.log('MSG: ', msg)
+        // Start timer, close response, & 
+        try {
+            let timerData = msg;
+            timerData.profiles = user.profiles
+            timerData.profile_id = userInput.profile_id 
+            timerData.duration = userInput.duration
+
+            new Timer(timerData, req).setTimer()
+            let message = JSON.stringify(msg)
+            res.write(message)
+
+        } catch (err) {
+            console.log('err:', err)
+            res.status(500).json({ err: err })
         }
-        return await user.save()
+        
+        return user.save()
     })
 }
 
 /* POST settings  page */
 router.post('/', auth, async (req, res) => {
-    console.log('POST RAN')
     processData(req,res)
 });
 
