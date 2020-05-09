@@ -52,7 +52,7 @@ class Timer {
         setTimeout(() => {
             console.log('this.profile', this.profile)
             this.getTransactions()
-        }, this.duration * 27000)
+        }, this.duration * 60 * 1000)
     }
 }
 
