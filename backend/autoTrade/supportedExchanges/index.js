@@ -251,6 +251,8 @@ module.exports = async function(profile, accessToken, wallet) {
             
         if(transactions){
             FeeFloTx1 = await getFees(transactions)
+        } else {
+            FeeFloTx1 = 0;
         }
             ReceivedQty = balance
             TotalQty = getTotalQty(ReceivedQty, FeeFloTx1)
@@ -275,7 +277,7 @@ module.exports = async function(profile, accessToken, wallet) {
 
 
             if(!bittrexTX) {
-                console.log('failed to send tokens', {bittrexTX})
+                console.log('failed to send tokens', {bittrexTX, ReceivedQty})
             }
 
                 let isUpdate = false;

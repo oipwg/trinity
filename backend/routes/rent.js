@@ -234,6 +234,8 @@ const processData = async (req, res) => {
             }
         }
         // If update is true don't send response back , but send a socket response back instead
+
+        msg.update = 'cool';
         if (msg.update) {
             let data = JSON.stringify(msg);
             emitter.emit('message', data);
@@ -242,7 +244,8 @@ const processData = async (req, res) => {
         } else {
                 console.log('MSG: ', msg)
             try {
-                let autoTrade = await on(req, res);
+                let autoTrade = await on(req);
+                console.log({ autoTrade })
                 res.status(200).json(msg)
   
             } catch (err) {
