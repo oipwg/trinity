@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import './setup.css';
 import { API_URL } from '../../../../config.js';
 import { connect } from 'react-redux';
+import { addProvider } from '../../../actions/setupActions.js';
 import Navigation from '../nav/Navigation';
 
 const Setup = props => {
@@ -64,15 +65,11 @@ const Setup = props => {
                 }
                 i++
             }
-            // *** USE BELOW IF ABOVE BREAKS ***
-            // userData.map( prevState => {
-                // if (prevState.provider !== target) {
-                //     let data = merge(options, prevState)
-                //     return setUserData(data)
-                // } 
-            // })
+
+            addProvider(newState[0])
             setUserData(newState[0])
         } else {
+            addProvider([options])
             setUserData([options])
         }
     }
@@ -94,7 +91,7 @@ const Setup = props => {
                         el.value = ''
                         break;
                     case 'algo':
-                        poolData.type = el.options[el.selectedIndex].value.toLowerCase()
+                        poolData.algo = el.options[el.selectedIndex].value.toLowerCase()
                         break;
                     case 'priority':
                         poolData.priority = el.options[el.selectedIndex].value
@@ -250,7 +247,7 @@ const Setup = props => {
             let res = await response.json()
             process_returned_data(res.data)
         } catch (e) {
-            console.log('Catch error: Main.js line 232',e)
+            console.log('Catch error: Setup.js line 232',e)
             process_returned_data({err: e})
         }
     }
@@ -259,6 +256,14 @@ const Setup = props => {
             return true
         } else {
             return userData[0].pool;
+        }
+    }
+
+    const showProviderButton = (userData) => {
+        if(userData[0] !== undefined) {
+            return userData[0].success
+        } else {
+            return false
         }
     }
 
@@ -432,6 +437,7 @@ const Setup = props => {
                         </thead>
                         <tbody>
                             {(()=> {
+                                console.log(userData)
                                 return (
                                     userData.map( (userData, i)=> {
                                         let dataKeys = Object.keys(userData)
@@ -478,10 +484,11 @@ const Setup = props => {
                             <div className="form-groups">
                                 <label className="my-1 mr-2">Rental provider</label>
                                 <select
+                                required
                                     id="rental_provider"
                                     className="provider custom-select mx-sm-4"
                                     onChange={set_rental_provider}>
-                                    <option defaultValue value="">
+                                    <option value="">
                                         Select provider
                                     </option>
                                     <option value="MiningRigRentals">
@@ -492,7 +499,8 @@ const Setup = props => {
                             </div>
                         </div>
                         <div className="credentials">
-                            <div style={{height: showCredentials(userData).boolean ? '0px' : showCredentials(userData).height }} className="provider-credentials">
+                            <div style={{height: showCredentials(userData).boolean ? '0px' : showCredentials(userData).height }} 
+                                className="provider-credentials">
                                 <h4>Provider Credentials</h4>
                                 <div className="form-inline API-key">
                                     <div className="form-groups">
@@ -529,15 +537,16 @@ const Setup = props => {
                                 </div>
                             </div>
                         </div>
-                    
+                        
                         {/* End of rental passwords */}
                         <Pools poolBoolean ={showPool}/>
-                
-                        <button type="submit" className="btn-submit" onClick={set_provider_values}
-                        style={{display: showPool() ? 'block' : 'none'}}>
-                            Add Provider
-                        </button>
-                            
+                        {!showProviderButton(userData) && 
+                            <button type="submit" className="btn-submit" onClick={set_provider_values}
+                            style={{display: showPool() ? 'block' : 'none'}}>
+                                Add Provider
+                            </button>
+                        }
+
                         <button type="submit" className="btn-submit" onClick={set_pool_values}
                         style={{display: showPool() ? 'none' : 'block'}}>
                             Add Pool

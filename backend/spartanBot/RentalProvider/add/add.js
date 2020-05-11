@@ -27,38 +27,21 @@ const storage = process.cwd() +'/localStorage/spartanbot-storage';
 let addPool = async function(setup_success, options) {
     const provider = setup_success.proivder || setup_success
     console.log('provider: 28', provider)
-    let poolData;
-    try {
-        //MRRProvider.js in spartanbot creates pool profile on MMR site
-        if (options.provider === 'MiningRigRentals') poolData = await provider.createPoolProfile( options.poolData.name, options.poolData.type );
-    } catch (err) {
-        return {
-            provider: 'MiningRigRentals',
-            err: 'pool',
-            message: `Error while creating the profile: ${err}`,
-            pool: false,
-            credentials: true,
-            success: false
-        }
-    }
-    // or proivider === NiceHashProvider... because NiceHash doesn't have profiles you can add, so it skips the createPoolProfile
-    if ( poolData && poolData.success && poolData.data.id || provider.name === 'NiceHash') {
-
-        if (provider.name === 'MiningRigRentals') provider.setActivePoolProfile( poolData.data.id );
-        this.serialize()
+  
+        let pool;
         console.log('options.provider: 48 add.js')
         for (let p of this.getRentalProviders()) {
             if ( p.getUID() !== provider.getUID() ) {
-                p._addPools(options.poolData);  // Line is not working, was .addPools and not _addPools method, 
-                                                //but still doesn't make sence, added options.poolData
+                p._addPools(options.poolData);
             }
         }
         try {
-            options.poolData
-            let pool = await provider._createPool(options.poolData)
+            if (provider.name === 'NiceHash') pool = await provider._createPool(options.poolData)
+            options.poolData.profileName = provider.name
+            if (provider.name === 'MiningRigRentals') pool = await provider.createPoolAndProfile(options.poolData)
             console.log('pool: 57 add.js', pool)
             
-           
+            this.serialize()
             if ( pool.error ) {
                 console.log(`Error while creating the profile: ${pool.error}`);
                 return {
@@ -79,22 +62,11 @@ let addPool = async function(setup_success, options) {
                     success: true
                 }
             }
+           
         } catch(e) {
             console.log({err: 'Pool unsuccessful add.js line 79' + e})
             return {err: 'Pool unsuccessful' + e}
         }
-    } else {
-        if (poolData === null || poolData === undefined) {
-            console.log(`Profile unsuccessfully added. Pool Data: ${poolData}`)
-            return {
-                provider: options.provider,
-                err: 'pool',
-                message: `Profile unsuccessfully added. Profile data: ${poolData}`,
-                pool: false,
-                credentials: true
-            }
-        }
-    } 
 }
 
 /**
@@ -296,6 +268,8 @@ module.exports = async function(options) {
                         }
                       
                         for (let id of profileIDs) {
+                            console.log('profileIDs:', profileIDs)
+                            
                             // if (poolToAdd.includes(id)) {
                                 setup_success.provider.setActivePoolProfile(id);
                                 // const len = poolProfiles.length

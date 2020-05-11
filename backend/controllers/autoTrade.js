@@ -3,7 +3,7 @@ const User = require('../models/user')
 const ATSupportedEx = require('../autoTrade/supportedExchanges')
 
 module.exports = {
-    on: async(req, res ) => {
+    on: async(req) => {
         try {
 
             //- profiles _id as param
