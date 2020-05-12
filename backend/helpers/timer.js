@@ -5,13 +5,13 @@ const spartanbot = require('spartanbot')
 
 class Timer {
     constructor(settings, req) {
-        console.log('settings:', settings.badge[0].provider)
+        // console.log('settings:', settings.badge[0].provider)
         this.profiles = settings.profiles
         this.duration = settings.duration
         this.profile = settings.profile_id
         this.provider = settings.badge[0].provider
         this.req = req
-        this.ids = settings.rigIds
+        this.ids = settings.retntalId
     }
     async sendCostOfRental() {
         let autoTrade = await on(this.req);
@@ -37,7 +37,7 @@ class Timer {
         try {
             let params = {
                 start: 0,
-                limit: this.ids.length
+                limit: 100
             };
             let res = await this.provider.getTransactions(params)
             let transactions = res.data.transactions;

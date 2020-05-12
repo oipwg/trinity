@@ -24,7 +24,6 @@ async function processUserInput(req, res) {
         // if it does get data so api and secret can be used. If not return false and add keys and secret
         // to database
         let isRentalProvider = rental_provider => {
-            console.log('rental_provider:', rental_provider)
             for (let provider of user.providerData) {
                 if (provider.rental_provider === rental_provider) {
                     return provider

@@ -27,10 +27,10 @@ const MiningOperations = (props) => {
 
     const [err, setError] = useState({autoRent: false, autoTrade: false})
     const [miningOperations, setOperations] = useState({
-            targetMargin: '',
-            profitReinvestment:'',
+            targetMargin: 0,
+            profitReinvestment: 0,
             updateUnsold: '',
-            dailyBudget: '',
+            dailyBudget: 0,
             autoRent: false,
             spot: false,
             alwaysMineXPercent: false,
@@ -39,13 +39,12 @@ const MiningOperations = (props) => {
             supportedExchange: false,
             Xpercent: 15,
             token: 'FLO',
-            message: '',
+            message: [],
             update: false
         });
 
 
     const [showSettingaModal, setShowSettingsModal] = useState(false)
-
         let {  
             targetMargin,
             profitReinvestment,
@@ -62,7 +61,7 @@ const MiningOperations = (props) => {
 
     useEffect(() => {
         if(props.profile){
-            console.log('PROPS PROFILE', props.profile)
+            console.log('PROPS PROFILE')
             const {
                 targetMargin,
                 profitReinvestment,
@@ -90,15 +89,17 @@ const MiningOperations = (props) => {
                 token: token,
                 profile_id : _id
             }
+
             setOperations({...miningOperations, ...profile})
             setError('')
 
         } else {
+            console.log('ELSE')
             setOperations({
-                targetMargin: '1',
-                profitReinvestment: '1',
+                targetMargin: 1,
+                profitReinvestment: 1,
                 updateUnsold: '1',
-                dailyBudget: '',
+                dailyBudget: 0,
                 autoRent: false,
                 spot: false,
                 alwaysMineXPercent: true,
@@ -106,14 +107,15 @@ const MiningOperations = (props) => {
                 morphie: false,
                 supportedExchange: false,
                 Xpercent: 15,
-                token: 'FLO'
+                token: 'FLO',
+                message: []
             })
         }
     }, [props.profile, props.address])
 
     useEffect((prevProf = props.profile) => {
 
-        let formatedState= {
+        let formatedState = {
             profile: {
                 autoRent: {
                 mode: {
@@ -142,29 +144,43 @@ const MiningOperations = (props) => {
         if(isEqual(prevProf, profile)){
             return;
         }
-        props.updateProfile(profile)
+        // props.updateProfile(profile)
 
         if (miningOperations.autoRent){
-            
             // If update has a value of true it removes back to undefined to be updated once again on the backend
-            setOperations({...miningOperations, message: '', update: ''})
+            setOperations({...miningOperations, message: [], update: false})
             rent(miningOperations)
         } 
     },[autoRent]);
 
     const processReturnData = (data) => {
         let newValues = {}
+        
         for (let key in data) {
-            newValues[key] = data[key]
+            if(key === 'Xpercent') {
+                newValues[key] = Number(data[key])
+            } else if(key === 'message') {
+                let message = miningOperations.message.concat(data[key])
+                newValues[key] = message
+            } else if (key === 'update') {
+                newValues[key] = data[key]
+            } else if (key === 'autoRent') {
+                newValues[key] = data[key]
+            } else if (key === 'db') {
+                for (let key in data.db) {
+                    newValues[key] = data.db[key]
+                }
+            } 
         }
-        console.log(newValues)
+
+        console.log('NEW VALUES',newValues)
         setOperations({...miningOperations, ...newValues})
     }
 
     const rent = (options) => {
  
         options.userId = props.user._id
-        options.message = ''
+        options.message = []
         options.update = false
         
         fetch(API_URL+'/rent', {
@@ -285,15 +301,6 @@ const MiningOperations = (props) => {
         }
     }
 
-    const editPercent = e => {
-        let value = e.target.value
-        setOperations({...miningOperations, Xpercent: value})
-    }
-    
-    const handleOptionChange = (e) => {
-        console.log(selectedOption)
-        setSelectedOption(e.target.value)
-    }
     const updatePercent = e => {
         let value = e.target.value
         setOperations({...miningOperations, Xpercent: value})
@@ -315,7 +322,7 @@ const MiningOperations = (props) => {
             <div className="card-header">
                 <div className="header-container">
                     <p>Mining Operations</p>
-                    <div className="table-container message-field" style={{height: miningOperations.message ? '134px' : '55px'}}>
+                    <div className="table-container message-field" style={{height: miningOperations.message.length ? '134px' : '55px'}}>
                         <table className="table">
                             <thead id="mining-op-tableHeader">
                                 <tr>
@@ -323,11 +330,15 @@ const MiningOperations = (props) => {
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr className="data-table-row">
-                                    <td>
-                                        {miningOperations.message}
-                                    </td>
-                                </tr>
+                                {
+                                    miningOperations.message.map((message, i)=> {
+                                        return (
+                                            <tr key={i} className="data-table-row">
+                                                <td>{i+1}</td><td className="messages">{message}</td>
+                                            </tr>
+                                        )
+                                    })
+                                }
                             </tbody>
                         </table>
                     </div>
@@ -394,6 +405,7 @@ const MiningOperations = (props) => {
 
                 {/* AUTO RENTING CONTAINER */}
                 <div className="automatic-renting-container">
+
                     <ToggleSwitch  
                     handleChange={(e) => {updateInputs(e)}}
                     id={"autoRent"}
