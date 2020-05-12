@@ -226,12 +226,14 @@ module.exports = async function(profile, accessToken, wallet) {
         _id,
         CostOfRentalBtc
     } = profile
-
+    
+    //! Add provider address
+    let rentalAddress = '';
     let userBTCAddress = address.btcAddress;
     CostOfRentalBTC = CostOfRentalBtc
 
     address = address.publicAddress;
-    console.log({address, userBTCAddress})
+    console.log({address, userBTCAddress, rentalAddress})
 
     if(!address){
         console.log('no address')
@@ -468,7 +470,8 @@ module.exports = async function(profile, accessToken, wallet) {
                         // let remainingBtc = Number((BtcFromTrades - TakeProfitBtc).toFixed(8))
                         //hdmw wallet address;
 
-                        let sentToHDMW = await withdrawFromBittrex('BTC', BtcFromTrades, userBTCAddress);
+                        //todo: currently will send to rental's address 
+                        let sentToHDMW = await withdrawFromBittrex('BTC', BtcFromTrades, rentalAddress);
                         console.log('sentToHDMW ---', sentToHDMW)
                         clearAllIntervals(timer, update, orderStatus);
 
