@@ -3,13 +3,14 @@ const { API_URL, APP_URL } = process.env;
 const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 
+
 module.exports = {
     entry: './src/index.js',
     output: {
         path: path.join(__dirname, '/dist'),
         filename: 'index_bundle.js',
     },
-    module: {
+    module: { 
         rules: [
             {
                 test: /\.(png|jp(e*)g|svg|gif)$/,
@@ -35,6 +36,12 @@ module.exports = {
             },
         ],
     },
+      node: {
+        console: true,
+        fs: 'empty',
+        net: 'empty',
+        tls: 'empty'
+      },
     mode: 'development',
     devtool: 'cheap-module-eval-source-map',
     devServer: {
