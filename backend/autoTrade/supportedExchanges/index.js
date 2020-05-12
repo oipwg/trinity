@@ -222,12 +222,14 @@ module.exports = async function(profile, accessToken, wallet) {
         targetMargin,
         profitReinvestment,
         updateUnsold,
-        CostOfWithdrawalPerCycleBTC,
         dailyBudget,
         _id,
+        CostOfRentalBtc
     } = profile
 
     let userBTCAddress = address.btcAddress;
+    CostOfRentalBTC = CostOfRentalBtc
+
     address = address.publicAddress;
     console.log({address, userBTCAddress})
 
@@ -249,6 +251,8 @@ module.exports = async function(profile, accessToken, wallet) {
             
         if(transactions){
             FeeFloTx1 = await getFees(transactions)
+        } else {
+            FeeFloTx1 = 0;
         }
             ReceivedQty = balance
             TotalQty = getTotalQty(ReceivedQty, FeeFloTx1)
@@ -273,7 +277,7 @@ module.exports = async function(profile, accessToken, wallet) {
 
 
             if(!bittrexTX) {
-                console.log('failed to send tokens', {bittrexTX})
+                console.log('failed to send tokens', {bittrexTX, ReceivedQty})
             }
 
                 let isUpdate = false;
@@ -293,7 +297,6 @@ module.exports = async function(profile, accessToken, wallet) {
                         let {fees, confirmations } = res.data
 
                         FeeFloTx2 = fees
-                        CostOfRentalBTC=0.0003686 //! get this form AutoRent
                         TradeFee= .002 //!
                         EstFeeBtcTx1=0.00001551 //! get from somewhere
             
