@@ -10,7 +10,7 @@ import {
     LOGOUT_SUCCESS,
     
     } from "../actions/types"
-    
+     
     const initState = {
         profileList: null,
     };
@@ -19,6 +19,7 @@ import {
         switch(action.type){
             case PROFILE_CREATE_NEW:
             case PROFILE_CREATE_UPDATE:
+                console.log('PROFILE_CREATE_UPDATE')
             case PROFILE_DELETE:
                 return {
                     ...state,

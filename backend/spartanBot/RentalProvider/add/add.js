@@ -28,45 +28,45 @@ let addPool = async function(setup_success, options) {
     const provider = setup_success.proivder || setup_success
     console.log('provider: 28', provider)
   
-        let pool;
-        console.log('options.provider: 48 add.js')
-        for (let p of this.getRentalProviders()) {
-            if ( p.getUID() !== provider.getUID() ) {
-                p._addPools(options.poolData);
+    let pool;
+    console.log('options.provider: 48 add.js')
+    for (let p of this.getRentalProviders()) {
+        if ( p.getUID() !== provider.getUID() ) {
+            p._addPools(options.poolData);
+        }
+    }
+    try {
+        if (provider.name === 'NiceHash') pool = await provider._createPool(options.poolData)
+        options.poolData.profileName = provider.name
+        if (provider.name === 'MiningRigRentals') pool = await provider.createPoolAndProfile(options.poolData)
+        console.log('pool: 57 add.js', pool)
+        
+        this.serialize()
+        if ( pool.error ) {
+            console.log(`Error while creating the profile: ${pool.error}`);
+            return {
+                provider: options.provider,
+                err: 'pool',
+                message: `Error while creating the pool: ${pool.message}`,
+                pool: false,
+                credentials: true,
+                success: false
+            }
+        } else {
+            return {
+                rental_provider: options.provider,
+                message: `${options.provider} and Pool successfully added, \n` + 
+                            `pool id: ${pool.mrrID || pool.id}  `,
+                pool: true,
+                credentials: true,
+                success: true
             }
         }
-        try {
-            if (provider.name === 'NiceHash') pool = await provider._createPool(options.poolData)
-            options.poolData.profileName = provider.name
-            if (provider.name === 'MiningRigRentals') pool = await provider.createPoolAndProfile(options.poolData)
-            console.log('pool: 57 add.js', pool)
-            
-            this.serialize()
-            if ( pool.error ) {
-                console.log(`Error while creating the profile: ${pool.error}`);
-                return {
-                    provider: options.provider,
-                    err: 'pool',
-                    message: `Error while creating the pool: ${pool.message}`,
-                    pool: false,
-                    credentials: true,
-                    success: false
-                }
-            } else {
-                return {
-                    rental_provider: options.provider,
-                    message: `${options.provider} and Pool successfully added, \n` + 
-                             `pool id: ${pool.mrrID || pool.id}  `,
-                    pool: true,
-                    credentials: true,
-                    success: true
-                }
-            }
-           
-        } catch(e) {
-            console.log({err: 'Pool unsuccessful add.js line 79' + e})
-            return {err: 'Pool unsuccessful' + e}
-        }
+        
+    } catch(e) {
+        console.log({err: 'Pool unsuccessful add.js line 79' + e})
+        return {err: 'Pool unsuccessful' + e}
+    }
 }
 
 /**
@@ -228,8 +228,8 @@ module.exports = async function(options) {
             api_id: options.api_id,
             name: rental_provider_type
         });
-
-        // return setup_success.provider.deletePoolProfile(100144).then(res => console.log('deletedPoolProfile: ',res))
+       console.log(' setup_success', setup_success)
+        // return setup_success.provider.deletePoolProfile('99882').then(res => console.log('deletedPoolProfile: ',res))
         console.log('setup_success: top \n', setup_success.success);
 
 

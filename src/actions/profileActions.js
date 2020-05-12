@@ -43,8 +43,9 @@ export const getProfile = () => async (dispatch, getState) => {
         console.log(error.response)
     }
 }
-
+  
 export const updateProfile = (body) => async (dispatch, getState) => {
+
     try {
 
         const res = await axios.post(`${API_URL}/profile/update`, body, tokenConfig(getState))

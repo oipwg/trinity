@@ -17,7 +17,6 @@ const Timer = require('../helpers/timer');
 
 // console.log(new Timer().setTimer())
 
-
 wss.on('connection', ws => {
     emitter.on('message', msg => {
         ws.send(msg);
@@ -161,21 +160,23 @@ async function processUserInput(req, res) {
                     let usedIndexes = user.indexes
                     let newAddress = getAddress(0, paymentRecieverXPub, token, usedIndexes)
                     let btcAddress = getAddress(0, btcxPrv, 'bitcoin', usedIndexes)
+                    console.log('btcAddress:', btcAddress)
+                    console.log('newAddress.address', newAddress.address)
 
                     profile.address.publicAddress = newAddress.address
                     profile.address.btcAddress = btcAddress.address
+
                     options.address = newAddress.address
                     let index = newAddress.index
                     user.indexes.push(index)
-
-                    await user.save()
+                     await user.save()
                     break;
                 } else {
                     options.address = profile.address.publicAddress
                 }
             }
         }
-
+      
         if (!user) {
             return 'Can\'t find user. setup.js line#16'
         }
@@ -185,6 +186,7 @@ async function processUserInput(req, res) {
                 rent: true,
             }
         }
+        console.log('OPTIONS ADDRESS', options.address)
         options.profile_id = profile_id
         options.PriceBtcUsd = getPriceBtcUsd
         options.NetworkHashRate = rent.Networkhashrate
@@ -235,11 +237,10 @@ const processData = async (req, res) => {
                 }
             }
         }
-        
+
         // Send message back to client 
         let data = JSON.stringify(msg);
         emitter.emit('message', data);
-
         console.log('MSG: ', msg)
         // Start timer, close response, & 
         try {
@@ -254,7 +255,9 @@ const processData = async (req, res) => {
 
         } catch (err) {
             console.log('err:', err)
-            res.status(500).json({ err: err })
+            let message = JSON.stringify({message: err.message, autoRent: false })
+            res.write(message)
+            // res.status(500).json({message: err.message, autoRent: false } )
         }
         
         return user.save()
