@@ -26,11 +26,24 @@ main {
   .message-field {
     display: block;
     transition: height 1s ease;
-    overflow: hidden;
+    // overflow: hidden;
+    overflow: scroll;
   }
   #mining-op-tableHeader tr th {
     border-top: none;
   }
+
+  #updateMessage {
+    width: 1px;
+    border: none;
+  }
+  .table td, .table th {
+    padding: .40rem;
+  }
+  .messages {
+    font-size: .95rem;
+  }
+
 }
 .mining-operation-inputs {
   input {
@@ -45,11 +58,6 @@ main {
     font-size: 0.9rem;
   }
 
-  // input:disabled {
-  //   background-color: #42465685;
-  //   border-left: none;
-  //   position: relative;
-  // }
 }
 
 .target-margin-container {

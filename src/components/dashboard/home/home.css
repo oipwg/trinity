@@ -36,11 +36,24 @@ main {
   display: block;
   -webkit-transition: height 1s ease;
   transition: height 1s ease;
-  overflow: hidden;
+  overflow: scroll;
 }
 
 .card.mining-operation #mining-op-tableHeader tr th {
   border-top: none;
+}
+
+.card.mining-operation #updateMessage {
+  width: 1px;
+  border: none;
+}
+
+.card.mining-operation .table td, .card.mining-operation .table th {
+  padding: .40rem;
+}
+
+.card.mining-operation .messages {
+  font-size: .95rem;
 }
 
 .mining-operation-inputs input {

@@ -50,7 +50,7 @@ module.exports = {
             profile = req.body
 
             user.profiles[profileIndex] = profile;
-
+            // Failing here
             await user.save()
             res.status(200).json({success: 'Updated profiles', profiles: user.profiles})
         } catch (error) {
