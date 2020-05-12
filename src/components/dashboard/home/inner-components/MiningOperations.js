@@ -144,7 +144,8 @@ const MiningOperations = (props) => {
         if(isEqual(prevProf, profile)){
             return;
         }
-        // props.updateProfile(profile)
+        
+        props.updateProfile(profile)
 
         if (miningOperations.autoRent){
             // If update has a value of true it removes back to undefined to be updated once again on the backend
