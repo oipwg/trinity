@@ -1,17 +1,25 @@
 const { on } = require('../controllers/autoTrade');
 const User = require('../models/user');
 const spartanbot = require('spartanbot')
+const wss = require(process.cwd() + '/backend/routes/socket').wss;
+const events = require('events');
+const emitter = new events();
 
+wss.on('connection', ws => {
+  emitter.on('message', msg => {
+    ws.send(msg);
+  });
+});
 
 class Timer {
     constructor(settings, req) {
+        console.log('settings:', settings)
         this.profiles = settings.profiles
         this.duration = settings.duration
         this.profileId = settings.profile_id
         this.provider = settings.badge[0].provider
         this.req = req
         this.ids = settings.rentalId
-
     }
 
     getProfileAddress() {
@@ -23,7 +31,7 @@ class Timer {
     }
 
     async getProviderAddress() {
-        let account = ( await this.provider.getAccount()).data.deposit.BTC.address
+        let account = ( await this.provider.getAccount() ).data.deposit.BTC.address
         return account
     }
 
@@ -41,10 +49,9 @@ class Timer {
                 }
             }
         }
-        let address = await this.getProviderAddress()
-        on(this.req, address)
         return amount
     }
+
     async getTransactions() {
         try {
             let params = {
@@ -53,7 +60,7 @@ class Timer {
             };
             let res = await this.provider.getTransactions(params)
             let transactions = res.data.transactions;
-            this.getCostOfRental(transactions)
+            return this.getCostOfRental(transactions)
         } catch(e) {
             console.log('Error during getTransactions timer.js: ',e)
         }
@@ -61,9 +68,23 @@ class Timer {
 
     
     setTimer() {
-        setTimeout(() => {
-            this.getTransactions()
-        }, this.duration * 60 * 1000)
+        setTimeout(async () => {
+            try{
+                let CostOfRentalBtc = await this.getTransactions()
+                console.log('CostOfRentalBtc:', CostOfRentalBtc)
+                let address = await this.getProviderAddress()
+
+                on(this.req, address)
+                emitter.emit('message', JSON.stringify({
+                    autoRent: false,
+                    db: {CostOfRentalBtc: Math.abs(CostOfRentalBtc).toFixed(8)},
+                    message: 'Cost of rental '+ Math.abs(CostOfRentalBtc).toFixed(8)
+                }))
+            } catch(e) {
+                console.log(e)
+            }
+            
+        }, (this.duration + .5) * 60 * 1000)
     }
 }
 

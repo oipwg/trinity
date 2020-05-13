@@ -228,7 +228,6 @@ module.exports = async function(options) {
             api_id: options.api_id,
             name: rental_provider_type
         });
-       console.log(' setup_success', setup_success)
         // return setup_success.provider.deletePoolProfile('99882').then(res => console.log('deletedPoolProfile: ',res))
         console.log('setup_success: top \n', setup_success.success);
 
