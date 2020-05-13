@@ -221,8 +221,6 @@ const processData = async (req, res) => {
 
     // From within SpartanBot only
     emitter.once('rented', async (msg) => {
-        // console.log('msg:', msg.message)
-  
         const user = await User.findById({ _id: req.body.userId }).select('profiles')
         
         // If data needs to be saved to Database
@@ -242,7 +240,6 @@ const processData = async (req, res) => {
         let data = JSON.stringify(msg);
         emitter.emit('message', data);
         // console.log('MSG: ', msg)
-        // Start timer, close response, & 
         try {
             let timerData = msg;
             timerData.profiles = user.profiles
