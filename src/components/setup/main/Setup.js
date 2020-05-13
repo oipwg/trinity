@@ -9,7 +9,7 @@ const Setup = props => {
     const [userData, setUserData] = useState([]);
     const [bittrexData, setBittrexData] = useState({data: {}});
     const userId = useRef('');
-
+  
 
     useEffect(() => {
         if (props.user) {
@@ -21,11 +21,15 @@ const Setup = props => {
 
     const merge = ( ...objects ) => ( [...objects] );
 
-    function set_rental_provider(e) {
-        e.preventDefault();
-
-        let target = e.target.options[e.target.selectedIndex].value
-
+    function set_rental_provider(e = '', poolTarget, callback) {
+        let target;
+        if(poolTarget) {
+            target = poolTarget;
+        } else {
+            target = e.target.options[e.target.selectedIndex].value 
+        }
+        
+     
         if (!target) return
 
         let options = {
@@ -41,7 +45,10 @@ const Setup = props => {
         if (userData.length) {
             let newState = [], length = userData.length, i = 0
 
-            if (userData[0].provider === target) return
+            if (userData[0].provider === target){
+                // if(callback) callback(userData)
+                return;
+            } 
 
             while(i < length) {
                 let prevState = userData[i]
@@ -65,13 +72,14 @@ const Setup = props => {
                 }
                 i++
             }
-
+            // if(callback) callback(newState[0])
             addProvider(newState[0])
             setUserData(newState[0])
         } else {
             addProvider([options])
             setUserData([options])
         }
+       
     }
 
     function set_pool_values(e) {
@@ -251,12 +259,27 @@ const Setup = props => {
             process_returned_data({err: e})
         }
     }
+
     const showPool = props => {
+        if(props === false) return false
         if (userData[0] === undefined || userData[0].pool === undefined ) {
             return true
         } else {
             return userData[0].pool;
         }
+    }
+    const addPool = (e) => {
+        let provider = e.target.dataset.provider
+        let newState = []
+        for(let i = 0; i < userData.length; i++) {
+            if(userData[i].provider === provider) {
+
+                newState[0] = {...userData[i], pool: false}
+            } else {
+                newState[1] = userData[i]
+            }
+        }
+        setUserData(newState)
     }
 
     const showProviderButton = (userData) => {
@@ -269,7 +292,6 @@ const Setup = props => {
 
     const showCredentials = userdata => {
         let height = (() => {
-            let scale = window.devicePixelRatio
             if ( userdata.length ) {
                 return userdata[0].provider === 'MiningRigRentals' ? '126px' : '169px'
             } else 
@@ -303,8 +325,10 @@ const Setup = props => {
     const goToSettings = () => {
         return props.history.push('/dashboard');
     }
+    
 
     const showMessage = (field, i) => {
+        
         let data = userData[i]
         switch ( field ) {
             case 'provider':
@@ -324,10 +348,11 @@ const Setup = props => {
             case 'credentials':
             case 'pool':
                 if (data.err === field && data.success) {
+    
                     return [
                         data.message,
                         <div key={'pool'}>
-                            <button type="submit" className="btn btn-primary add-pool" onClick={goToSettings}>
+                            <button type="submit" data-provider={userData[i].provider} className="btn btn-primary add-pool" onClick={addPool}>
                                 Add Pool
                             </button>
                             <button type="submit" className="btn btn-success" onClick={goToSettings}>
@@ -441,7 +466,7 @@ const Setup = props => {
                                 return (
                                     userData.map( (userData, i)=> {
                                         let dataKeys = Object.keys(userData)
-            
+                                        
                                         return (   
                                             <tr key={i} className="data-table-row">
                                                 <td >{i}</td>
@@ -537,7 +562,7 @@ const Setup = props => {
                                 </div>
                             </div>
                         </div>
-                        
+                        {console.log('showPool',showPool())}
                         {/* End of rental passwords */}
                         <Pools poolBoolean ={showPool}/>
                         {!showProviderButton(userData) && 
@@ -563,7 +588,7 @@ const Setup = props => {
 const Pools = (props) => {
     return (  
         <div className="pools">
-            <div style={{height: props.poolBoolean() ? '0px' : '345px' }} className="pool-add">
+            <div style={{height: props.poolBoolean() ? '0px' : '385px' }} className="pool-add">
                 <h4>Add A Pool</h4>
                  {/* flex */}
                 <div className="selector-groups">
@@ -589,6 +614,20 @@ const Pools = (props) => {
                             <option value="2">2</option>
                             <option value="3">3</option>
                         </select>
+                    </div>
+                </div>
+                {console.log(props.userData )}
+                <div className="form-inline">
+                    <div className="form-groups">
+                        <label htmlFor="name">Profile name</label>
+                        <input
+                            type="hidden"
+                            type="text"
+                            id="profile-name"
+                            className="form-control mx-sm-4"
+                            aria-describedby="name"
+                            placeholder="Pool profile name"
+                        />
                     </div>
                 </div>
                 <div className="form-inline">

@@ -4,6 +4,7 @@ const router = express.Router();
 const controller = require('../spartanBot');
 const User = require('../models/user');
 
+
 async function processUserInput(req, res) {
     let options = req.body
    
