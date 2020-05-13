@@ -30,7 +30,7 @@ const FloTradeFee = 0.000226
 
 
 
-module.exports = async function(profile, accessToken, wallet) {
+module.exports = async function(profile, accessToken, wallet, rentalAddress) {
 
     if(!accessToken){
         console.log('no access token');
@@ -227,8 +227,6 @@ module.exports = async function(profile, accessToken, wallet) {
         CostOfRentalBtc
     } = profile
     
-    //! Add provider address
-    let rentalAddress = '';
     let userBTCAddress = address.btcAddress;
     CostOfRentalBTC = CostOfRentalBtc
 
@@ -495,15 +493,15 @@ module.exports = async function(profile, accessToken, wallet) {
             //Todo: fix loop times.
             let timer = setInterval(() => {
                 checkConfirmations()
-            }, (1 * ONE_MINUTE))
+            }, (3 * ONE_MINUTE))
 
             let update = setInterval(() => {
                 shouldIUpdated()
-            },(updateUnsold * (3 * ONE_MINUTE)))
+            },(updateUnsold * (5 * ONE_MINUTE)))
 
             let orderStatus = setInterval(() => {
                 checkOrderStatus()
-            },(updateUnsold * (5 * ONE_MINUTE)))
+            },(updateUnsold * (10 * ONE_MINUTE)))
 
             const clearAllIntervals = (timer, update, orderStatus) => {
                     console.log('--- TRADE END ---')

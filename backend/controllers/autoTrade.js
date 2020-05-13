@@ -3,7 +3,7 @@ const User = require('../models/user')
 const ATSupportedEx = require('../autoTrade/supportedExchanges')
 
 module.exports = {
-    on: async(req) => {
+    on: async(req, rentalAddress) => {
         try {
 
             //- profiles _id as param
@@ -19,7 +19,7 @@ module.exports = {
             console.log({profile})
 
 
-            ATSupportedEx(...profile, accessToken, user.wallet)
+            ATSupportedEx(...profile, accessToken, user.wallet, rentalAddress)
 
             return {success: 'Auto Trading Started.'}
         } catch (error) {
