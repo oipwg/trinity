@@ -30,7 +30,7 @@ const FloTradeFee = 0.000226
 
 
 
-module.exports = async function(profile, accessToken, wallet) {
+module.exports = async function(profile, accessToken, wallet, rentalAddress) {
 
     if(!accessToken){
         console.log('no access token');
@@ -227,8 +227,6 @@ module.exports = async function(profile, accessToken, wallet) {
         CostOfRentalBtc
     } = profile
     
-    //! Add provider address
-    let rentalAddress = '';
     let userBTCAddress = address.btcAddress;
     CostOfRentalBTC = CostOfRentalBtc
 
