@@ -1,5 +1,6 @@
 require('dotenv').config();
 const User = require('../models/user')
+const _ = require('lodash')
 
 
 
@@ -47,10 +48,9 @@ module.exports = {
 
             let profile = user.profiles[profileIndex]
 
-            profile = req.body
+            let updated = _.omit(req.body, ['address'])
 
-            user.profiles[profileIndex] = profile;
-            // Failing here
+            user.profiles[profileIndex] = {profile, ...updated}
             await user.save()
             res.status(200).json({success: 'Updated profiles', profiles: user.profiles})
         } catch (error) {
