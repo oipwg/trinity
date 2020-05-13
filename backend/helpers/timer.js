@@ -11,7 +11,15 @@ wss.on('connection', ws => {
   });
 });
 
+/**
+ * Class to start a timer to gather data at end of rental
+ */
 class Timer {
+    /**
+     * 
+     * @param {Object} settings Information to be used for timer
+     * @param {Object} req Request object to be passed off later
+     */
     constructor(settings, req) {
         console.log('settings:', settings)
         this.profiles = settings.profiles
@@ -21,7 +29,10 @@ class Timer {
         this.req = req
         this.ids = settings.rentalId
     }
-
+    /**
+     * @property {Function} getProfileAddress Get current profile address being used
+     * @returns {String} publicAddress 
+     */
     getProfileAddress() {
         for(let profile of this.profiles) {
             if (profile._id.toString() === this.profileId) {

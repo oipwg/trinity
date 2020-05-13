@@ -91,6 +91,7 @@ const MiningOperations = (props) => {
             }
 
             setOperations({...miningOperations, ...profile})
+            // @ts-ignore
             setError('')
 
         } else {
@@ -108,7 +109,8 @@ const MiningOperations = (props) => {
                 supportedExchange: false,
                 Xpercent: 15,
                 token: 'FLO',
-                message: []
+                message: [],
+                update: false
             })
         }
     }, [props.profile, props.address])
