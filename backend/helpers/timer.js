@@ -5,19 +5,29 @@ const spartanbot = require('spartanbot')
 
 class Timer {
     constructor(settings, req) {
-        // console.log('settings:', settings.badge[0].provider)
         this.profiles = settings.profiles
         this.duration = settings.duration
-        this.profile = settings.profile_id
+        this.profileId = settings.profile_id
         this.provider = settings.badge[0].provider
         this.req = req
-        this.ids = settings.retntalId
-    }
-    async sendCostOfRental() {
-        let autoTrade = await on(this.req);
+        this.ids = settings.rentalId
+
     }
 
-    getCostOfRental(transactions) {
+    getProfileAddress() {
+        for(let profile of this.profiles) {
+            if (profile._id.toString() === this.profileId) {
+                return profile.address.publicAddress
+            }
+        }
+    }
+
+    async getProviderAddress() {
+        let account = ( await this.provider.getAccount()).data.deposit.BTC.address
+        return account
+    }
+
+    async getCostOfRental(transactions) {
         let ids_length = this.ids.length;
         let transaction_length = transactions.length;
         let amount = 0;
@@ -26,11 +36,13 @@ class Timer {
             let id = this.ids[i];
 
             for (let j = 0; j < transaction_length; j++) {
-                if (id === transactions[j].rig) {
+                if (id === transactions[j].rental) {
                     amount += Number(transactions[j].amount);
                 }
             }
         }
+        let address = await this.getProviderAddress()
+        on(this.req, address)
         return amount
     }
     async getTransactions() {
@@ -50,7 +62,6 @@ class Timer {
     
     setTimer() {
         setTimeout(() => {
-            console.log('this.profile', this.profile)
             this.getTransactions()
         }, this.duration * 60 * 1000)
     }
