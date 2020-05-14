@@ -616,7 +616,6 @@ const Pools = (props) => {
                         </select>
                     </div>
                 </div>
-                {console.log(props.userData )}
                 <div className="form-inline">
                     <div className="form-groups">
                         <label htmlFor="name">Profile name</label>
