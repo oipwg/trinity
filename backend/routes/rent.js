@@ -10,12 +10,11 @@ const User = require('../models/user');
 const bip32 = require('bip32');
 const https = require('https');
 const { Account, Networks, Address } = require('@oipwg/hdmw');
-
 const auth = require('../middleware/auth');
 const wss = require('./socket').wss;
 const Timer = require('../helpers/timer');
 
-// console.log(new Timer().setTimer())
+
 
 wss.on('connection', ws => {
     emitter.on('message', msg => {

@@ -9,7 +9,6 @@ async function processUserInput(req, res) {
     let options = req.body
    
     let { userId, rental_provider } = options
-
     try {
         const user = await User.findById({ _id: userId });
         if (!user) {

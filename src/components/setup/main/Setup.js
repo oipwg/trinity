@@ -94,6 +94,10 @@ const Setup = props => {
          
             if ( el.tagName === "SELECT" || el.tagName === "INPUT") {
                 switch (el.id) {
+                    case 'profile-name':
+                        poolData.profileName = el.value
+                        el.value = ''
+                        break
                     case 'pool-name':
                         poolData.name = el.value
                         el.value = ''
@@ -261,7 +265,7 @@ const Setup = props => {
     }
 
     const showPool = props => {
-        if(props === false) return false
+        // return false
         if (userData[0] === undefined || userData[0].pool === undefined ) {
             return true
         } else {
@@ -620,7 +624,6 @@ const Pools = (props) => {
                     <div className="form-groups">
                         <label htmlFor="name">Profile name</label>
                         <input
-                            type="hidden"
                             type="text"
                             id="profile-name"
                             className="form-control mx-sm-4"
@@ -633,7 +636,6 @@ const Pools = (props) => {
                     <div className="form-groups">
                         <label htmlFor="name">Pool name</label>
                         <input
-                            type="hidden"
                             type="text"
                             id="pool-name"
                             className="form-control mx-sm-4"
