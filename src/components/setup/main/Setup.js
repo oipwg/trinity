@@ -21,14 +21,9 @@ const Setup = props => {
 
     const merge = ( ...objects ) => ( [...objects] );
 
-    function set_rental_provider(e = '', poolTarget, callback) {
-        let target;
-        if(poolTarget) {
-            target = poolTarget;
-        } else {
-            target = e.target.options[e.target.selectedIndex].value 
-        }
-        
+    function set_rental_provider(e) {
+
+        let target = e.target.options[e.target.selectedIndex].value 
      
         if (!target) return
 
@@ -46,7 +41,6 @@ const Setup = props => {
             let newState = [], length = userData.length, i = 0
 
             if (userData[0].provider === target){
-                // if(callback) callback(userData)
                 return;
             } 
 
@@ -72,7 +66,7 @@ const Setup = props => {
                 }
                 i++
             }
-            // if(callback) callback(newState[0])
+     
             addProvider(newState[0])
             setUserData(newState[0])
         } else {
