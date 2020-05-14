@@ -3,12 +3,7 @@ const fs = require('fs');
 const fsPromise = fs.promises;
 const storage = process.cwd() +'/localStorage/spartanbot-storage';
 
-/**
- * TO DO LIST
- * @param {FIX NiceHash.js functions => convertIDtoAlgo, checkAlgo, convertAlgoToID } Not.working
- * @param {Change this.host = 'https://api-test.nicehash.com' to 'https://api2.nicehash.com' 
- *           In production, and use keys from https://www.nicehash.com instead.}
- */
+
 /**
  * Create a pool and add it to local variable
  * @param {Object} options.poolData
@@ -25,6 +20,7 @@ const storage = process.cwd() +'/localStorage/spartanbot-storage';
  */
 
 let addPool = async function(setup_success, options) {
+    console.log('options:', options.poolData)
     const provider = setup_success.proivder || setup_success
     console.log('provider: 28', provider)
   
@@ -37,7 +33,6 @@ let addPool = async function(setup_success, options) {
     }
     try {
         if (provider.name === 'NiceHash') pool = await provider._createPool(options.poolData)
-        options.poolData.profileName = provider.name
         if (provider.name === 'MiningRigRentals') pool = await provider.createPoolAndProfile(options.poolData)
         console.log('pool: 57 add.js', pool)
         
@@ -47,7 +42,7 @@ let addPool = async function(setup_success, options) {
             return {
                 provider: options.provider,
                 err: 'pool',
-                message: `Error while creating the pool: ${pool.message}`,
+                message: `Error while creating the pool: ${pool.data.message}`,
                 pool: false,
                 credentials: true,
                 success: false
@@ -56,7 +51,7 @@ let addPool = async function(setup_success, options) {
             return {
                 rental_provider: options.provider,
                 message: `${options.provider} and Pool successfully added, \n` + 
-                            `pool id: ${pool.mrrID || pool.id}  `,
+                            `profile id: ${pool.profileID} & pool id: ${pool.poolid} `,
                 pool: true,
                 credentials: true,
                 success: true
@@ -64,8 +59,15 @@ let addPool = async function(setup_success, options) {
         }
         
     } catch(e) {
-        console.log({err: 'Pool unsuccessful add.js line 79' + e})
-        return {err: 'Pool unsuccessful' + e}
+        console.log({err: 'Pool unsuccessful add.js line 79 ' + e})
+        return {
+            provider: options.provider,
+            err: 'pool',
+            message: `Error while creating the pool: ${e}`,
+            pool: false,
+            credentials: true,
+            success: false
+        }
     }
 }
 
@@ -122,6 +124,7 @@ module.exports = async function(options) {
         poolCount = 0
         for (let provider of providers) {
             let poolArray = await spartan.returnPools(provider);
+            console.log('poolArray:', poolArray)
         }
         return {
             err: 'provider',

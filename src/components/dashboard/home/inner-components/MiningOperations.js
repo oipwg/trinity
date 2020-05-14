@@ -152,7 +152,7 @@ const MiningOperations = (props) => {
         }
         
         props.updateProfile(profile)
-        console.log('miningOperations.autoRent', miningOperations.autoRent)
+  
         if (miningOperations.autoRent){
             // If update has a value of true it removes back to undefined to be updated once again on the backend
             setOperations({...miningOperations, message: [], update: false})
@@ -327,7 +327,6 @@ const MiningOperations = (props) => {
 
     return (
         <>
-        {console.log(miningOperations)}
         {showSettingaModal && <MarketsNPools handleClick={() => setShowSettingsModal(!showSettingaModal)}/>}
         <div className="card mining-operation">
             <div className="card-header">
