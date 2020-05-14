@@ -79,23 +79,26 @@ class Timer {
 
     
     setTimer() {
-        setTimeout(async () => {
-            try{
-                let CostOfRentalBtc = await this.getTransactions()
-                console.log('CostOfRentalBtc:', CostOfRentalBtc)
-                let address = await this.getProviderAddress()
+        setTimeout(() => {
+            setInterval(async ()=> {
+                try{
+                    let CostOfRentalBtc = await this.getTransactions()
+                    console.log('CostOfRentalBtc:', CostOfRentalBtc)
+                    let address = await this.getProviderAddress()
 
-                on(this.req, address)
-                emitter.emit('message', JSON.stringify({
-                    autoRent: false,
-                    db: {CostOfRentalBtc: Math.abs(CostOfRentalBtc).toFixed(8)},
-                    message: 'Cost of rental '+ Math.abs(CostOfRentalBtc).toFixed(8)
-                }))
-            } catch(e) {
-                console.log(e)
-            }
-            
-        }, 3.2 * (60 * 60 * 1000))
+                    let payout = await on(this.req, address)
+                    console.log('payout:', payout.success)
+                    emitter.emit('message', JSON.stringify({
+                        autoRent: false,
+                        db: {CostOfRentalBtc: Math.abs(CostOfRentalBtc).toFixed(8)},
+                        message: 'Auto trading is starting'
+                    }))
+                } catch(e) {
+                    console.log(e)
+                }
+            }, 5 * 60 * 1000 )
+        },50 * 60 * 1000)
+
     }
 }
 

@@ -1,3 +1,4 @@
+// @ts-nocheck
 import React, { useState, useEffect } from 'react';
 import { API_URL, WEB_SOCKET_URL } from '../../../../../config.js';
 import ToggleSwitch from '../../../helpers/toggle/ToggleSwitch';
@@ -7,6 +8,7 @@ import {isEqual} from 'lodash'
 const socket = new WebSocket( WEB_SOCKET_URL );
 
 const MiningOperations = (props) => {
+    // @ts-ignore
     socket.onopen = (e) => {
         socket.send('Hello Server!');
     };
@@ -61,7 +63,7 @@ const MiningOperations = (props) => {
 
     useEffect(() => {
         if(props.profile){
-            console.log('PROPS PROFILE')
+            console.log('PROPS PROFILE', props.profile)
             const {
                 targetMargin,
                 profitReinvestment,
@@ -70,6 +72,7 @@ const MiningOperations = (props) => {
                 autoRent,
                 autoTrade,
                 token,
+                name,
                 _id
             } = props.profile
         
@@ -87,6 +90,7 @@ const MiningOperations = (props) => {
                 morphie: autoTrade.mode.morphie,
                 supportedExchange: autoTrade.mode.supportedExchanges,
                 token: token,
+                name,
                 profile_id : _id
             }
 
@@ -147,11 +151,12 @@ const MiningOperations = (props) => {
             return;
         }
         
-        // props.updateProfile(profile)
-
+        props.updateProfile(profile)
+        console.log('miningOperations.autoRent', miningOperations.autoRent)
         if (miningOperations.autoRent){
             // If update has a value of true it removes back to undefined to be updated once again on the backend
             setOperations({...miningOperations, message: [], update: false})
+            console.log('HIT')
             rent(miningOperations)
         } 
     },[autoRent]);
@@ -227,7 +232,9 @@ const MiningOperations = (props) => {
         let profile = {}
        
         for (let key in miningOperations) {
+            console.log('key:', key)
             switch (key) {
+                
                 case 'targetMargin':
                     if (miningOperations[key] === '')
                         return setError({targetMargin: true})
@@ -246,7 +253,9 @@ const MiningOperations = (props) => {
                         if (miningOperations.spot === miningOperations.alwaysMineXPercent) {
                             return setError({autoRent: true})
                         }
-                        setOperations({...miningOperations, autoRent: !autoRent, autoTrade: false})
+                        let options = {...miningOperations, autoRent: !autoRent, autoTrade: false}
+                        console.log('options:', options)
+                        setOperations(options)
                     }
                     break;
                 case 'autoTrade':
@@ -318,6 +327,7 @@ const MiningOperations = (props) => {
 
     return (
         <>
+        {console.log(miningOperations)}
         {showSettingaModal && <MarketsNPools handleClick={() => setShowSettingsModal(!showSettingaModal)}/>}
         <div className="card mining-operation">
             <div className="card-header">

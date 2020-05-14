@@ -106,12 +106,12 @@ async function processUserInput(req, res) {
     
 
     let options = req.body
-    let { profitReinvestment, updateUnsold, dailyBudget, autoRent, spot, alwaysMineXPercent,
-        autoTrade, morphie, supportedExchange, profile_id, Xpercent, userId, token } = options;
+    console.log('options:', options)
+    let { profitReinvestment, updateUnsold, dailyBudget,targetMargin, autoRent, spot, alwaysMineXPercent,
+        autoTrade, morphie, supportedExchange, profile_id, Xpercent, userId, token, name } = options;
 
     try {
         const rent = await Rent(token, Xpercent / 100)
-        console.log('rent: RENT.JS 111')
         let user = await User.findById({ _id: userId })
 
         let getAddress = (index, xPub, token, usedIndexes) => {
@@ -150,11 +150,23 @@ async function processUserInput(req, res) {
                 autoRent: false
             }
         }
-
+        // let { profitReinvestment, updateUnsold, dailyBudget, autoRent, spot, alwaysMineXPercent,
+        //     autoTrade, morphie, supportedExchange, profile_id, Xpercent, userId, token } = options;
         // If user rents for first time with no xPub will save xPub ( paymentRecieverXPub ) to the DB
         for (let profile of user.profiles) {
             if (profile._id.toString() === profile_id) {
-
+                profile.name = name
+                profile.token = token,
+                profile.autoRent.on = autoRent
+                profile.autoRent.mode.alwaysMineXPercent.Xpercent = Xpercent
+                profile.autoRent.mode.alwaysMineXPercent.on = alwaysMineXPercent
+                profile.autoRent.mode.spot = spot
+                profile.autoTrade.on = autoTrade
+                profile.autoTrade.mode.morphie = morphie
+                profile.autoTrade.mode.supportedExchanges = supportedExchange
+                profile.targetMargin = targetMargin
+                profile.profitReinvestment = profitReinvestment
+                profile.updateUnsold = updateUnsold
                 // If user doesn't have a generated address will generate a new one and save address and index to DB
                 if (profile.address.publicAddress === '') {
                     let usedIndexes = user.indexes
@@ -163,20 +175,23 @@ async function processUserInput(req, res) {
                     console.log('btcAddress:', btcAddress)
                     console.log('newAddress.address', newAddress.address)
 
+                    
                     profile.address.publicAddress = newAddress.address
                     profile.address.btcAddress = btcAddress.address
-
+                    
+                    
+                   
                     options.address = newAddress.address
                     let index = newAddress.index
                     user.indexes.push(index)
-                     await user.save()
+                    
                     break;
                 } else {
                     options.address = profile.address.publicAddress
                 }
             }
         }
-      
+        await user.save()
         if (!user) {
             return 'Can\'t find user. setup.js line#16'
         }
