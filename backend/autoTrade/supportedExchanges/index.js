@@ -294,6 +294,10 @@ module.exports = async function(profile, accessToken, wallet, rentalAddress) {
                             res = await axios.get(`https://livenet.flocha.in/api/tx/${bittrexTX}`)
                         }
 
+                        if(!res) {
+                            return console.log('no bittrexTx')
+                        }
+
                         let {fees, confirmations } = res.data
 
                         FeeFloTx2 = fees
@@ -407,7 +411,7 @@ module.exports = async function(profile, accessToken, wallet, rentalAddress) {
                             isUpdate = true;
 
                             //push new tokens to wallet
-                            console.log('sending to bittrex,' (updatedBalance - FloTradeFee))
+                            console.log('sending to bittrex', (updatedBalance - FloTradeFee))
                             bittrexTX = await account.sendPayment({
                                 to: {[floBittrexAddress]: (updatedBalance - FloTradeFee)},
                                 from: address,
@@ -459,7 +463,6 @@ module.exports = async function(profile, accessToken, wallet, rentalAddress) {
                     if(TakeProfitBtc){
                         console.log('Withdraw from bittrex ---')
                         //coinbase btc address;
-                        //todo: get user's btc address.
 
                         // this will havae to be done by the user on Trinity
                         // let sentToCoinbase = await withdrawFromBittrex('BTC', TakeProfitBtc, coinbaseAddress);
