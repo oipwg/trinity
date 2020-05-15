@@ -87,6 +87,8 @@ module.exports = async function(profile, accessToken, wallet, rentalAddress) {
     }
 
     const createSellOrder = async (market, quantity, rate) => {
+        rate = await checkMarketPrice(rate);
+
                 
         let body = {
             market,
@@ -95,6 +97,7 @@ module.exports = async function(profile, accessToken, wallet, rentalAddress) {
         }
         
         console.log('running createSellOrder -------', body)
+
 
         try {
             const res = await axios.post(`${API_URL}/bittrex/createSellOrder`, body, config)
@@ -109,12 +112,15 @@ module.exports = async function(profile, accessToken, wallet, rentalAddress) {
     }
 
     const updateOrder = async (orderUuid, market, quantity, rate) => {
+        rate = await checkMarketPrice(rate);
+
         let body = {
             orderUuid,
             market,
             quantity,
             rate,
         }
+
         
         console.log(body)
 
@@ -271,6 +277,23 @@ module.exports = async function(profile, accessToken, wallet, rentalAddress) {
         }
 
     }
+
+    const checkMarketPrice = async (offerPrice) => {
+        try {
+            const res = await axios.get('https://api.bittrex.com/api/v1.1/public/getticker?market=BTC-FLO')
+            let marketPrice = res.data.result.Ask
+
+            console.log('checking market price', {offerPrice, marketPrice}, 'offerPrice < marketPrice:', (offerPrice < marketPrice))
+            if(offerPrice < marketPrice){
+                return marketPrice
+            }
+
+        return offerPrice
+        } catch (error) {
+            console.log('ERR; checkMarketPrice ------', error)
+        }        
+    }
+
 
 
     // ------------  START -------------- 
