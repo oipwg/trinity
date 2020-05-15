@@ -216,45 +216,60 @@ module.exports = async function(profile, accessToken, wallet, rentalAddress) {
     }
 
     const buildTransaction = async (address, sendAmount) => {
-        let addressObj = new Address(address, Networks.flo, false);
+        try {
+            let addressObj = new Address(address, Networks.flo, false);
 
-        let builder = new TransactionBuilder(Networks.flo, {
-            from: addressObj,
-            to: {[floBittrexAddress]: sendAmount}
-        }, account)
-        
-        let iof = await builder
-                .buildInputsAndOutputs()
-                .then((calculated) => {
-                    console.log(calculated.inputs)
-                    console.log(calculated.outputs)
-                    console.log(calculated.fee)
-                    return calculated;
-        })
+            let builder = new TransactionBuilder(Networks.flo, {
+                from: addressObj,
+                to: {[floBittrexAddress]: sendAmount}
+            }, account)
+            
+            
+            let iof = await builder
+                    .buildInputsAndOutputs()
+                    .then((calculated) => {
+                        console.log(calculated.inputs)
+                        console.log(calculated.outputs)
+                        console.log(calculated.fee)
+                        return calculated;
+            })
+    
+    
+            let fee = iof.fee * 0.00000001;
 
+            // console.log({fee})
+    
+            let adjustedAmount = Number((sendAmount - fee).toFixed(8))
 
-        let fee = iof.fee * minFeePerByte;
+            // console.log({adjustedAmount})
+    
+    
+            let builder2 = new TransactionBuilder(Networks.flo, {
+                from: addressObj,
+                to: {[floBittrexAddress]: adjustedAmount}
+            }, account)
+    
 
-        let adjustedAmount = Number((sendAmount - fee).toFixed(8))
+            // console.log({builder2})
+    
+            let inNOuts = await builder2
+                    .buildInputsAndOutputs()
+                    .then((calculated) => {
+                        return calculated;
+            })
+    
+            // console.log({inNOuts})
+    
+    
+            let rawtx = inNOuts.inputs[0].rawtx
+    
+            let finalFee = ((rawtx.length / 2) * minFeePerByte);
+    
+            return finalFee
+        } catch (error) {
+            console.log('ERR; builTransaction ------', error)
+        }
 
-
-        let builder2 = new TransactionBuilder(Networks.flo, {
-            from: addressObj,
-            to: {[floBittrexAddress]: adjustedAmount}
-        }, account)
-
-
-        let inNOuts = await builder2
-                .buildInputsAndOutputs()
-                .then((calculated) => {
-                    return calculated;
-        })
-
-        let rawtx = inNOuts.inputs[0].rawtx
-
-        let finalFee = ((rawtx.length / 2) * minFeePerByte);
-
-        return finalFee
     }
 
 
@@ -310,12 +325,23 @@ module.exports = async function(profile, accessToken, wallet, rentalAddress) {
             if(balance > 0) {
                 FloTradeFee = await buildTransaction(address, ReceivedQty)
                 let sendAmount = Number((ReceivedQty - (FloTradeFee)).toFixed(8))
-                console.log('sending to bittrex: 1', {sendAmount})
-                bittrexTX = await account.sendPayment({
+                console.log('sending to bittrex: 1', {sendAmount, FloTradeFee})
+                try {
+                    bittrexTX = await account.sendPayment({
                         to: {[floBittrexAddress]: sendAmount},
                         from: address,
                         discover: false
                     })
+                } catch (error) {
+                    let sendAmount = Number((ReceivedQty - (FloTradeFee + 0.5)).toFixed(8))
+                    console.log('catch - sending to bittrex: 1', {sendAmount})
+                    bittrexTX = await account.sendPayment({
+                        to: {[floBittrexAddress]: sendAmount},
+                        from: address,
+                        discover: false
+                    })
+                }
+
             }
 
             if(bittrexTX){
@@ -449,7 +475,7 @@ module.exports = async function(profile, accessToken, wallet, rentalAddress) {
 
 
                         // will need to create a variable for the least amount, I can push up to bittrex wallet.
-                        if(updatedBalance > 10){
+                        if(updatedBalance > 0){
                             console.log('pre', {balance, updatedBalance})
                             balance += updatedBalance
                             FeeFloTx1 = await getFees(transactions)
@@ -460,11 +486,23 @@ module.exports = async function(profile, accessToken, wallet, rentalAddress) {
                             FloTradeFee = await buildTransaction(address, ReceivedQty)
                             let sendAmount = Number((updatedBalance - FloTradeFee).toFixed(8))
                             console.log('sending to bittrex: 2', {sendAmount})
-                            bittrexTX = await account.sendPayment({
-                            to: {[floBittrexAddress]: sendAmount},
-                            from: address,
-                            discover: false
-                        })
+
+                            try {
+                                bittrexTX = await account.sendPayment({
+                                    to: {[floBittrexAddress]: sendAmount},
+                                    from: address,
+                                    discover: false
+                                })
+                            } catch (error) {
+                                let sendAmount = Number((updatedBalance - (FloTradeFee + 0.5)).toFixed(8))
+                                console.log('catch - sending to bittrex: 2', {sendAmount})
+                                bittrexTX = await account.sendPayment({
+                                    to: {[floBittrexAddress]: sendAmount},
+                                    from: address,
+                                    discover: false
+                                })
+                            }
+
 
                         } else {
                             console.log('Not enought to send to Bittrex', updatedBalance)
