@@ -6,7 +6,7 @@ const Logout = props => {
     useEffect(() => {
         props.logoutUser(props.history);
     }, []);
-
+    sessionStorage.clear()
     return <div>Logout...</div>;
 };
 

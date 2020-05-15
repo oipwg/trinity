@@ -13,6 +13,7 @@ import {
     LOGOUT_SUCCESS,
     SIGNUP_SUCCESS,
     SIGNUP_FAIL,
+    ADD_PROVIDER,
     CHANGE_PW_FAIL,
     CHANGE_PW_SUCCESS,
     // On Load
@@ -176,7 +177,10 @@ export const logoutUser = history => dispatch => {
     dispatch({
         type: LOGOUT_SUCCESS,
     });
-
+    dispatch({
+        type: ADD_PROVIDER,
+        payload: []
+    })
     return history.push('/');
 };
 

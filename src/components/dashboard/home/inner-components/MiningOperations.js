@@ -230,9 +230,7 @@ const MiningOperations = (props) => {
         let profile = {}
        
         for (let key in miningOperations) {
-            console.log('key:', key)
             switch (key) {
-                
                 case 'targetMargin':
                     if (miningOperations[key] === '')
                         return setError({targetMargin: true})
