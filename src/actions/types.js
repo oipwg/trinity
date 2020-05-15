@@ -50,3 +50,5 @@ export const PROFILE_CREATE_EDIT = 'PROFILE_CREATE_EDIT';
 export const PROFILE_DELETE = 'PROFILE_DELETE';
 export const PROFILE_OBJECT = 'PROFILE_OBJECT';
 export const PROFILE_GET = 'PROFILE_GET'
+// Setup
+export const ADD_PROVIDER = 'ADD_PROVIDER';

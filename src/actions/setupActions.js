@@ -1,8 +1,8 @@
+import { ADD_PROVIDER } from './types';
 
-
-
-export const addProvider = (data = []) => {
-    console.log('SETUPACTION',data)
-    // type: 'ADD_PROVIDER'
-
+export const addProvider = (data = []) => {    
+    return{
+        type: ADD_PROVIDER,
+        payload: data
+    }
 }
