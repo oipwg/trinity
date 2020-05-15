@@ -99,7 +99,6 @@ const MiningOperations = (props) => {
             setError('')
 
         } else {
-            console.log('ELSE')
             setOperations({
                 targetMargin: 1,
                 profitReinvestment: 1,
@@ -156,7 +155,6 @@ const MiningOperations = (props) => {
         if (miningOperations.autoRent){
             // If update has a value of true it removes back to undefined to be updated once again on the backend
             setOperations({...miningOperations, message: [], update: false})
-            console.log('HIT')
             rent(miningOperations)
         } 
     },[autoRent]);
