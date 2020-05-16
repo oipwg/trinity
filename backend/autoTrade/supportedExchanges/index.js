@@ -326,6 +326,8 @@ module.exports = async function(profile, accessToken, wallet, rentalAddress) {
     const accountMaster = bip32.fromBase58(wallet.flo.xPrv, Networks.flo.network)
     let account = new Account(accountMaster, Networks.flo);
 
+    account.discoverChains();
+
     let {balance, transactions} = await getBalanceFromAddress(address);
     let floBittrexAddress = await getBittrexAddress(token);
 
