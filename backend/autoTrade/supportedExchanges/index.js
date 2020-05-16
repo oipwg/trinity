@@ -29,6 +29,9 @@ let  OfferPriceBtc, //formula
 
 const CostOfWithdrawalPerCycleBTC = .0005;
 let FloTradeFee;
+let checkBlock;
+let currentBlocks;
+
 
 
 
@@ -303,7 +306,25 @@ module.exports = async function(profile, accessToken, wallet, rentalAddress) {
         }        
     }
 
+    const rent = (options) => { 
+        options.userId = ''
+        options.message = []
+        options.update = false
 
+        let body = JSON.stringify(options)
+        
+        axios.post(API_URL+'/rent',
+            body,
+            config
+        ).then((response) => {
+            return response.json();
+        }).then((data) => {
+            console.log({data})
+        }).catch((err)=> {
+            console.log(err)
+        });
+
+    }
 
     // ------------  START -------------- 
     let {
@@ -546,6 +567,8 @@ module.exports = async function(profile, accessToken, wallet, rentalAddress) {
                 }
 
             const checkOrderStatus = async () => {
+
+
                 console.log('Running Check Order Status.....')
                 const BtcFromTrades = await getSalesHistory(token, orderReceiptID)
 
@@ -593,6 +616,14 @@ module.exports = async function(profile, accessToken, wallet, rentalAddress) {
                         let sentToHDMW = await withdrawFromBittrex('BTC', BtcFromTrades, rentalAddress);
                         console.log('sentToHDMW ---', sentToHDMW)
                         clearAllIntervals(timer, update, orderStatus);
+                        let res = await axios.get(`https://blockchain.info/q/getblockcount`)
+                        currentBlocks = res.data
+                        console.log(currentBlocks)
+                        checkBlock = setInterval(() => {
+                            checkBlockStatus()
+                        }, (35 * ONE_MINUTE))
+
+                        
 
                         // send to coinbase from hdmw
                         // if(sentToHDMW) {
@@ -609,6 +640,12 @@ module.exports = async function(profile, accessToken, wallet, rentalAddress) {
 
             }
 
+            const checkBlockStatus = (blocks) => {            
+                if(blocks < (blocks += 3)){
+                    this.clearInterval(checkBlock)
+                    return rent(profile)
+                }
+            }
 
 
             //Todo: fix loop times.
@@ -623,6 +660,8 @@ module.exports = async function(profile, accessToken, wallet, rentalAddress) {
             let orderStatus = setInterval(() => {
                 checkOrderStatus()
             },(updateUnsold * (10 * ONE_MINUTE)))
+
+
 
             const clearAllIntervals = (timer, update, orderStatus) => {
                     console.log('--- TRADE END ---')
