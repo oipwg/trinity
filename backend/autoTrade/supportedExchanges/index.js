@@ -412,34 +412,32 @@ module.exports = async function(profile, accessToken, wallet, rentalAddress) {
                         TradeFee= .002 //!
                         EstFeeBtcTx1=0.00001551 //! get from somewhere
             
-                        ReceivedQty= balance
                         TotalQty = getTotalQty(ReceivedQty, FeeFloTx1)
-                        SellableQty = getSellableQty(TotalQty, FeeFloTx2)
-                        
+                        SellableQty = getSellableQty(TotalQty, FeeFloTx2)               
                         OfferPriceBtc = getOfferPriceBtc(CostOfRentalBTC,TradeFee,margin,EstFeeBtcTx1,TotalQty,FeeFloTx1,FeeFloTx2)
                     
                         console.log(
-                            '---check confirmations---',
-                            { 
-                                confirmations,
-                                TotalQty,
-                                FeeFloTx1,
-                                FeeFloTx2,
-                                SellableQty,
-                                FeeFloTx2, 
-                                CostOfRentalBTC,
-                                TradeFee,
-                                margin,
-                                EstFeeBtcTx1,
-                                TotalQty,
-                                FeeFloTx1,
-                                FeeFloTx2,
-                                OfferPriceBtc
-                            
-                            }
+                                '---check confirmations---',
+                                { 
+                                    confirmations,
+                                    TotalQty,
+                                    FeeFloTx1,
+                                    FeeFloTx2,
+                                    SellableQty,
+                                    FeeFloTx2, 
+                                    CostOfRentalBTC,
+                                    TradeFee,
+                                    margin,
+                                    EstFeeBtcTx1,
+                                    TotalQty,
+                                    FeeFloTx1,
+                                    FeeFloTx2,
+                                    OfferPriceBtc,
+                                    totalSent
+                                }
                             )
     
-                        // bittrex need 150 confirmations 
+                        // bittrex needs 150 confirmations 
                         if(confirmations > 150){
                             if(isUpdate){
 
@@ -458,39 +456,27 @@ module.exports = async function(profile, accessToken, wallet, rentalAddress) {
                                         TotalQty,
                                         FeeFloTx1,
                                         FeeFloTx2,
-                                        OfferPriceBtc
-                                    
+                                        OfferPriceBtc,
+                                        totalSent
                                     })
 
-                                    ReceivedQty = balance; 
                                     TotalQty = getTotalQty(ReceivedQty, FeeFloTx1)
                                     SellableQty  = getSellableQty(TotalQty, FeeFloTx2)
                                     OfferPriceBtc = getOfferPriceBtc(CostOfRentalBTC, TradeFee, margin, EstFeeBtcTx1, TotalQty, FeeFloTx1, FeeFloTx2);
     
                                     console.log('If Update --- before runing function;', {SellableQty, OfferPriceBtc})
-
-
-
-
-
                             }
 
                             if(orderReceiptID){
-                                if(SellableQty > totalSent){
-                                    console.log('SellableQty > totalSent: ', (SellableQty  >totalSent) )
-                                    SellableQty = totalSent
-                                }
-                                const res = await updateOrder(orderReceiptID, token, SellableQty, OfferPriceBtc)
+                                
+
+                                const res = await updateOrder(orderReceiptID, token, totalSent, OfferPriceBtc)
                                 checkOrderStatus()
                                 orderReceiptID = res;
                                 bittrexTX=null;
                                 return BtcFromTrades += (await getSalesHistory(token, orderReceiptID));
                             } else {
-                                if(SellableQty > totalSent){
-                                    console.log('SellableQty > totalSent: ', (SellableQty > totalSent) )
-                                    SellableQty = totalSent
-                                }
-                                const res = await createSellOrder(token, SellableQty, OfferPriceBtc)
+                                const res = await createSellOrder(token, totalSent, OfferPriceBtc)
                                 checkOrderStatus()
                                 orderReceiptID = res
                                 bittrexTX=null;
@@ -525,6 +511,7 @@ module.exports = async function(profile, accessToken, wallet, rentalAddress) {
                             FeeFloTx1 = await getFees(transactions)
                             console.log('pre', {balance, updatedBalance, FeeFloTx1})
                             isUpdate = true;
+                            ReceivedQty += updatedBalance;
 
                             //push new tokens to wallet
                             FloTradeFee = await buildTransaction(address, ReceivedQty)
