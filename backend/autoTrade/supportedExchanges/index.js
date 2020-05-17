@@ -31,6 +31,7 @@ const CostOfWithdrawalPerCycleBTC = .0005;
 let FloTradeFee;
 let checkBlock;
 let currentBlocks;
+let orderReceiptID = ''
 
 
 
@@ -107,9 +108,7 @@ module.exports = async function(profile, accessToken, wallet, rentalAddress) {
         try {
             const res = await axios.post(`${API_URL}/bittrex/createSellOrder`, body, config)
             console.log(res.data)
-            if(res.data.success){
                 return res.data.result.uuid
-            }
         } catch (error) {
             console.log('error ---', error)
         }
@@ -132,9 +131,7 @@ module.exports = async function(profile, accessToken, wallet, rentalAddress) {
         try {
             const res = await axios.post(`${API_URL}/bittrex/updateOrder`, body, config)
             console.log(res.data)
-            if(res.data.success){
-                return res.data.result.uuid
-            }
+            return res.data.result.uuid
         } catch (error) {
             console.log('updateOrder ---', error)
         }
@@ -159,22 +156,20 @@ module.exports = async function(profile, accessToken, wallet, rentalAddress) {
         return Number(total.toFixed(8))
     }
 
-    const getSalesHistory = async (token, orderId) => {
+    const getSalesHistory = async (token, id) => {
         try {
             const res = await axios.get(`${API_URL}/bittrex/salesHistory`, config)
 
 
             let {salesHistory} = res.data;
 
-            console.log({orderId})
+            console.log({id})
 
-            const orderCompleted = salesHistory.find(el => el.OrderUuid === orderId)
+            const orderCompleted = salesHistory.find(el => el.OrderUuid === id)
 
             if(orderCompleted){
                 return Number((orderCompleted.Price - orderCompleted.Commission).toFixed(8))
-            }
-
-            else null;
+            } else return;
 
         } catch (error) {
             console.log('ERR; getSalesHistory ----', error)
@@ -374,6 +369,7 @@ module.exports = async function(profile, accessToken, wallet, rentalAddress) {
             console.log('pre call -----', {ReceivedQty, FeeFloTx1, TotalQty, floBittrexAddress})
           
     let bittrexTX
+
             //TXID
             // Send to Bittrex. Get network Fee for moving tokens
 
@@ -410,7 +406,6 @@ module.exports = async function(profile, accessToken, wallet, rentalAddress) {
             }
 
                 let isUpdate = false;
-                let orderReceiptID = ''
 
 
                 const checkConfirmations = async () => {
@@ -490,17 +485,18 @@ module.exports = async function(profile, accessToken, wallet, rentalAddress) {
 
                             if(orderReceiptID){
                                 
-
                                 const res = await updateOrder(orderReceiptID, token, totalSent, OfferPriceBtc)
                                 checkOrderStatus()
                                 orderReceiptID = res;
                                 bittrexTX=null;
+                                console.log('updateOrder ---', {res, orderReceiptID})
                                 return BtcFromTrades += (await getSalesHistory(token, orderReceiptID));
                             } else {
                                 const res = await createSellOrder(token, totalSent, OfferPriceBtc)
                                 checkOrderStatus()
                                 orderReceiptID = res
                                 bittrexTX=null;
+                                console.log('createSellOrder ---', {res, orderReceiptID})
                                 return BtcFromTrades += (await getSalesHistory(token, orderReceiptID));
     
                             }
@@ -569,7 +565,7 @@ module.exports = async function(profile, accessToken, wallet, rentalAddress) {
             const checkOrderStatus = async () => {
 
 
-                console.log('Running Check Order Status.....')
+                console.log('Running Check Order Status.....' {orderReceiptID})
                 const BtcFromTrades = await getSalesHistory(token, orderReceiptID)
 
                 if(BtcFromTrades){
@@ -659,7 +655,7 @@ module.exports = async function(profile, accessToken, wallet, rentalAddress) {
 
             let orderStatus = setInterval(() => {
                 checkOrderStatus()
-            },(updateUnsold * (10 * ONE_MINUTE)))
+            },(updateUnsold * (3 * ONE_MINUTE)))
 
 
 
