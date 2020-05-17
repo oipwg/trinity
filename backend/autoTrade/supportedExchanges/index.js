@@ -158,6 +158,10 @@ module.exports = async function(profile, accessToken, wallet, rentalAddress) {
 
     const getSalesHistory = async (token, id) => {
         try {
+            if(!id){
+                return console.log('no:', {id})
+            }
+
             const res = await axios.get(`${API_URL}/bittrex/salesHistory`, config)
 
 
@@ -490,14 +494,14 @@ module.exports = async function(profile, accessToken, wallet, rentalAddress) {
                                 orderReceiptID = res;
                                 bittrexTX=null;
                                 console.log('updateOrder ---', {res, orderReceiptID})
-                                return BtcFromTrades += (await getSalesHistory(token, orderReceiptID));
+                                return BtcFromTrades =  await getSalesHistory(token, orderReceiptID);
                             } else {
                                 const res = await createSellOrder(token, totalSent, OfferPriceBtc)
                                 checkOrderStatus()
                                 orderReceiptID = res
                                 bittrexTX=null;
                                 console.log('createSellOrder ---', {res, orderReceiptID})
-                                return BtcFromTrades += (await getSalesHistory(token, orderReceiptID));
+                                return BtcFromTrades = await getSalesHistory(token, orderReceiptID);
     
                             }
                         }}
@@ -509,7 +513,6 @@ module.exports = async function(profile, accessToken, wallet, rentalAddress) {
                 }
     
 
-                console.log({BtcFromTrades})
 
                     // BtcFromTrades = cumulative total of Bitcoin earned from trades;
                     // PriceBtcUsd = Coinbase's API - current exchange price for BTC in USD;
@@ -565,7 +568,7 @@ module.exports = async function(profile, accessToken, wallet, rentalAddress) {
             const checkOrderStatus = async () => {
 
 
-                console.log('Running Check Order Status.....' {orderReceiptID})
+                console.log('Running Check Order Status.....', {orderReceiptID})
                 const BtcFromTrades = await getSalesHistory(token, orderReceiptID)
 
                 if(BtcFromTrades){
@@ -655,7 +658,7 @@ module.exports = async function(profile, accessToken, wallet, rentalAddress) {
 
             let orderStatus = setInterval(() => {
                 checkOrderStatus()
-            },(updateUnsold * (3 * ONE_MINUTE)))
+            },(updateUnsold * (5 * ONE_MINUTE)))
 
 
 
