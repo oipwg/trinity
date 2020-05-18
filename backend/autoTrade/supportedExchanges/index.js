@@ -86,13 +86,22 @@ module.exports = async function(profile, accessToken, wallet, rentalAddress) {
         try {
             let res = await axios.get(`https://livenet.flocha.in/api/addr/${address}`)
 
+            if(res.status != 200){
+                return console.log(res)
+            }
+
             return res.data    
         } catch (error) {
-            console.log('error -------', error)
+            console.log('ERR; getBalanceFromAddress  -------', error)
         }
     }
 
     const createSellOrder = async (market, quantity, rate) => {
+
+        if((!(market && quantity && rate))){
+            return console.log('Failed', {market, quantity, rate})
+        }
+
         rate = await checkMarketPrice(rate);
 
                 
@@ -149,6 +158,7 @@ module.exports = async function(profile, accessToken, wallet, rentalAddress) {
         for(let i = 0; i < transactions.length; i++){
             
             let res = await axios.get(`https://livenet.flocha.in/api/tx/${transactions[i]}`)
+            if(res.status != 200) return console.log(res)
 
             total += res.data.fees
         } 
@@ -309,6 +319,7 @@ module.exports = async function(profile, accessToken, wallet, rentalAddress) {
         options.userId = ''
         options.message = []
         options.update = false
+        options.to_do = 'rent'
 
         let body = JSON.stringify(options)
         
@@ -404,7 +415,6 @@ module.exports = async function(profile, accessToken, wallet, rentalAddress) {
                 console.log({bittrexTX})
             }
 
-
             if(!bittrexTX) {
                 console.log('failed to send tokens', {bittrexTX, ReceivedQty})
             }
@@ -416,15 +426,19 @@ module.exports = async function(profile, accessToken, wallet, rentalAddress) {
                     try {
 
                         console.log('checking confirmations...')
-                        let res;
 
-                        if(bittrexTX){
-                            res = await axios.get(`https://livenet.flocha.in/api/tx/${bittrexTX}`)
-                        }
-
-                        if(!res) {
+                        if(!bittrexTX){
                             return console.log('no bittrexTx')
                         }
+
+                        let res = await axios.get(`https://livenet.flocha.in/api/tx/${bittrexTX}`)
+
+                        if(res.status != 200){
+                            console.log('poop')
+                            return console.log(res)
+                        }
+
+
 
                         let {fees, confirmations } = res.data
 
@@ -490,6 +504,7 @@ module.exports = async function(profile, accessToken, wallet, rentalAddress) {
                             if(orderReceiptID){
                                 
                                 const res = await updateOrder(orderReceiptID, token, totalSent, OfferPriceBtc)
+
                                 checkOrderStatus()
                                 orderReceiptID = res;
                                 bittrexTX=null;
@@ -497,6 +512,7 @@ module.exports = async function(profile, accessToken, wallet, rentalAddress) {
                                 return BtcFromTrades =  await getSalesHistory(token, orderReceiptID);
                             } else {
                                 const res = await createSellOrder(token, totalSent, OfferPriceBtc)
+
                                 checkOrderStatus()
                                 orderReceiptID = res
                                 bittrexTX=null;
@@ -569,6 +585,10 @@ module.exports = async function(profile, accessToken, wallet, rentalAddress) {
 
 
                 console.log('Running Check Order Status.....', {orderReceiptID})
+                if(!orderReceiptID){
+                    return;
+                }
+
                 const BtcFromTrades = await getSalesHistory(token, orderReceiptID)
 
                 if(BtcFromTrades){
@@ -658,7 +678,7 @@ module.exports = async function(profile, accessToken, wallet, rentalAddress) {
 
             let orderStatus = setInterval(() => {
                 checkOrderStatus()
-            },(updateUnsold * (5 * ONE_MINUTE)))
+            },(updateUnsold * (10 * ONE_MINUTE)))
 
 
 
