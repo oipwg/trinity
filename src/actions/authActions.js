@@ -181,7 +181,18 @@ export const loginUser = ({ userName, password }, history) => dispatch => {
 };
 
 export const logoutUser = history => dispatch => {
-    console.log('Logging out... peace...');
+    
+    const clearStorage = async () => {
+        sessionStorage.clear()
+        fetch(API_URL + '/setup', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({to_do: 'clearSpartanBot'})
+        });
+    }
+
     dispatch({
         type: LOGOUT_SUCCESS,
     });
@@ -189,6 +200,7 @@ export const logoutUser = history => dispatch => {
         type: ADD_PROVIDER,
         payload: []
     })
+    clearStorage();
     return history.push('/');
 };
 

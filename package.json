@@ -1,10 +1,16 @@
 {
   "name": "trinity",
+  "sideEffects": false,
   "version": "0.1.0",
+  "engines": {
+    "npm": "6.13.4",
+    "node": "12.16.1"
+  },
   "private": true,
   "scripts": {
-    "start": "node ./bin/www",
-    "build": "node ./node_modules/webpack/bin/webpack.js --mode development",
+    "start": "env NODE_ENV=production webpack-dev-server --open --config webpack.prod.js",
+    "build": "env NODE_ENV=production webpack --config webpack.prod.js",
+    "start-dev": "env NODE_ENV=development webpack-dev-server --open --config webpack.dev.js",
     "dev-server": "env NODE_ENV=development node ./node_modules/webpack-dev-server/bin/webpack-dev-server.js --watch",
     "start-client": "node ./node_modules/webpack-dev-server/bin/webpack-dev-server.js --mode development --open --hot",
     "start-backend": "env NODE_ENV=development node ./node_modules/nodemon/bin/nodemon.js ./backend/bin/www",
@@ -36,7 +42,6 @@
     "react-dom": "^16.13.1",
     "react-redux": "^7.2.0",
     "react-router-dom": "^5.1.2",
-    "react-spring": "^8.0.27",
     "redux": "^4.0.5",
     "redux-thunk": "^2.3.0",
     "spartanbot": "git+https://github.com/bradicalone/spartanbot.git",
@@ -55,6 +60,7 @@
     "@babel/preset-react": "^7.9.4",
     "babel-loader": "^8.1.0",
     "babel-plugin-transform-class-properties": "^6.24.1",
+    "clean-webpack-plugin": "^3.0.0",
     "concurrently": "^5.1.0",
     "css-loader": "^3.5.3",
     "file-loader": "^6.0.0",
@@ -66,6 +72,7 @@
     "style-loader": "^1.2.0",
     "webpack": "^4.43.0",
     "webpack-cli": "^3.3.11",
-    "webpack-dev-server": "^3.10.3"
+    "webpack-dev-server": "^3.10.3",
+    "webpack-merge": "^4.2.2"
   }
 }
