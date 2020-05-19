@@ -30,7 +30,7 @@ let  OfferPriceBtc, //formula
 const CostOfWithdrawalPerCycleBTC = .0005;
 let FloTradeFee;
 let checkBlock;
-let currentBlocks;
+let currentBlockCount;
 let orderReceiptID = ''
 
 
@@ -74,6 +74,10 @@ module.exports = async function(profile, accessToken, wallet, rentalAddress) {
         try {
             
             let res = await axios.get(`${API_URL}/bittrex/deposit-addresses`, config)
+
+            if(res.status != 200){
+
+            }
 
             return res.data.bittrexAddresses[token].Address
 
@@ -369,7 +373,7 @@ module.exports = async function(profile, accessToken, wallet, rentalAddress) {
     account.discoverChains();
 
     let {balance, transactions} = await getBalanceFromAddress(address);
-    let floBittrexAddress = await getBittrexAddress(token);
+    const floBittrexAddress = await getBittrexAddress(token);
 
             
         if(transactions){
@@ -633,14 +637,14 @@ module.exports = async function(profile, accessToken, wallet, rentalAddress) {
 
                         //todo: currently will send to rental's address 
                         let sentToHDMW = await withdrawFromBittrex('BTC', BtcFromTrades, rentalAddress);
-                        console.log('sentToHDMW ---', sentToHDMW)
+                        console.log('sentToMRR ---', sentToHDMW)
                         clearAllIntervals(timer, update, orderStatus);
                         let res = await axios.get(`https://blockchain.info/q/getblockcount`)
-                        currentBlocks = res.data
-                        console.log(currentBlocks)
-                        checkBlock = setInterval(() => {
-                            checkBlockStatus()
-                        }, (35 * ONE_MINUTE))
+                        currentBlockCount = res.data
+                        console.log({currentBlockCount})    
+                        checkBlock = setInterval(() => {     
+                            checkBlockStatus(currentBlockCount)
+                        }, (15 * ONE_MINUTE))
 
                         
 
@@ -656,16 +660,28 @@ module.exports = async function(profile, accessToken, wallet, rentalAddress) {
                     } 
                     
                 }
-
             }
 
-            const checkBlockStatus = (blocks) => {            
-                if(blocks < (blocks += 3)){
+
+            const checkBlockStatus = async (blocks) => {    
+                console.log("checking blockstatus...", {currentBlockCount})
+
+                let res = await axios.get(`https://blockchain.info/q/getblockcount`)
+                
+                if(!res.data){
+                    return;
+                }
+
+                let blockCount = res.data
+
+                console.log({blockCount})
+
+                if(((blocks + 3) < blockCount)){
+                    console.log('starting rental again.')
                     this.clearInterval(checkBlock)
                     return rent(profile)
                 }
             }
-
 
             //Todo: fix loop times.
             let timer = setInterval(() => {
