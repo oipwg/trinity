@@ -6,6 +6,8 @@ const axios = require('axios')
 
 const ONE_MINUTE = 60 * 1000;
 const ONE_HOUR = 60 * ONE_MINUTE;
+const MIN_FEE_PER_BYTE = 0.00000001
+
 let TotalQty  = 0; //Receviced + FeeFloTx1
 let ReceivedQty; //what is deposited from rentals
 let FeeFloTx1; //cumulative fee from rentals.
@@ -27,7 +29,11 @@ let  OfferPriceBtc, //formula
 
 const CostOfWithdrawalPerCycleBTC = .0005;
 let FloTradeFee;
-const minFeePerByte = 0.000001
+let checkBlock;
+let currentBlocks;
+let orderReceiptID = ''
+
+
 
 
 
@@ -80,13 +86,24 @@ module.exports = async function(profile, accessToken, wallet, rentalAddress) {
         try {
             let res = await axios.get(`https://livenet.flocha.in/api/addr/${address}`)
 
+            if(res.status != 200){
+                return console.log(res)
+            }
+
             return res.data    
         } catch (error) {
-            console.log('error -------', error)
+            console.log('ERR; getBalanceFromAddress  -------', error)
         }
     }
 
     const createSellOrder = async (market, quantity, rate) => {
+
+        if((!(market && quantity && rate))){
+            return console.log('Failed', {market, quantity, rate})
+        }
+
+        rate = await checkMarketPrice(rate);
+
                 
         let body = {
             market,
@@ -96,12 +113,11 @@ module.exports = async function(profile, accessToken, wallet, rentalAddress) {
         
         console.log('running createSellOrder -------', body)
 
+
         try {
             const res = await axios.post(`${API_URL}/bittrex/createSellOrder`, body, config)
             console.log(res.data)
-            if(res.data.success){
                 return res.data.result.uuid
-            }
         } catch (error) {
             console.log('error ---', error)
         }
@@ -109,21 +125,22 @@ module.exports = async function(profile, accessToken, wallet, rentalAddress) {
     }
 
     const updateOrder = async (orderUuid, market, quantity, rate) => {
+        rate = await checkMarketPrice(rate);
+
         let body = {
             orderUuid,
             market,
             quantity,
             rate,
         }
+
         
         console.log(body)
 
         try {
             const res = await axios.post(`${API_URL}/bittrex/updateOrder`, body, config)
             console.log(res.data)
-            if(res.data.success){
-                return res.data.result.uuid
-            }
+            return res.data.result.uuid
         } catch (error) {
             console.log('updateOrder ---', error)
         }
@@ -141,6 +158,7 @@ module.exports = async function(profile, accessToken, wallet, rentalAddress) {
         for(let i = 0; i < transactions.length; i++){
             
             let res = await axios.get(`https://livenet.flocha.in/api/tx/${transactions[i]}`)
+            if(res.status != 200) return console.log(res)
 
             total += res.data.fees
         } 
@@ -148,22 +166,24 @@ module.exports = async function(profile, accessToken, wallet, rentalAddress) {
         return Number(total.toFixed(8))
     }
 
-    const getSalesHistory = async (token, orderId) => {
+    const getSalesHistory = async (token, id) => {
         try {
+            if(!id){
+                return console.log('no:', {id})
+            }
+
             const res = await axios.get(`${API_URL}/bittrex/salesHistory`, config)
 
 
             let {salesHistory} = res.data;
 
-            console.log({orderId})
+            console.log({id})
 
-            const orderCompleted = salesHistory.find(el => el.OrderUuid === orderId)
+            const orderCompleted = salesHistory.find(el => el.OrderUuid === id)
 
             if(orderCompleted){
                 return Number((orderCompleted.Price - orderCompleted.Commission).toFixed(8))
-            }
-
-            else null;
+            } else return;
 
         } catch (error) {
             console.log('ERR; getSalesHistory ----', error)
@@ -215,13 +235,13 @@ module.exports = async function(profile, accessToken, wallet, rentalAddress) {
         }
     }
 
-    const buildTransaction = async (address, sendAmount) => {
+    const buildTransaction = async (address, amount) => {
         try {
             let addressObj = new Address(address, Networks.flo, false);
 
             let builder = new TransactionBuilder(Networks.flo, {
                 from: addressObj,
-                to: {[floBittrexAddress]: sendAmount}
+                to: {[floBittrexAddress]: amount}
             }, account)
             
             
@@ -235,13 +255,13 @@ module.exports = async function(profile, accessToken, wallet, rentalAddress) {
             })
     
     
-            let fee = iof.fee * 0.00000001;
+            let fee = iof.fee * MIN_FEE_PER_BYTE;
 
             // console.log({fee})
     
-            let adjustedAmount = Number((sendAmount - fee).toFixed(8))
+            let adjustedAmount = Number((amount - fee).toFixed(8))
 
-            // console.log({adjustedAmount})
+            console.log({adjustedAmount})
     
     
             let builder2 = new TransactionBuilder(Networks.flo, {
@@ -261,17 +281,60 @@ module.exports = async function(profile, accessToken, wallet, rentalAddress) {
             // console.log({inNOuts})
     
     
-            let rawtx = inNOuts.inputs[0].rawtx
+            // let rawtx = inNOuts.inputs.map((x) => {
+            //     return x.rawtx.length
+            // })
+
+            // let bytes = rawtx.reduce((a, b) => a + b)
+            // console.log({bytes})
+
     
-            let finalFee = ((rawtx.length / 2) * minFeePerByte);
+            // let finalFee = ((bytes / 2) * minFeePerByte)
+            // console.log({finalFee})
     
-            return finalFee
+            return (inNOuts.fee * MIN_FEE_PER_BYTE)
         } catch (error) {
             console.log('ERR; builTransaction ------', error)
         }
 
     }
 
+    const checkMarketPrice = async (offerPrice) => {
+        try {
+            const res = await axios.get('https://api.bittrex.com/api/v1.1/public/getticker?market=BTC-FLO')
+            let marketPrice = res.data.result.Ask
+
+            console.log('checking market price', {offerPrice, marketPrice}, 'offerPrice < marketPrice:', (offerPrice < marketPrice))
+            if(offerPrice < marketPrice){
+                return marketPrice
+            }
+
+        return offerPrice
+        } catch (error) {
+            console.log('ERR; checkMarketPrice ------', error)
+        }        
+    }
+
+    const rent = (options) => { 
+        options.userId = ''
+        options.message = []
+        options.update = false
+        options.to_do = 'rent'
+
+        let body = JSON.stringify(options)
+        
+        axios.post(API_URL+'/rent',
+            body,
+            config
+        ).then((response) => {
+            return response.json();
+        }).then((data) => {
+            console.log({data})
+        }).catch((err)=> {
+            console.log(err)
+        });
+
+    }
 
     // ------------  START -------------- 
     let {
@@ -303,6 +366,8 @@ module.exports = async function(profile, accessToken, wallet, rentalAddress) {
     const accountMaster = bip32.fromBase58(wallet.flo.xPrv, Networks.flo.network)
     let account = new Account(accountMaster, Networks.flo);
 
+    account.discoverChains();
+
     let {balance, transactions} = await getBalanceFromAddress(address);
     let floBittrexAddress = await getBittrexAddress(token);
 
@@ -319,6 +384,7 @@ module.exports = async function(profile, accessToken, wallet, rentalAddress) {
             console.log('pre call -----', {ReceivedQty, FeeFloTx1, TotalQty, floBittrexAddress})
           
     let bittrexTX
+
             //TXID
             // Send to Bittrex. Get network Fee for moving tokens
 
@@ -332,9 +398,10 @@ module.exports = async function(profile, accessToken, wallet, rentalAddress) {
                         from: address,
                         discover: false
                     })
+                    totalSent += sendAmount
                 } catch (error) {
                     let sendAmount = Number((ReceivedQty - (FloTradeFee + 0.5)).toFixed(8))
-                    console.log('catch - sending to bittrex: 1', {sendAmount})
+                    console.log('CATCH - sending to bittrex: 1', {sendAmount})
                     bittrexTX = await account.sendPayment({
                         to: {[floBittrexAddress]: sendAmount},
                         from: address,
@@ -348,28 +415,30 @@ module.exports = async function(profile, accessToken, wallet, rentalAddress) {
                 console.log({bittrexTX})
             }
 
-
             if(!bittrexTX) {
                 console.log('failed to send tokens', {bittrexTX, ReceivedQty})
             }
 
                 let isUpdate = false;
-                let orderReceiptID = ''
 
 
                 const checkConfirmations = async () => {
                     try {
 
                         console.log('checking confirmations...')
-                        let res;
 
-                        if(bittrexTX){
-                            res = await axios.get(`https://livenet.flocha.in/api/tx/${bittrexTX}`)
-                        }
-
-                        if(!res) {
+                        if(!bittrexTX){
                             return console.log('no bittrexTx')
                         }
+
+                        let res = await axios.get(`https://livenet.flocha.in/api/tx/${bittrexTX}`)
+
+                        if(res.status != 200){
+                            console.log('poop')
+                            return console.log(res)
+                        }
+
+
 
                         let {fees, confirmations } = res.data
 
@@ -377,34 +446,32 @@ module.exports = async function(profile, accessToken, wallet, rentalAddress) {
                         TradeFee= .002 //!
                         EstFeeBtcTx1=0.00001551 //! get from somewhere
             
-                        ReceivedQty= balance
                         TotalQty = getTotalQty(ReceivedQty, FeeFloTx1)
-                        SellableQty = getSellableQty(TotalQty, FeeFloTx2)
-                        
+                        SellableQty = getSellableQty(TotalQty, FeeFloTx2)               
                         OfferPriceBtc = getOfferPriceBtc(CostOfRentalBTC,TradeFee,margin,EstFeeBtcTx1,TotalQty,FeeFloTx1,FeeFloTx2)
                     
                         console.log(
-                            '---check confirmations---',
-                            { 
-                                confirmations,
-                                TotalQty,
-                                FeeFloTx1,
-                                FeeFloTx2,
-                                SellableQty,
-                                FeeFloTx2, 
-                                CostOfRentalBTC,
-                                TradeFee,
-                                margin,
-                                EstFeeBtcTx1,
-                                TotalQty,
-                                FeeFloTx1,
-                                FeeFloTx2,
-                                OfferPriceBtc
-                            
-                            }
+                                '---check confirmations---',
+                                { 
+                                    confirmations,
+                                    TotalQty,
+                                    FeeFloTx1,
+                                    FeeFloTx2,
+                                    SellableQty,
+                                    FeeFloTx2, 
+                                    CostOfRentalBTC,
+                                    TradeFee,
+                                    margin,
+                                    EstFeeBtcTx1,
+                                    TotalQty,
+                                    FeeFloTx1,
+                                    FeeFloTx2,
+                                    OfferPriceBtc,
+                                    totalSent
+                                }
                             )
     
-                        // bittrex need 150 confirmations 
+                        // bittrex needs 150 confirmations 
                         if(confirmations > 150){
                             if(isUpdate){
 
@@ -423,43 +490,45 @@ module.exports = async function(profile, accessToken, wallet, rentalAddress) {
                                         TotalQty,
                                         FeeFloTx1,
                                         FeeFloTx2,
-                                        OfferPriceBtc
-                                    
+                                        OfferPriceBtc,
+                                        totalSent
                                     })
 
-                                    ReceivedQty = balance; 
                                     TotalQty = getTotalQty(ReceivedQty, FeeFloTx1)
                                     SellableQty  = getSellableQty(TotalQty, FeeFloTx2)
                                     OfferPriceBtc = getOfferPriceBtc(CostOfRentalBTC, TradeFee, margin, EstFeeBtcTx1, TotalQty, FeeFloTx1, FeeFloTx2);
     
                                     console.log('If Update --- before runing function;', {SellableQty, OfferPriceBtc})
+                            }
 
+                            if(orderReceiptID){
+                                
+                                const res = await updateOrder(orderReceiptID, token, totalSent, OfferPriceBtc)
 
-                                const res = await updateOrder(orderReceiptID, token, SellableQty, OfferPriceBtc)
                                 checkOrderStatus()
                                 orderReceiptID = res;
-                                return BtcFromTrades += (await getSalesHistory(token, orderReceiptID));
-                            } else { 
+                                bittrexTX=null;
+                                console.log('updateOrder ---', {res, orderReceiptID})
+                                return BtcFromTrades =  await getSalesHistory(token, orderReceiptID);
+                            } else {
+                                const res = await createSellOrder(token, totalSent, OfferPriceBtc)
 
-
-                            const res = await createSellOrder(token, SellableQty, OfferPriceBtc)
-                            checkOrderStatus()
-                            orderReceiptID = res
-                            bittrexTX=null;
-                            return BtcFromTrades += (await getSalesHistory(token, orderReceiptID));
-
+                                checkOrderStatus()
+                                orderReceiptID = res
+                                bittrexTX=null;
+                                console.log('createSellOrder ---', {res, orderReceiptID})
+                                return BtcFromTrades = await getSalesHistory(token, orderReceiptID);
+    
+                            }
                         }}
-                    }
-                    
                     catch (error) {
-                        console.log(error)
+                        console.log('EER; checkConfirmations ------', error)
                     }
 
                     
                 }
     
 
-                console.log({BtcFromTrades})
 
                     // BtcFromTrades = cumulative total of Bitcoin earned from trades;
                     // PriceBtcUsd = Coinbase's API - current exchange price for BTC in USD;
@@ -474,13 +543,11 @@ module.exports = async function(profile, accessToken, wallet, rentalAddress) {
                         transactions = res.transactions
 
 
-                        // will need to create a variable for the least amount, I can push up to bittrex wallet.
                         if(updatedBalance > 0){
-                            console.log('pre', {balance, updatedBalance})
-                            balance += updatedBalance
                             FeeFloTx1 = await getFees(transactions)
                             console.log('pre', {balance, updatedBalance, FeeFloTx1})
                             isUpdate = true;
+                            ReceivedQty += updatedBalance;
 
                             //push new tokens to wallet
                             FloTradeFee = await buildTransaction(address, ReceivedQty)
@@ -493,6 +560,8 @@ module.exports = async function(profile, accessToken, wallet, rentalAddress) {
                                     from: address,
                                     discover: false
                                 })
+                                totalSent += sendAmount
+                                console.log({bittrexTX})
                             } catch (error) {
                                 let sendAmount = Number((updatedBalance - (FloTradeFee + 0.5)).toFixed(8))
                                 console.log('catch - sending to bittrex: 2', {sendAmount})
@@ -502,7 +571,6 @@ module.exports = async function(profile, accessToken, wallet, rentalAddress) {
                                     discover: false
                                 })
                             }
-
 
                         } else {
                             console.log('Not enought to send to Bittrex', updatedBalance)
@@ -514,7 +582,13 @@ module.exports = async function(profile, accessToken, wallet, rentalAddress) {
                 }
 
             const checkOrderStatus = async () => {
-                console.log('Running Check Order Status.....')
+
+
+                console.log('Running Check Order Status.....', {orderReceiptID})
+                if(!orderReceiptID){
+                    return;
+                }
+
                 const BtcFromTrades = await getSalesHistory(token, orderReceiptID)
 
                 if(BtcFromTrades){
@@ -561,6 +635,14 @@ module.exports = async function(profile, accessToken, wallet, rentalAddress) {
                         let sentToHDMW = await withdrawFromBittrex('BTC', BtcFromTrades, rentalAddress);
                         console.log('sentToHDMW ---', sentToHDMW)
                         clearAllIntervals(timer, update, orderStatus);
+                        let res = await axios.get(`https://blockchain.info/q/getblockcount`)
+                        currentBlocks = res.data
+                        console.log(currentBlocks)
+                        checkBlock = setInterval(() => {
+                            checkBlockStatus()
+                        }, (35 * ONE_MINUTE))
+
+                        
 
                         // send to coinbase from hdmw
                         // if(sentToHDMW) {
@@ -577,6 +659,12 @@ module.exports = async function(profile, accessToken, wallet, rentalAddress) {
 
             }
 
+            const checkBlockStatus = (blocks) => {            
+                if(blocks < (blocks += 3)){
+                    this.clearInterval(checkBlock)
+                    return rent(profile)
+                }
+            }
 
 
             //Todo: fix loop times.
@@ -591,6 +679,8 @@ module.exports = async function(profile, accessToken, wallet, rentalAddress) {
             let orderStatus = setInterval(() => {
                 checkOrderStatus()
             },(updateUnsold * (10 * ONE_MINUTE)))
+
+
 
             const clearAllIntervals = (timer, update, orderStatus) => {
                     console.log('--- TRADE END ---')

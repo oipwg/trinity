@@ -109,7 +109,7 @@ async function processUserInput(req, res) {
 
     try {
         const rent = await Rent(token, Xpercent / 100)
-        let user = await User.findById({ _id: userId })
+        let user = await User.findById(req.user.id)
 
         let getAddress = (index, xPub, token, usedIndexes) => {
             const EXTERNAL_CHAIN = 0
@@ -226,7 +226,7 @@ const processData = async (req, res) => {
 
     // From within SpartanBot only
     emitter.once('rented', async (msg) => {
-        const user = await User.findById({ _id: req.body.userId }).select('profiles')
+        const user = await User.findById(req.user.id).select('profiles')
         
         // If data needs to be saved to Database
         if (msg.db) {
