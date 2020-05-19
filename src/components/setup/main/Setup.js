@@ -6,20 +6,39 @@ import { addProvider } from '../../../actions/setupActions.js';
 import Navigation from '../nav/Navigation';
 import './setup.css';
 
+
 const Setup = props => {
-    const userdata = props.userData;
+
+    // const userdata = props.userData.state || props.userData
+    const userdata = props.userData
     const [bittrexData, setBittrexData] = useState({data: {}});
     const userId = useRef('');
+    const index = useRef(0);
     const merge = ( ...objects ) => ( [...objects] );
 
     // Right before refreshes saves current state to local stroage
     window.onunload = function(event) {
         const serializedState = JSON.stringify(userdata);
-        sessionStorage.setItem('state', serializedState) 
+        sessionStorage.setItem('state', serializedState)
     };
+
+    const auto_setup_provider = (providers) => {
+        if(providers.length && !userdata.length) {
+            index.current = providers.length
+            for(let provider of providers) {
+                setup_Provider({
+                    provider: provider.rental_provider,
+                    rental_provider: provider.rental_provider,
+                    userId: userId.current,
+                    to_do: 'add',
+                    login: true
+                })
+            }
+        }
+    }
  
     useEffect(() => {
-        select_provider_opiton(userdata)
+        select_provider_opiton(userdata) 
         // If global state is empty from changing pages will check local storage and fill current state
         if(!userdata.length){
             const serializedState = JSON.parse( sessionStorage.getItem('state') )
@@ -32,10 +51,11 @@ const Setup = props => {
         if (props.user) {
             let id = props.user._id || props.user.id
             userId.current = id
+            auto_setup_provider(props.login)
         }
-    }, [props.user])
+    }, [props.user, props.login])
 
-    
+
 
     function select_provider_opiton(userData) {
         if(userData.length) {
@@ -58,7 +78,7 @@ const Setup = props => {
             success: false,
             err: ''
         }
-     
+        console.log(userdata)
         // If there is user data merge it with the new data
         if (userdata.length) {
             let newState = [], length = userdata.length, i = 0
@@ -66,7 +86,7 @@ const Setup = props => {
             if (userdata.provider === target){
                 return;
             } 
-
+            
             while(i < length) {
                 let prevState = userdata[i]
                 // Runs if only one or more providers selected
@@ -218,16 +238,18 @@ const Setup = props => {
 
         // Merges the existing data when selecting provider with added data from "Add Provider" button
         let sentData = {...userdata[0], ...options}
-
+        sentData.to_do = 'add'
         setup_Provider(sentData)
     }
 
-    
+    let signInData = []
     function process_returned_data(data) {
+        console.log('data:', data)
         if (data.provider === "Bittrex") {
             setBittrexData({...data})
         } else {
             let responseData = {}
+            
             for (let key in data) {
                 let value = data[key]
                 let property = key
@@ -243,18 +265,31 @@ const Setup = props => {
                         responseData[property] = value
                     case 'success':
                         responseData[property] = value
+                    case 'provider':
+                        responseData[property] = value
+                        responseData.rental_provider = value
                 }
             }
-
-            // Top exsisting data / object, and response object that came back merged together
-            let allData = {...userdata[0], ...responseData}
-            
-            if ( userdata.length > 1) {
-                props.dispatch(addProvider( merge(allData, userdata[1]) ))
+            // If index is greater than 0 then it's return data from signIn or new page
+            if(index.current) {
+                signInData.push(responseData)
+                // Update providers when all have been pushed
+                if (index.current === signInData.length) {
+                    props.dispatch( addProvider(signInData) )
+                }
+                
             } else {
-                props.dispatch(addProvider([allData]))
- 
+                // Top exsisting data / object, and response object that came back merged together
+                let allData = {...userdata[0], ...responseData}
+                // console.log('responseData:', responseData)
+                if ( userdata.length > 1) {
+                    props.dispatch(addProvider( merge(allData, userdata[1]) ))
+                } else {
+                    props.dispatch(addProvider([allData]))
+
+                }
             }
+            
         }
     };
 
@@ -344,10 +379,16 @@ const Setup = props => {
 
         return props.history.push('/dashboard');
     }
-    
+
+    const dropDownValue = (userData) => {
+        if(userData.length === 0) {
+            return ''
+        } else {
+            return userData[0].provider
+        }
+    }
 
     const showMessage = (field, i) => {
-        
         let data = userdata[i]
         switch ( field ) {
             case 'provider':
@@ -524,6 +565,7 @@ const Setup = props => {
                                 <label className="my-1 mr-2">Rental provider</label>
                                 <select
                                     required
+                                    value={dropDownValue(userdata)}
                                     id="rental_provider"
                                     className="provider custom-select mx-sm-4"
                                     onChange={set_rental_provider}>
@@ -576,7 +618,7 @@ const Setup = props => {
                                 </div>
                             </div>
                         </div>
-                        {console.log('showPool',showPool())}
+                        {/* {console.log('showPool',showPool())} */}
                         {/* End of rental passwords */}
                         <Pools poolBoolean ={showPool}/>
                         {!showProviderButton(userdata) && 
@@ -720,9 +762,12 @@ const Pools = (props) => {
 
 
 const mapStateToProps = state => {
+console.log('state:', state)
+
     return {
         user: state.auth.user,
-        userData: state.userData
+        userData: state.userData,
+        login: state.login
     };
 };
 

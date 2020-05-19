@@ -1,3 +1,4 @@
+// @ts-nocheck
 require('dotenv').config();
 const express = require('express');
 const router = express.Router();
@@ -7,18 +8,19 @@ const User = require('../models/user');
 
 async function processUserInput(req, res) {
     let options = req.body
-   
+
+    if (options.to_do === 'clearSpartanBot') {
+        return options
+    }
+    
     let { userId, rental_provider } = options
+
     try {
         const user = await User.findById({ _id: userId });
         if (!user) {
             return 'Can\'t find user. setup.js line #19'
         }
-        options.to_do = {
-            rentalProvider: {
-                add: true,
-            }
-        }
+        
 
         // Checks the database if user providerData exist for either niceHash or MiningRigRentals,
         // if it does get data so api and secret can be used. If not return false and add keys and secret
@@ -53,6 +55,7 @@ async function processUserInput(req, res) {
         // When Credentials are good & input fields don't exist get key and secret from database
         } else {  
             let provider = isRentalProvider(rental_provider)
+            console.log('provider:', provider)
             if (provider) {
                 options.api_key = provider.api_key
                 options.api_secret = provider.api_secret

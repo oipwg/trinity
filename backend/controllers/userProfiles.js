@@ -51,12 +51,12 @@ module.exports = {
             let updated = _.omit(req.body, ['address'])
 
             user.profiles[profileIndex] = {profile, ...updated}
-            // await user.save()
+
             res.status(200).json({success: 'Updated profiles', profiles: user.profiles})
         } catch (error) {
             console.log(error)
         }
-    },
+    }, 
 
     delete: async (req, res ) => {
         try {

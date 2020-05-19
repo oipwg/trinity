@@ -14,8 +14,6 @@ const auth = require('../middleware/auth');
 const wss = require('./socket').wss;
 const Timer = require('../helpers/timer');
 
-
-
 wss.on('connection', ws => {
     emitter.on('message', msg => {
         ws.send(msg);
@@ -105,7 +103,7 @@ async function processUserInput(req, res) {
     
 
     let options = req.body
-    console.log('options:', options)
+
     let { profitReinvestment, updateUnsold, dailyBudget,targetMargin, autoRent, spot, alwaysMineXPercent,
         autoTrade, morphie, supportedExchange, profile_id, Xpercent, userId, token, name } = options;
 
@@ -149,8 +147,7 @@ async function processUserInput(req, res) {
                 autoRent: false
             }
         }
-        // let { profitReinvestment, updateUnsold, dailyBudget, autoRent, spot, alwaysMineXPercent,
-        //     autoTrade, morphie, supportedExchange, profile_id, Xpercent, userId, token } = options;
+
         // If user rents for first time with no xPub will save xPub ( paymentRecieverXPub ) to the DB
         for (let profile of user.profiles) {
             if (profile._id.toString() === profile_id) {
@@ -166,6 +163,7 @@ async function processUserInput(req, res) {
                 profile.targetMargin = targetMargin
                 profile.profitReinvestment = profitReinvestment
                 profile.updateUnsold = updateUnsold
+
                 // If user doesn't have a generated address will generate a new one and save address and index to DB
                 if (profile.address.publicAddress === '') {
                     let usedIndexes = user.indexes
@@ -177,9 +175,7 @@ async function processUserInput(req, res) {
                     
                     profile.address.publicAddress = newAddress.address
                     profile.address.btcAddress = btcAddress.address
-                    
-                    
-                   
+                          
                     options.address = newAddress.address
                     let index = newAddress.index
                     user.indexes.push(index)
@@ -195,11 +191,6 @@ async function processUserInput(req, res) {
             return 'Can\'t find user. setup.js line#16'
         }
 
-        options.to_do = {
-            rent: {
-                rent: true,
-            }
-        }
         console.log('OPTIONS ADDRESS', options.address)
         options.profile_id = profile_id
         options.PriceBtcUsd = getPriceBtcUsd

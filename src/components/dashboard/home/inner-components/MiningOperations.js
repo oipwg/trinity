@@ -63,7 +63,6 @@ const MiningOperations = (props) => {
 
     useEffect(() => {
         if(props.profile){
-            console.log('PROPS PROFILE', props.profile)
             const {
                 targetMargin,
                 profitReinvestment,
@@ -95,7 +94,7 @@ const MiningOperations = (props) => {
             }
 
             setOperations({...miningOperations, ...profile})
-            // @ts-ignore
+    
             setError('')
 
         } else {
@@ -182,7 +181,7 @@ const MiningOperations = (props) => {
     }
 
     const rent = (options) => {
- 
+        options.to_do = 'rent'
         options.userId = props.user._id
         options.message = []
         options.update = false
@@ -323,6 +322,7 @@ const MiningOperations = (props) => {
 
     return (
         <>
+        {console.log(props)}
         {showSettingaModal && <MarketsNPools handleClick={() => setShowSettingsModal(!showSettingaModal)}/>}
         <div className="card mining-operation">
             <div className="card-header">
