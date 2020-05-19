@@ -7,7 +7,6 @@ import { tokenConfig } from '../../helpers-functions/headers';
 import { decrypt } from '../../helpers-functions/crypto';
 import logo from '../../../public/images/alexandria/alexandria-bookmark-100.png';
 import RenderError from '../helpers/errors';
-
 // todo: If (no token is present) - Foward to Login - No Menu Options
 // todo: CSS Navebar - Dashboard on the Left - Backup, User Right
 // todo: Hambuger Menu - Collapse User when clicked?
@@ -48,7 +47,19 @@ class Navbar extends React.Component {
 
     }
 
+    clearStorage = async () => {
+        sessionStorage.clear()
+        fetch(API_URL + '/setup', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({to_do: 'clearSpartanBot'})
+        });
+    }
+
     handleClick = () => {
+        this.clearStorage()
         this.setState({
             dropItDown: !this.state.dropItDown,
         });
