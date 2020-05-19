@@ -2,6 +2,10 @@
   "name": "trinity",
   "sideEffects": false,
   "version": "0.1.0",
+  "engines": {
+    "npm": "6.13.4",
+    "node": "12.16.1"
+  },
   "private": true,
   "scripts": {
     "start": "env NODE_ENV=production webpack-dev-server --open --config webpack.prod.js",
@@ -70,9 +74,5 @@
     "webpack-cli": "^3.3.11",
     "webpack-dev-server": "^3.10.3",
     "webpack-merge": "^4.2.2"
-  },
-  "engines": {
-    "npm": "6.13.4",
-    "node": "12.16.1"
   }
 }

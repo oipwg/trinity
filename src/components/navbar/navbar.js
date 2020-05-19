@@ -46,20 +46,8 @@ class Navbar extends React.Component {
         });
 
     }
-
-    clearStorage = async () => {
-        sessionStorage.clear()
-        fetch(API_URL + '/setup', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({to_do: 'clearSpartanBot'})
-        });
-    }
-
+    
     handleClick = () => {
-        this.clearStorage()
         this.setState({
             dropItDown: !this.state.dropItDown,
         });
