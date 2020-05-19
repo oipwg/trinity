@@ -4,8 +4,9 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "start": "webpack-dev-server --open --config webpack.dev.js",
-    "build": "webpack --config webpack.prod.js",
+    "start": "env NODE_ENV=production webpack-dev-server --open --config webpack.prod.js",
+    "build": "env NODE_ENV=production webpack --config webpack.prod.js",
+    "start-dev": "env NODE_ENV=development webpack-dev-server --open --config webpack.dev.js",
     "dev-server": "env NODE_ENV=development node ./node_modules/webpack-dev-server/bin/webpack-dev-server.js --watch",
     "start-client": "node ./node_modules/webpack-dev-server/bin/webpack-dev-server.js --mode development --open --hot",
     "start-backend": "env NODE_ENV=development node ./node_modules/nodemon/bin/nodemon.js ./backend/bin/www",
@@ -71,6 +72,7 @@
     "webpack-merge": "^4.2.2"
   },
   "engines": {
-    "node": "12.x"
+    "npm": "6.13.4",
+    "node": "12.16.1"
   }
 }
