@@ -12,9 +12,6 @@
     "dev": "node ./node_modules/concurrently/bin/concurrently.js \"npm run start-client\" \"npm run start-backend\"",
     "heroku-postbuild": "ng build --prod"
   },
-  "browser": {
-    "child_process": false
-  },
   "dependencies": {
     "@hapi/joi": "^17.1.1",
     "@oipwg/hdmw": "^2.0.0-beta.8",
@@ -72,5 +69,8 @@
     "webpack-cli": "^3.3.11",
     "webpack-dev-server": "^3.10.3",
     "webpack-merge": "^4.2.2"
+  },
+  "engines": {
+    "node": "12.x"
   }
 }
