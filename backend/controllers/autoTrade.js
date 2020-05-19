@@ -3,25 +3,25 @@ const User = require('../models/user')
 const ATSupportedEx = require('../autoTrade/supportedExchanges')
 
 module.exports = {
-    on: async(req, res, rentalAddress) => {
+    on: async(req, rentalAddress) => {
         try {
 
-
-            // const { profile_id } = req.body 
+            //- profiles _id as param
+            const { profile_id } = req.body
             const accessToken = req.headers['x-auth-token']
-            // let _id = profile_id 
-            
-            let _id = req.params._id
+            let _id = profile_id;
+
 
             const user = await User.findById(req.user.id).select('-password')
 
 
             let profile = user.profiles.filter(profile => profile._id == _id)
+            console.log({profile})
 
 
-            ATSupportedEx(...profile, accessToken, user.wallet, '3BcRcprhA5xDhZo5Hv81zVK5pSi1gUUrzF')
+            ATSupportedEx(...profile, accessToken, user.wallet, rentalAddress)
 
-            return res.send({success: 'Auto Trading Started.'})
+            return {success: 'Auto Trading Started.'}
         } catch (error) {
             console.log(error);
         }
