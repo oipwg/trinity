@@ -14,6 +14,7 @@ import {
     SIGNUP_SUCCESS,
     SIGNUP_FAIL,
     ADD_PROVIDER,
+    PROVIDER_DATA,
     CHANGE_PW_FAIL,
     CHANGE_PW_SUCCESS,
     // On Load
@@ -40,6 +41,10 @@ export const loadUser = () => (dispatch, getState) => {
             dispatch({
                 type: USER_LOADED,
                 payload: res.data,
+            });
+            dispatch({
+                type: PROVIDER_DATA,
+                payload: res.data.providerData,
             });
         }).then(() => {
             dispatch(getProfile())
@@ -153,7 +158,10 @@ export const loginUser = ({ userName, password }, history) => dispatch => {
                 type: LOGIN_SUCCESS,
                 payload: res.data,
             });
-
+            dispatch({
+                type: PROVIDER_DATA,
+                payload: res.data.user.providerData,
+            });
             return history.push('/setup');
         })
         .catch(err => {

@@ -20,7 +20,6 @@ const storage = process.cwd() +'/localStorage/spartanbot-storage';
  */
 
 let addPool = async function(setup_success, options) {
-    console.log('options:', options.poolData)
     const provider = setup_success.proivder || setup_success
     console.log('provider: 28', provider)
   
@@ -49,6 +48,7 @@ let addPool = async function(setup_success, options) {
             }
         } else {
             return {
+                provider: options.provider,
                 rental_provider: options.provider,
                 message: `${options.provider} and Pool successfully added, \n` + 
                             `profile id: ${pool.profileID} & pool id: ${pool.poolid} `,
@@ -71,11 +71,6 @@ let addPool = async function(setup_success, options) {
     }
 }
 
-/**
- * Gets the current class from spartanbot MRRProvider NiceHashProvider
- * @param {Object} options 
- * @param {Object <MRRProvider NiceHashProvider>} this - spartan.getRentalProviders()
-*/
 
 const getCurrentProvider = function(options) {
     if (this.length) {
@@ -113,6 +108,8 @@ const MiningRigRentals = 'MiningRigRentals';
 const NiceHash = 'NiceHash';
 
 module.exports = async function(options) {
+    console.log('options:', options)
+    let authenticated = options.login ? true : false
     let spartan = options.SpartanBot;
     let rental_provider_type = options.rental_provider;
     let rentalProviders = spartan.getRentalProviders();
@@ -121,9 +118,10 @@ module.exports = async function(options) {
 
     if (rentalProviders.length === 2 && options.poolData === undefined) {
         let providers = spartan.getSupportedRentalProviders();
-        poolCount = 0
+        let poolCount = 0
         for (let provider of providers) {
             let poolArray = await spartan.returnPools(provider);
+            poolCount = poolArray.length
             console.log('poolArray:', poolArray)
         }
         return {
@@ -133,7 +131,8 @@ module.exports = async function(options) {
             pool: poolCount ? true : false,
             credentials: true,
             success: poolCount ? true : false,
-            pools: poolCount
+            pools: poolCount,
+            provider: rental_provider_type
         }
     }
         
@@ -162,14 +161,14 @@ module.exports = async function(options) {
                     pool: poolArray.length ? true : false,
                     credentials: true,
                     success: poolArray.length ? true : false,
-                    pools: poolArray.length
+                    pools: poolArray.length,
+                    provider: rental_provider_type
                 }
             } 
             else {
                 try {
                     const currentProvider = getCurrentProvider.call(rentalProviders, options)
                     const pool = await addPool.call(spartan, currentProvider ,options)
-                    console.log('pool: 200', pool)
                     return pool;
                 } catch (e) {
                     return {
@@ -178,6 +177,7 @@ module.exports = async function(options) {
                         pool:  false,
                         credentials: true,
                         success: false,
+                        provider: rental_provider_type
                     }
                 }
             }
@@ -200,7 +200,8 @@ module.exports = async function(options) {
                     pool:  poolArray.length ? true : false,
                     credentials: true,
                     success: poolArray.length ? true : false,
-                    pools: poolArray.length
+                    pools: poolArray.length,
+                    provider: NiceHash
                 }
             } else {
                 try {
@@ -215,7 +216,8 @@ module.exports = async function(options) {
                         pool:  false,
                         credentials: true,
                         success: false,
-                        pools: poolArray.length
+                        pools: poolArray.length,
+                        provider: 'NiceHash'
                     }
                 }
             }
@@ -223,13 +225,13 @@ module.exports = async function(options) {
     }
 
     try {
-        // Setup either NiceHash or Mining Rig Rentals and finds out if pools or rigs are added to the account also signs you in
+        // Setup either NiceHash or Mining Rig Rentals and finds out if pools or profiles are added to the account also signs you in
         let setup_success = await spartan.setupRentalProvider({
             type: rental_provider_type,
             api_key: options.api_key,
             api_secret: options.api_secret,
             api_id: options.api_id,
-            name: rental_provider_type
+            name: options.profileName || rental_provider_type
         });
         // return setup_success.provider.deletePoolProfile('99882').then(res => console.log('deletedPoolProfile: ',res))
         console.log('setup_success: top \n', setup_success.success);
@@ -251,7 +253,8 @@ module.exports = async function(options) {
                             message: `No pools found, input pool info below to continue:`,
                             pool: false,
                             credentials: true,
-                            success: false
+                            success: false,
+                            provider: MiningRigRentals
                         }
                     }
                 } else {
@@ -284,7 +287,7 @@ module.exports = async function(options) {
                         }
 
                         return {
-                            provider: 'MiningRigRental',
+                            provider: MiningRigRentals,
                             err: 'pool',
                             message: `Profile successfully added, profile id(s): ${profileIDs} \n`+
                                      `You have ${setup_success.pools.length} pool(s), fill out pool info below \n`+
@@ -309,6 +312,7 @@ module.exports = async function(options) {
                                 pool:  false,
                                 credentials: true,
                                 success: false,
+                                provider: MiningRigRentals
                             }
                         }
                     }
@@ -327,7 +331,8 @@ module.exports = async function(options) {
                             message: `No pools found, input pool info below to continue.`,
                             pool: false,
                             credentials: true,
-                            success: false
+                            success: false,
+                            provider: NiceHash
                         }
                     } else {
                         const currentProvider = getCurrentProvider.call(rentalProviders, options)
@@ -352,20 +357,13 @@ module.exports = async function(options) {
                     }
                     console.log('PoolArray:', PoolArray)
                     return {
-                        provider: 'NiceHash',
+                        provider: NiceHash,
                         err: 'pool',
                         message: `You have ${ PoolArray.length} pool(s). \n`+
                                  `Pool id: ${PoolArray}  `,
                         pool: true,
                         credentials: true,
                         success: true
-                    }
-                    // Probably not needed, holding onto to remind me if need to create pool manually
-                    if (poolOptions.option === 'create') {
-                        //Prompt create Nice Hash pool
-                        let NiceHashPool = await Prompt_NiceHashCreatePool( spartan );
-                        await spartan.createPool(NiceHashPool);
-                        console.log(`Pool Created`);
                     }
                 }
             }
@@ -377,7 +375,8 @@ module.exports = async function(options) {
                     err: 'credentials',
                     message: 'settings.api_key is required!',
                     credentials: false,
-                    success: false
+                    success: false,
+                    provider: rental_provider_type
                 }
             } else if (setup_success.message === 'settings.api_secret is required!') {
                 console.log('You must input an API Secret!')
@@ -385,7 +384,8 @@ module.exports = async function(options) {
                     err: 'credentials',
                     message: 'You must input an API Secret!',
                     credentials: false,
-                    success: false
+                    success: false,
+                    provider: rental_provider_type
                 }
             } else if ( setup_success.message === 'Provider Authorization Failed') {
                 console.log('Unable to login to Account using API Key & API Secret, please check your keys and try again');
@@ -394,14 +394,16 @@ module.exports = async function(options) {
                     message: 'Unable to login to Account using API Key or API Secret,\n'+
                              'please check your credentials and try again',
                     credentials: false,
-                    success: false
+                    success: false,
+                    provider: rental_provider_type
                 }
             } else {
                 return {
                     err: 'credentials',
                     message: setup_success.message,
                     credentials: false,
-                    success: false
+                    success: false,
+                    provider: rental_provider_type
                 }
             }
         }
@@ -413,7 +415,8 @@ module.exports = async function(options) {
             message: 'Error! Unable to add Rental Provider!\n' + e,
             credentials: false,
             pool: false,
-            success: false
+            success: false,
+            provider: rental_provider_type
         }
     }
 };

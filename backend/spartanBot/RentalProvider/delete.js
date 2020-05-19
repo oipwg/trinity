@@ -1,21 +1,13 @@
-module.exports = function(vorpal, options) {
+module.exports = function(options) {
     let spartan = options.SpartanBot
 
-    vorpal
-        .command('rentalprovider delete')
-        .description('Selection of a rental provider that you wish to remove')
-        .alias('rp delete')
-        .action(async function(args) {
+  
             let rental_providers = spartan.getRentalProviders()
 
             if (rental_providers.length === 0) {
-                return this.log(
-                    vorpal.chalk.yellow(
-                        "No Rental Providers were found! Please run '"
-                    ) +
-                        vorpal.chalk.cyan('rentalprovider add') +
-                        vorpal.chalk.yellow("' to add your API keys.")
-                )
+   
+                    console.log("No Rental Providers were found! Please run '") 
+                
             }
 
             let provider_choices = []
@@ -36,7 +28,7 @@ module.exports = function(vorpal, options) {
             let select_provider_answers = await this.prompt({
                 type: 'list',
                 name: 'rental_provider',
-                message: vorpal.chalk.yellow(
+                message: console.log(
                     'Which Rental Provider do you wish to Delete?'
                 ),
                 choices: provider_choices,
@@ -45,18 +37,6 @@ module.exports = function(vorpal, options) {
             let rental_provider_to_delete =
                 select_provider_answers.rental_provider
 
-            let confirm_answer = await this.prompt({
-                type: 'confirm',
-                name: 'confirm',
-                message: vorpal.chalk.red(
-                    'Are you sure you wish to delete `' +
-                        rental_provider_to_delete +
-                        '`?'
-                ),
-                default: true,
-            })
-
-            if (confirm_answer.confirm) {
                 let delete_success = spartan.deleteRentalProvider(
                     uid_map[rental_provider_to_delete]
                 )
@@ -72,14 +52,8 @@ module.exports = function(vorpal, options) {
                         )
                     )
                 } else {
-                    this.log(
-                        vorpal.chalk.red(
-                            'Error! Unable to delete Rental Provider!'
-                        )
-                    )
+                    console.log('Error! Unable to delete Rental Provider!')
                 }
-            } else {
-                this.log(vorpal.chalk.red('Rental Provider delete cancelled'))
-            }
+            
         })
 }
