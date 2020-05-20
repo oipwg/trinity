@@ -8,7 +8,6 @@ export const addProvider = (data = []) => {
 }
 
 export const addBittrex = (data = {}) => {    
-    console.log('data:', data)
     return {
         type: BITTREX_DATA,
         payload: data
