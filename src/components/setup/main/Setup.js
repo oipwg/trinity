@@ -10,14 +10,17 @@ import './setup.css';
 const Setup = props => {
     const userdata = props.userData
     const bittrexData = props.setupBittrex
-    console.log('bittrexData:', bittrexData)
-    // const [bittrexData, setBittrexData] = useState({data: {}});
     const userId = useRef('');
     const index = useRef(0);
     const merge = ( ...objects ) => ( [...objects] );
 
     // Right before refreshes saves current state to local stroage
     window.onunload = function(event) {
+        if(bittrexData.credentials) {
+            const bittrexState = JSON.stringify(bittrexData);
+            sessionStorage.setItem('bittrex', bittrexState)
+        }
+        
         if(userdata.length > 0 && userdata[0].credentials) {
             const serializedState = JSON.stringify(userdata);
             sessionStorage.setItem('state', serializedState)
