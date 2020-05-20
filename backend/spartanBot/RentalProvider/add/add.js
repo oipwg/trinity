@@ -48,6 +48,7 @@ let addPool = async function(setup_success, options) {
             }
         } else {
             return {
+                err: 'pool',
                 provider: options.provider,
                 rental_provider: options.provider,
                 message: `${options.provider} and Pool successfully added, \n` + 

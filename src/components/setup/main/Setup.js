@@ -28,7 +28,6 @@ const Setup = props => {
     };
 
     const auto_setup_provider = (providers) => {
-        console.log('providers:', providers)
         if(providers.length > 0 && !userdata.length) {
     
             index.current = providers.length
@@ -409,7 +408,9 @@ const Setup = props => {
     }
 
     const showMessage = (field, i) => {
+        console.log('field:', field)
         let data = userdata[i]
+        console.log('data:', data)
         switch ( field ) {
             case 'provider':
                 if (data.err === field && data.success) {
