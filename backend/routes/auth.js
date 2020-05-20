@@ -37,6 +37,7 @@ router.get('/coinbase/callback', auth, passportCoinbase, async (req, res) => {
 
     try {
       const { apiKey, secret } = req.body;
+      console.log('BITTREX',req.body)
       const user = await User.findById(_id).select('-password');
 
       if(!user){

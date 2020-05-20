@@ -2,28 +2,32 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { API_URL } from '../../../../config.js';
 import { connect } from 'react-redux';
-import { addProvider } from '../../../actions/setupActions.js';
+import { addProvider, addBittrex } from '../../../actions/setupActions.js';
 import Navigation from '../nav/Navigation';
 import './setup.css';
 
 
 const Setup = props => {
-
-    // const userdata = props.userData.state || props.userData
     const userdata = props.userData
-    const [bittrexData, setBittrexData] = useState({data: {}});
+    const bittrexData = props.setupBittrex
+    console.log('bittrexData:', bittrexData)
+    // const [bittrexData, setBittrexData] = useState({data: {}});
     const userId = useRef('');
     const index = useRef(0);
     const merge = ( ...objects ) => ( [...objects] );
 
     // Right before refreshes saves current state to local stroage
     window.onunload = function(event) {
-        const serializedState = JSON.stringify(userdata);
-        sessionStorage.setItem('state', serializedState)
+        if(userdata.length > 0 && userdata[0].credentials) {
+            const serializedState = JSON.stringify(userdata);
+            sessionStorage.setItem('state', serializedState)
+        } 
     };
 
     const auto_setup_provider = (providers) => {
-        if(providers.length && !userdata.length) {
+        console.log('providers:', providers)
+        if(providers.length > 0 && !userdata.length) {
+    
             index.current = providers.length
             for(let provider of providers) {
                 setup_Provider({
@@ -41,15 +45,20 @@ const Setup = props => {
         select_provider_opiton(userdata) 
         // If global state is empty from changing pages will check local storage and fill current state
         if(!userdata.length){
-            const serializedState = JSON.parse( sessionStorage.getItem('state') )
-            if(serializedState !== null) {
-                props.dispatch( addProvider(serializedState) ) 
+            const providerState = JSON.parse( sessionStorage.getItem('state') )
+            const bittrexState = JSON.parse( sessionStorage.getItem('bittrex') )
+            if(providerState !== null) {
+                props.dispatch( addProvider(providerState) ) 
+            }
+            if(bittrexState !== null) {
+                props.dispatch( addBittrex(bittrexState) ) 
             }
         } else {
             select_provider_opiton( userdata )
         }
         if (props.user) {
             let id = props.user._id || props.user.id
+            console.log('id:', id)
             userId.current = id
             auto_setup_provider(props.login)
         }
@@ -78,7 +87,7 @@ const Setup = props => {
             success: false,
             err: ''
         }
-        console.log(userdata)
+ 
         // If there is user data merge it with the new data
         if (userdata.length) {
             let newState = [], length = userdata.length, i = 0
@@ -165,12 +174,14 @@ const Setup = props => {
                 }
             }
         }
+
         //Adds the rental_provider key again
         userdata[0].rental_provider = userdata[0].provider
-        let sentData = {...userdata[0], pooldata:{...poolData}}
+        let sentData = {...userdata[0], poolData:{...poolData}}
 
         setup_Provider(sentData)
     }
+
     function set_bittrex_values(e) {
         e.preventDefault();
         const form = document.getElementsByClassName('bittrex-form')[0]
@@ -196,6 +207,7 @@ const Setup = props => {
             }    
         }
         options.userId = userId.current
+        props.dispatch(addBittrex(options))
         setup_Provider(options)
     }
     function set_provider_values(e) {
@@ -244,9 +256,9 @@ const Setup = props => {
 
     let signInData = []
     function process_returned_data(data) {
-        console.log('data:', data)
         if (data.provider === "Bittrex") {
-            setBittrexData({...data})
+            props.dispatch(addBittrex({...data}))
+  
         } else {
             let responseData = {}
             
@@ -294,6 +306,8 @@ const Setup = props => {
     };
 
     async function setup_Provider(data) {
+        data.userId = userId.current
+        data.to_do = 'add'
         // Hits /bittrex endpoint when adding credentials the rest hits /setup
         const endPoint = data.bittrex ? '/auth/bittrex' : '/setup';
 
@@ -321,8 +335,10 @@ const Setup = props => {
             return userdata[0].pool;
         }
     }
+
     const addPool = (e) => {
         let provider = e.target.dataset.provider
+        console.log('provider ADD POOL:', provider)
         let newState = []
         for(let i = 0; i < userdata.length; i++) {
             if(userdata[i].provider === provider) {
@@ -650,8 +666,8 @@ const Pools = (props) => {
                 <div className="selector-groups">
                     <div className="selector-group-child"> 
                         <label className="type my-1 mr-2">Type</label>
-                        <select id="algo" className="custom-select mx-sm-4">
-                            <option defaultValue value="">
+                        <select id="algo" className="custom-select mx-sm-4" required>
+                            <option value="">
                                 Select Algorithm
                             </option>
                             <option value="Scrypt">Scrypt</option>
@@ -660,7 +676,7 @@ const Pools = (props) => {
                     </div>
                     <div className="selector-group-child">
                         <label className="my-1 mr-2">Pool Priority</label>
-                        <select id="priority" className="custom-select mx-sm-4">
+                        <select id="priority" className="custom-select mx-sm-4" required>
                             <option defaultValue value="">
                                 Select Priority
                             </option>
@@ -767,7 +783,8 @@ console.log('state:', state)
     return {
         user: state.auth.user,
         userData: state.userData,
-        login: state.login
+        login: state.login,
+        setupBittrex: state.setupBittrex
     };
 };
 

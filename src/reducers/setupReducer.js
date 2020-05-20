@@ -4,6 +4,7 @@ import {
     LOGOUT_SUCCESS,
     LOGIN_FAIL,
     SIGNUP_FAIL,
+    BITTREX_DATA
 } from '../actions/types';
 
 const initState = [];
@@ -28,6 +29,16 @@ export const login = (state = initState, action) => {
         case SIGNUP_FAIL:
             return [];
 
+        default:
+            return state;
+    }
+};
+
+export const setupBittrex = (state = {}, action) => {
+    switch (action.type) {
+        case BITTREX_DATA:
+            console.log(action.payload)
+            return action.payload
         default:
             return state;
     }

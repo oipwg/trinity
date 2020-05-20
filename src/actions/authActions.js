@@ -42,10 +42,13 @@ export const loadUser = () => (dispatch, getState) => {
                 type: USER_LOADED,
                 payload: res.data,
             });
-            dispatch({
-                type: PROVIDER_DATA,
-                payload: res.data.providerData,
-            });
+            if(res.data) {
+                dispatch({
+                    type: PROVIDER_DATA,
+                    payload: res.data.providerData
+                });
+            }
+           
         }).then(() => {
             dispatch(getProfile())
         })

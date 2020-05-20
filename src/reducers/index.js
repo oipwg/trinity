@@ -7,7 +7,7 @@ import walletReducer from './walletReducer';
 import coinbaseReducer from './coinbaseReducer';
 import bittrexReducer from './bittrexReducer';
 import profilesReducer from './profileReducer';
-import {setupReducer, login } from './setupReducer';
+import {setupReducer, login, setupBittrex } from './setupReducer';
 
 export default combineReducers({
     error: errorReducer,
@@ -18,5 +18,6 @@ export default combineReducers({
     bittrex: bittrexReducer,
     profiles: profilesReducer,
     userData: setupReducer,
-    login: login
+    login: login,
+    setupBittrex: setupBittrex
 });
