@@ -79,27 +79,35 @@ class Timer {
 
     
     setTimer() {
-        setTimeout(() => {
+        setTimeout(async () => {
+            try {
+                let address = await this.getProviderAddress()
+                let payout = await on(this.req, address)
+                console.log('payout:', payout.success)
+            } catch(e) {
+                emitter.emit('message', JSON.stringify({
+                    autoRent: false,
+                    message: e
+                }))
+            }
             setInterval(async ()=> {
                 try{
                     let CostOfRentalBtc = await this.getTransactions()
-                    console.log('CostOfRentalBtc:', CostOfRentalBtc)
-                    let address = await this.getProviderAddress()
-
-                    let payout = await on(this.req, address)
-                    console.log('payout:', payout.success)
+                    console.log('CostOfRentalBtc:', CostOfRentalBtc)     
+                    
                     emitter.emit('message', JSON.stringify({
                         autoRent: false,
                         db: {CostOfRentalBtc: Math.abs(CostOfRentalBtc).toFixed(8)},
                         message: 'Auto trading is starting'
                     }))
-                    this.clearInterval();
                 } catch(e) {
                     console.log(e)
                 }
-            }, 5 * 60 * 1000 )
+            },5 * 60 * 1000 )
         },50 * 60 * 1000)
     }
 }
 
 module.exports = Timer
+
+
