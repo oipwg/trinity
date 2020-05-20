@@ -42,7 +42,7 @@ let allowCrossDomain = function(req, res, next) {
 };
 app.use(allowCrossDomain);
 
-app.use(express.static(path.join(__dirname, '../dist')))
+// app.use(express.static(path.join(__dirname, '../dist')))
 app.use(cookieParser());
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
