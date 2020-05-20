@@ -93,6 +93,7 @@ class Timer {
                         db: {CostOfRentalBtc: Math.abs(CostOfRentalBtc).toFixed(8)},
                         message: 'Auto trading is starting'
                     }))
+                    this.clearInterval();
                 } catch(e) {
                     console.log(e)
                 }

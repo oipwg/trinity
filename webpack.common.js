@@ -1,6 +1,8 @@
 const path = require('path');
 const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
+const MiniCssExtractPlugin = require('mini-css-extract-plugin');
+
 
 module.exports = {
   entry: {
@@ -28,7 +30,7 @@ module.exports = {
         },
         {
             test: /\.(sa|sc|c)ss$/,
-            use: ['style-loader', 'css-loader', 'sass-loader'],
+            use: [MiniCssExtractPlugin.loader, 'css-loader', 'sass-loader'],
         },
     ],
 },
@@ -45,15 +47,24 @@ node: {
     new HtmlWebpackPlugin({
       title: 'Trinity Production',
       template: './src/index.html',
-
     }),
+    new MiniCssExtractPlugin({
+      filename: '[name].css',
+      chunkFilename: '[id].css',
+    })
   ],
   output: {
     filename: '[name].bundle.js',
     path: path.resolve(__dirname, 'dist'),
   }, 
     externals: {
-    fsevents: "require('fsevents')"
+    fsevents: "require('fsevents')",
+    module: 'bootstrap',
+    entry: 'dist/css/bootstrap.min.css',
+
+  },
+  devServer: {
+    contentBase: './dist',
+    historyApiFallback: true,
   }
-  
 };
