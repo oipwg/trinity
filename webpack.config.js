@@ -2,7 +2,6 @@ require('dotenv').config();
 const { API_URL, APP_URL } = process.env;
 const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
-console.log(process.env)
 
 module.exports = {
     entry: './src/index.js',
@@ -42,7 +41,7 @@ module.exports = {
         net: 'empty',
         tls: 'empty'
       },
-    mode: 'production',
+    mode: 'development',
     devtool: 'cheap-module-eval-source-map',
     devServer: {
         historyApiFallback: true,
