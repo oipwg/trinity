@@ -3,6 +3,8 @@ bundle.js
 localStorage
 .env
 
+npm-debug.log
+
 .DS_Store 
 /dist
 
