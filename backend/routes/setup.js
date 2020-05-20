@@ -8,6 +8,7 @@ const User = require('../models/user');
 
 async function processUserInput(req, res) {
     let options = req.body
+    console.log('options:', options)
 
     if (options.to_do === 'clearSpartanBot') {
         return options
@@ -78,6 +79,7 @@ router.post('/', async (req, res) => {
 
     try {
         let data = await controller(userInput);
+        console.log('data: setupjs', data)
         res.status(200).json({data})
     } catch (err) {
         console.log('route setup.js line 91 catch error', err);

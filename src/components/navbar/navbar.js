@@ -58,7 +58,7 @@ class Navbar extends React.Component {
         });
     }
 
-    handleClick = () => {
+    handleClick = (e) => {
         this.clearStorage()
         this.setState({
             dropItDown: !this.state.dropItDown,
