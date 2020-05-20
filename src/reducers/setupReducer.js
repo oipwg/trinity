@@ -37,8 +37,12 @@ export const login = (state = initState, action) => {
 export const setupBittrex = (state = {}, action) => {
     switch (action.type) {
         case BITTREX_DATA:
-            console.log(action.payload)
             return action.payload
+        case LOGOUT_SUCCESS:
+        case LOGIN_FAIL:
+        case SIGNUP_FAIL:
+            return [];
+        
         default:
             return state;
     }

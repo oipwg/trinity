@@ -43,6 +43,9 @@ const Setup = props => {
             }
         }
     }
+    const auto_setup_bittrex = () => {
+        setup_Provider({bittrex: 'bittrex'})
+    }
  
     useEffect(() => {
         select_provider_opiton(userdata) 
@@ -64,6 +67,7 @@ const Setup = props => {
             console.log('id:', id)
             userId.current = id
             auto_setup_provider(props.login)
+            auto_setup_bittrex()
         }
     }, [props.user, props.login])
 
@@ -103,7 +107,7 @@ const Setup = props => {
                 let prevState = userdata[i]
                 // Runs if only one or more providers selected
                 if (prevState.err && length > 1) {
-                    // Clears any elements cached in the array previously
+
                     newState.length = []
                     //Includes the error element and all other elements if there are any
                     let allOtherElements = userdata.filter(el => el.provider !== target) 
@@ -111,7 +115,6 @@ const Setup = props => {
                     let targetElement = userdata.filter(el => el.provider === target)
                     let data = merge(...targetElement, ...allOtherElements)
 
-                    
                     newState.push(data)
                     break;
                 }
@@ -121,12 +124,10 @@ const Setup = props => {
                 }
                 i++
             }
-     
             props.dispatch(addProvider(newState[0]))
         } else {
             props.dispatch(addProvider([options]) )
         }
-       
     }
 
     function set_pool_values(e) {
@@ -209,7 +210,7 @@ const Setup = props => {
                     break;
             }    
         }
-        options.userId = userId.current
+        console.log('options', options)
         props.dispatch(addBittrex(options))
         setup_Provider(options)
     }
@@ -311,7 +312,7 @@ const Setup = props => {
     async function setup_Provider(data) {
         data.userId = userId.current
         data.to_do = 'add'
-        // Hits /bittrex endpoint when adding credentials the rest hits /setup
+
         const endPoint = data.bittrex ? '/auth/bittrex' : '/setup';
 
         try {

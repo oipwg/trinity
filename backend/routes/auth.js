@@ -34,16 +34,24 @@ router.get('/coinbase/callback', auth, passportCoinbase, async (req, res) => {
 
     // Change this if you need to, but added this layer incase you are still needing to use adding bittrex on your end another way. 
     let _id = req.user ? req.user.id : req.body.userId
+    console.log('_id:', _id)
 
     try {
       const { apiKey, secret } = req.body;
-      console.log('BITTREX',req.body)
+ 
       const user = await User.findById(_id).select('-password');
 
       if(!user){
         return res.status(404).json({ error: 'User not found' });
       }
-
+      // Checks if credentials are already in DB , if so hides input fields in setup
+      if(user.bittrex.apiKey && user.bittrex.secret) {
+        return res.status(201).json({ data: {provider: 'Bittrex', credentials: true} })
+      }
+      // If credentials aren't in DB shows input fields in setup
+      if(!apiKey || !secret) {
+        return res.status(500).json({ data: {provider: 'Bittrex', credentials: false} })
+      }
       user.bittrex = {
         apiKey,
         secret
