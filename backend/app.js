@@ -6,7 +6,6 @@ const logger = require('morgan');
 const path = require('path');
 const mongoose = require('mongoose');
 const usersRouter = require('./routes/users');
-// const dashboardRouter = require('./routes/dashboard');
 const setupRouter = require('./routes/setup');
 const settingsRouter = require('./routes/settings');
 const authRouter = require('./routes/auth');
@@ -31,8 +30,6 @@ mongoose
 
 if(NODE_ENV === 'development'){
     app.use(logger('dev'));
-} else {
-    
 }
 
 // CORS - DEVElOPMENT ONLY - //todo: del. me
@@ -54,7 +51,6 @@ app.use(passport.initialize());
 
 // Routes
 app.use('/users', usersRouter);
-// app.use('/dashboard', dashboardRouter);
 app.use('/setup', setupRouter);
 app.use('/settings', settingsRouter);
 app.use('/auth', authRouter);
@@ -63,10 +59,9 @@ app.use('/profile', userProfiles);
 app.use('/rent', rentRouter);
 app.use('/auto-trade', autoTradeRouter);
 
-app.get('/*', function(req, res) {
-    console.log('hit')
-    res.sendFile('index.html');
-});
+// app.get('/*', function(req, res) {
+//     res.sendFile('index.html');
+// });
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
