@@ -322,7 +322,6 @@ const MiningOperations = (props) => {
 
     return (
         <>
-        {console.log(props)}
         {showSettingaModal && <MarketsNPools handleClick={() => setShowSettingsModal(!showSettingaModal)}/>}
         <div className="card mining-operation">
             <div className="card-header">

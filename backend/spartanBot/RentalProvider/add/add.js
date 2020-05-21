@@ -1,7 +1,8 @@
 require('dotenv').config();
-const fs = require('fs');
-const fsPromise = fs.promises;
-const storage = process.cwd() +'/localStorage/spartanbot-storage';
+
+const {
+    Prompt_NiceHashCreatePool,
+} = require('./promptFunctions');
 
 
 /**
@@ -20,11 +21,9 @@ const storage = process.cwd() +'/localStorage/spartanbot-storage';
  */
 
 let addPool = async function(setup_success, options) {
-    const provider = setup_success.proivder || setup_success
-    console.log('provider: 28', provider)
+    const provider = setup_success.proivder || setup_success;
   
     let pool;
-    console.log('options.provider: 48 add.js')
     for (let p of this.getRentalProviders()) {
         if ( p.getUID() !== provider.getUID() ) {
             p._addPools(options.poolData);
@@ -101,17 +100,13 @@ const deletePoolProfile = async function(id = '') {
     let deletedPoolProfile = await this.deletePoolProfile(id).then(res => console.log('deletedPoolProfile: ',res))
 }
 
-const {
-    Prompt_NiceHashCreatePool,
-} = require('./promptFunctions');
+
 
 const MiningRigRentals = 'MiningRigRentals';
 const NiceHash = 'NiceHash';
 
 module.exports = async function(options) {
-    console.log('options:', options)
-    let authenticated = options.login ? true : false
-    let spartan = options.SpartanBot;
+    const spartan = options.SpartanBot;
     let rental_provider_type = options.rental_provider;
     let rentalProviders = spartan.getRentalProviders();
 

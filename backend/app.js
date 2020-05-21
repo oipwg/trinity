@@ -42,7 +42,7 @@ let allowCrossDomain = function(req, res, next) {
 };
 app.use(allowCrossDomain);
 
-// app.use(express.static(path.join(__dirname, '../dist')))
+
 app.use(cookieParser());
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
@@ -59,9 +59,13 @@ app.use('/profile', userProfiles);
 app.use('/rent', rentRouter);
 app.use('/auto-trade', autoTradeRouter);
 
-// app.get('/*', function(req, res) {
-//     res.sendFile('index.html');
-// });
+if(NODE_ENV === 'production') {
+    app.use(express.static(path.join(__dirname, '../dist')))
+    app.get('*', function(req, res) {
+        res.sendFile(path.join(__dirname, '../dist', 'index.html'));
+    });
+}
+
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

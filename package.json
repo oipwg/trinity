@@ -1,6 +1,5 @@
 {
   "name": "trinity",
-  "sideEffects": false,
   "version": "0.1.0",
   "engines": {
     "npm": "6.13.4",
@@ -8,8 +7,8 @@
   },
   "private": true,
   "scripts": {
-    "start": "env NODE_ENV=production node ./backend/bin/www",
-    "build": "node ./node_modules/webpack/bin/webpack.js --mode development",
+    "start": "env NODE_ENV=production nodemon ./backend/bin/www",
+    "build": "webpack -p --env production",
     "start-client": "webpack-dev-server --mode development --open --hot",
     "start-backend": "env NODE_ENV=development nodemon ./backend/bin/www",
     "dev": "concurrently \"npm run start-client\" \"npm run start-backend\"",
