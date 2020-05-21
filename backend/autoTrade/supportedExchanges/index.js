@@ -558,7 +558,7 @@ module.exports = async function(profile, accessToken, wallet, rentalAddress) {
                             //push new tokens to wallet
                             FloTradeFee = await buildTransaction(address, ReceivedQty)
                             console.log({FloTradeFee})
-                            if(!FloTradeFee || !(typeof FloTradeFee != 'number')) return;
+                            if(!FloTradeFee || (typeof FloTradeFee != 'number')) return;
 
                             let sendAmount = Number((updatedBalance - FloTradeFee).toFixed(8))
                             console.log('sending to bittrex: 2', {sendAmount})
