@@ -314,12 +314,25 @@ module.exports = async function(profile, accessToken, wallet, rentalAddress) {
     }
 
     const rent = (options) => { 
-        options.userId = ''
-        options.message = []
-        options.update = false
-        options.to_do = 'rent'
 
-        let body = JSON.stringify(options)
+        let body = {
+            targetMargin: options.targetMargin,
+            profitReinvestment: options.profitReinvestment,
+            updateUnsold: options.updateUnsold,
+            dailyBudget: options.dailyBudget,
+            autoRent: options.autoRent.on,
+            spot: options.autoRent.mode.spot,
+            alwaysMineXPercent: options.autoRent.mode.alwaysMineXPercent.on,
+            autoTrade: options.autoTrade.on,
+            morphie: options.autoTrade.mode.morphie,
+            supportedExchange: options.autoTrade.mode.supportedExchanges,
+            Xpercent: options.autoRent.mode.alwaysMineXPercent.Xpercent,
+            token: options.token,
+            message: options.message,
+            update: false,
+            to_do: 'rent',
+            profile_id: options._id
+        }
         
         axios.post(API_URL+'/rent',
             body,
