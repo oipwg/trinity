@@ -335,11 +335,10 @@ module.exports = {
                 return response.data;
             })();
             
-            console.log(createOrder)
 
             if(!createOrder.success) return res.json({"error": createOrder.message})
 
-            res.status(201).json({'Success': createOrder.message})
+            res.status(201).json({...createOrder})
         } catch (error) {
             console.log({error})
         }
