@@ -15,6 +15,7 @@ const userProfiles = require('./routes/userProfiles')
 const passport = require('passport');
 const autoTradeRouter = require('./routes/autoTrade')
 const { NODE_ENV, MONGO_URL } = process.env;
+console.log('NODE_ENV:', NODE_ENV)
 
 const app = express();
 
