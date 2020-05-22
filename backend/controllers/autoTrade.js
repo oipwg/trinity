@@ -6,13 +6,10 @@ module.exports = {
     on: async(req, rentalAddress) => {
         try {
 
-
             //- profiles _id as param
             const { profile_id } = req.body
             const accessToken = req.headers['x-auth-token']
-            let _id = req.params._id || profile_id
-
-            console.log(_id)
+            let _id = profile_id;
 
 
             const user = await User.findById(req.user.id).select('-password')
@@ -22,7 +19,7 @@ module.exports = {
             console.log({profile})
 
 
-            ATSupportedEx(...profile, accessToken, user.wallet, '3BcRcprhA5xDhZo5Hv81zVK5pSi1gUUrzF')
+            ATSupportedEx(...profile, accessToken, user.wallet, rentalAddress)
 
             return {success: 'Auto Trading Started.'}
         } catch (error) {
