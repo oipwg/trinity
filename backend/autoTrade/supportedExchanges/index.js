@@ -18,7 +18,6 @@ let FeeFloTx2; //Fee from moving tokens from Local Wallet to Bittrex
 
 let  OfferPriceBtc, //formula 
      CostOfRentalBTC, //comes from rental
-     TradeFee, //?
      EstFeeBtcTx1, //?
      BtcFromTrades = 0,
      PriceBtcUsd,
@@ -27,7 +26,8 @@ let  OfferPriceBtc, //formula
      CostOfRentalUsd,
      totalSent = 0;
 
-const CostOfWithdrawalPerCycleBTC = .0005;
+const CostOfWithdrawalPerCycleBTC = 0.0005;
+const TradeFee= .002
 let FloTradeFee;
 let checkBlock;
 let currentBlockCount;
@@ -60,7 +60,7 @@ module.exports = async function(profile, accessToken, wallet, rentalAddress) {
         return Number((ReceivedQty + FeeFloTx1).toFixed(8));
     }
 
-    const getOfferPriceBtc = (CostOfRentalBTC, TradeFee, margin, EstFeeBtcTx1, TotalQty, FeeFloTx1, FeeFloTx2) => {
+    const getOfferPriceBtc = (CostOfRentalBTC, TradeFee, margin, CostOfWithdrawalPerCycleBTC, EstFeeBtcTx1, TotalQty, FeeFloTx1, FeeFloTx2) => {
         let OfferPrice =  ( CostOfRentalBTC * ( TradeFee + 1 ) * ( margin + 1 ) + CostOfWithdrawalPerCycleBTC + EstFeeBtcTx1 ) / ( TotalQty - FeeFloTx1 - FeeFloTx2 )
         return Number(OfferPrice.toFixed(8))
     }
@@ -209,7 +209,7 @@ module.exports = async function(profile, accessToken, wallet, rentalAddress) {
          return  ( BtcFromTrades * PriceBtcUsd ) - CostOfRentalUsd
     }
 
-    const getRentalBudget3HrCycleUsd = (CostOfRentalUsd, ProfitUsd, ProfiReinvestmentRate) => {
+    const getRentalBudget3HrCycleUsd = (CostOfRentalUsd, ProfitUsd, ProfitReinvestmentRate) => {
         return  RentalBudget3HrCycleUsd = CostOfRentalUsd + ( ProfitUsd * (ProfitReinvestmentRate) )
     }
 
@@ -441,12 +441,11 @@ module.exports = async function(profile, accessToken, wallet, rentalAddress) {
                         let {fees, confirmations } = res.data
 
                         FeeFloTx2 = fees
-                        TradeFee= .002 //!
                         EstFeeBtcTx1=0.00001551 //! get from somewhere
             
                         TotalQty = getTotalQty(ReceivedQty, FeeFloTx1)
                         SellableQty = getSellableQty(TotalQty, FeeFloTx2)               
-                        OfferPriceBtc = getOfferPriceBtc(CostOfRentalBTC,TradeFee,margin,EstFeeBtcTx1,TotalQty,FeeFloTx1,FeeFloTx2)
+                        OfferPriceBtc = getOfferPriceBtc(CostOfRentalBTC, TradeFee, margin, CostOfWithdrawalPerCycleBTC, EstFeeBtcTx1,TotalQty,FeeFloTx1,FeeFloTx2)
                     
                         console.log(
                                 '---check confirmations---',
@@ -494,7 +493,7 @@ module.exports = async function(profile, accessToken, wallet, rentalAddress) {
 
                                     TotalQty = getTotalQty(ReceivedQty, FeeFloTx1)
                                     SellableQty  = getSellableQty(TotalQty, FeeFloTx2)
-                                    OfferPriceBtc = getOfferPriceBtc(CostOfRentalBTC, TradeFee, margin, EstFeeBtcTx1, TotalQty, FeeFloTx1, FeeFloTx2);
+                                    OfferPriceBtc = getOfferPriceBtc(CostOfRentalBTC, TradeFee, margin, CostOfWithdrawalPerCycleBTC, EstFeeBtcTx1, TotalQty, FeeFloTx1, FeeFloTx2);
     
                                     console.log('If Update --- before runing function;', {SellableQty, OfferPriceBtc})
                             }
@@ -547,10 +546,9 @@ module.exports = async function(profile, accessToken, wallet, rentalAddress) {
                             FeeFloTx1 = await getFees(transactions)
                             console.log('pre', {balance, updatedBalance, FeeFloTx1})
                             isUpdate = true;
-                            ReceivedQty = updatedBalance;
 
                             //push new tokens to wallet
-                            FloTradeFee = await buildTransaction(address, ReceivedQty)
+                            FloTradeFee = await buildTransaction(address, updatedBalance)
                             console.log({FloTradeFee})
                             if(!FloTradeFee || (typeof FloTradeFee != 'number')) return;
 
@@ -564,6 +562,7 @@ module.exports = async function(profile, accessToken, wallet, rentalAddress) {
                                     discover: false
                                 })
                                 totalSent += sendAmount
+                                ReceivedQty += updatedBalance;
                                 console.log({bittrexTX})
                             } catch (error) {
                                 console.log('failed to send, will try again', error)
@@ -597,7 +596,7 @@ module.exports = async function(profile, accessToken, wallet, rentalAddress) {
                     
                     ProfitUsd = getProfitUsd(BtcFromTrades, PriceBtcUsd, CostOfRentalUsd)
                     
-                    RentalBudget3HrCycleUsd = getRentalBudget3HrCycleUsd(CostOfRentalUsd, ProfitReinvestmentRate);
+                    RentalBudget3HrCycleUsd = getRentalBudget3HrCycleUsd(CostOfRentalUsd, ProfitUsd, ProfitReinvestmentRate);
                     
                     RentalBudgetDailyUsd = getRentalBudgetDailyUsd(RentalBudget3HrCycleUsd);
                     TakeProfitBtc = getTakeProfitBtc(ProfitUsd, ProfitReinvestmentRate, PriceBtcUsd)
