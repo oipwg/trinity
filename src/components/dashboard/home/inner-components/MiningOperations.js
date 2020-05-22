@@ -8,14 +8,14 @@ import {isEqual} from 'lodash'
 const socket = new WebSocket( WEB_SOCKET_URL );
 
 const MiningOperations = (props) => {
-    // @ts-ignore
+    
     socket.onopen = (e) => {
         socket.send('Hello Server!');
     };
     socket.onmessage = (e) => {
         let message = JSON.parse(e.data)
         processReturnData(message)
-      }
+    }
     socket.onclose = (e) => {
         socket.send('Client socket closed')
     }
