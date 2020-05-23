@@ -39,6 +39,20 @@ main {
   overflow: scroll;
 }
 
+.card.mining-operation ::-webkit-scrollbar {
+  width: 10px;
+}
+
+.card.mining-operation ::-webkit-scrollbar-corner {
+  background: rgba(0, 0, 0, 0);
+}
+
+.card.mining-operation ::-webkit-scrollbar-thumb {
+  border-radius: 5px;
+  background-color: rgba(0, 0, 0, 0.5);
+  -webkit-box-shadow: 0 0 1px rgba(255, 255, 255, 0.5);
+}
+
 .card.mining-operation #mining-op-tableHeader tr th {
   border-top: none;
 }
