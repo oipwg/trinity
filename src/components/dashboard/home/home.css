@@ -39,6 +39,20 @@ main {
   overflow: scroll;
 }
 
+.card.mining-operation ::-webkit-scrollbar {
+  width: 10px;
+}
+
+.card.mining-operation ::-webkit-scrollbar-corner {
+  background: rgba(0, 0, 0, 0);
+}
+
+.card.mining-operation ::-webkit-scrollbar-thumb {
+  border-radius: 5px;
+  background-color: rgba(0, 0, 0, 0.5);
+  -webkit-box-shadow: 0 0 1px rgba(255, 255, 255, 0.5);
+}
+
 .card.mining-operation #mining-op-tableHeader tr th {
   border-top: none;
 }
@@ -113,10 +127,57 @@ main {
   display: -webkit-box;
   display: -ms-flexbox;
   display: flex;
+  position: relative;
   -webkit-box-align: center;
       -ms-flex-align: center;
           align-items: center;
   padding: 1.5rem;
+}
+
+.hideLed {
+  display: none;
+}
+
+.ledBulb {
+  -webkit-animation: pulse 1s ease-out infinite;
+          animation: pulse 1s ease-out infinite;
+}
+
+@-webkit-keyframes pulse {
+  0% {
+    opacity: 0;
+  }
+  70% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+@keyframes pulse {
+  0% {
+    opacity: 0;
+  }
+  70% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+.renting-light-container {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-pack: justify;
+      -ms-flex-pack: justify;
+          justify-content: space-between;
+  position: absolute;
+  right: 100px;
+  top: 10px;
+  width: 92px;
 }
 
 .automatic-renting-content {

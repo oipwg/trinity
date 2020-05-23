@@ -29,6 +29,18 @@ main {
     // overflow: hidden;
     overflow: scroll;
   }
+  ::-webkit-scrollbar {
+    // -webkit-appearance: none;
+    width: 10px;
+  }
+  ::-webkit-scrollbar-corner {
+    background: rgba(0,0,0,0);
+  }
+  ::-webkit-scrollbar-thumb {
+    border-radius: 5px;
+    background-color: rgba(0,0,0,.5);
+    -webkit-box-shadow: 0 0 1px rgba(255,255,255,.5);
+  }
   #mining-op-tableHeader tr th {
     border-top: none;
   }
@@ -96,8 +108,38 @@ main {
 
 .automatic-renting-container {
   display: flex;
+  position: relative;
   align-items: center;
   padding: 1.5rem;
+}
+
+.hideLed {
+  display: none
+}
+
+.ledBulb {
+  animation: pulse 1s ease-out infinite;
+}
+
+@keyframes pulse {
+  0% {
+    opacity: 0;
+  }
+  70% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+.renting-light-container {
+  display: flex;
+  justify-content: space-between;
+  position: absolute;
+  right: 100px;
+  top: 10px;
+  width: 92px;
 }
 
 .automatic-renting-content {

@@ -7,7 +7,7 @@
   },
   "private": true,
   "scripts": {
-    "start": "env NODE_ENV=production nodemon ./backend/bin/www",
+    "start": "env NODE_ENV=production node ./backend/bin/www",
     "build": "webpack -p --env production",
     "start-client": "webpack-dev-server --mode development --open --hot",
     "start-backend": "env NODE_ENV=development nodemon ./backend/bin/www",

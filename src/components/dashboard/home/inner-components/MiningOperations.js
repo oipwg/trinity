@@ -42,7 +42,8 @@ const MiningOperations = (props) => {
             Xpercent: 15,
             token: 'FLO',
             message: [],
-            update: false
+            update: false,
+            CostOfRentalBtc: ''
         });
 
 
@@ -335,6 +336,7 @@ const MiningOperations = (props) => {
                                 </tr>
                             </thead>
                             <tbody>
+                                {console.log(miningOperations.message)}
                                 {
                                     miningOperations.message.map((message, i)=> {
                                         return (
@@ -410,7 +412,24 @@ const MiningOperations = (props) => {
 
                 {/* AUTO RENTING CONTAINER */}
                 <div className="automatic-renting-container">
-
+                    <span className="renting-light-container">
+                        <p>Renting</p>
+                        <svg viewBox="0 0 32 32" width="25" height="25">
+                        <defs>
+                            <radialGradient id="radial-gradient" cx="16" cy="16" r="16" gradientUnits="userSpaceOnUse">
+                            <stop offset="0" stopColor="#abff00"/>
+                            <stop offset="0.12" stopColor="#a4fa00"/>
+                            <stop offset="0.29" stopColor="#90ee00"/>
+                            <stop offset="0.49" stopColor="#6fd900"/>
+                            <stop offset="0.73" stopColor="#41bc00"/>
+                            <stop offset="0.98" stopColor="#079700"/>
+                            <stop offset="1" stopColor="#029400"/>
+                        </radialGradient>
+                        </defs>
+                        <circle cx="16" cy="16" r="16" className={miningOperations.autoRent ? 'ledBulb' : 'hideLed'} fill=" url(#radial-gradient)"/>
+                        <path d="M16,1A15,15,0,1,1,1,16,15,15,0,0,1,16,1m0-1A16,16,0,1,0,32,16,16,16,0,0,0,16,0Z" fill="#444"/>
+                        </svg>
+                    </span>
                     <ToggleSwitch  
                     handleChange={(e) => {updateInputs(e)}}
                     id={"autoRent"}
