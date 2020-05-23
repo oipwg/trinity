@@ -103,6 +103,7 @@ async function processUserInput(req, res) {
     
 
     let options = req.body
+    console.log('options:', options)
 
     let { profitReinvestment, updateUnsold, dailyBudget,targetMargin, autoRent, spot, alwaysMineXPercent,
         autoTrade, morphie, supportedExchange, profile_id, Xpercent, userId, token, name } = options;
@@ -163,7 +164,7 @@ async function processUserInput(req, res) {
                 profile.targetMargin = targetMargin
                 profile.profitReinvestment = profitReinvestment
                 profile.updateUnsold = updateUnsold
-
+                console.log('PROFILE', profile)
                 // If user doesn't have a generated address will generate a new one and save address and index to DB
                 if (profile.address.publicAddress === '') {
                     let usedIndexes = user.indexes
@@ -227,15 +228,19 @@ const processData = async (req, res) => {
     // From within SpartanBot only
     emitter.once('rented', async (msg) => {
         const user = await User.findById(req.user.id).select('profiles')
-        
+        console.log('MSG', msg)
         // If data needs to be saved to Database
         if (msg.db) {
             for(let profile of user.profiles) {
                 if(profile._id.toString() === req.body.profile_id) {
-                    for(let property in msg.db) {
-                        let key = property
-                        let value = msg.db[key]
-                        profile[key] = Number(value)
+                    for (let key in msg) {
+                        if (key === 'autoRent') {
+                            profile.autoRent.on = msg[key]
+                        } else if (key === 'db') {
+                            for (let key in msg.db) {
+                                profile[key] = Number(msg.db[key])
+                            }
+                        }
                     }
                 }
             }
@@ -259,7 +264,6 @@ const processData = async (req, res) => {
             console.log('err:', err)
             let message = JSON.stringify({message: err.message, autoRent: false })
             res.write(message)
-            // res.status(500).json({message: err.message, autoRent: false } )
         }
         
         return user.save()

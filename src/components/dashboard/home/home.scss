@@ -96,8 +96,38 @@ main {
 
 .automatic-renting-container {
   display: flex;
+  position: relative;
   align-items: center;
   padding: 1.5rem;
+}
+
+.hideLed {
+  display: none
+}
+
+.ledBulb {
+  animation: pulse 1s ease-out infinite;
+}
+
+@keyframes pulse {
+  0% {
+    opacity: 0;
+  }
+  70% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+.renting-light-container {
+  display: flex;
+  justify-content: space-between;
+  position: absolute;
+  right: 100px;
+  top: 10px;
+  width: 92px;
 }
 
 .automatic-renting-content {

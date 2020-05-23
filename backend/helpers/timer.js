@@ -83,8 +83,14 @@ class Timer {
             try {
                 let address = await this.getProviderAddress()
                 let payout = await on(this.req, address)
-                console.log('payout:', payout.success)
+                console.log('payout:', payout)
+                emitter.emit('message', JSON.stringify({
+                    autoRent: false,
+                    message: 'Auto trading is starting...'
+                }))
+                
             } catch(e) {
+                console.log('ERROR', e)
                 emitter.emit('message', JSON.stringify({
                     autoRent: false,
                     message: e
@@ -97,8 +103,7 @@ class Timer {
                     
                     emitter.emit('message', JSON.stringify({
                         autoRent: false,
-                        db: {CostOfRentalBtc: Math.abs(CostOfRentalBtc).toFixed(8)},
-                        message: 'Auto trading is starting'
+                        db: {CostOfRentalBtc: Math.abs(CostOfRentalBtc).toFixed(8)}
                     }))
                 } catch(e) {
                     console.log(e)
