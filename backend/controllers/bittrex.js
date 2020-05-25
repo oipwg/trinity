@@ -188,9 +188,6 @@ module.exports = {
                 return res.status(400).json({"error": "no keys"})
             }
         
-            let openOrders = {}
-
-
             let getOrders = await (async () => 
                 {
                     const message = `https://api.bittrex.com/api/v1.1/market/getopenorders?apikey=${apiKey}&nonce=${nonce}`
@@ -204,15 +201,11 @@ module.exports = {
                 }
             )();
 
-                if(!getOrders.success) return res.status(400).json({"error": getOrders.message})
 
-                getOrders.result.map((arr, i) => {
-                        openOrders[arr.Exchange] = arr 
-                        }
-                ) 
+                if(!getOrders.success) return res.status(400).json({"error": getOrders.message})
             
             
-            res.status(201).json({openOrders})
+            res.status(201).json(getOrders.result)
         } catch (error) {
             console.log(error)
         }
@@ -440,6 +433,4 @@ module.exports = {
             console.log(error)
         }
     }
-
-
 }
