@@ -32,6 +32,7 @@ let FloTradeFee;
 let checkBlock;
 let currentBlockCount;
 let orderReceiptID = ''
+let BtcFromsPartialTrades = 0;
 
 
 
@@ -120,7 +121,6 @@ module.exports = async function(profile, accessToken, wallet, rentalAddress) {
 
         try {
             const res = await axios.post(`${API_URL}/bittrex/createSellOrder`, body, config)
-            console.log(res.data)
                 return res.data.result.uuid
         } catch (error) {
             console.log('error ---', error)
@@ -130,6 +130,18 @@ module.exports = async function(profile, accessToken, wallet, rentalAddress) {
 
     const updateOrder = async (orderUuid, market, quantity, rate) => {
         rate = await checkMarketPrice(rate);
+
+        //check to see if order has been partially sold.
+        const order = await getOrder(orderUuid)
+        console.log({order})
+
+        // if partially filled remove for rate - already acounter for in totalSent
+        const amountSold = Number((order.Quantity - order.QuantityRemaining).toFixed(8))
+        BtcFromsPartialTrades = Number((order.Price - order.CommissionPaid).toFixed(8))
+
+        console.log({BtcFromsPartialTrades})
+
+        quantity -= amountSold;
 
         let body = {
             orderUuid,
@@ -143,7 +155,6 @@ module.exports = async function(profile, accessToken, wallet, rentalAddress) {
 
         try {
             const res = await axios.post(`${API_URL}/bittrex/updateOrder`, body, config)
-            console.log(res)
             return res.data.result.uuid
         } catch (error) {
             console.log('updateOrder ---', error)
@@ -191,6 +202,20 @@ module.exports = async function(profile, accessToken, wallet, rentalAddress) {
 
         } catch (error) {
             console.log('ERR; getSalesHistory ----', error)
+        }
+    }
+
+    const getOrder = async (orderUuid) => {
+        try {
+            const res = await axios.get(`${API_URL}/bittrex/openOrders`, config)
+
+            const openOrders = res.data;
+
+            const order = openOrders.find(order => order.OrderUuid === orderUuid)
+
+            return order;
+        } catch (error) {
+            console.log('ERR; getOpenOrders ----', error)
         }
     }
 
@@ -300,7 +325,7 @@ module.exports = async function(profile, accessToken, wallet, rentalAddress) {
     const checkMarketPrice = async (offerPrice) => {
         try {
             const res = await axios.get('https://api.bittrex.com/api/v1.1/public/getticker?market=BTC-FLO')
-            let marketPrice = res.data.result.Ask
+            let marketPrice = res.data.result.Bid
 
             console.log('checking market price', {offerPrice, marketPrice}, 'offerPrice < marketPrice:', (offerPrice < marketPrice))
             if(offerPrice < marketPrice){
@@ -347,6 +372,7 @@ module.exports = async function(profile, accessToken, wallet, rentalAddress) {
 
     }
 
+    
     // ------------  START -------------- 
     let {
         address,
@@ -358,7 +384,7 @@ module.exports = async function(profile, accessToken, wallet, rentalAddress) {
         _id,
         CostOfRentalBtc
     } = profile
-    
+
     let userBTCAddress = address.btcAddress;
     CostOfRentalBTC = CostOfRentalBtc
 
@@ -469,7 +495,7 @@ module.exports = async function(profile, accessToken, wallet, rentalAddress) {
                             )
     
                         // bittrex needs 150 confirmations 
-                        if(confirmations > 150){
+                        if(confirmations => 150){
                             if(isUpdate){
 
                                 console.log(
@@ -501,17 +527,16 @@ module.exports = async function(profile, accessToken, wallet, rentalAddress) {
                             if(orderReceiptID){
                                 
                                 const res = await updateOrder(orderReceiptID, token, totalSent, OfferPriceBtc)
-
-                                checkOrderStatus()
                                 orderReceiptID = res;
+                                checkOrderStatus()
                                 bittrexTX=null;
                                 console.log('updateOrder ---', {res, orderReceiptID})
                                 return BtcFromTrades =  await getSalesHistory(token, orderReceiptID);
                             } else {
                                 const res = await createSellOrder(token, totalSent, OfferPriceBtc)
 
-                                checkOrderStatus()
                                 orderReceiptID = res
+                                checkOrderStatus()
                                 bittrexTX=null;
                                 console.log('createSellOrder ---', {res, orderReceiptID})
                                 return BtcFromTrades = await getSalesHistory(token, orderReceiptID);
@@ -590,7 +615,7 @@ module.exports = async function(profile, accessToken, wallet, rentalAddress) {
                 if(BtcFromTrades){
                     console.log("CLOSED")
 
-
+                    BtcFromTrades += BtcFromsPartialTrades;
                     PriceBtcUsd = await getCoinbaseBTCUSD();
                     CostOfRentalUsd = CostOfRentalBTC * PriceBtcUsd
                     
@@ -668,7 +693,7 @@ module.exports = async function(profile, accessToken, wallet, rentalAddress) {
 
                 console.log({blockCount})
 
-                if(((blocks + 3) < blockCount)){
+                if(((blocks + 3) <= blockCount)){
                     console.log('starting rental again.')
                     this.clearInterval(checkBlock)
                     return rent(profile)
