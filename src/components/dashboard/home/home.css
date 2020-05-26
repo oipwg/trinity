@@ -40,6 +40,7 @@ main {
 }
 
 .card.mining-operation ::-webkit-scrollbar {
+  -webkit-appearance: none;
   width: 10px;
 }
 
@@ -176,8 +177,8 @@ main {
           justify-content: space-between;
   position: absolute;
   right: 100px;
-  top: 10px;
-  width: 92px;
+  top: 15px;
+  width: 100px;
 }
 
 .automatic-renting-content {
@@ -551,6 +552,9 @@ main {
         -ms-flex-align: center;
             align-items: center;
   }
+  .card.mining-operation .table-container {
+    width: 100%;
+  }
   .card.mining-operation .header-container {
     -webkit-box-orient: vertical;
     -webkit-box-direction: normal;
@@ -564,6 +568,10 @@ main {
     margin: 0;
     padding: 0;
     margin-top: 2.5rem;
+  }
+  .renting-light-container {
+    top: -15px;
+    right: 25px;
   }
   .automatic-renting-content {
     margin: 1rem;
