@@ -8,23 +8,26 @@ import {isEqual} from 'lodash'
 const socket = new WebSocket( WEB_SOCKET_URL );
 
 const MiningOperations = (props) => {
-    
-    socket.onopen = (e) => {
-        socket.send('Hello Server!');
-    };
+    useEffect(() => {
+        socket.onopen = (e) => {
+            socket.send('Hello Server!');
+        };
+        
+        socket.onclose = (e) => {
+            socket.send('Client socket closed')
+        }
+        socket.closing = (e) => {
+            socket.send('Client socket closing')
+        }
+        socket.addEventListener('error', function (event) {
+            console.log('WebSocket error: ', event);
+        });
+    }, []);
+   
     socket.onmessage = (e) => {
         let message = JSON.parse(e.data)
         processReturnData(message)
     }
-    socket.onclose = (e) => {
-        socket.send('Client socket closed')
-    }
-    socket.closing = (e) => {
-        socket.send('Client socket closing')
-    }
-    socket.addEventListener('error', function (event) {
-        console.log('WebSocket error: ', event);
-    });
 
 
     const [err, setError] = useState({autoRent: false, autoTrade: false})
@@ -413,8 +416,8 @@ const MiningOperations = (props) => {
                 {/* AUTO RENTING CONTAINER */}
                 <div className="automatic-renting-container">
                     <span className="renting-light-container">
-                        <p>Renting</p>
-                        <svg viewBox="0 0 32 32" width="25" height="25">
+                        <p>RENTING</p>
+                        <svg viewBox="0 0 32 32" width="22" height="22">
                         <defs>
                             <radialGradient id="radial-gradient" cx="16" cy="16" r="16" gradientUnits="userSpaceOnUse">
                             <stop offset="0" stopColor="#abff00"/>

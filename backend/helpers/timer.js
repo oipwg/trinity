@@ -70,6 +70,7 @@ class Timer {
                 limit: 100
             };
             let res = await this.provider.getTransactions(params)
+            console.log('res:', res)
             let transactions = res.data.transactions;
             return this.getCostOfRental(transactions)
         } catch(e) {
@@ -85,7 +86,6 @@ class Timer {
                 let payout = await on(this.req, address)
                 console.log('payout:', payout)
                 emitter.emit('message', JSON.stringify({
-                    autoRent: false,
                     message: 'Auto trading is starting...'
                 }))
                 
@@ -102,14 +102,13 @@ class Timer {
                     console.log('CostOfRentalBtc:', CostOfRentalBtc)     
                     
                     emitter.emit('message', JSON.stringify({
-                        autoRent: false,
                         db: {CostOfRentalBtc: Math.abs(CostOfRentalBtc).toFixed(8)}
                     }))
                 } catch(e) {
                     console.log(e)
                 }
             },5 * 60 *  1000 )
-        },50 * 60 * 1000)
+        },this.duration * 55 * 60 * 1000)
     }
 }
 
