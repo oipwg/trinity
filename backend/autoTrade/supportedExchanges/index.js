@@ -495,7 +495,7 @@ module.exports = async function(profile, accessToken, wallet, rentalAddress) {
                             )
     
                         // bittrex needs 150 confirmations 
-                        if(confirmations => 150){
+                        if(confirmations >= 150){
                             if(isUpdate){
 
                                 console.log(
