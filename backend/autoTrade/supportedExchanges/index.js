@@ -495,7 +495,7 @@ module.exports = async function(profile, accessToken, wallet, rentalAddress) {
                             )
     
                         // bittrex needs 150 confirmations 
-                        if(confirmations >= 150){
+                        if(confirmations > 150){
                             if(isUpdate){
 
                                 console.log(
@@ -610,7 +610,7 @@ module.exports = async function(profile, accessToken, wallet, rentalAddress) {
                     return;
                 }
 
-                const BtcFromTrades = await getSalesHistory(token, orderReceiptID)
+                let BtcFromTrades = await getSalesHistory(token, orderReceiptID)
 
                 if(BtcFromTrades){
                     console.log("CLOSED")
