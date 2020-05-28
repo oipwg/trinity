@@ -11,6 +11,17 @@ wss.on('connection', ws => {
   });
 });
 
+const setUpDate = () => {
+	let date = new Date()
+	return date.getFullYear() + "-" +
+		   (date.getMonth() + 1) + "-" +
+		   date.getDate() + " " +
+		   date.getHours() + ":" +
+		   date.getMinutes() + ":" +
+		   date.getSeconds()
+}
+
+
 /**
  * Class to start a timer to gather data at end of rental
  */
@@ -29,6 +40,18 @@ class Timer {
         this.req = req
         this.ids = settings.rentalId
     }
+
+    // Formated Date string
+    timestamp() {
+		let date = new Date()
+	    return date.getFullYear() + "-" +
+		   (date.getMonth() + 1) + "-" +
+		   date.getDate() + " " +
+		   date.getHours() + ":" +
+		   date.getMinutes() + ":" +
+		   date.getSeconds()
+    }
+    
     /**
      * @property {Function} getProfileAddress Get current profile address being used
      * @returns {String} publicAddress 
@@ -70,11 +93,10 @@ class Timer {
                 limit: 100
             };
             let res = await this.provider.getTransactions(params)
-            console.log('res:', res)
             let transactions = res.data.transactions;
             return this.getCostOfRental(transactions)
         } catch(e) {
-            console.log('Error during getTransactions timer.js: ',e)
+            console.log(this.timestamp(), ' Error during getTransactions timer.js: ',e)
         }
     }
 
@@ -82,15 +104,17 @@ class Timer {
     setTimer() {
         setTimeout(async () => {
             try {
+                // console.log('this.provider constructor', this.provider.constructor.name)
+     
                 let address = await this.getProviderAddress()
                 let payout = await on(this.req, address)
-                console.log('payout:', payout)
+                console.log(this.timestamp(), ' payout:', payout)
                 emitter.emit('message', JSON.stringify({
                     message: 'Auto trading is starting...'
                 }))
                 
             } catch(e) {
-                console.log('ERROR', e)
+                console.log(this.timestamp(), ' ERROR', e)
                 emitter.emit('message', JSON.stringify({
                     autoRent: false,
                     message: e
@@ -99,7 +123,7 @@ class Timer {
             setInterval(async ()=> {
                 try{
                     let CostOfRentalBtc = await this.getTransactions()
-                    console.log('CostOfRentalBtc:', CostOfRentalBtc)     
+                    console.log(this.timestamp(), ' CostOfRentalBtc:', CostOfRentalBtc)     
                     
                     emitter.emit('message', JSON.stringify({
                         db: {CostOfRentalBtc: Math.abs(CostOfRentalBtc).toFixed(8)}
@@ -107,8 +131,9 @@ class Timer {
                 } catch(e) {
                     console.log(e)
                 }
-            },5 * 60 *  1000 )
+            },5 * 60 * 1000 )
         },this.duration * 55 * 60 * 1000)
+
     }
 }
 
