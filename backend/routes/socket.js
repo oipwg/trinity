@@ -9,7 +9,7 @@ const wss = new WebSocket.Server({ port: 3031 });
  *  @event module
 */
 function connect() {
-    wss.once('connection', (ws) => {
+    wss.on('connection', (ws) => {
         let msg = JSON.stringify({ message: 'Cool Bean Socket from server started' })
         ws.send(msg)
         // wss.clients.forEach((client)=>{

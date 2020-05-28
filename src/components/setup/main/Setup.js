@@ -130,6 +130,7 @@ const Setup = props => {
     }
 
     function set_pool_values(e) {
+        index.current = 0
         e.preventDefault();
         const form = document.getElementsByClassName('wizard-form')[0]
         const form_inputs = form.elements
@@ -259,6 +260,7 @@ const Setup = props => {
 
     let signInData = []
     function process_returned_data(data) {
+        console.log('data:', data)
         if (data.provider === "Bittrex") {
             props.dispatch(addBittrex({...data}))
   
@@ -285,15 +287,19 @@ const Setup = props => {
                         responseData.rental_provider = value
                 }
             }
-            // If index is greater than 0 then it's return data from signIn or new page
+            // If index is greater than 0 then it's return data from signIn or new page from auto_setup_provider only
             if(index.current) {
+                console.log('IF HIT')
                 signInData.push(responseData)
+                console.log('signInData: BEFORE', signInData, index.current)
                 // Update providers when all have been pushed
                 if (index.current === signInData.length) {
+                    
+                    console.log('signInData: IF', signInData)
                     props.dispatch( addProvider(signInData) )
                 }
-                
             } else {
+                console.log('ELSE HIT')
                 // Top exsisting data / object, and response object that came back merged together
                 let allData = {...userdata[0], ...responseData}
                 // console.log('responseData:', responseData)
@@ -408,9 +414,8 @@ const Setup = props => {
     }
 
     const showMessage = (field, i) => {
-        console.log('field:', field)
+
         let data = userdata[i]
-        console.log('data:', data)
         switch ( field ) {
             case 'provider':
                 if (data.err === field && data.success) {
