@@ -56,6 +56,16 @@ module.exports = async function(profile, accessToken, wallet, rentalAddress) {
         },
     };
 
+    const timestamp = () => {
+        let date = new Date()
+        return date.getFullYear() + "-" +
+               (date.getMonth() + 1) + "-" +
+               date.getDate() + " " +
+               date.getHours() + ":" +
+               date.getMinutes() + ":" +
+               date.getSeconds()
+    }
+
     // formulas
     const getTotalQty = (ReceivedQty, FeeFloTx1) => {
         return Number((ReceivedQty + FeeFloTx1).toFixed(8));
@@ -389,7 +399,7 @@ module.exports = async function(profile, accessToken, wallet, rentalAddress) {
     CostOfRentalBTC = CostOfRentalBtc
 
     address = address.publicAddress;
-    console.log({address, userBTCAddress, rentalAddress})
+    console.log(timestamp(), 'START AUTO TRADE', {address, userBTCAddress, rentalAddress})
 
     if(!address){
         console.log('no address')
@@ -613,7 +623,7 @@ module.exports = async function(profile, accessToken, wallet, rentalAddress) {
                 let BtcFromTrades = await getSalesHistory(token, orderReceiptID)
 
                 if(BtcFromTrades){
-                    console.log("CLOSED")
+                    console.log(timestamp(), "CLOSED")
 
                     BtcFromTrades += BtcFromsPartialTrades;
                     PriceBtcUsd = await getCoinbaseBTCUSD();
@@ -716,7 +726,7 @@ module.exports = async function(profile, accessToken, wallet, rentalAddress) {
 
 
             const clearAllIntervals = (timer, update, orderStatus) => {
-                    console.log('--- TRADE END ---')
+                    console.log(timestamp(), '--- TRADE END ---')
                     this.clearInterval(timer)
                     this.clearInterval(update)
                     this.clearInterval(orderStatus)
