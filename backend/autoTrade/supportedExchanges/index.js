@@ -41,11 +41,11 @@ let BtcFromsPartialTrades = 0;
 module.exports = async function(profile, accessToken, wallet, rentalAddress) {
 
     if(!accessToken){
-        console.log('no access token');
+        console.log(timestamp(),'no access token');
         return 'ERROR; No Access Token'
     }
     if(!profile){
-        console.log('no profile');
+        console.log(timestamp(),'no profile');
         return 'ERROR; Profile Not Found'
     }
 
@@ -93,7 +93,7 @@ module.exports = async function(profile, accessToken, wallet, rentalAddress) {
             return res.data.bittrexAddresses[token].Address
 
         } catch (error) {
-            console.log('getBittrexAddress Failed ------- ', error)
+            console.log(timestamp(),'getBittrexAddress Failed ------- ', error)
         }
     }
 
@@ -102,19 +102,19 @@ module.exports = async function(profile, accessToken, wallet, rentalAddress) {
             let res = await axios.get(`https://livenet.flocha.in/api/addr/${address}`)
 
             if(res.status != 200){
-                return console.log(res)
+                return console.log(timestamp(),res)
             }
 
             return res.data    
         } catch (error) {
-            console.log('ERR; getBalanceFromAddress  -------', error)
+            console.log(timestamp(),'ERR; getBalanceFromAddress  -------', error)
         }
     }
 
     const createSellOrder = async (market, quantity, rate) => {
 
         if((!(market && quantity && rate))){
-            return console.log('Failed', {market, quantity, rate})
+            return console.log(timestamp(),'Failed', {market, quantity, rate})
         }
 
         rate = await checkMarketPrice(rate);
@@ -126,7 +126,7 @@ module.exports = async function(profile, accessToken, wallet, rentalAddress) {
             rate,
         }
         
-        console.log('running createSellOrder -------', body)
+        console.log(timestamp(),'running createSellOrder -------', body)
 
 
         try {
@@ -136,7 +136,7 @@ module.exports = async function(profile, accessToken, wallet, rentalAddress) {
                 return res.data.result.uuid
             } else return console.log(timestamp(),res.data)
         } catch (error) {
-            console.log('error ---', error)
+            console.log(timestamp(),'error ---', error)
         }
         
     }
@@ -170,12 +170,12 @@ module.exports = async function(profile, accessToken, wallet, rentalAddress) {
             const res = await axios.post(`${API_URL}/bittrex/updateOrder`, body, config)
             return res.data.result.uuid
         } catch (error) {
-            console.log('updateOrder ---', error)
+            console.log(timestamp(),'updateOrder ---', error)
         }
     }
 
     const getFees = async transactions => {
-        console.log('getting fees...')
+        console.log(timestamp(),'getting fees...')
         let total = 0;
 
         if(!transactions){
