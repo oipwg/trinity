@@ -5,30 +5,36 @@ import ToggleSwitch from '../../../helpers/toggle/ToggleSwitch';
 import { connect } from 'react-redux';
 import MarketsNPools from '../../../settings/prefrences/merc/MercMode'
 import {isEqual} from 'lodash'
-const socket = new WebSocket( WEB_SOCKET_URL );
+let socket = new WebSocket( WEB_SOCKET_URL );
 
 const MiningOperations = (props) => {
     useEffect(() => {
-        socket.onopen = (e) => {
-            socket.send('Hello Server!');
-        };
-        
-        socket.onclose = (e) => {
-            socket.send('Client socket closed')
+      
+        function connect() {
+            socket.onclose = (e) => {
+                connect()
+                console.log('onClose:')
+            }
+
+            socket.onopen = (e) => {
+                socket.send(JSON.stringify({action: 'connect'}));
+            };
         }
-        socket.closing = (e) => {
-            socket.send('Client socket closing')
-        }
-        socket.addEventListener('error', function (event) {
-            console.log('WebSocket error: ', event);
-        });
-    }, []);
+    connect()
+}, []);
    
-    socket.onmessage = (e) => {
+socket.onmessage = (e) => {
+    if (e.data === '__ping__') {
+        console.log('Still alive')
+        socket.send(JSON.stringify({keepAlive: true}));
+    }else {
         let message = JSON.parse(e.data)
         processReturnData(message)
     }
-
+}
+    
+       
+   
 
     const [err, setError] = useState({autoRent: false, autoTrade: false})
     const [miningOperations, setOperations] = useState({
@@ -200,7 +206,7 @@ const MiningOperations = (props) => {
         }).then((response) => {
             return response.json();
         }).then((data) => {
-            processReturnData(data)
+            // processReturnData(data)
         }).catch((err)=> {
               console.log(err)
         });
@@ -339,7 +345,6 @@ const MiningOperations = (props) => {
                                 </tr>
                             </thead>
                             <tbody>
-                                {console.log(miningOperations.message)}
                                 {
                                     miningOperations.message.map((message, i)=> {
                                         return (
