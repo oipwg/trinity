@@ -22,15 +22,32 @@ function connect() {
             keepAlive = setTimeout(function () {
             
                 ping();
-            }, 20000);
+            }, 30000);
         }
 
+            // let msg = JSON.stringify({ message: 'Cool Bean Socket from server started' })
+            // ws.send(msg)
+        
         ws.on('close', ()=> {
             console.log('Socket closed, and will reconnect')
         })
-
+        ws.on('ping', (message)=> {
+            console.log('SERVER PING', message)
+        })
         ws.on('message', ( message )=> {
-            console.log('SERVER', message)
+            console.log('message: SERVER', message)
+            let obj = JSON.parse(message);
+            console.log('obj:', obj)
+
+            if (obj.keepAlive !== undefined) {
+                pong();
+            }
+            if (obj.action === 'connect') {
+                console.log('Server - joining', obj);
+                //start pinging to keep alive
+                ping();
+            }
+
         })
     });
 }
