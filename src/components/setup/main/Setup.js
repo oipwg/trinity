@@ -1,10 +1,12 @@
 // @ts-nocheck
 import React, { useState, useEffect, useRef } from 'react';
-import { API_URL } from '../../../../config.js';
+import { API_URL, WEB_SOCKET_URL } from '../../../../config.js';
 import { connect } from 'react-redux';
 import { addProvider, addBittrex } from '../../../actions/setupActions.js';
 import Navigation from '../nav/Navigation';
 import './setup.css';
+let socket = new WebSocket( WEB_SOCKET_URL );
+
 
 
 const Setup = props => {
@@ -13,7 +15,15 @@ const Setup = props => {
     const userId = useRef('');
     const index = useRef(0);
     const merge = ( ...objects ) => ( [...objects] );
-
+    socket.onopen = (e) => {
+        socket.send(JSON.stringify({action: 'connect'}));
+    };
+    socket.onmessage = (e) => {
+        if (e.data === '__ping__') {
+            console.log('Still alive')
+            socket.send(JSON.stringify({keepAlive: true}));
+        }
+    }
     // Right before refreshes saves current state to local stroage
     window.onunload = function(event) {
         if(bittrexData.credentials) {
@@ -289,20 +299,15 @@ const Setup = props => {
             }
             // If index is greater than 0 then it's return data from signIn or new page from auto_setup_provider only
             if(index.current) {
-                console.log('IF HIT')
                 signInData.push(responseData)
-                console.log('signInData: BEFORE', signInData, index.current)
+
                 // Update providers when all have been pushed
                 if (index.current === signInData.length) {
-                    
-                    console.log('signInData: IF', signInData)
                     props.dispatch( addProvider(signInData) )
                 }
             } else {
-                console.log('ELSE HIT')
                 // Top exsisting data / object, and response object that came back merged together
                 let allData = {...userdata[0], ...responseData}
-                // console.log('responseData:', responseData)
                 if ( userdata.length > 1) {
                     props.dispatch(addProvider( merge(allData, userdata[1]) ))
                 } else {
@@ -788,8 +793,6 @@ const Pools = (props) => {
 
 
 const mapStateToProps = state => {
-console.log('state:', state)
-
     return {
         user: state.auth.user,
         userData: state.userData,

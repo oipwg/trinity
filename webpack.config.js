@@ -5,7 +5,6 @@ const HtmlWebpackPlugin = require('html-webpack-plugin');
 
 module.exports = (env) => {
     const isProduction = env === 'production';
-    console.log('env:', env)
     return  {
         entry: './src/index.js',
         output: {
