@@ -11,9 +11,9 @@ wss.on('connection', ws => {
   });
 });
 
-const setUpDate = () => {
+const timestamp = () => {
 	let date = new Date()
-	return date.getFullYear() + "-" +
+	    return date.getFullYear() + "-" +
 		   (date.getMonth() + 1) + "-" +
 		   date.getDate() + " " +
 		   date.getHours() + ":" +
@@ -92,11 +92,12 @@ class Timer {
                 start: 0,
                 limit: 100
             };
+          
             let res = await this.provider.getTransactions(params)
             let transactions = res.data.transactions;
             return this.getCostOfRental(transactions)
         } catch(e) {
-            console.log(this.timestamp(), ' Error during getTransactions timer.js: ',e)
+            console.log(timestamp(), ' Error during getTransactions timer.js: ',e)
         }
     }
 
@@ -104,11 +105,10 @@ class Timer {
     setTimer() {
         setTimeout(async () => {
             try {
-                // console.log('this.provider constructor', this.provider.constructor.name)
-     
+                // return
                 let address = await this.getProviderAddress()
                 let payout = await on(this.req, address)
-                console.log(this.timestamp(), ' payout:', payout)
+                console.log(timestamp(), ' payout:', payout)
                 emitter.emit('message', JSON.stringify({
                     message: 'Auto trading is starting...'
                 }))
@@ -123,7 +123,7 @@ class Timer {
             setInterval(async ()=> {
                 try{
                     let CostOfRentalBtc = await this.getTransactions()
-                    console.log(this.timestamp(), ' CostOfRentalBtc:', CostOfRentalBtc)     
+                    console.log(timestamp(), ' CostOfRentalBtc:', CostOfRentalBtc)     
                     
                     emitter.emit('message', JSON.stringify({
                         db: {CostOfRentalBtc: Math.abs(CostOfRentalBtc).toFixed(8)}
@@ -133,6 +133,7 @@ class Timer {
                 }
             },5 * 60 * 1000 )
         },this.duration * 55 * 60 * 1000)
+    // },1000)
 
     }
 }

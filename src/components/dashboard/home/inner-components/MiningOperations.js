@@ -8,30 +8,24 @@ import {isEqual} from 'lodash'
 let socket = new WebSocket( WEB_SOCKET_URL );
 
 const MiningOperations = (props) => {
-    useEffect(() => {
-      
-        function connect() {
-            socket.onclose = (e) => {
-                connect()
-                console.log('onClose:')
-            }
 
-            socket.onopen = (e) => {
-                socket.send(JSON.stringify({action: 'connect'}));
-            };
-        }
-    connect()
-}, []);
-   
-socket.onmessage = (e) => {
-    if (e.data === '__ping__') {
-        console.log('Still alive')
-        socket.send(JSON.stringify({keepAlive: true}));
-    }else {
-        let message = JSON.parse(e.data)
-        processReturnData(message)
+    socket.onclose = (e) => {
+        console.log('onClose:')
     }
-}
+
+    socket.onopen = (e) => {
+        socket.send(JSON.stringify({action: 'connect'}));
+    };
+
+    socket.onmessage = (e) => {
+        if (e.data === '__ping__') {
+            console.log('Still alive')
+            socket.send(JSON.stringify({keepAlive: true}));
+        }else {
+            let message = JSON.parse(e.data)
+            processReturnData(message)
+        }
+    }
     
        
    

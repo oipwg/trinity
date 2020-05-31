@@ -137,16 +137,18 @@ async function processUserInput(req, res) {
         let MinPercentFromMinHashrate = rent.MinPercentFromMinHashrate
         let paymentRecieverXPub = user.wallet[token.toLowerCase()].xPrv
         let btcxPrv = user.wallet.btc.xPrv
-
+       
+       
         // Come back to have this work without token === FLO to working with RVN also
         if (MinPercentFromMinHashrate > Xpercent / 100 && token === 'FLO') {
-            return {
+            let msg = JSON.stringify({
                 update: true,
                 message: `Your pecent of the network ${Xpercent} changed to ${(MinPercentFromMinHashrate * 100.1).toFixed(2)}%, to ` +
                     `continute renting with ${Xpercent}% for the MiningRigRental market, change percentage and switch renting on again.`,
                 Xpercent: (MinPercentFromMinHashrate * 100.1).toFixed(2),
                 autoRent: false
-            }
+            })
+            return emitter.emit('message', msg);
         }
 
         // If user rents for first time with no xPub will save xPub ( paymentRecieverXPub ) to the DB
@@ -199,7 +201,7 @@ async function processUserInput(req, res) {
         options.MinPercent = rent.MinPercentFromMinHashrate
         options.emitter = emitter
         // options.duration = token == "FLO" ? 24 : 3
-        options.duration = 3
+        options.duration = 24
         options.newRent = Rent
         options.difficulty = rent.difficulty
         options.hashrate = rent.Rent
@@ -258,7 +260,8 @@ const processData = async (req, res) => {
 
             new Timer(timerData, req).setTimer()
             let message = JSON.stringify(msg)
-            res.write(message)
+            console.log('message:', msg.db)
+            res.status(200).send({db: msg.db})
 
         } catch (err) {
             console.log('err:', err)
