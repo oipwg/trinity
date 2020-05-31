@@ -218,9 +218,7 @@ const processData = async (req, res) => {
         // From user input this file 
         var userInput = await processUserInput(req, res).then(data => data).catch(err => err)
         console.log('processUserInput ', userInput)
-        if (userInput['update']) {
-            return res.status(200).json(userInput)
-        }
+
         // Rent, setup provider, update provider
         controller(userInput);
     } catch (err) {
