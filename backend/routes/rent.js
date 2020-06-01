@@ -141,14 +141,17 @@ async function processUserInput(req, res) {
        
         // Come back to have this work without token === FLO to working with RVN also
         if (MinPercentFromMinHashrate > Xpercent / 100 && token === 'FLO') {
-            let msg = JSON.stringify({
+           console.log( 'XPERCENT SENDING ALSO')
+            let msg = {
                 update: true,
                 message: `Your pecent of the network ${Xpercent} changed to ${(MinPercentFromMinHashrate * 100.1).toFixed(2)}%, to ` +
                     `continute renting with ${Xpercent}% for the MiningRigRental market, change percentage and switch renting on again.`,
                 Xpercent: (MinPercentFromMinHashrate * 100.1).toFixed(2),
                 autoRent: false
-            })
-            return emitter.emit('message', msg);
+            }
+            emitter.emit('message', JSON.stringify(msg));
+            return msg
+            
         }
 
         // If user rents for first time with no xPub will save xPub ( paymentRecieverXPub ) to the DB
@@ -218,7 +221,9 @@ const processData = async (req, res) => {
         // From user input this file 
         var userInput = await processUserInput(req, res).then(data => data).catch(err => err)
         console.log('processUserInput ', userInput)
-
+        if (userInput['update']) {
+            return res.status(200).json(userInput)
+        }
         // Rent, setup provider, update provider
         controller(userInput);
     } catch (err) {

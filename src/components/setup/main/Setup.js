@@ -15,9 +15,11 @@ const Setup = props => {
     const userId = useRef('');
     const index = useRef(0);
     const merge = ( ...objects ) => ( [...objects] );
+
     socket.onopen = (e) => {
         socket.send(JSON.stringify({action: 'connect'}));
     };
+
     socket.onmessage = (e) => {
         if (e.data === '__ping__') {
             console.log('Still alive')

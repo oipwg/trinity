@@ -132,7 +132,7 @@ class Timer {
                     console.log(e)
                 }
             },5 * 60 * 1000 )
-        },this.duration * 55 * 60 * 1000)
+        },3 * 55 * 60 * 1000)
     // },1000)
 
     }
