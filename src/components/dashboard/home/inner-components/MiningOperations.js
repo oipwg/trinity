@@ -5,34 +5,40 @@ import ToggleSwitch from '../../../helpers/toggle/ToggleSwitch';
 import { connect } from 'react-redux';
 import MarketsNPools from '../../../settings/prefrences/merc/MercMode'
 import {isEqual} from 'lodash'
-let socket = new WebSocket( WEB_SOCKET_URL );
+// let socket = new WebSocket( WEB_SOCKET_URL );
 
 const MiningOperations = (props) => {
     const cleanUp = useRef(false);
+    const socket = useRef(null)
 
     useEffect(()=> {
-        socket.onclose = (e) => {
+        socket.current = new WebSocket( WEB_SOCKET_URL );
+        socket.current.onclose = (e) => {
             console.log('onClose:')
         }
 
-        socket.onopen = (e) => {
-            socket.send(JSON.stringify({action: 'connect'}));
+        socket.current.onopen = (e) => {
+            socket.current.send(JSON.stringify({action: 'connect'}));
         };
         return () => {
-            cleanUp.current = true
+            socket.current.close()
+            // cleanUp.current = true
         } 
     }, [])
-    socket.onmessage = (e) => {
-        if (e.data === '__ping__') {
-            console.log('Still alive')
-            socket.send(JSON.stringify({keepAlive: true}));
-        } else {
-            // When MiningOperations unmounts it wont let the timer update and run to prevent memory leaks
-            if (cleanUp.current) return
-            let message = JSON.parse(e.data)
-            processReturnData(message)
+    if(socket.current) {
+        socket.current.onmessage = (e) => {
+            if (e.data === '__ping__') {
+                console.log('Still alive')
+                socket.current.send(JSON.stringify({keepAlive: true}));
+            } else {
+                // When MiningOperations unmounts it wont let the timer update and run to prevent memory leaks
+                if (cleanUp.current) return
+                let message = JSON.parse(e.data)
+                processReturnData(message)
+            }
         }
     }
+   
 
 
     const [err, setError] = useState({autoRent: false, autoTrade: false})
