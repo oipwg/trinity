@@ -524,6 +524,7 @@ const MiningOperations = (props) => {
 
 
 const mapStateToProps = state => {
+    console.log(state)
     return {
         user: state.auth.user,
         address: state.account.wallet
