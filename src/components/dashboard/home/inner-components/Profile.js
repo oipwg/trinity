@@ -8,7 +8,8 @@ import MiningOperations from './MiningOperations';
 
 const NewProfile = (props) => {
 
-    return (<Modal
+    return (
+            <Modal
                 handleClick={props.handleClick}
                 classname={'new-profile-modal'}
                 title={'Create new profile'}
@@ -42,7 +43,7 @@ const NewProfile = (props) => {
                 submitType={'submit'}
                 sendButtonTitle={'Save'}
                 handleSubmit={props.handleSubmit}
-    />)
+            />)
 }
 
 
@@ -64,6 +65,12 @@ const Profile = (props) => {
 
     useEffect(() => {
         if(profiles) {
+
+            if(profiles.length && value === '') {
+
+                setSelectedProfile(profiles[0])
+                setValue(profiles[0].name)
+            }
             let profile = profiles.find(obj => { return obj.name == value})
             setSelectedProfile(profile)
 
@@ -82,6 +89,7 @@ const Profile = (props) => {
             setFocus(!focus)
         }
     })
+
 
     useEffect(() => {
         if(profileModal){
@@ -154,6 +162,7 @@ const Profile = (props) => {
                     error={error}
                     />}
         <div className="card profile">
+            {console.log(selectedProfile)}
             <div className="card-body profile-container">
             <div style={{marginBottom: '1rem'}}>
             <label htmlFor="profile-select" >Active Profile:</label>
@@ -200,6 +209,7 @@ const Profile = (props) => {
 }
 
 const mapStateToProps = state => {
+    console.log('state:', state)
     return {
         profiles: state.profiles.profileList
     };
