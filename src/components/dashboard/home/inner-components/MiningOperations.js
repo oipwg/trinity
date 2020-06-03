@@ -206,15 +206,14 @@ const MiningOperations = (props) => {
                 'Content-Type': 'application/json',
                 'x-auth-token': localStorage.getItem('token')
             },
-            body: JSON.stringify(options),
+            body: JSON.stringify(options)
         }).then((response) => {
             return response.json();
         }).then((data) => {
-            // processReturnData(data)
+            console.log('data:', data)
         }).catch((err)=> {
               console.log(err)
         });
-
     }
 
     // const trade = (profileID) => {

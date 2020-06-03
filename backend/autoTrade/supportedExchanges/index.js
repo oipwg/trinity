@@ -376,13 +376,10 @@ module.exports = async function(profile, accessToken, wallet, rentalAddress) {
             body,
             config
         ).then((response) => {
-            return response.json();
-        }).then((data) => {
-            console.log(timestamp(),{data})
+            console.log(timestamp(),response)
         }).catch((err)=> {
             console.log(timestamp(),err)
-        });
-
+        })
     }
 
     

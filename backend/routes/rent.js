@@ -80,7 +80,6 @@ async function processUserInput(req, res) {
             }
             emitter.emit('message', JSON.stringify(msg));
             return msg
-            
         }
 
         // If user rents for first time with no xPub will save xPub ( paymentRecieverXPub ) to the DB
@@ -105,10 +104,7 @@ async function processUserInput(req, res) {
                     let usedIndexes = user.indexes
                     let newAddress = getAddress(0, paymentRecieverXPub, token, usedIndexes)
                     let btcAddress = getAddress(0, btcxPrv, 'bitcoin', usedIndexes)
-                    console.log('btcAddress:', btcAddress)
-                    console.log('newAddress.address', newAddress.address)
 
-                    
                     profile.address.publicAddress = newAddress.address
                     profile.address.btcAddress = btcAddress.address
                           
@@ -141,8 +137,8 @@ async function processUserInput(req, res) {
         options.rentType = 'Manual'
         return options
     } catch (e) {
-        console.log('Catch error rent.js line 182: .' + e )
-        return { err: 'Catch error rent.js line 182: .' + e }
+        console.log('Catch error rent.js line 140: .' + e )
+        return { err: 'Catch error rent.js line 140: .' + e }
     }
 }
 
@@ -184,7 +180,7 @@ const processData = async (req, res) => {
         // Send message back to client 
         let data = JSON.stringify(msg);
         emitter.emit('message', data);
-        // console.log('MSG: ', msg)
+
         try {
             let timerData = msg;
             timerData.profiles = user.profiles
@@ -201,7 +197,6 @@ const processData = async (req, res) => {
             let message = JSON.stringify({message: err.message, autoRent: false })
             res.write(message)
         }
-        
         return user.save()
     })
 }
