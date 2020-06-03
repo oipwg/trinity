@@ -116,6 +116,10 @@ main {
   border: 1px solid #ced4da;
 }
 
+#dailyBudget {
+  color: blue;
+}
+
 .mining-operation-inputs {
   display: -webkit-box;
   display: -ms-flexbox;

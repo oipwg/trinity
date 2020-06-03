@@ -54,3 +54,5 @@ export const PROFILE_GET = 'PROFILE_GET'
 export const ADD_PROVIDER = 'ADD_PROVIDER';
 export const PROVIDER_DATA = 'PROVIDER_DATA';
 export const BITTREX_DATA = 'BITTREX_DATA';
+// MiningOperations
+export const DAILY_BUDGET = 'DAILY_BUDGET';

@@ -1,14 +1,13 @@
-// @ts-nocheck
+
 import React, { useState, useEffect, useRef } from 'react';
 import { API_URL, WEB_SOCKET_URL } from '../../../../../config.js';
+import { updateDailyBudget } from '../../../../actions/miningOperationsActions.js';
 import ToggleSwitch from '../../../helpers/toggle/ToggleSwitch';
 import { connect } from 'react-redux';
 import MarketsNPools from '../../../settings/prefrences/merc/MercMode'
-import {isEqual} from 'lodash'
-// let socket = new WebSocket( WEB_SOCKET_URL );
+import { isEqual } from 'lodash'
 
 const MiningOperations = (props) => {
-    const cleanUp = useRef(false);
     const socket = useRef(null)
 
     useEffect(()=> {
@@ -16,23 +15,23 @@ const MiningOperations = (props) => {
         socket.current.onclose = (e) => {
             console.log('onClose:')
         }
-
         socket.current.onopen = (e) => {
             socket.current.send(JSON.stringify({action: 'connect'}));
         };
+        
         return () => {
+            // When MiningOperations unmounts it wont let the timer update and run to prevent memory leaks
             socket.current.close()
-            // cleanUp.current = true
         } 
+       
     }, [])
+
     if(socket.current) {
         socket.current.onmessage = (e) => {
             if (e.data === '__ping__') {
                 console.log('Still alive')
                 socket.current.send(JSON.stringify({keepAlive: true}));
             } else {
-                // When MiningOperations unmounts it wont let the timer update and run to prevent memory leaks
-                if (cleanUp.current) return
                 let message = JSON.parse(e.data)
                 processReturnData(message)
             }
@@ -77,20 +76,12 @@ const MiningOperations = (props) => {
             } = miningOperations
 
     useEffect(() => {
+        console.log(props.dailyBudget)
         if(props.profile){
             const {
-                targetMargin,
-                profitReinvestment,
-                updateUnsold,
-                dailyBudget,
-                autoRent,
-                autoTrade,
-                token,
-                name,
-                _id
+                targetMargin, profitReinvestment, updateUnsold, dailyBudget, autoRent, autoTrade, token, name, _id
             } = props.profile
-        
-        
+
             let profile = {
                 targetMargin: targetMargin,
                 profitReinvestment: profitReinvestment,
@@ -111,13 +102,13 @@ const MiningOperations = (props) => {
             setOperations({...miningOperations, ...profile})
     
             setError('')
-
+            props.dispatch(updateDailyBudget(miningOperations))
         } else {
             setOperations({
                 targetMargin: 1,
                 profitReinvestment: 1,
                 updateUnsold: '1',
-                dailyBudget: 0,
+                dailyBudget: dailyBudget,
                 autoRent: false,
                 spot: false,
                 alwaysMineXPercent: true,
@@ -127,13 +118,14 @@ const MiningOperations = (props) => {
                 Xpercent: 15,
                 token: 'FLO',
                 message: [],
-                update: false
+                update: false,
+                CostOfRentalBtc: ''
             })
         }
     }, [props.profile, props.address])
 
     useEffect((prevProf = props.profile) => {
-
+        console.log('dailyBudget:', dailyBudget)
         let formatedState = {
             profile: {
                 autoRent: {
@@ -167,14 +159,20 @@ const MiningOperations = (props) => {
         props.updateProfile(profile)
   
         if (miningOperations.autoRent){
+            console.log('dailyBudget:', dailyBudget)
             // If update has a value of true it removes back to undefined to be updated once again on the backend
             setOperations({...miningOperations, message: [], update: false})
             rent(miningOperations)
         } 
     },[autoRent]);
 
+    useEffect(()=> {
+        console.log('props.dailyBudget', props.dailyBudget)
+        if(!props.dailyBudget) return
+        setOperations({...miningOperations, dailyBudget: props.dailyBudget})
+    },[props.dailyBudget])
+
     const processReturnData = (data) => {
-  
         let newValues = {}
         
         for (let key in data) {
@@ -182,7 +180,6 @@ const MiningOperations = (props) => {
                 newValues[key] = Number(data[key])
             } else if(key === 'message') {
                 let message = miningOperations.message.concat(data[key])
-                console.log('message:', message)
                 newValues[key] = message
             } else if (key === 'update') {
                 newValues[key] = data[key]
@@ -239,7 +236,7 @@ const MiningOperations = (props) => {
     //     });
     // }
 
-
+  
 
 
     const checkInputsAndRent = (e, slider) => {
@@ -289,10 +286,12 @@ const MiningOperations = (props) => {
         switch ( targetElem ) {
             case "targetMargin":
                 if (err.targetMargin) setError({targetMargin: false})
+                props.dispatch(updateDailyBudget({...miningOperations, targetMargin: e.target.value}))
                 setOperations({...miningOperations, targetMargin: e.target.value})
                 break;
             case "profitReinvestment":
                 if (err.profitReinvestment) setError({profitReinvestment: false})
+                props.dispatch(updateDailyBudget({...miningOperations, profitReinvestment: e.target.value}))
                 setOperations({...miningOperations, profitReinvestment: e.target.value})
                 break;
             case "updateUnsold":
@@ -325,6 +324,7 @@ const MiningOperations = (props) => {
 
     const updatePercent = e => {
         let value = e.target.value
+        props.dispatch(updateDailyBudget({...miningOperations, Xpercent: value}))
         setOperations({...miningOperations, Xpercent: value})
     }
     const showPercentInput = () => {
@@ -417,7 +417,7 @@ const MiningOperations = (props) => {
                         <label htmlFor="basic-url">Daily Budget USD</label>
                         <div className="input-group">
                             <input type="text" className="form-control" id="dailyBudget" aria-label="Daily budget"
-                            onChange={(e) => {updateInputs(e)}} value={dailyBudget}/>
+                            onChange={(e) => {updateInputs(e)}} value={miningOperations.dailyBudget}/>
                             <div className="input-group-append">
                                 <span className="daily-budget-text">Edit</span>
                             </div>
@@ -530,10 +530,10 @@ const MiningOperations = (props) => {
 
 
 const mapStateToProps = state => {
-    console.log(state)
     return {
         user: state.auth.user,
-        address: state.account.wallet
+        address: state.account.wallet,
+        dailyBudget: state.miningOperationsReducer.dailyBudget
     };
 };
 

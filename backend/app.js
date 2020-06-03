@@ -14,6 +14,7 @@ const rentRouter = require('./routes/rent');
 const userProfiles = require('./routes/userProfiles')
 const passport = require('passport');
 const autoTradeRouter = require('./routes/autoTrade')
+const dailyBudget = require('./routes/dailyBudget')
 const { NODE_ENV, MONGO_URL } = process.env;
 console.log('NODE_ENV:', NODE_ENV)
 
@@ -59,6 +60,7 @@ app.use('/bittrex', bittrexRouter);
 app.use('/profile', userProfiles);
 app.use('/rent', rentRouter);
 app.use('/auto-trade', autoTradeRouter);
+app.use('/daily-budget', dailyBudget);
 
 if(NODE_ENV === 'production') {
     app.use(express.static(path.join(__dirname, '../dist')))
