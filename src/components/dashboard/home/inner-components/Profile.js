@@ -162,7 +162,6 @@ const Profile = (props) => {
                     error={error}
                     />}
         <div className="card profile">
-            {console.log(selectedProfile)}
             <div className="card-body profile-container">
             <div style={{marginBottom: '1rem'}}>
             <label htmlFor="profile-select" >Active Profile:</label>
@@ -209,7 +208,6 @@ const Profile = (props) => {
 }
 
 const mapStateToProps = state => {
-    console.log('state:', state)
     return {
         profiles: state.profiles.profileList
     };

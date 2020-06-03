@@ -8,6 +8,7 @@ import coinbaseReducer from './coinbaseReducer';
 import bittrexReducer from './bittrexReducer';
 import profilesReducer from './profileReducer';
 import {setupReducer, login, setupBittrex } from './setupReducer';
+import { miningOperationsReducer } from './miningOperationsReducer'
 
 export default combineReducers({
     error: errorReducer,
@@ -19,5 +20,6 @@ export default combineReducers({
     profiles: profilesReducer,
     userData: setupReducer,
     login: login,
-    setupBittrex: setupBittrex
+    setupBittrex: setupBittrex,
+    miningOperationsReducer: miningOperationsReducer
 });

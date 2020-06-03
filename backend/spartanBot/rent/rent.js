@@ -13,8 +13,6 @@ module.exports = async function(options) {
         if(rental_providers.length === 0) {
             try {
                 let isDeserialzed = await spartan.deserialize()
-                console.log('isDeserialzed: rent.js 16', isDeserialzed)
-
             } catch (e) {
                 console.log('Deserialzed state failed rent.js line 19, Error: ', e)
             }

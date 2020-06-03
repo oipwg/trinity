@@ -55,5 +55,5 @@ module.exports = function(options) {
                     console.log('Error! Unable to delete Rental Provider!')
                 }
             
-        })
+       
 }
