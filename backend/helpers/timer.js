@@ -21,7 +21,6 @@ const timestamp = () => {
 		   date.getSeconds()
 }
 
-
 /**
  * Class to start a timer to gather data at end of rental
  */
@@ -105,7 +104,6 @@ class Timer {
     setTimer() {
         setTimeout(async () => {
             try {
-                // return
                 let address = await this.getProviderAddress()
                 let payout = await on(this.req, address)
                 console.log(timestamp(), ' payout:', payout)

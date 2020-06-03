@@ -17,7 +17,6 @@ exports.Rent = async (token, percent) => {
                     let Networkhashrate = hashrate / 1000000000000;  // TH/s
                     let Rent = Networkhashrate * (-percent / (-1 + percent)) // * 1000000 for MRR to MH/s
                     let MinPercentFromMinHashrate = 1000000000000 * .01 / ((difficulty * Math.pow(2, 32) / 40) + (1000000000000 * .01))
-                    console.log(Rent, MinPercentFromMinHashrate, difficulty, Networkhashrate)
                     resolve({ Rent, MinPercentFromMinHashrate, difficulty, Networkhashrate })
                 });
                 
