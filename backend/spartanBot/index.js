@@ -2,7 +2,7 @@
 // import Pools from './Pools'
 const rent = require('./rent/rent');
 const add = require('./RentalProvider/add/add');
-const dailyBudget = require('./RentalProvider/returnSpartanBot.js')
+const attachSpartanBot = require('./RentalProvider/returnSpartanBot.js')
 const clearSpartanBot = require('./RentalProvider/clearSpartanBot');
 const SpartanBot = require('spartanbot').SpartanBot;
 const spartan = new SpartanBot();
@@ -32,7 +32,7 @@ module.exports = async function(options) {
             return cleared
             break;
         case 'returnSpartanBot':
-            let data = await dailyBudget(options)
+            let data = await attachSpartanBot(options)
             return options
             break;
     }
