@@ -1,7 +1,7 @@
 require('dotenv').config();
 const express = require('express');
 const router = express.Router();
-const client = require('../spartanBot');
+const Client = require('../spartanBot');
 const EventEmitter = require('events');
 class Emitter extends EventEmitter {}
 const emitter = new Emitter();
@@ -149,6 +149,7 @@ const processData = async (req, res) => {
         if (userInput['update']) {
             return res.status(200).json(userInput)
         }
+        let client = new Client()
         // Rent, setup provider, update provider
         client.controller(userInput);
     } catch (err) {

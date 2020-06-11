@@ -11,6 +11,7 @@ let socket = new WebSocket( WEB_SOCKET_URL );
 
 const Setup = props => {
     const userdata = props.userData
+    const [SpartanBot, setSpartanBot] = useState({})
     const bittrexData = props.setupBittrex
     const userId = useRef('');
     const index = useRef(0);
@@ -39,7 +40,7 @@ const Setup = props => {
         } 
     };
 
-    const auto_setup_provider = (providers) => {
+    const auto_setup_provider = (providers, SpartanBot) => {
         if(providers.length > 0 && !userdata.length) {
     
             index.current = providers.length
@@ -74,9 +75,10 @@ const Setup = props => {
             select_provider_option( userdata )
         }
         if (props.user) {
+            console.log(props.SpartanBot)
             let id = props.user._id || props.user.id
             userId.current = id
-            auto_setup_provider(props.login)
+            auto_setup_provider(props.login, props.SpartanBot)
             auto_setup_bittrex()
         }
         
@@ -84,9 +86,13 @@ const Setup = props => {
 
     //Updates sessionStorage with provider when page change
     useEffect(() => {
-        if(props.spartanbot) {
-            const serializedState = JSON.stringify(props.spartanbot);
+        if(props.SpartanBot) {
+            console.log(props.SpartanBot)
+            let spartan = {spartan: props.SpartanBot}
+            const serializedState = JSON.stringify(props.SpartanBot);
             sessionStorage.setItem('spartanbot', serializedState)
+            
+            setSpartanBot({...SpartanBot, ...spartan})
         }
         return () => {
             if(bittrexData.credentials) {
@@ -293,6 +299,7 @@ const Setup = props => {
     
     function process_returned_data(data) {
         console.log('data:', data)
+        console.log('SPARTANBOT: ', SpartanBot)
         if (data.provider === "Bittrex") {
             console.log('BITTREX', data)
             props.dispatch(addBittrex({...data}))
@@ -525,7 +532,7 @@ const Setup = props => {
 
     return (
         <>
-        {console.log(userdata)}
+        {console.log(SpartanBot)}
         <div className="setup">
         <div className="setup-container">
             <Navigation />
@@ -841,7 +848,7 @@ const Pools = (props) => {
 const mapStateToProps = state => {
     console.log('state:', state)
     return {
-        spartanbot: state.auth.spartanbot,
+        SpartanBot: state.auth.SpartanBot,
         user: state.auth.user,
         userData: state.userData,
         login: state.login,

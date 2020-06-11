@@ -2,7 +2,7 @@
 require('dotenv').config();
 const express = require('express');
 const router = express.Router();
-const client = require('../spartanBot');
+const Client = require('../spartanBot');
 const User = require('../models/user');
 
 
@@ -13,7 +13,7 @@ async function processUserInput(req, res) {
     if (options.to_do === 'clearSpartanBot') {
         return options
     }
-    
+
     let { userId, rental_provider } = options
 
     try {
@@ -21,7 +21,7 @@ async function processUserInput(req, res) {
         if (!user) {
             return 'Can\'t find user. setup.js line #19'
         }
-        
+
 
         // Checks the database if user providerData exist for either niceHash or MiningRigRentals,
         // if it does get data so api and secret can be used. If not return false and add keys and secret
@@ -50,11 +50,11 @@ async function processUserInput(req, res) {
         }
         // When adding credentials for the first time
         else if (!user.providerData.length) {
-            user.providerData.push( newProvider )
+            user.providerData.push(newProvider)
             user.save()
 
-        // When Credentials are good & input fields don't exist get key and secret from database
-        } else {  
+            // When Credentials are good & input fields don't exist get key and secret from database
+        } else {
             let provider = isRentalProvider(rental_provider)
             console.log('provider:', provider)
             if (provider) {
@@ -62,42 +62,44 @@ async function processUserInput(req, res) {
                 options.api_secret = provider.api_secret
                 options.api_id = provider.api_id
             } else {
-                user.providerData.push( newProvider )
+                user.providerData.push(newProvider)
                 user.save()
             }
         }
         return options
     } catch (e) {
-        return {err: 'Can\'t find user or input is wrong.'+ e}
+        return { err: 'Can\'t find user or input is wrong.' + e }
     }
 }
 const getCircularReplacer = () => {
     const seen = new WeakSet();
     return (key, value) => {
-      if (typeof value === "object" && value !== null) {
-        if (seen.has(value)) {
-          return;
+        if (typeof value === "object" && value !== null) {
+            if (seen.has(value)) {
+                return;
+            }
+            seen.add(value);
         }
-        seen.add(value);
-      }
-      return value;
+        return value;
     };
-  };
+};
 /* POST setup wizard page */
 router.post('/', async (req, res) => {
     let userInput = await processUserInput(req, res).then(data => data).catch(err => err)
     console.log('processUserInput ', userInput)
 
     try {
+        let client = new Client()
+        console.log('client:', client)
         let data = await client.controller(userInput);
-        let StringifiedData = JSON.stringify({data} , getCircularReplacer())
+        let StringifiedData = JSON.stringify({ data }, getCircularReplacer())
         console.log('data:', StringifiedData)
 
         // res.status(200).json({data})
         res.status(200).send(StringifiedData)
     } catch (err) {
         console.log('route setup.js line 91 catch error', err);
-        res.status(500).json({err: err})
+        res.status(500).json({ err: err })
     }
 });
 
