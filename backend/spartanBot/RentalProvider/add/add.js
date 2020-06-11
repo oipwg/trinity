@@ -108,10 +108,6 @@ const MiningRigRentals = 'MiningRigRentals';
 const NiceHash = 'NiceHash';
 
 module.exports = async function(options) {
-
-    
-    console.log('options: add.js', options)
-        
     const spartan = options.SpartanBot;
 
     let rental_provider_type = options.rental_provider;
@@ -240,13 +236,12 @@ module.exports = async function(options) {
             name: options.profileName || rental_provider_type
         });
         // return setup_success.provider.deletePoolProfile('99882').then(res => console.log('deletedPoolProfile: ',res))
-        console.log('setup_success: top \n', setup_success);
+        console.log('setup_success: top \n', setup_success.provider);
 
 
         if (setup_success.success) {
             if (setup_success.type === MiningRigRentals) {
                 let poolArray = await spartan.returnPools(setup_success.type);
-                console.log('poolArray: 265', poolArray)
                 /**
                  * @param {Object} - Add profile and pool 
                  * */
@@ -328,7 +323,6 @@ module.exports = async function(options) {
             }
             if (setup_success.type === NiceHash) {
                 let poolArray = await spartan.returnPools(setup_success.type);
-                console.log('poolArray: 342 Nice Hash', poolArray)
 
                 //if on pools, ask if they want to create one
                 if (poolArray.length === 0) {

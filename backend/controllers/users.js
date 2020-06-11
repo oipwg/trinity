@@ -1,5 +1,6 @@
 require('dotenv').config();
-const SpartanBot = require('spartanbot');
+const Client = require('../spartanBot')
+const spartanBot = require('spartanbot').SpartanBot;
 
 
 const JWT = require('jsonwebtoken');
@@ -22,6 +23,18 @@ signToken = user => {
         },
         JWT_SECRET
     );
+};
+const getCircularReplacer = () => {
+    const seen = new WeakSet();
+    return (key, value) => {
+        if (typeof value === "object" && value !== null) {
+            if (seen.has(value)) {
+                return;
+            }
+            seen.add(value);
+        }
+        return value
+    }
 };
 
 module.exports = {
@@ -49,7 +62,7 @@ module.exports = {
             // use this to grab addresses
 
             // let accountMaster = bip32.fromBase58(xPrv, Networks.flo.network)
-            
+
             // let account = new Account(accountMaster, Networks.flo, false);
 
             // const EXTERNAL_CHAIN = 0
@@ -58,8 +71,8 @@ module.exports = {
             // }
 
             const user = await newUser.save()
-            
-            const sendUser = await User.findOne({ userName: user.userName}).select('-password');
+
+            const sendUser = await User.findOne({ userName: user.userName }).select('-password');
 
             res.status(200).json({
                 token: signToken(newUser),
@@ -79,11 +92,13 @@ module.exports = {
             if (!user) {
                 return res.status(403).json({ error: 'User does not exist' });
             }
-
+            // let SpartanBot = new Client()
+            // let SpartanBot = new spartanBot()
+            // let StringifiedData = JSON.stringify({token: signToken(user), user, SpartanBot }, getCircularReplacer())
+            // res.status(200).send(StringifiedData)
             res.status(200).json({
                 token: signToken(user),
-                user,
-                // spartan: JSON.stringify({SpartanBot})
+                user
             });
 
         } catch (error) {
@@ -132,7 +147,7 @@ module.exports = {
             console.log(req.body)
 
             const user = await User.findById(req.user.id)
-            
+
             if (!user) {
                 return res.status(404).json({ error: 'User not found' });
             }
