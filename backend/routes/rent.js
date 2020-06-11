@@ -97,7 +97,7 @@ async function processUserInput(req, res) {
                 profile.profitReinvestment = profitReinvestment
                 profile.updateUnsold = updateUnsold
                 profile.dailyBudget = dailyBudget
-                console.log('PROFILE', profile)
+                
                 // If user doesn't have a generated address will generate a new one and save address and index to DB
                 if (profile.address.publicAddress === '') {
                     let usedIndexes = user.indexes
@@ -149,9 +149,9 @@ const processData = async (req, res) => {
         if (userInput['update']) {
             return res.status(200).json(userInput)
         }
-        let client = new Client()
+
         // Rent, setup provider, update provider
-        client.controller(userInput);
+        Client.controller(userInput);
     } catch (err) {
         console.log('route rent.js catch error', err);
     } 

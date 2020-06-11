@@ -8,11 +8,8 @@ const SpartanBot = require('spartanbot').SpartanBot;
 
 class Client {
     constructor(settings) {
-        if (Client.instance instanceof Client) {
-			return Client.instance
-		}
         this.spartan = new SpartanBot()
-        this.options = settings
+        this.settings = settings
         this.version = Math.floor(Math.random() * 4000)
         console.log(this.spartan, 'CLIENT')
         this.get()
@@ -22,6 +19,7 @@ class Client {
         console.log('VERSION: ',this.version)
     }
     async controller(options) {
+        console.log('this.version', this.version)
         let to_do = options.to_do
         options.SpartanBot = this.spartan
         switch (to_do) {
@@ -45,5 +43,5 @@ class Client {
         }
     }
 }
-module.exports = Client
+module.exports = new Client()
 

@@ -358,7 +358,7 @@ module.exports = async function(options) {
                         setup_success.provider.setActivePool(pool.id);
                         setup_success.provider.addPools(pool);
                     }
-                    console.log('PoolArray:', PoolArray)
+     
                     return {
                         provider: NiceHash,
                         err: 'pool',
