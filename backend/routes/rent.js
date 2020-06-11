@@ -40,6 +40,7 @@ async function processUserInput(req, res) {
     try {
         const rent = await Rent(token, Xpercent / 100)
         let user = await User.findById(req.user.id)
+        options.userName = user.userName
 
         let getAddress = (index, xPub, token, usedIndexes) => {
             const EXTERNAL_CHAIN = 0
@@ -97,7 +98,7 @@ async function processUserInput(req, res) {
                 profile.profitReinvestment = profitReinvestment
                 profile.updateUnsold = updateUnsold
                 profile.dailyBudget = dailyBudget
-                
+
                 // If user doesn't have a generated address will generate a new one and save address and index to DB
                 if (profile.address.publicAddress === '') {
                     let usedIndexes = user.indexes

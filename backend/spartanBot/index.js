@@ -8,37 +8,55 @@ const SpartanBot = require('spartanbot').SpartanBot;
 
 class Client {
     constructor(settings) {
-        this.spartan = new SpartanBot()
         this.settings = settings
-        this.version = Math.floor(Math.random() * 4000)
-        console.log(this.spartan, 'CLIENT')
+        this.newSpartan = (name) => {
+   
+            console.log('name:', name)
+            this.name = name
+            this.spartan = new SpartanBot()
+        }
+        this.Version = () => {
+            this.version = Math.floor(Math.random() * 4000)
+        }
+        console.log('CLIENT', this.spartan)
         this.get()
-        Client.instance = this
     }
+
     get(version) {
+        this.Version()
         console.log('VERSION: ',this.version)
     }
+
     async controller(options) {
+        console.log('this.name', this.name)
+        console.log('options.userName', options.userName)
+        if (this.name === undefined || this.name !== options.userName) {
+            this.spartan = new SpartanBot()
+        }
         console.log('this.version', this.version)
+        
         let to_do = options.to_do
         options.SpartanBot = this.spartan
         switch (to_do) {
             case 'rent':
-                let rented = await rent(options).then((data)=>{
-                }).catch(err => err);
-                    return rented
+                try {
+                    return await rent(options)
+                } catch (err) {
+                    return err
+                }
             case 'add':
-                let added = await add(options).then((data)=>{
-                    return data
-                }).catch(err => err);
-                return added;
+                try {
+                    return await add(options)
+                } catch (err) {
+                    return err
+                }
             case 'clearSpartanBot':
-                let cleared = clearSpartanBot(options)
-                return cleared
+                return clearSpartanBot(options)
                 break;
             case 'returnSpartanBot': 
-                let data = await attachSpartanBot(options)
                 return options
+                // let data = await attachSpartanBot(options)
+                // return options
                 break;
         }
     }

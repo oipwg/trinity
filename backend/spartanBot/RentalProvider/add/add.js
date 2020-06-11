@@ -184,8 +184,7 @@ module.exports = async function(options) {
             }
         }
     } else if (rental_provider_type === NiceHash) {
-       
-        // console.log('poolArray: add.js 210', poolArray)
+
         if (checkProviders(NiceHash)){
             let poolArray = await spartan.returnPools(NiceHash);
             console.log('poolArray: ADD.JS 214', poolArray)

@@ -1,6 +1,7 @@
 const https = require('https');
 const express = require('express');
 const router = express.Router();
+const User = require('../models/user');
 const Client = require('../spartanBot');
 const { Rent } = require('../helpers/rentValues')
 const fs = require('fs');
@@ -64,7 +65,7 @@ class DailyBudget {
                 }
             }
         } catch(e) {
-            console.log('e:', e)
+            console.log('Error:', e)
         }
 
         if (MRR.success && NiceHash.success) {
@@ -106,9 +107,11 @@ class DailyBudget {
 }
 
 router.post('/', async (req, res)=> {
- 
-    let options = await Client.controller(req.body) // Attaches SpartanBot to the req.body object
-    let dailyBudget = (await new DailyBudget(options).getDailyBudget() ).toFixed(2)
+    let inputs = req.body
+
+    inputs.userName =  (await User.findById({ _id: inputs.userId}) ).userName;
+    let outputs = await Client.controller(inputs) // Attaches SpartanBot to inputs
+    let dailyBudget = (await new DailyBudget(outputs).getDailyBudget() ).toFixed(2)
 
     res.json(dailyBudget)
 })

@@ -4,9 +4,9 @@ import { API_URL } from '../../config';
 
 export const updateDailyBudget = (inputs) => async (dispatch) =>{
     if (inputs.targetMargin === '' || inputs.profitReinvestment === '' || inputs.Xpercent === '') return
-
+ 
     inputs.to_do = 'returnSpartanBot'
-   
+
     fetch(API_URL+'/daily-budget',{
         method: 'POST',
         headers: {
