@@ -8,7 +8,6 @@ const User = require('../models/user');
 
 async function processUserInput(req, res) {
     let options = req.body
-    console.log('options: setup.js 11', options)
 
     if (options.to_do === 'clearSpartanBot') {
         return options
@@ -18,10 +17,10 @@ async function processUserInput(req, res) {
 
     try {
         const user = await User.findById({ _id: userId });
+        options.userName = user.userName
         if (!user) {
             return 'Can\'t find user. setup.js line #19'
         }
-
 
         // Checks the database if user providerData exist for either niceHash or MiningRigRentals,
         // if it does get data so api and secret can be used. If not return false and add keys and secret

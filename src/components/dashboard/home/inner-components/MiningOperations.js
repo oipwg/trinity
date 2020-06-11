@@ -77,7 +77,10 @@ const MiningOperations = (props) => {
     } = miningOperations
 
     useEffect(() => {
-        console.log(props.dailyBudget)
+        if(props.user) {
+            console.log('PROFILE', props.user)
+            props.dispatch(updateDailyBudget({...miningOperations, userId:  props.user._id}))
+        }
         if (props.profile) {
             const {
                 targetMargin, profitReinvestment, updateUnsold, dailyBudget, autoRent, autoTrade, token, name, _id
@@ -103,7 +106,7 @@ const MiningOperations = (props) => {
             setOperations({ ...miningOperations, ...profile })
 
             setError('')
-            props.dispatch(updateDailyBudget(miningOperations))
+
         } else {
             setOperations({
                 targetMargin: 1,
