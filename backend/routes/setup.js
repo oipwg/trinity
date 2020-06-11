@@ -89,13 +89,11 @@ router.post('/', async (req, res) => {
     console.log('processUserInput ', userInput)
 
     try {
-        let client = new Client()
+        let client = Object.create(Client)
         console.log('client:', client)
         let data = await client.controller(userInput);
-        let StringifiedData = JSON.stringify({ data }, getCircularReplacer())
-        console.log('data:', StringifiedData)
+        let StringifiedData = JSON.stringify({ data }, getCircularReplacer());
 
-        // res.status(200).json({data})
         res.status(200).send(StringifiedData)
     } catch (err) {
         console.log('route setup.js line 91 catch error', err);

@@ -106,8 +106,8 @@ class DailyBudget {
 }
 
 router.post('/', async (req, res)=> {
-    let client = new Client()
-    let options = await client.controller(req.body) // Attaches SpartanBot to the req.body object
+ 
+    let options = await Client.controller(req.body) // Attaches SpartanBot to the req.body object
     let dailyBudget = (await new DailyBudget(options).getDailyBudget() ).toFixed(2)
 
     res.json(dailyBudget)
