@@ -1,4 +1,5 @@
 require('dotenv').config();
+const SpartanBot = require('spartanbot');
 
 
 const JWT = require('jsonwebtoken');
@@ -81,7 +82,8 @@ module.exports = {
 
             res.status(200).json({
                 token: signToken(user),
-                user
+                user,
+                // spartan: JSON.stringify({SpartanBot})
             });
 
         } catch (error) {

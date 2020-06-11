@@ -1,13 +1,15 @@
-import { DAILY_BUDGET } from '../actions/types';
+import { DAILY_BUDGET, ADD_PROVIDER, PROVIDER } from '../actions/types';
 
+let initState = {}
+export const miningOperationsReducer = (state = initState, action) => {
 
-export const miningOperationsReducer = (state = {}, action) => {
-    // console.log('state:', action.payload)
     switch (action.type) {
         case DAILY_BUDGET:
             console.log(action.payload)
             return {dailyBudget: action.payload}
-
+        case PROVIDER:
+            console.log('miningOperationsReducer:', action.payload)
+            return {...state, ...action.payload}
         default:
             return {dailyBudget: false};
     }

@@ -1,4 +1,4 @@
-import { DAILY_BUDGET } from './types';
+import { DAILY_BUDGET, PROVIDER } from './types';
 import { API_URL } from '../../config';
 
 
@@ -20,8 +20,14 @@ export const updateDailyBudget = (inputs) => async (dispatch) =>{
             type: DAILY_BUDGET,
             payload: data
         })
-        
     })
     .catch(e => console.log(e))
 }
 
+// export const updateProvider = (provider) => {
+//     console.log('provider:', provider)
+//     return {
+//         type: PROVIDER,
+//         payload: provider
+//     }
+// }

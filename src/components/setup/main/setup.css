@@ -109,7 +109,7 @@
 }
 
 .selector-group-child select {
-    width: 73% !important;
+    width: 68% !important;
 }
 .selector-group-child:nth-child(2) label{
     width: auto;
