@@ -141,8 +141,13 @@ main {
   justify-content: space-between;
   position: absolute;
   right: 100px;
-  top: 15px;
-  width: 100px;
+  top: 45px;
+  width: 115px;
+  align-items: flex-end;
+}
+
+.renting-light-container p {
+  margin: 0;
 }
 
 .automatic-renting-content {

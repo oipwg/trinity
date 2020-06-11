@@ -39,17 +39,6 @@ class Timer {
         this.req = req
         this.ids = settings.rentalId
     }
-
-    // Formated Date string
-    timestamp() {
-		let date = new Date()
-	    return date.getFullYear() + "-" +
-		   (date.getMonth() + 1) + "-" +
-		   date.getDate() + " " +
-		   date.getHours() + ":" +
-		   date.getMinutes() + ":" +
-		   date.getSeconds()
-    }
     
     /**
      * @property {Function} getProfileAddress Get current profile address being used
@@ -64,8 +53,16 @@ class Timer {
     }
 
     async getProviderAddress() {
-        let account = ( await this.provider.getAccount() ).data.deposit.BTC.address
-        return account
+        console.log('this.provider', this.provider.constructor.name)
+        if(this.provider.constructor.name === 'NiceHashProvider') {
+
+            let address = ( await this.provider.getDepositAddresses('BTC') ).list[0].address
+            return address
+
+        } else if (this.provider.constructor.name === 'MRRProvider') {
+            let address = ( await this.provider.getAccount() ).data.deposit.BTC.address
+            return address
+        }
     }
 
     async getCostOfRental(transactions) {
@@ -87,12 +84,10 @@ class Timer {
 
     async getTransactions() {
         try {
-            let params = {
+            let res = await this.provider.getTransactions({
                 start: 0,
                 limit: 100
-            };
-          
-            let res = await this.provider.getTransactions(params)
+            })
             let transactions = res.data.transactions;
             return this.getCostOfRental(transactions)
         } catch(e) {
@@ -112,26 +107,28 @@ class Timer {
                 }))
                 
             } catch(e) {
-                console.log(this.timestamp(), ' ERROR', e)
+                console.log(timestamp(), ' ERROR', e)
                 emitter.emit('message', JSON.stringify({
                     autoRent: false,
                     message: e
                 }))
             }
-            setInterval(async ()=> {
-                try{
-                    let CostOfRentalBtc = await this.getTransactions()
-                    console.log(timestamp(), ' CostOfRentalBtc:', CostOfRentalBtc)     
-                    
-                    emitter.emit('message', JSON.stringify({
-                        db: {CostOfRentalBtc: Math.abs(CostOfRentalBtc).toFixed(8)}
-                    }))
-                } catch(e) {
-                    console.log(e)
+            setInterval(async () => {    
+                if (this.provider.constructor.name === 'MRRProvider') {
+                    try{
+                        let CostOfRentalBtc = await this.getTransactions()
+                        console.log(timestamp(), ' CostOfRentalBtc:', Math.abs(CostOfRentalBtc).toFixed(8))     
+                        
+                        emitter.emit('message', JSON.stringify({
+                            db: {CostOfRentalBtc: Math.abs(CostOfRentalBtc).toFixed(8)}
+                        }))
+                    } catch(e) {
+                        console.log(e)
+                    }
                 }
-            },5 * 60 * 1000 )
-        },3 * 55 * 60 * 1000)
-    // },1000)
+            },20 * 1000 )
+        // },3 * 55 * 60 * 1000)
+    },1000)
 
     }
 }

@@ -181,8 +181,15 @@ main {
           justify-content: space-between;
   position: absolute;
   right: 100px;
-  top: 15px;
-  width: 100px;
+  top: 45px;
+  width: 115px;
+  -webkit-box-align: end;
+      -ms-flex-align: end;
+          align-items: flex-end;
+}
+
+.renting-light-container p {
+  margin: 0;
 }
 
 .automatic-renting-content {

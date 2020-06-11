@@ -2,13 +2,13 @@
 require('dotenv').config();
 const express = require('express');
 const router = express.Router();
-const controller = require('../spartanBot');
+const client = require('../spartanBot');
 const User = require('../models/user');
 
 
 async function processUserInput(req, res) {
     let options = req.body
-    console.log('options:', options)
+    console.log('options: setup.js 11', options)
 
     if (options.to_do === 'clearSpartanBot') {
         return options
@@ -71,16 +71,30 @@ async function processUserInput(req, res) {
         return {err: 'Can\'t find user or input is wrong.'+ e}
     }
 }
-
+const getCircularReplacer = () => {
+    const seen = new WeakSet();
+    return (key, value) => {
+      if (typeof value === "object" && value !== null) {
+        if (seen.has(value)) {
+          return;
+        }
+        seen.add(value);
+      }
+      return value;
+    };
+  };
 /* POST setup wizard page */
 router.post('/', async (req, res) => {
     let userInput = await processUserInput(req, res).then(data => data).catch(err => err)
     console.log('processUserInput ', userInput)
 
     try {
-        let data = await controller(userInput);
-        console.log('data: setupjs', data)
-        res.status(200).json({data})
+        let data = await client.controller(userInput);
+        let StringifiedData = JSON.stringify({data} , getCircularReplacer())
+        console.log('data:', StringifiedData)
+
+        // res.status(200).json({data})
+        res.status(200).send(StringifiedData)
     } catch (err) {
         console.log('route setup.js line 91 catch error', err);
         res.status(500).json({err: err})

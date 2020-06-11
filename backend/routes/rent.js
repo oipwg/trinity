@@ -1,7 +1,7 @@
 require('dotenv').config();
 const express = require('express');
 const router = express.Router();
-const controller = require('../spartanBot');
+const client = require('../spartanBot');
 const EventEmitter = require('events');
 class Emitter extends EventEmitter {}
 const emitter = new Emitter();
@@ -70,7 +70,6 @@ async function processUserInput(req, res) {
        
         // Come back to have this work without token === FLO to working with RVN also
         if (MinPercentFromMinHashrate > Xpercent / 100 && token === 'FLO') {
-           console.log( 'XPERCENT SENDING ALSO')
             let msg = {
                 update: true,
                 message: `Your pecent of the network ${Xpercent} changed to ${(MinPercentFromMinHashrate * 100.1).toFixed(2)}%, to ` +
@@ -130,7 +129,7 @@ async function processUserInput(req, res) {
         options.MinPercent = rent.MinPercentFromMinHashrate
         options.emitter = emitter
         // options.duration = token == "FLO" ? 24 : 3
-        options.duration = 24
+        options.duration = 3
         options.newRent = Rent
         options.difficulty = rent.difficulty
         options.hashrate = rent.Rent
@@ -151,7 +150,7 @@ const processData = async (req, res) => {
             return res.status(200).json(userInput)
         }
         // Rent, setup provider, update provider
-        controller(userInput);
+        client.controller(userInput);
     } catch (err) {
         console.log('route rent.js catch error', err);
     } 

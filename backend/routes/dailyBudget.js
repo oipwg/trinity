@@ -1,8 +1,7 @@
 const https = require('https');
 const express = require('express');
 const router = express.Router();
-const Spartanbot = require('spartanbot').SpartanBot;
-const controller = require('../spartanBot');
+const client = require('../spartanBot');
 const { Rent } = require('../helpers/rentValues')
 const fs = require('fs');
 
@@ -107,7 +106,7 @@ class DailyBudget {
 }
 
 router.post('/', async (req, res)=> {
-    let options = await controller(req.body) // Attaches SpartanBot to the req.body object
+    let options = await client.controller(req.body) // Attaches SpartanBot to the req.body object
     let dailyBudget = (await new DailyBudget(options).getDailyBudget() ).toFixed(2)
 
     res.json(dailyBudget)

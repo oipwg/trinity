@@ -8,7 +8,6 @@ const ERROR = 'ERROR';
 module.exports = async function(options) {
     let spartan = options.SpartanBot;
 
-
         let rental_providers = spartan.getRentalProviders();
         if(rental_providers.length === 0) {
             try {
