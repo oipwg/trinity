@@ -1,25 +1,9 @@
 require('dotenv').config();
 const { API_URL}  = process.env
-const timestamp = require('../../helpers/timestamp').default
-const {
-    getTotalQty,
-    getOfferPriceBtc,
-    getSellableQty,
-    getProfitUsd,
-    getRentalBudget3HrCycleUsd,
-    getRentalBudgetDailyUsd,
-    getTakeProfitBtc,
-    getCoinbaseBTCUSD,
-    getBittrexBtcUsd,
-    getPriceBittrexBtcToken,
-    getBlockHeightFlo,
-    getBlockHeightRvn
-} = require('./func')
 const { Account, Address, TransactionBuilder, Networks } = require('@oipwg/hdmw')
 const bip32 = require('bip32')
 const axios = require('axios')
-
-
+const { timestamp } = require('../../helpers/timestamp')
 const ONE_MINUTE = 60 * 1000;
 const ONE_HOUR = 60 * ONE_MINUTE;
 const MIN_FEE_PER_BYTE = 0.00000001
@@ -50,19 +34,10 @@ let currentBlockCount;
 let orderReceiptID = ''
 let BtcFromsPartialTrades = 0;
 
-let TokensFromCanOffer,
-    costOfRentalFromCanOffer,
-    costOf
+
+
 
 module.exports = async function(profile, accessToken, wallet, rentalAddress) {
-    
-    //Todo: Pass this to into Trade function
-    if(token === 'FLO'){
-        var blockHeight = getBlockHeightFlo
-    } else if(token === 'RVN'){
-        blockHeight = getBlockHeightFlo
-    }
-
 
     if(!accessToken){
         console.log(timestamp(),'no access token');
@@ -80,6 +55,19 @@ module.exports = async function(profile, accessToken, wallet, rentalAddress) {
         },
     };
 
+    // formulas
+    const getTotalQty = (ReceivedQty, FeeFloTx1) => {
+        return Number((ReceivedQty + FeeFloTx1).toFixed(8));
+    }
+
+    const getOfferPriceBtc = (CostOfRentalBTC, TradeFee, margin, CostOfWithdrawalPerCycleBTC, EstFeeBtcTx1, TotalQty, FeeFloTx1, FeeFloTx2) => {
+        let OfferPrice =  ( CostOfRentalBTC * ( TradeFee + 1 ) * ( margin + 1 ) + CostOfWithdrawalPerCycleBTC + EstFeeBtcTx1 ) / ( TotalQty - FeeFloTx1 - FeeFloTx2 )
+        return Number(OfferPrice.toFixed(8))
+    }
+
+    const getSellableQty = (TotalQty, FeeFloTx2) => {
+        return Number((TotalQty - FeeFloTx2).toFixed(8))
+    }
 
     //bittrex wallet address
     const getBittrexAddress = async (token) => {
@@ -233,9 +221,32 @@ module.exports = async function(profile, accessToken, wallet, rentalAddress) {
         }
     }
 
+    const getCoinbaseBTCUSD = async () => {
+        try {
+            const response = await axios.get('https://api.coinbase.com/v2/exchange-rates?currency=BTC')
 
+            return Number(response.data.data.rates.USD)
+            
+        } catch (error) {
+            console.log(timestamp(),'Err; getCoinbaseBTCUSD -----', error)
+        }
+    };
 
+    const getProfitUsd = (BtcFromTrades, PriceBtcUsd, CostOfRentalUsd) => {
+         return  ( BtcFromTrades * PriceBtcUsd ) - CostOfRentalUsd
+    }
 
+    const getRentalBudget3HrCycleUsd = (CostOfRentalUsd, ProfitUsd, ProfitReinvestmentRate) => {
+        return  RentalBudget3HrCycleUsd = CostOfRentalUsd + ( ProfitUsd * (ProfitReinvestmentRate) )
+    }
+
+    const getRentalBudgetDailyUsd = (RentalBudget3HrCycleUsd) => {
+        return RentalBudget3HrCycleUsd * 8;
+    }
+
+    const getTakeProfitBtc = (ProfitUsd, ProfitReinvestmentRate, PriceBtcUsd) => {
+        return  Number((ProfitUsd * (1 - ProfitReinvestmentRate) / PriceBtcUsd).toFixed(8))
+    }
     // Withdraw amount has to be 3 times greater than the fee (.0005 btc)
     const withdrawFromBittrex = async (currency, quantity, address) => {
         try {
@@ -360,20 +371,6 @@ module.exports = async function(profile, accessToken, wallet, rentalAddress) {
         })
     }
 
-
-    const sendPayment = async (floBittrexAddress, address, amount) => {
-        try {
-            let txid = await account.sendPayment({
-                to: {[floBittrexAddress]: amount},
-                from: address,
-                discover: false
-            })
-            
-            return txid
-        } catch (error) {
-            console.log(timestamp(), "ERR; SendPayment", err)
-        }
-    }
     
     // ------------  START -------------- 
     let {
@@ -387,12 +384,7 @@ module.exports = async function(profile, accessToken, wallet, rentalAddress) {
         CostOfRentalBtc
     } = profile
 
-
-
-    return
-
-
-    let bittrexTX
+    const timeStarted = Date.now()
     let userBTCAddress = address.btcAddress;
     CostOfRentalBTC = CostOfRentalBtc
 
@@ -406,8 +398,11 @@ module.exports = async function(profile, accessToken, wallet, rentalAddress) {
 
     const margin = targetMargin / 100;
     const ProfitReinvestmentRate = profitReinvestment / 100;
+
+
     const accountMaster = bip32.fromBase58(wallet.flo.xPrv, Networks.flo.network)
     let account = new Account(accountMaster, Networks.flo);
+
     account.discoverChains();
 
     let {balance, transactions} = await getBalanceFromAddress(address);
@@ -423,15 +418,25 @@ module.exports = async function(profile, accessToken, wallet, rentalAddress) {
             TotalQty = getTotalQty(ReceivedQty, FeeFloTx1)
 
 
+            console.log(timestamp(),'pre call -----', {ReceivedQty, FeeFloTx1, TotalQty, floBittrexAddress})
     
+    let bittrexTX
 
             if(balance > 0) {
                 FloTradeFee = await buildTransaction(address, ReceivedQty)
                 let sendAmount = Number((ReceivedQty - (FloTradeFee)).toFixed(8))
                 console.log(timestamp(),'sending to bittrex: 1', {sendAmount, FloTradeFee})
-                    bittrexTX = await sendPayment(floBittrexAddress, address, sendAmount)
+                try {
+                    bittrexTX = await account.sendPayment({
+                        to: {[floBittrexAddress]: sendAmount},
+                        from: address,
+                        discover: false
+                    })
                     totalSent += sendAmount
-    
+                } catch (error) {
+                    console.log(timestamp(),'failed to send, will try again', error)
+                }
+
             }
 
             if(bittrexTX){
@@ -605,13 +610,13 @@ module.exports = async function(profile, accessToken, wallet, rentalAddress) {
 
                 console.log('Running checkOrderStatus().....', {orderReceiptID})
                 if(!orderReceiptID){
-                    return;
+                    return console.log({orderReceiptID})
                 }
 
                 let BtcFromTrades = await getSalesHistory(token, orderReceiptID)
 
                 if(BtcFromTrades){
-                    console.log(timestamp(), "CLOSED")
+                    console.log(timestamp(), {orderReceiptID}, 'CLOSED')
 
                     BtcFromTrades += BtcFromsPartialTrades;
                     PriceBtcUsd = await getCoinbaseBTCUSD();
@@ -626,7 +631,6 @@ module.exports = async function(profile, accessToken, wallet, rentalAddress) {
 
                     console.log(
                         timestamp(),
-                        'End Trade Cycle',
                     {
                         BtcFromTrades,
                         PriceBtcUsd,
@@ -640,7 +644,7 @@ module.exports = async function(profile, accessToken, wallet, rentalAddress) {
                     }
                     )
 
-                    if(TakeProfitBtc){
+                    if(Date.now() > (timeStarted + (24 * ONE_HOUR))){
                         console.log(timestamp(),'Withdraw from bittrex ---')
                         //coinbase btc address;
 
@@ -700,17 +704,17 @@ module.exports = async function(profile, accessToken, wallet, rentalAddress) {
             }
 
             //Todo: fix loop times.
-            // let timer = setInterval(() => {
-            //     checkConfirmations()
-            // }, (3 * ONE_MINUTE))
+            let timer = setInterval(() => {
+                checkConfirmations()
+            }, (3 * ONE_MINUTE))
 
-            // let update = setInterval(() => {
-            //     shouldIUpdated()
-            // },(updateUnsold * (5 * ONE_MINUTE)))
+            let update = setInterval(() => {
+                shouldIUpdated()
+            },(updateUnsold * (100 * ONE_MINUTE)))
 
-            // let orderStatus = setInterval(() => {
-            //     checkOrderStatus()
-            // },(updateUnsold * (10 * ONE_MINUTE)))
+            let orderStatus = setInterval(() => {
+                checkOrderStatus()
+            },(updateUnsold * (10 * ONE_MINUTE)))
 
 
 

@@ -1,0 +1,111 @@
+require('dotenv').config();
+const { API_URL}  = process.env
+const timestamp = require('../../helpers/timestamp').default;
+const axios = require('axios');
+
+
+const getTotalQty = (receivedQtyHourly, feeFloTx1) => {
+    return Number((receivedQtyHourly + feeFloTx1).toFixed(8));
+}
+
+const getOfferPriceBtc = (costOfRentalBTCHourly, bittrexTradeFee, targetMargin, bittrexWithdrawlFee) => {
+    let OfferPrice =   ( costOfRentalBTCHourly * ( bittrexTradeFee + 1 ) * ( targetMargin + 1 ) + bittrexWithdrawlFee + estFeeBtcTx1 ) / sellableQty
+    return Number(OfferPrice.toFixed(8))
+}
+
+const getSellableQty = (totalQty, feeFloTx2) => {
+    return Number((totalQty - feeFloTx2).toFixed(8))
+}
+
+const getProfitUsd = (BtcFromTrades, PriceBtcUsd, CostOfRentalUsd) => {
+    return  ( BtcFromTrades * PriceBtcUsd ) - CostOfRentalUsd
+}
+
+const getRentalBudget3HrCycleUsd = (CostOfRentalUsd, ProfitUsd, ProfitReinvestmentRate) => {
+   return  RentalBudget3HrCycleUsd = CostOfRentalUsd + ( ProfitUsd * (ProfitReinvestmentRate) )
+}
+
+const getRentalBudgetDailyUsd = (RentalBudget3HrCycleUsd) => {
+   return RentalBudget3HrCycleUsd * 8;
+}
+
+const getTakeProfitBtc = (ProfitUsd, ProfitReinvestmentRate, PriceBtcUsd) => {
+   return  Number((ProfitUsd * (1 - ProfitReinvestmentRate) / PriceBtcUsd).toFixed(8))
+}
+
+const getUpdateUnsold = (updateUnsold) => {
+    return Number((60 / updateUnsold))
+}
+
+const get24hOfferPriceBtc = (costOfRentalFromCancelledOffer, costOfRentalBTCHourly, bittrexTradeFee, targetMargin, costOfWithdrawalPerCycleBTC, estFeeBtcTx1, sellableQty) => {    
+    let OfferPrice = (( costOfRentalFromCancelledOffer + costOfRentalBTCHourly ) * ( bittrexTradeFee + 1 ) * ( targetMargin + 1 ) + ((costOfWithdrawalPerCycleBTC + estFeeBtcTx1)/24) ) / sellableQty
+    return Number(OfferPrice.toFixed(8))
+}
+
+const get24hSellableQty = (tokensFromCancelledOffer, receivedQtyFloHourly, feeFloTx1Hourly) => {
+    return Number(tokensFromCancelledOffer + (receivedQtyFloHourly + feeFloTx1Hourly ) - feeFloTx2Hourly)
+}
+
+const getCoinbaseBTCUSD = async () => {
+    try {
+        const response = await axios.get('https://api.coinbase.com/v2/exchange-rates?currency=BTC')
+
+        return Number(response.data.data.rates.USD)
+        
+    } catch (error) {
+        console.log(timestamp(),'Err; getCoinbaseBTCUSD -----', error)
+    }
+};
+
+const getBittrexBtcUsd = async () => {
+    try {
+        const response = await axios.get('https://api.bittrex.com/api/v1.1/public/getticker?market=USD-BTC')
+
+        return Number(response.data.result.Last)
+        
+    } catch (error) {
+        console.log(timestamp(),'Err; getCoinbaseBTCUSD -----', error)
+    }
+};
+
+const getPriceBittrexBtcToken = async (token) => {
+    try {
+        const response = await axios.get(`https://api.bittrex.com/api/v1.1/public/getticker?market=USD-${token}`)
+
+        return Number(response.data.result.Last)
+        
+    } catch (error) {
+        console.log(timestamp(),'Err; getCoinbaseBTCUSD -----', error)
+    }
+};
+
+const getBlockHeightFlo = async () => {
+    try {
+        const res = await axios.get(`https://livenet.flocha.in/api/status?q=getInfo`)
+    } catch (error) {
+        
+    }
+}
+
+const getBlockHeightRvn = async () => {
+    try {
+        const res = await axios.get(`https://rvn.bitspill.net/api/status?q=getInfo`)
+    } catch (error) {
+        
+    }
+}
+
+module.exports = {
+    getTotalQty,
+    getOfferPriceBtc,
+    getSellableQty,
+    getProfitUsd,
+    getRentalBudget3HrCycleUsd,
+    getRentalBudgetDailyUsd,
+    getTakeProfitBtc,
+    getCoinbaseBTCUSD,
+    getBittrexBtcUsd,
+    getPriceBittrexBtcToken,
+    getBlockHeightFlo,
+    getBlockHeightRvn
+}
