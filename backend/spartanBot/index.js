@@ -9,34 +9,45 @@ const SpartanBot = require('spartanbot').SpartanBot;
 class Client {
     constructor(settings) {
         this.settings = settings
+        this.users = []
         this.newSpartan = (name) => {
-   
-            console.log('name:', name)
-            this.name = name
-            this.spartan = new SpartanBot()
+            this.users.push({
+                name: name,
+                spartan: new SpartanBot(),
+                version: this.Version()
+            })     
         }
         this.Version = () => {
             this.version = Math.floor(Math.random() * 4000)
         }
-        console.log('CLIENT', this.spartan)
-        this.get()
     }
-
+    getUser(name) {
+        let users = this.users
+        let i = users.length
+        while(i--) {
+            let user = users[i]
+            if (user.name === name) {
+                return user
+            }
+        }
+    }
     get(version) {
-        this.Version()
         console.log('VERSION: ',this.version)
     }
 
     async controller(options) {
+        let user = this.getUser(options.userName)
+        console.log('returned user:', user)
+        console.log('this.users', this.users)
         console.log('this.name', this.name)
         console.log('options.userName', options.userName)
-        if (this.name === undefined || this.name !== options.userName) {
-            this.spartan = new SpartanBot()
-        }
-        console.log('this.version', this.version)
-        
+        // if (this.name === undefined || this.name !== options.userName) {
+        //     console.log('NEW SPARTAN MADE')
+        //     this.spartan = new SpartanBot(userName)
+        // }
+
         let to_do = options.to_do
-        options.SpartanBot = this.spartan
+        options.SpartanBot = user.spartan
         switch (to_do) {
             case 'rent':
                 try {
