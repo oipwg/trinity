@@ -92,7 +92,8 @@ module.exports = {
             if (!user) {
                 return res.status(403).json({ error: 'User does not exist' });
             }
-            let SpartanBot = Client.newSpartan(userName)
+            Client.newSpartan(userName)
+            Client.newSpartan('brad')
             // let SpartanBot = new spartanBot()
             // let StringifiedData = JSON.stringify({token: signToken(user), user, SpartanBot }, getCircularReplacer())
             // res.status(200).send(StringifiedData)
