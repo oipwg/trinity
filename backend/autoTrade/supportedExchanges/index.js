@@ -718,7 +718,7 @@ module.exports = async function(profile, accessToken, wallet, rentalAddress) {
 
             let update = setInterval(() => {
                 shouldIUpdated()
-            },((ONE_HOUR) / 20))
+            },((ONE_HOUR) / updateUnsold))
 
             let orderStatus = setInterval(() => {
                 checkOrderStatus()
