@@ -33,7 +33,7 @@ let checkBlock;
 let currentBlockCount;
 let orderReceiptID = ''
 let BtcFromsPartialTrades = 0;
-
+let Confirms = 0;
 
 
 
@@ -471,6 +471,7 @@ module.exports = async function(profile, accessToken, wallet, rentalAddress) {
 
 
                         let {fees, confirmations } = res.data
+                        Confirms = confirmations;
 
                         FeeFloTx2 = fees
                         EstFeeBtcTx1=0.00001551 //! get from somewhere
@@ -503,7 +504,7 @@ module.exports = async function(profile, accessToken, wallet, rentalAddress) {
                             )
     
                         // bittrex needs 150 confirmations 
-                        if(confirmations > 150){
+                        if(Confirms > 150){
                             if(isUpdate){
 
                                
@@ -537,6 +538,7 @@ module.exports = async function(profile, accessToken, wallet, rentalAddress) {
 
                             if(orderReceiptID){
                                 
+                                Confirms = 0;
                                 const res = await updateOrder(orderReceiptID, token, totalSent, OfferPriceBtc)
                                 orderReceiptID = res;
                                 checkOrderStatus()
@@ -544,8 +546,8 @@ module.exports = async function(profile, accessToken, wallet, rentalAddress) {
                                 console.log(timestamp(),'updateOrder ---', {res, orderReceiptID})
                                 return BtcFromTrades =  await getSalesHistory(token, orderReceiptID);
                             } else {
-                                const res = await createSellOrder(token, totalSent, OfferPriceBtc)
 
+                                const res = await createSellOrder(token, totalSent, OfferPriceBtc)
                                 orderReceiptID = res
                                 checkOrderStatus()
                                 bittrexTX=null;
@@ -576,6 +578,11 @@ module.exports = async function(profile, accessToken, wallet, rentalAddress) {
 
                         updatedBalance = res.balance
                         transactions = res.transactions
+
+                        if(((Confirms > 0))){
+                            console.log('return', {Confirms})
+                            return;
+                        }
 
 
                         if(updatedBalance > 0){
@@ -718,7 +725,7 @@ module.exports = async function(profile, accessToken, wallet, rentalAddress) {
 
             let update = setInterval(() => {
                 shouldIUpdated()
-            },((ONE_HOUR) / updateUnsold))
+            },(ONE_HOUR / updateUnsold))
 
             let orderStatus = setInterval(() => {
                 checkOrderStatus()
