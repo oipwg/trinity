@@ -13,12 +13,7 @@ exports.manualRent = (options) => {
         console.log(' spartan.manualRent manualRent.js 35 CALLBACK', preprocess, options)
  
         const badges = preprocess.badges;
-        if (badges.length === 0) {
-            return {
-                confirm: false,
-                message: 'No rental options found with current balance and desired options.',
-            };
-        }
+        
     });
 };
 
