@@ -1,4 +1,4 @@
-export function formatToDate(date){
+function formatToDate(date){
     date = new Date(date);
     const year = date.getFullYear();
     const month = (1 + date.getMonth()).toString().padStart(2, '0');
@@ -7,7 +7,7 @@ export function formatToDate(date){
     return `${month}/${day}/${year}`
 }
 
-export function formatTime(date){
+function formatTime(date){
     date = new Date(date);
     const hours = date.getHours();
     const minutes = "0" + date.getMinutes();
@@ -16,4 +16,9 @@ export function formatTime(date){
     const formattedTime = hours + ':' + minutes.substr(-2) + ':' + seconds.substr(-2);
 
     return formattedTime
+}
+
+module.exports = {
+    formatToDate,
+    formatTime
 }
