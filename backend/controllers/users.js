@@ -1,7 +1,5 @@
 require('dotenv').config();
-const Client = require('../spartanBot')
-const spartanBot = require('spartanbot').SpartanBot;
-
+const Client = require('../spartanBot').Client
 
 const JWT = require('jsonwebtoken');
 const {
@@ -13,7 +11,7 @@ const {
 } = process.env;
 const User = require('../models/user');
 
-signToken = user => {
+let signToken = user => {
     return JWT.sign(
         {
             iss: 'Trinity',
@@ -73,6 +71,7 @@ module.exports = {
             const user = await newUser.save()
 
             const sendUser = await User.findOne({ userName: user.userName }).select('-password');
+            Client.newSpartan(userName)
 
             res.status(200).json({
                 token: signToken(newUser),
@@ -93,10 +92,7 @@ module.exports = {
                 return res.status(403).json({ error: 'User does not exist' });
             }
             Client.newSpartan(userName)
-            Client.newSpartan('brad')
-            // let SpartanBot = new spartanBot()
-            // let StringifiedData = JSON.stringify({token: signToken(user), user, SpartanBot }, getCircularReplacer())
-            // res.status(200).send(StringifiedData)
+
             res.status(200).json({
                 token: signToken(user),
                 user

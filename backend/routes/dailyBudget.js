@@ -2,7 +2,8 @@ const https = require('https');
 const express = require('express');
 const router = express.Router();
 const User = require('../models/user');
-const Client = require('../spartanBot');
+const Client = require('../spartanBot').Client;
+console.log('Client:', Client)
 const { Rent } = require('../helpers/rentValues')
 const fs = require('fs');
 
@@ -14,6 +15,10 @@ class DailyBudget {
         this.Xpercent = inputs.Xpercent
         this.token = inputs.token
         this.inputs = inputs
+    }
+
+    static getProperties() {
+        return this.inputs
     }
     async updateDailyBudget(MarketPrice) {
         try {
@@ -102,9 +107,12 @@ class DailyBudget {
 
     async getDailyBudget() {
         let marketPriceScryptBtcThSD = await this.marketPrice()
+        console.log('marketPriceScryptBtcThSD:', marketPriceScryptBtcThSD)
         return await this.updateDailyBudget(marketPriceScryptBtcThSD);
     }
 }
+
+
 
 router.post('/', async (req, res)=> {
     let inputs = req.body

@@ -7,8 +7,6 @@ import Navigation from '../nav/Navigation';
 import './setup.css';
 let socket = new WebSocket( WEB_SOCKET_URL );
 
-
-
 const Setup = props => {
     const userdata = props.userData
     const [SpartanBot, setSpartanBot] = useState({})
@@ -40,7 +38,7 @@ const Setup = props => {
         } 
     };
 
-    const auto_setup_provider = (providers, SpartanBot) => {
+    const auto_setup_provider = (providers) => {
         if(providers.length > 0 && !userdata.length) {
     
             index.current = providers.length
@@ -75,10 +73,9 @@ const Setup = props => {
             select_provider_option( userdata )
         }
         if (props.user) {
-            console.log(props.SpartanBot)
             let id = props.user._id || props.user.id
             userId.current = id
-            auto_setup_provider(props.login, props.SpartanBot)
+            auto_setup_provider(props.login)
             auto_setup_bittrex()
         }
         
