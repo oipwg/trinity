@@ -24,11 +24,11 @@ let addPool = async function(setup_success, options) {
     const provider = setup_success.proivder || setup_success;
   
     let pool;
-    for (let p of this.getRentalProviders()) {
-        if ( p.getUID() !== provider.getUID() ) {
-            p._addPools(options.poolData);
-        }
-    }
+    // for (let p of this.getRentalProviders()) {
+    //     if ( p.getUID() !== provider.getUID() ) {
+    //         p._addPools(options.poolData);
+    //     }
+    // }
     try {
         if (provider.name === 'NiceHash') pool = await provider._createPool(options.poolData)
         if (provider.name === 'MiningRigRentals') pool = await provider.createPoolAndProfile(options.poolData)
@@ -52,7 +52,7 @@ let addPool = async function(setup_success, options) {
                 provider: options.provider,
                 rental_provider: options.provider,
                 message: `${options.provider} and Pool successfully added, \n` + 
-                            `profile id: ${pool.profileID} & pool id: ${pool.poolid} `,
+                            `pool name: ${pool.name} & pool id: ${pool.id} `,
                 pool: true,
                 credentials: true,
                 success: true,
