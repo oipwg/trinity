@@ -6,8 +6,7 @@ const clearSpartanBot = require('./RentalProvider/clearSpartanBot');
 const SpartanBot = require('spartanbot').SpartanBot;
 const Events = require('events').EventEmitter;
 const emitter = new Events()
-
-const wss = require('../routes/socket').wss
+const wss = require('../routes/socket')
 
 class Client {
     constructor(settings) {

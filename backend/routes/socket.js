@@ -1,7 +1,6 @@
 //initialize a simple http server
 const WebSocket = require('ws');
 const events = require('events');
-const emitter = new events.EventEmitter()
 let wss = new WebSocket.Server({ port: 3031 });
 
 /**
@@ -49,15 +48,7 @@ function connect() {
 
         })
     });
- 
 }
 connect()
 
-   
-
-module.exports = {
-    wss,
-    emitter
-}
-
-// module.exports.wss = wss
+module.exports = wss
