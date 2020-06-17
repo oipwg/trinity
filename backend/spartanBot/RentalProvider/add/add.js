@@ -235,7 +235,7 @@ module.exports = async function(options) {
             name: options.profileName || rental_provider_type
         });
         // return setup_success.provider.deletePoolProfile('99882').then(res => console.log('deletedPoolProfile: ',res))
-        console.log('setup_success: top \n', setup_success);
+        console.log('setup_success: top \n', setup_success.name);
 
 
         if (setup_success.success) {
