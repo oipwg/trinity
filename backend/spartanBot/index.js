@@ -12,7 +12,7 @@ class Client {
     constructor(settings) {
         this.settings = settings
         this.users = []
-        this.emmitMessage()
+        this.loadMessages()
         this.newSpartan = (name, userId, callback) => {
             this.users.push({
                 name: name,
@@ -26,7 +26,7 @@ class Client {
         }
     }
 
-    emmitMessage() {
+    loadMessages() {
         wss.on('connection', ws => {
             emitter.on('message', msg => {
                 ws.send(msg);
@@ -60,14 +60,14 @@ class Client {
             }
         }
     }
-
+    // Sign out
     removeUser(userId) {
         let users = this.users
         let i = users.length
 
         while(i--) {
             let user = users[i]
-            if (user.name === userId) {
+            if (user.id === userId) {
                 this.users.splice(i,1)
                 return this.users
             }
@@ -96,7 +96,7 @@ class Client {
                     return err
                 }
             case 'clearSpartanBot':
-                let removedUser = this.removeUser(options.userName)
+                let removedUser = this.removeUser(options.userId)
                 console.log('Current Users after signout:', removedUser)
                 return removedUser
                 // return clearSpartanBot(options)

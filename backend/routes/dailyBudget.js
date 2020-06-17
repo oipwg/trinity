@@ -3,7 +3,6 @@ const express = require('express');
 const router = express.Router();
 const User = require('../models/user');
 const Client = require('../spartanBot').Client;
-console.log('Client:', Client)
 const { Rent } = require('../helpers/rentValues')
 const fs = require('fs');
 
@@ -31,7 +30,7 @@ class DailyBudget {
             const Margin = this.targetMargin / 100;
             const ProfitReinvestmentRate = this.profitReinvestment / 100;
             let EstRentalBudgetPerCycleUSD = Networkhashrate * MarketPriceMrrScrypt * Duration * (-Percent / (-1 + Percent)) * PriceBtcUsd * (Margin * ProfitReinvestmentRate + 1);
-            console.log('EstRentalBudgetPerCycleUSD:', EstRentalBudgetPerCycleUSD)
+            console.log('In dailyBudget.js EstRentalBudgetPerCycleUSD:', EstRentalBudgetPerCycleUSD)
             return EstRentalBudgetPerCycleUSD  || 0
         } catch(e) {
             console.log('e:', e)
@@ -106,9 +105,13 @@ class DailyBudget {
     }
 
     async getDailyBudget() {
-        let marketPriceScryptBtcThSD = await this.marketPrice()
-        console.log('marketPriceScryptBtcThSD:', marketPriceScryptBtcThSD)
-        return await this.updateDailyBudget(marketPriceScryptBtcThSD);
+        try {
+            let marketPriceScryptBtcThSD = await this.marketPrice()
+            return await this.updateDailyBudget(marketPriceScryptBtcThSD);
+        } catch(err) {
+            console.log('dailyBudget.js err:', err)
+        }
+        
     }
 }
 

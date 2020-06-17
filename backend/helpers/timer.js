@@ -50,6 +50,7 @@ class Timer {
         if(this.provider.constructor.name === 'NiceHashProvider') {
 
             let address = ( await this.provider.getDepositAddresses('BTC') ).list[0].address
+            console.log('address: BTC', address)
             return address
 
         } else if (this.provider.constructor.name === 'MRRProvider') {

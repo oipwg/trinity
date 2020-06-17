@@ -189,7 +189,7 @@ export const logoutUser = (history, user) => dispatch => {
     const options = {
         to_do: 'clearSpartanBot',
         userName: user.userName,
-        _id: user._id
+        userId: user._id
     }
 
     const clearStorage = async () => {

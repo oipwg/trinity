@@ -12,7 +12,6 @@ import Dashboard from './dashboard/Dashboard';
 import NoMatch404 from './noMatch404/noMatch404';
 import { loadUser } from '../actions/authActions';
 import { connect } from 'react-redux';
-import { WEB_SOCKET_URL } from '../../config.js';
 import PrivateRoute from './PrivateRoute';
 
 
