@@ -47,6 +47,7 @@ function connect() {
             }
 
         })
+        console.log('New Client')
     });
 }
 connect()

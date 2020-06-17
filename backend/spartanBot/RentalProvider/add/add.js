@@ -235,7 +235,7 @@ module.exports = async function(options) {
             name: options.profileName || rental_provider_type
         });
         // return setup_success.provider.deletePoolProfile('99882').then(res => console.log('deletedPoolProfile: ',res))
-        console.log('setup_success: top \n', setup_success.provider);
+        console.log('setup_success: top \n', setup_success);
 
 
         if (setup_success.success) {
@@ -322,7 +322,7 @@ module.exports = async function(options) {
             }
             if (setup_success.type === NiceHash) {
                 let poolArray = await spartan.returnPools(setup_success.type);
-
+                
                 //if on pools, ask if they want to create one
                 if (poolArray.length === 0) {
                     console.log('Found no pools to add, would you like to create one? 346')
@@ -351,13 +351,11 @@ module.exports = async function(options) {
                     }
                 } else {
                     let PoolArray = [];
-                    
                     for (let pool of poolArray) {
                         PoolArray.push(pool.id)
                         setup_success.provider.setActivePool(pool.id);
                         setup_success.provider.addPools(pool);
                     }
-     
                     return {
                         provider: NiceHash,
                         err: 'pool',
