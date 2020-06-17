@@ -11,6 +11,7 @@ const MiningOperations = (props) => {
     const socket = useRef(null)
 
     useEffect(() => {
+        
         socket.current = new WebSocket(WEB_SOCKET_URL);
         socket.current.onclose = (e) => {
             console.log('onClose:')
@@ -33,7 +34,9 @@ const MiningOperations = (props) => {
                 socket.current.send(JSON.stringify({ keepAlive: true }));
             } else {
                 let message = JSON.parse(e.data)
-                processReturnData(message)
+                if(message.userId === props.user._id) {
+                    processReturnData(message)
+                }
             }
         }
     }

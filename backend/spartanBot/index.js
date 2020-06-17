@@ -13,9 +13,10 @@ class Client {
         this.settings = settings
         this.users = []
         this.emmitMessage()
-        this.newSpartan = (name, callback) => {
+        this.newSpartan = (name, userId, callback) => {
             this.users.push({
                 name: name,
+                id: userId.toString(),
                 spartan: new SpartanBot(),
                 emitter: emitter
             })
@@ -27,20 +28,20 @@ class Client {
 
     emmitMessage() {
         wss.on('connection', ws => {
-          emitter.on('message', msg => {
-            ws.send(msg);
-          });
-        }); 
+            emitter.on('message', msg => {
+                ws.send(msg);
+            })
+        })
     }
 
-    async getUser(userName) {
+    async getUser(userName, userId) {
         let users = this.users
         let i = users.length
         let updatedUser;
 
         // If users array is empty will make new user / spartanbot and return it
         if(!users.length) {
-            let data = this.newSpartan(userName, (newUser) => {
+            let data = this.newSpartan(userName, userId, (newUser) => {
                 updatedUser = newUser
             })
             return updatedUser
@@ -48,12 +49,11 @@ class Client {
         
         while(i--) {
             let user = users[i]
-            if (user.name === userName) {
+            if (user.id === userId) {
                 return user
             //If user doesn't exist in users array (no providers), make a new user and return it.
             } else if (!i) {
-                console.log('USER DOESNT EXIST')
-                this.newSpartan(userName, (newUser) => {
+                this.newSpartan(userName, userId, (newUser) => {
                     updatedUser = newUser
                 })
                 return updatedUser
@@ -61,13 +61,13 @@ class Client {
         }
     }
 
-    removeUser(userName) {
+    removeUser(userId) {
         let users = this.users
         let i = users.length
 
         while(i--) {
             let user = users[i]
-            if (user.name === userName) {
+            if (user.name === userId) {
                 this.users.splice(i,1)
                 return this.users
             }
@@ -75,7 +75,7 @@ class Client {
     }
 
     async controller(options) {
-        let user = await this.getUser(options.userName)
+        let user = await this.getUser(options.userName, options.userId)
 
         options.SpartanBot = user.spartan
         options.emitter = user.emitter

@@ -63,6 +63,7 @@ async function processUserInput(req, res) {
                 update: true,
                 message: `Your pecent of the network ${Xpercent} changed to ${(MinPercentFromMinHashrate * 100.1).toFixed(2)}%, to ` +
                     `continute renting with ${Xpercent}% for the MiningRigRental market, change percentage and switch renting on again.`,
+                userId: userId,
                 Xpercent: (MinPercentFromMinHashrate * 100.1).toFixed(2),
                 autoRent: false
             }

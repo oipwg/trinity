@@ -38,11 +38,14 @@ const getCircularReplacer = () => {
 module.exports = {
     signUp: async (req, res, next) => {
         try {
-            const { userName, email, password, mnemonic, wallet } = req.body;
+            
+            const { userName, _id, email, password, mnemonic, wallet } = req.body;
 
 
             // check for user in DB
             const foundUser = await User.findOne({ userName });
+
+
             if (foundUser) {
                 return res
                     .status(403)
@@ -55,8 +58,8 @@ module.exports = {
                 mnemonic,
                 wallet
             });
-
-
+ 
+           
             // use this to grab addresses
 
             // let accountMaster = bip32.fromBase58(xPrv, Networks.flo.network)
@@ -69,9 +72,10 @@ module.exports = {
             // }
 
             const user = await newUser.save()
+            Client.newSpartan(user.userName, user._id)
 
             const sendUser = await User.findOne({ userName: user.userName }).select('-password');
-            Client.newSpartan(userName)
+            
 
             res.status(200).json({
                 token: signToken(newUser),
@@ -91,7 +95,7 @@ module.exports = {
             if (!user) {
                 return res.status(403).json({ error: 'User does not exist' });
             }
-            Client.newSpartan(userName)
+            Client.newSpartan(userName, user._id)
 
             res.status(200).json({
                 token: signToken(user),

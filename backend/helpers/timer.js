@@ -30,6 +30,7 @@ class Timer {
         this.req = req
         this.ids = settings.rentalId
         this.emitter = settings.emitter
+        this.userId = settings.userId
     }
     
     /**
@@ -95,12 +96,14 @@ class Timer {
                 let payout = await on(this.req, address)
                 console.log(timestamp(), ' payout:', payout)
                 this.emitter.emit('message', JSON.stringify({
+                    userId: this.userId,
                     message: 'Auto trading is starting...'
                 }))
                 
             } catch(e) {
                 console.log(timestamp(), ' ERROR', e)
                 this.emitter.emit('message', JSON.stringify({
+                    userId: this.userId,
                     autoRent: false,
                     message: e
                 }))
@@ -112,15 +115,16 @@ class Timer {
                         console.log(timestamp(), ' CostOfRentalBtc:', Math.abs(CostOfRentalBtc).toFixed(8))     
                         
                         this.emitter.emit('message', JSON.stringify({
+                            userId: this.userId,
                             db: {CostOfRentalBtc: Math.abs(CostOfRentalBtc).toFixed(8)}
                         }))
                     } catch(e) {
                         console.log(e)
                     }
                 }
-            },5 * 60 * 1000 )
-        },3 * 55 * 60 * 1000)
-    // },1000)
+            },20 * 1000 )
+        // },3 * 55 * 60 * 1000)
+    },1000)
 
     }
 }
