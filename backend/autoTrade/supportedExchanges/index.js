@@ -547,13 +547,15 @@ module.exports = async function(profile, accessToken, wallet, rentalAddress) {
                                 return BtcFromTrades =  await getSalesHistory(token, orderReceiptID);
                             } else {
 
-                                const res = await createSellOrder(token, totalSent, OfferPriceBtc)
-                                orderReceiptID = res
-                                checkOrderStatus()
-                                bittrexTX=null;
-                                console.log(timestamp(),'createSellOrder ---', {res, orderReceiptID})
-                                return BtcFromTrades = await getSalesHistory(token, orderReceiptID);
-    
+                                setTimeout(async () => {
+                                    Confirms = 0;
+                                    const res = await createSellOrder(token, totalSent, OfferPriceBtc)
+                                    orderReceiptID = res
+                                    checkOrderStatus()
+                                    bittrexTX=null;
+                                    console.log(timestamp(),'createSellOrder ---', {res, orderReceiptID})
+                                    BtcFromTrades = await getSalesHistory(token, orderReceiptID);
+                                }, (3 * ONE_MINUTE))
                             }
                         }}
                     catch (error) {
@@ -721,7 +723,7 @@ module.exports = async function(profile, accessToken, wallet, rentalAddress) {
             //Todo: fix loop times.
             let timer = setInterval(() => {
                 checkConfirmations()
-            }, (1 * ONE_MINUTE))
+            }, (3 * ONE_MINUTE))
 
             let update = setInterval(() => {
                 shouldIUpdated()
@@ -729,7 +731,7 @@ module.exports = async function(profile, accessToken, wallet, rentalAddress) {
 
             let orderStatus = setInterval(() => {
                 checkOrderStatus()
-            },(updateUnsold * (1 * ONE_MINUTE)))
+            },(updateUnsold * (5 * ONE_MINUTE)))
 
 
 
