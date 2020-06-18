@@ -1,15 +1,6 @@
 const { on } = require('../controllers/autoTrade');
 const User = require('../models/user');
 const spartanbot = require('spartanbot')
-const wss = require(process.cwd() + '/backend/routes/socket').wss;
-const events = require('events');
-const emitter = new events();
-
-wss.on('connection', ws => {
-  emitter.on('message', msg => {
-    ws.send(msg);
-  });
-});
 
 const timestamp = () => {
 	let date = new Date()
@@ -38,6 +29,8 @@ class Timer {
         this.provider = settings.badge[0].provider
         this.req = req
         this.ids = settings.rentalId
+        this.emitter = settings.emitter
+        this.userId = settings.userId
     }
     
     /**
@@ -53,10 +46,11 @@ class Timer {
     }
 
     async getProviderAddress() {
-        console.log('this.provider', this.provider.constructor.name)
+        console.log('this.provider timer.js', this.provider.constructor.name)
         if(this.provider.constructor.name === 'NiceHashProvider') {
 
             let address = ( await this.provider.getDepositAddresses('BTC') ).list[0].address
+            console.log('address: BTC', address)
             return address
 
         } else if (this.provider.constructor.name === 'MRRProvider') {
@@ -102,13 +96,15 @@ class Timer {
                 let address = await this.getProviderAddress()
                 let payout = await on(this.req, address)
                 console.log(timestamp(), ' payout:', payout)
-                emitter.emit('message', JSON.stringify({
+                this.emitter.emit('message', JSON.stringify({
+                    userId: this.userId,
                     message: 'Auto trading is starting...'
                 }))
                 
             } catch(e) {
                 console.log(timestamp(), ' ERROR', e)
-                emitter.emit('message', JSON.stringify({
+                this.emitter.emit('message', JSON.stringify({
+                    userId: this.userId,
                     autoRent: false,
                     message: e
                 }))
@@ -119,7 +115,8 @@ class Timer {
                         let CostOfRentalBtc = await this.getTransactions()
                         console.log(timestamp(), ' CostOfRentalBtc:', Math.abs(CostOfRentalBtc).toFixed(8))     
                         
-                        emitter.emit('message', JSON.stringify({
+                        this.emitter.emit('message', JSON.stringify({
+                            userId: this.userId,
                             db: {CostOfRentalBtc: Math.abs(CostOfRentalBtc).toFixed(8)}
                         }))
                     } catch(e) {

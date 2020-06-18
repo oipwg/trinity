@@ -2,7 +2,7 @@
 require('dotenv').config();
 const express = require('express');
 const router = express.Router();
-const Client = require('../spartanBot');
+const Client = require('../spartanBot').Client;
 const User = require('../models/user');
 
 
@@ -21,7 +21,7 @@ async function processUserInput(req, res) {
         if (!user) {
             return 'Can\'t find user. setup.js line #19'
         }
-
+        
         // Checks the database if user providerData exist for either niceHash or MiningRigRentals,
         // if it does get data so api and secret can be used. If not return false and add keys and secret
         // to database
@@ -88,9 +88,8 @@ router.post('/', async (req, res) => {
     console.log('processUserInput ', userInput)
 
     try {
-        let client = Object.create(Client)
-        console.log('client:', client)
-        let data = await client.controller(userInput);
+
+        let data = await Client.controller(userInput);
         let StringifiedData = JSON.stringify({ data }, getCircularReplacer());
 
         res.status(200).send(StringifiedData)

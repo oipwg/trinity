@@ -11,6 +11,7 @@ const MiningOperations = (props) => {
     const socket = useRef(null)
 
     useEffect(() => {
+        
         socket.current = new WebSocket(WEB_SOCKET_URL);
         socket.current.onclose = (e) => {
             console.log('onClose:')
@@ -33,7 +34,9 @@ const MiningOperations = (props) => {
                 socket.current.send(JSON.stringify({ keepAlive: true }));
             } else {
                 let message = JSON.parse(e.data)
-                processReturnData(message)
+                if(message.userId === props.user._id) {
+                    processReturnData(message)
+                }
             }
         }
     }
@@ -57,7 +60,8 @@ const MiningOperations = (props) => {
         message: [],
         update: false,
         CostOfRentalBtc: '',
-        spartanbot: {}
+        spartanbot: {},
+        userId: ''
     });
 
 
@@ -77,11 +81,11 @@ const MiningOperations = (props) => {
     } = miningOperations
 
     useEffect(() => {
-        if(props.user) {
-            console.log('PROFILE', props.user)
-            props.dispatch(updateDailyBudget({...miningOperations, userId:  props.user._id}))
-        }
-        if (props.profile) {
+
+
+        if (props.user && props.profile) {
+            props.dispatch(updateDailyBudget({...miningOperations, userId: props.user._id}))
+
             const {
                 targetMargin, profitReinvestment, updateUnsold, dailyBudget, autoRent, autoTrade, token, name, _id
             } = props.profile
@@ -100,12 +104,13 @@ const MiningOperations = (props) => {
                 supportedExchange: autoTrade.mode.supportedExchanges,
                 token: token,
                 name,
-                profile_id: _id
+                profile_id: _id,
+                userId: props.user._id
             }
 
-            setOperations({ ...miningOperations, ...profile })
+            setOperations({...miningOperations, ...profile })
 
-            setError('')
+            // setError('')
 
         } else {
             setOperations({
@@ -124,6 +129,7 @@ const MiningOperations = (props) => {
                 message: [],
                 update: false,
                 CostOfRentalBtc: '',
+                userId: '',
                 spartanbot: JSON.parse( sessionStorage.getItem('spartanbot') )
             })
         }
@@ -164,7 +170,6 @@ const MiningOperations = (props) => {
         props.updateProfile(profile)
 
         if (miningOperations.autoRent) {
-            console.log('dailyBudget:', dailyBudget)
             // If update has a value of true it removes back to undefined to be updated once again on the backend
             setOperations({ ...miningOperations, message: [], update: false })
             rent(miningOperations)
@@ -172,7 +177,6 @@ const MiningOperations = (props) => {
     }, [autoRent]);
 
     useEffect(() => {
-        console.log('props.dailyBudget', props.dailyBudget)
         if (!props.dailyBudget) return
         setOperations({ ...miningOperations, dailyBudget: props.dailyBudget })
     }, [props.dailyBudget])
@@ -185,7 +189,6 @@ const MiningOperations = (props) => {
                 newValues[key] = Number(data[key])
             } else if (key === 'message') {
                 let message = miningOperations.message.concat(data[key])
-                console.log('message:', message)
                 newValues[key] = message
             } else if (key === 'update') {
                 newValues[key] = data[key]

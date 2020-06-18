@@ -5,9 +5,6 @@ import { connect } from 'react-redux';
 import { addProvider, addBittrex } from '../../../actions/setupActions.js';
 import Navigation from '../nav/Navigation';
 import './setup.css';
-let socket = new WebSocket( WEB_SOCKET_URL );
-
-
 
 const Setup = props => {
     const userdata = props.userData
@@ -17,16 +14,6 @@ const Setup = props => {
     const index = useRef(0);
     const merge = ( ...objects ) => ( [...objects] );
 
-    socket.onopen = (e) => {
-        socket.send(JSON.stringify({action: 'connect'}));
-    };
-
-    socket.onmessage = (e) => {
-        if (e.data === '__ping__') {
-            console.log('Still alive')
-            socket.send(JSON.stringify({keepAlive: true}));
-        }
-    }
     // Right before refreshes saves current state to local stroage
     window.onunload = function(event) {
         if(bittrexData.credentials) {
@@ -40,7 +27,7 @@ const Setup = props => {
         } 
     };
 
-    const auto_setup_provider = (providers, SpartanBot) => {
+    const auto_setup_provider = (providers) => {
         if(providers.length > 0 && !userdata.length) {
     
             index.current = providers.length
@@ -75,10 +62,9 @@ const Setup = props => {
             select_provider_option( userdata )
         }
         if (props.user) {
-            console.log(props.SpartanBot)
             let id = props.user._id || props.user.id
             userId.current = id
-            auto_setup_provider(props.login, props.SpartanBot)
+            auto_setup_provider(props.login)
             auto_setup_bittrex()
         }
         
@@ -298,12 +284,9 @@ const Setup = props => {
     let signInData = []
     
     function process_returned_data(data) {
-        console.log('data:', data)
-        console.log('SPARTANBOT: ', SpartanBot)
+        console.log('returned data:', data)
         if (data.provider === "Bittrex") {
-            console.log('BITTREX', data)
             props.dispatch(addBittrex({...data}))
-  
         } else {
             let responseData = {}
            
@@ -366,13 +349,7 @@ const Setup = props => {
     };
 
     async function setup_Provider(data) {
-
-
         data.userId = userId.current
-        // let spartan = JSON.parse(sessionStorage.getItem('spartanbot'))
-        // console.log('spartan:', spartan)
-        // data.spartanbot = spartan ? JSON.parse(sessionStorage.getItem('spartanbot')) : ''
-        console.log(data)
         const endPoint = data.bittrex ? '/auth/bittrex' : '/setup';
 
         try {
@@ -385,8 +362,6 @@ const Setup = props => {
             });
   
             let res = await response.json()
-            console.log('res:', res.data)
-
             process_returned_data(res.data)
         } catch (e) {
             console.log('Catch error: Setup.js line 232',e)
@@ -846,7 +821,6 @@ const Pools = (props) => {
 
 
 const mapStateToProps = state => {
-    console.log('state:', state)
     return {
         SpartanBot: state.auth.SpartanBot,
         user: state.auth.user,

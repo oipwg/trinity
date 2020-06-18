@@ -1,36 +1,24 @@
 require('dotenv').config();
 const express = require('express');
 const router = express.Router();
-const Client = require('../spartanBot');
-const EventEmitter = require('events');
-class Emitter extends EventEmitter {}
-const emitter = new Emitter();
+const Client = require('../spartanBot').Client;
+const emitter = require('../spartanBot').emitter
+
 const User = require('../models/user');
 const bip32 = require('bip32');
 const { Account, Networks, Address } = require('@oipwg/hdmw');
 const auth = require('../middleware/auth');
-const wss = require('./socket').wss;
 const Timer = require('../helpers/timer');
 const { Rent, getPriceBtcUsd } = require('../helpers/rentValues')
 
-wss.on('connection', ws => {
-    emitter.on('message', msg => {
-        ws.send(msg);
-    });
-});
+// wss.on('connection', ws => {
+//     emitter.on('message', msg => {
+//         ws.send(msg);
+//     });
+// });
 
 
 async function processUserInput(req, res) {
-
-        // let msg = {
-        //     update: true,
-        //     client: {dailyBudget: 0.088876.toFixed(2)},
-        //     db: 'dailyBudget',
-        //     dailyBudget: 0.88876.toFixed(2)
-        // };
-        
-        // emitter.emit('rented', msg);
-
     let options = req.body
     console.log('options:', options.to_do)
 
@@ -75,6 +63,7 @@ async function processUserInput(req, res) {
                 update: true,
                 message: `Your pecent of the network ${Xpercent} changed to ${(MinPercentFromMinHashrate * 100.1).toFixed(2)}%, to ` +
                     `continute renting with ${Xpercent}% for the MiningRigRental market, change percentage and switch renting on again.`,
+                userId: userId,
                 Xpercent: (MinPercentFromMinHashrate * 100.1).toFixed(2),
                 autoRent: false
             }
@@ -119,18 +108,17 @@ async function processUserInput(req, res) {
             }
         }
         await user.save()
+
         if (!user) {
             return 'Can\'t find user. setup.js line#16'
         }
 
-        console.log('OPTIONS ADDRESS', options.address)
         options.profile_id = profile_id
         options.PriceBtcUsd = getPriceBtcUsd
         options.NetworkHashRate = rent.Networkhashrate
         options.MinPercent = rent.MinPercentFromMinHashrate
-        options.emitter = emitter
         // options.duration = token == "FLO" ? 24 : 3
-        options.duration = 3
+        options.duration = 24
         options.newRent = Rent
         options.difficulty = rent.difficulty
         options.hashrate = rent.Rent
@@ -187,7 +175,7 @@ const processData = async (req, res) => {
             timerData.profiles = user.profiles
             timerData.profile_id = userInput.profile_id 
             timerData.duration = userInput.duration
-
+  
             new Timer(timerData, req).setTimer()
             let message = JSON.stringify(msg)
             console.log('message:', msg.db)

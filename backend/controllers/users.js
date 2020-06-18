@@ -1,7 +1,5 @@
 require('dotenv').config();
-const Client = require('../spartanBot')
-const spartanBot = require('spartanbot').SpartanBot;
-
+const Client = require('../spartanBot').Client
 
 const JWT = require('jsonwebtoken');
 const {
@@ -13,7 +11,7 @@ const {
 } = process.env;
 const User = require('../models/user');
 
-signToken = user => {
+let signToken = user => {
     return JWT.sign(
         {
             iss: 'Trinity',
@@ -40,11 +38,14 @@ const getCircularReplacer = () => {
 module.exports = {
     signUp: async (req, res, next) => {
         try {
-            const { userName, email, password, mnemonic, wallet } = req.body;
+            
+            const { userName, _id, email, password, mnemonic, wallet } = req.body;
 
 
             // check for user in DB
             const foundUser = await User.findOne({ userName });
+
+
             if (foundUser) {
                 return res
                     .status(403)
@@ -57,8 +58,8 @@ module.exports = {
                 mnemonic,
                 wallet
             });
-
-
+ 
+           
             // use this to grab addresses
 
             // let accountMaster = bip32.fromBase58(xPrv, Networks.flo.network)
@@ -71,8 +72,10 @@ module.exports = {
             // }
 
             const user = await newUser.save()
+            Client.newSpartan(user.userName, user._id)
 
             const sendUser = await User.findOne({ userName: user.userName }).select('-password');
+            
 
             res.status(200).json({
                 token: signToken(newUser),
@@ -92,11 +95,8 @@ module.exports = {
             if (!user) {
                 return res.status(403).json({ error: 'User does not exist' });
             }
-            Client.newSpartan(userName)
-            Client.newSpartan('brad')
-            // let SpartanBot = new spartanBot()
-            // let StringifiedData = JSON.stringify({token: signToken(user), user, SpartanBot }, getCircularReplacer())
-            // res.status(200).send(StringifiedData)
+            Client.newSpartan(userName, user._id)
+
             res.status(200).json({
                 token: signToken(user),
                 user

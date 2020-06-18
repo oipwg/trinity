@@ -1,7 +1,7 @@
 const https = require('https');
 const request = require('request');
 
-exports.Rent = async (token, percent) => {
+exports.Rent = async (  token, percent) => {
     if (token === "FLO") {
         return await new Promise((resolve, reject) => {
             https.get('https://livenet.flocha.in/api/status?q=getInfos', (response) => {
@@ -9,9 +9,9 @@ exports.Rent = async (token, percent) => {
                 response.on('data', (chunk) => {
                     body += chunk;
                 });
-
                 response.on('end', () => {
                     let data = JSON.parse(body)
+                    if(!data) console.log('HEY')
                     let difficulty = data.info.difficulty
                     let hashrate = difficulty * Math.pow(2, 32) / 40
                     let Networkhashrate = hashrate / 1000000000000;  // TH/s

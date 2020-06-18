@@ -197,6 +197,7 @@ const Profile = (props) => {
             </div>
             </div>
         </div>
+       
         <ActiveRentals profile={selectedProfile}
         />
         <MiningOperations profile={selectedProfile}
