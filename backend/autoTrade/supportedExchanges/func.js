@@ -1,6 +1,6 @@
 require('dotenv').config();
 const { API_URL}  = process.env
-const timestamp = require('../../helpers/timestamp').default;
+const timestamp = require('../../helpers/timestamp')
 const axios = require('axios');
 
 
@@ -8,7 +8,8 @@ const getTotalQty = (receivedQtyHourly, feeFloTx1) => {
     return Number((receivedQtyHourly + feeFloTx1).toFixed(8));
 }
 
-const getOfferPriceBtc = (costOfRentalBTCHourly, bittrexTradeFee, targetMargin, bittrexWithdrawlFee) => {
+const getOfferPriceBtc = (costOfRentalBTCHourly, bittrexTradeFee, targetMargin, bittrexWithdrawlFee, estFeeBtcTx1, sellableQty) => {
+    console.log({costOfRentalBTCHourly, bittrexTradeFee, targetMargin, bittrexWithdrawlFee, estFeeBtcTx1, sellableQty})
     let OfferPrice =   ( costOfRentalBTCHourly * ( bittrexTradeFee + 1 ) * ( targetMargin + 1 ) + bittrexWithdrawlFee + estFeeBtcTx1 ) / sellableQty
     return Number(OfferPrice.toFixed(8))
 }
@@ -83,7 +84,7 @@ const getBlockHeightFlo = async () => {
     try {
         const res = await axios.get(`https://livenet.flocha.in/api/status?q=getInfo`)
     } catch (error) {
-        
+        console.log(timestamp(), error)
     }
 }
 
@@ -91,7 +92,82 @@ const getBlockHeightRvn = async () => {
     try {
         const res = await axios.get(`https://rvn.bitspill.net/api/status?q=getInfo`)
     } catch (error) {
+        console.log(timestamp(), error)
+    }
+}
+
+async function getBalanceFromAddress(address){
+    try {
+        let res = await axios.get(`https://livenet.flocha.in/api/addr/${address}`)
+
+        if(res.status != 200){
+            return console.log(timestamp(),res)
+        }
+
+        return res.data    
+    } catch (error) {
+        console.log(timestamp(),'ERR; getBalanceFromAddress  -------', error)
+    }
+}
+
+async function getTxidInfo(txid){
+    try {
+        let res = await axios.get(`https://livenet.flocha.in/api/tx/${txid}`)
+
+        return res.data;
+
+    } catch (error) {
+        console.log("error")
+    }
+}
+
+const getFees = async transactions => {
+    console.log(timestamp(),'getting fees...')
+    let total = 0;
+
+    if(!transactions){
+        return;
+    }
+
+
+    for(let i = 0; i < transactions.length; i++){
         
+        let res = await axios.get(`https://livenet.flocha.in/api/tx/${transactions[i]}`)
+        if(res.status != 200) return console.log(timestamp(),res)
+
+        total += res.data.fees
+    } 
+
+    return Number(total.toFixed(8))
+}
+
+const checkMarketPrice = async (offerPrice) => {
+    try {
+        const res = await axios.get('https://api.bittrex.com/api/v1.1/public/getticker?market=BTC-FLO')
+        let marketPrice = res.data.result.Bid
+
+        console.log(timestamp(),'checking market price', {offerPrice, marketPrice}, 'offerPrice < marketPrice:', (offerPrice < marketPrice))
+        if(offerPrice < marketPrice){
+            return marketPrice
+        }
+
+    return offerPrice
+    } catch (error) {
+        console.log(timestamp(),'ERR; checkMarketPrice ------', error)
+    }        
+}
+
+const getMinTradeSize = async (currency) => {
+    try {
+        const res = await axios.get(`https://api.bittrex.com/api/v1.1/public/getmarkets`)
+
+        let data = res.data.result;
+        let market = data.find(market => market.MarketCurrency === currency)
+        
+        return market.MinTradeSize;
+
+    } catch (error) {
+        console.log(error)
     }
 }
 
@@ -107,5 +183,10 @@ module.exports = {
     getBittrexBtcUsd,
     getPriceBittrexBtcToken,
     getBlockHeightFlo,
-    getBlockHeightRvn
+    getBlockHeightRvn,
+    getBalanceFromAddress,
+    getFees,
+    checkMarketPrice,
+    getTxidInfo,
+    getMinTradeSize
 }

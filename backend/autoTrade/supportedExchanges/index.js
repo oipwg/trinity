@@ -1,6 +1,7 @@
 require('dotenv').config();
+const StateMachine = require('javascript-state-machine');
 const { API_URL}  = process.env
-const timestamp = require('../../helpers/timestamp').default
+const timestamp = require('../../helpers/timestamp')
 const {
     getTotalQty,
     getOfferPriceBtc,
@@ -13,7 +14,12 @@ const {
     getBittrexBtcUsd,
     getPriceBittrexBtcToken,
     getBlockHeightFlo,
-    getBlockHeightRvn
+    getBlockHeightRvn,
+    getBalanceFromAddress,
+    getFees,
+    checkMarketPrice,
+    getTxidInfo,
+    getMinTradeSize
 } = require('./func')
 const { Account, Address, TransactionBuilder, Networks } = require('@oipwg/hdmw')
 const bip32 = require('bip32')
@@ -56,12 +62,12 @@ let TokensFromCanOffer,
 
 module.exports = async function(profile, accessToken, wallet, rentalAddress) {
     
-    //Todo: Pass this to into Trade function
-    if(token === 'FLO'){
-        var blockHeight = getBlockHeightFlo
-    } else if(token === 'RVN'){
-        blockHeight = getBlockHeightFlo
-    }
+    // //Todo: Pass this to into Trade function
+    // if(token === 'FLO'){
+    //     var blockHeight = getBlockHeightFlo
+    // } else if(token === 'RVN'){
+    //     blockHeight = getBlockHeightFlo
+    // }
 
 
     if(!accessToken){
@@ -95,20 +101,6 @@ module.exports = async function(profile, accessToken, wallet, rentalAddress) {
 
         } catch (error) {
             console.log(timestamp(),'getBittrexAddress Failed ------- ', error)
-        }
-    }
-
-    const getBalanceFromAddress = async (address) => {
-        try {
-            let res = await axios.get(`https://livenet.flocha.in/api/addr/${address}`)
-
-            if(res.status != 200){
-                return console.log(timestamp(),res)
-            }
-
-            return res.data    
-        } catch (error) {
-            console.log(timestamp(),'ERR; getBalanceFromAddress  -------', error)
         }
     }
 
@@ -174,27 +166,7 @@ module.exports = async function(profile, accessToken, wallet, rentalAddress) {
             console.log(timestamp(),'updateOrder ---', error)
         }
     }
-
-    const getFees = async transactions => {
-        console.log(timestamp(),'getting fees...')
-        let total = 0;
-
-        if(!transactions){
-            return;
-        }
-
     
-        for(let i = 0; i < transactions.length; i++){
-            
-            let res = await axios.get(`https://livenet.flocha.in/api/tx/${transactions[i]}`)
-            if(res.status != 200) return console.log(timestamp(),res)
-
-            total += res.data.fees
-        } 
-
-        return Number(total.toFixed(8))
-    }
-
     const getSalesHistory = async (token, id) => {
         try {
             if(!id){
@@ -232,9 +204,6 @@ module.exports = async function(profile, accessToken, wallet, rentalAddress) {
             console.log(timestamp(),'ERR; getOpenOrders ----', error)
         }
     }
-
-
-
 
     // Withdraw amount has to be 3 times greater than the fee (.0005 btc)
     const withdrawFromBittrex = async (currency, quantity, address) => {
@@ -313,22 +282,6 @@ module.exports = async function(profile, accessToken, wallet, rentalAddress) {
 
     }
 
-    const checkMarketPrice = async (offerPrice) => {
-        try {
-            const res = await axios.get('https://api.bittrex.com/api/v1.1/public/getticker?market=BTC-FLO')
-            let marketPrice = res.data.result.Bid
-
-            console.log(timestamp(),'checking market price', {offerPrice, marketPrice}, 'offerPrice < marketPrice:', (offerPrice < marketPrice))
-            if(offerPrice < marketPrice){
-                return marketPrice
-            }
-
-        return offerPrice
-        } catch (error) {
-            console.log(timestamp(),'ERR; checkMarketPrice ------', error)
-        }        
-    }
-
     const rent = (options) => { 
 
         let body = {
@@ -361,17 +314,41 @@ module.exports = async function(profile, accessToken, wallet, rentalAddress) {
     }
 
 
+    const getBittrexBalance = async (currency) => {
+        try { 
+            const res = await axios.get(`${API_URL}/bittrex/getCurrencyBalance/${currency}`, config)
+
+            return res.data.result;
+        } catch (error) {
+            console.log(error)
+        }
+    }
+
     const sendPayment = async (floBittrexAddress, address, amount) => {
         try {
+
+            if(amount <= 0){
+                return " ----------- NO BALANCE -------------"
+            }
+
+            let fee = await buildTransaction(address, amount)
+
+            let sendAmount = Number((amount - (fee)).toFixed(8))
+
             let txid = await account.sendPayment({
-                to: {[floBittrexAddress]: amount},
+                to: {[floBittrexAddress]: sendAmount},
                 from: address,
                 discover: false
             })
-            
+
+            console.log({txid})
+            // let txid = 'b5a7ab72c82efd98b28f837e1760c7cc1f752782f2cb9c9add73eea2588d444a'
+
             return txid
+
+            
         } catch (error) {
-            console.log(timestamp(), "ERR; SendPayment", err)
+            console.log(timestamp(), "ERR; SendPayment", error)
         }
     }
     
@@ -387,31 +364,223 @@ module.exports = async function(profile, accessToken, wallet, rentalAddress) {
         CostOfRentalBtc
     } = profile
 
+    if(!profile){
+        console.log(profile, 'not found')
+        return 'no profile found'
+    }
 
+    const coin = token.toLowerCase();
 
-    return
-
-
-    let bittrexTX
+    const accountMaster = bip32.fromBase58(wallet[coin].xPrv, Networks[coin].network)
+    let account = new Account(accountMaster, Networks[coin]);
+    // account.discoverChains();
+    const margin = targetMargin / 100;
+    const reinvestmentRate = profitReinvestment / 100;
+    const floBittrexAddress = await getBittrexAddress(token);
     let userBTCAddress = address.btcAddress;
-    CostOfRentalBTC = CostOfRentalBtc
-
-    address = address.publicAddress;
-    console.log(timestamp(), 'START AUTO TRADE', {address, userBTCAddress, rentalAddress})
+    let userFLOAddress = address.publicAddress;
+    console.log(timestamp(), 'START AUTO TRADE', {userFLOAddress, userBTCAddress, rentalAddress})
 
     if(!address){
         console.log(timestamp(),'no address')
         return 'No Address'
     }
 
-    const margin = targetMargin / 100;
-    const ProfitReinvestmentRate = profitReinvestment / 100;
-    const accountMaster = bip32.fromBase58(wallet.flo.xPrv, Networks.flo.network)
-    let account = new Account(accountMaster, Networks.flo);
-    account.discoverChains();
+    let context = {
+        hour: 0,
+        blockHeight: 0,
+        receivedQty: 0,
+        feeFloTx1: 0,
+        hourlyCostOfRentalBtc: 0,
+        totalQty: 0,
+        feeFloTx2: 0,
+        sellableQty: 0,
+        bittrexTradeFee: 0.002,
+        bittrexWithdrawlFee: .0005,
+        estFeeBtcTx1: 0.00001551,
+        offerPriceBtc: 0,
+        offerPriceBtc24h: 0,
+        bittrexTxid: [],
+        orders: [],
+      }
+
+
+      const machine = {
+          state: "START",
+          transitions: {
+              "START": {
+                  starting: async function() {
+                    console.log('Staring...')
+                    let {balance, transactions} = await getBalanceFromAddress(userFLOAddress)
+                    let fees = await getFees(transactions);
+                    context.receivedQty = balance
+                    context.feeFloTx1 = fees
+                    context.hourlyCostOfRentalBtc = CostOfRentalBtc
+                    context.totalQty = getTotalQty(context.receivedQty, context.feeFloTx1)
+                    console.log(context)
+                    this.changeState('TRANSFER')
+                    this.dispatch('moving')
+                  }
+              },
+              "TRANSFER": {
+                  moving: async function() {
+
+                    if(context.receivedQty <= 0){
+                        return console.log("NO BALANCE --- HANDLE THIS STATE ")
+                    }
+                    let txid = await sendPayment(floBittrexAddress, userFLOAddress, context.receivedQty)
+                    
+                    console.log(txid)
+
+                    if(txid){
+                        context.bittrexTxid.push(txid)
+
+                        setTimeout(async () => {
+                            let { fees } = await getTxidInfo(txid)
+                            context.feeFloTx2 = fees;
+                            context.sellableQty = getSellableQty(context.totalQty, context.feeFloTx2);
+                            console.log({fees, context})
+                            this.changeState("WAIT")
+                            this.dispatch("waiting")
+
+                        }, 10000)
+                    }
+                  }
+              },
+              "WAIT": {
+                  waiting: function(add) {
+                      let timer = setInterval(async () => {
+                        try {
+                            
+                            let minConfirmation = 150
+
+                            if(token === "RVN"){
+                                minConfirmation = 60
+                            }
+                            
+                            if(add){
+                                minConfirmation += add;
+                            }
+
+
+                            let { confirmations } = await getTxidInfo(context.bittrexTxid[context.bittrexTxid.length - 1])
+
+                            if(confirmations > minConfirmation){
+                                console.log("CONFIRMED", `${confirmations} out of ${minConfirmation}`)
+                                clearInterval(timer)
+                                this.changeState("CHECK_BALANCE")
+                                this.dispatch("checkingBalance")
+                            } else {
+                                console.log({confirmations})
+                            }
+                        } catch (error) {
+                            console.log(error)
+                        }
+                      }, ONE_MINUTE)
+                  }
+              },
+              "CHECK_BALANCE": {
+                  checkingBalance: async function() {
+                      let { Balance } = await getBittrexBalance(token)
+
+                    //check balance
+                      console.log(Balance)
+                      context.receivedQty =
+
+
+                      
+                      if(Balance >= (Balance += context.receivedQty)){
+                            this.changeState("CALC")
+                            this.dispatch("calculating")
+                      } else {
+                        this.changeState("WAIT")
+                        this.dispatch("waiting", [{add: 10}])
+                      }
+                  }
+              },
+              "CALC": {
+                calculating: function() {
+                    let {
+                        hourlyCostOfRentalBtc,
+                        sellableQty,
+                        bittrexTradeFee,
+                        bittrexWithdrawlFee,
+                        estFeeBtcTx1,
+                        } = context
+                    context.offerPriceBtc = getOfferPriceBtc(hourlyCostOfRentalBtc, bittrexTradeFee, margin, bittrexWithdrawlFee, estFeeBtcTx1, sellableQty)
+                    console.log(context)
+                    this.changeState("CREATE_OFFER")
+                    this.dispatch('creatingOffer')
+                }
+              },
+              "CREATE_OFFER": {
+                creatingOffer: async function() {
+                    let min = await getMinTradeSize(token)
+                    
+                    if(context.receivedQty >= min){
+                        const res = await createSellOrder(token, context.receivedQty, context.offerPriceBtc);
+                        context.orders.push(res)
+                        this.changeState("UPDATE_UNSOLD")
+                        this.dispatch("updaingUnsold")
+                        
+                    } else {
+                        return console.log('MINNIMUM NOT MET -----  HANDLE THIS', {min})
+                    }
+
+
+                }
+              },
+              "UPDATE_UNSOLD": {
+                    updatingUnsold: function () {
+                        console.log('update unsold does some stuff here, I guess')
+                    }
+              },
+
+              "ERROR": {
+                  nothing: async function() {
+                      return "NOT COOLBEANS :( "
+                  }
+              }
+          },
+          dispatch (actionName, ...payload) {
+              const actions = this.transitions[this.state];
+              const action = this.transitions[this.state][actionName]
+
+              if(action){
+                  action.apply(machine, ...payload);
+              } else {
+                  console.log('not valid for current state')
+              }
+          },
+          changeState(newState){
+              console.log('STATE ---', newState, '---' )
+              this.state = newState;
+          }
+      }
+
+      let Trade = Object.create(machine, {
+          name: {
+              writable: false,
+              enumerable: true,
+              value: 'Trade'
+          }
+      })
+
+      console.log("CURRENT STATE ---", Trade.state)
+      Trade.dispatch("starting")
+
+    return;
+
+
+    let bittrexTX
+    CostOfRentalBTC = CostOfRentalBtc
+
+
+
+
+
 
     let {balance, transactions} = await getBalanceFromAddress(address);
-    const floBittrexAddress = await getBittrexAddress(token);
 
             
         if(transactions){

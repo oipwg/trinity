@@ -21,6 +21,8 @@ router.get('/salesHistory', auth, BittrexController.salesHistory)
 
 router.get('/getBalance', auth, BittrexController.getBalance)
 
+router.get('/getCurrencyBalance/:currency', auth, BittrexController.getCurrencyBalance)
+
 router.post('/withdraw', auth, BittrexController.withdraw)
 
 router.post('/cancelOrder', auth, BittrexController.cancelOrder);
