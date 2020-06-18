@@ -10,8 +10,7 @@ import { isEqual } from 'lodash'
 const MiningOperations = (props) => {
     const socket = useRef(null)
 
-    useEffect(() => {
-        
+    function connectSocket(){
         socket.current = new WebSocket(WEB_SOCKET_URL);
         socket.current.onclose = (e) => {
             console.log('onClose:')
@@ -20,11 +19,15 @@ const MiningOperations = (props) => {
             socket.current.send(JSON.stringify({ action: 'connect' }));
         };
 
+        
+    }
+
+    useEffect(() => {
+        connectSocket()
         return () => {
             // When MiningOperations unmounts it wont let the timer update and run to prevent memory leaks
             socket.current.close()
         }
-
     }, [])
 
     if (socket.current) {
@@ -84,7 +87,7 @@ const MiningOperations = (props) => {
 
 
         if (props.user && props.profile) {
-            props.dispatch(updateDailyBudget({...miningOperations, userId: props.user._id}))
+            props.dispatch(updateDailyBudget({...miningOperations, userId: props.user._id, profile_id: props.profile._id}))
 
             const {
                 targetMargin, profitReinvestment, updateUnsold, dailyBudget, autoRent, autoTrade, token, name, _id
@@ -107,7 +110,7 @@ const MiningOperations = (props) => {
                 profile_id: _id,
                 userId: props.user._id
             }
-
+            
             setOperations({...miningOperations, ...profile })
 
             // setError('')

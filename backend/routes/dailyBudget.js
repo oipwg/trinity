@@ -8,21 +8,30 @@ const fs = require('fs');
 
 
 class DailyBudget {
-    constructor(inputs){
+    constructor(inputs, user){
         this.targetMargin = inputs.targetMargin
         this.profitReinvestment = inputs.profitReinvestment
         this.Xpercent = inputs.Xpercent
         this.token = inputs.token
         this.inputs = inputs
+        this.user = user
     }
 
-    static getProperties() {
-        return this.inputs
+    savePriceBtcUsd(PriceBtcUsd) {
+        let profiles = this.user.profiles
+        for(let profile of profiles) {
+            if(profile._id.toString() === this.inputs.profile_id) {
+                profile.priceBtcUsd = Number(PriceBtcUsd)
+                this.user.save()
+            }
+        }
     }
+
     async updateDailyBudget(MarketPrice) {
         try {
             let priceUSD = await this.getPriceBtcUsd()
             const PriceBtcUsd = priceUSD.data.rates.USD;
+            this.savePriceBtcUsd(PriceBtcUsd)
             const Networkhashrate = ( await Rent(this.token, this.Xpercent) ).Networkhashrate
             const MarketPriceMrrScrypt = MarketPrice * 1000 / 24; // convert to TH/s devided by 24 => 1000/24
             const Duration = 24;
@@ -120,9 +129,10 @@ class DailyBudget {
 router.post('/', async (req, res)=> {
     let inputs = req.body
 
-    inputs.userName =  (await User.findById({ _id: inputs.userId}) ).userName;
+    let user = await User.findById({ _id: inputs.userId});
+    inputs.userName = user.userName
     let outputs = await Client.controller(inputs) // Attaches SpartanBot to inputs
-    let dailyBudget = (await new DailyBudget(outputs).getDailyBudget() ).toFixed(2)
+    let dailyBudget = (await new DailyBudget(outputs, user).getDailyBudget() ).toFixed(2)
 
     res.json(dailyBudget)
 })
