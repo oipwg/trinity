@@ -74,7 +74,11 @@ const profileSchema = new Schema({
     CostOfRentalBtc: {
         type: Number,
         default: 0
-    }
+    },
+    priceBtcUsd: {
+        type: Number,
+        default: 0
+    },
 });
 
 
