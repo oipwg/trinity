@@ -3,7 +3,7 @@ const express = require('express');
 const router = express.Router();
 const User = require('../models/user');
 const Client = require('../spartanBot').Client;
-const { Rent } = require('../helpers/rentValues')
+const { Rent, getPriceBtcUsd } = require('../helpers/rentValues')
 const fs = require('fs');
 
 
@@ -29,7 +29,7 @@ class DailyBudget {
 
     async updateDailyBudget(MarketPrice) {
         try {
-            let priceUSD = await this.getPriceBtcUsd()
+            let priceUSD = await getPriceBtcUsd()
             const PriceBtcUsd = priceUSD.data.rates.USD;
             this.savePriceBtcUsd(PriceBtcUsd)
             const Networkhashrate = ( await Rent(this.token, this.Xpercent) ).Networkhashrate
@@ -40,7 +40,7 @@ class DailyBudget {
             const ProfitReinvestmentRate = this.profitReinvestment / 100;
             let EstRentalBudgetPerCycleUSD = Networkhashrate * MarketPriceMrrScrypt * Duration * (-Percent / (-1 + Percent)) * PriceBtcUsd * (Margin * ProfitReinvestmentRate + 1);
             console.log('In dailyBudget.js EstRentalBudgetPerCycleUSD:', EstRentalBudgetPerCycleUSD)
-            return EstRentalBudgetPerCycleUSD  || 0
+            return {EstRentalBudgetPerCycleUSD: EstRentalBudgetPerCycleUSD  || 0, Networkhashrate}
         } catch(e) {
             console.log('e:', e)
         } 
@@ -90,29 +90,6 @@ class DailyBudget {
         }
     }
 
-    async getPriceBtcUsd() {
-        let promise = new Promise((resolve, reject)=> {
-            https.get('https://api.coinbase.com/v2/exchange-rates?currency=BTC', (response) => {
-            let todo = '';
-    
-            // called when a data chunk is received.
-            response.on('data', (chunk) => {
-                todo += chunk;
-            })
-    
-            // called when the complete response is received.
-            response.on('end', () => {
-                resolve(JSON.parse(todo))
-            })
-    
-            }).on("error", (error) => {
-                console.log("Error: " + error.message);
-                reject("Error: " + error.message)
-            })
-        })
-        return promise
-    }
-
     async getDailyBudget() {
         try {
             let marketPriceScryptBtcThSD = await this.marketPrice()
@@ -120,11 +97,8 @@ class DailyBudget {
         } catch(err) {
             console.log('dailyBudget.js err:', err)
         }
-        
     }
 }
-
-
 
 router.post('/', async (req, res)=> {
     let inputs = req.body
@@ -132,9 +106,9 @@ router.post('/', async (req, res)=> {
     let user = await User.findById({ _id: inputs.userId});
     inputs.userName = user.userName
     let outputs = await Client.controller(inputs) // Attaches SpartanBot to inputs
-    let dailyBudget = (await new DailyBudget(outputs, user).getDailyBudget() ).toFixed(2)
+    let values = await new DailyBudget(outputs, user).getDailyBudget()
 
-    res.json(dailyBudget)
+    res.json(values)
 })
 
 module.exports = router;

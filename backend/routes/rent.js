@@ -123,6 +123,7 @@ async function processUserInput(req, res) {
         options.difficulty = rent.difficulty
         options.hashrate = rent.Rent
         options.rentType = 'Manual'
+        options.type = 'FIXED'
         return options
     } catch (e) {
         console.log('Catch error rent.js line 140: .' + e )
