@@ -57,3 +57,4 @@ export const BITTREX_DATA = 'BITTREX_DATA';
 // MiningOperations
 export const DAILY_BUDGET = 'DAILY_BUDGET';
 export const PROVIDER = 'PROVIDER';
+export const PERCENT_MODAL = 'PERCENT_MODAL';

@@ -359,6 +359,82 @@ main {
   }
 }
 
+/* Percent Modal */
+.percent-modal-container {
+  opacity: 1;
+  transform: scale(1);
+  border-radius: 5px;
+  position: absolute;
+  top: -144px;
+  max-width: 500px;
+  width: 100%;
+  height: 225px;
+  background: #fff;
+  z-index: 100;
+  -webkit-box-shadow: 0 15px 35px rgba(50, 50, 93, 0.1), 0 5px 15px rgba(0, 0, 0, 0.07);
+    box-shadow: 0 15px 35px rgba(50, 50, 93, 0.1), 0 5px 15px rgba(0, 0, 0, 0.07);
+    transition: all .5s ease-in;
+}
+
+.percent-modal-container header{
+  height: 50px;
+  background: #0082f9;
+}
+
+.percent-modal-container .close {
+    position: absolute;
+    top: 0px;
+    right: 5px;
+    padding: 12.5px;
+    color: white;
+    opacity: 1;
+    outline: none;
+}
+
+.percent-modal-container .content-wrapper {
+  display: flex;
+  align-items: center;
+}
+
+.percent-modal-container .content-wrapper p {
+  font-size: .9rem;
+  padding: 5px 5px 0 10px;
+}
+
+.percent-modal-container span {
+  display: inline-block;
+  width: 31px;
+  white-space: nowrap;
+}
+
+.percent-modal-container .fa.fa-bell-o {
+  font-size: 4rem;
+  color: #dc3545;
+  padding: 10px;
+}
+.percent-modal-container .modal-footer {
+  position: absolute;
+  bottom: 0px;
+  width: 100%;
+  padding: .35rem;
+}
+
+.percent-modal-container .btn  {
+  font-size: .9rem;
+}
+
+.percent-modal-container .error-arrow {
+  width: 25px;
+    height: 25px;
+    background: #fff;
+    display: block;
+    position: absolute;
+    bottom: -10px;
+    left: 100px;
+    transform: rotate(45deg);
+}
+
+
 /* Moblie */
 @media screen and (max-width: 500px) {
   .card {

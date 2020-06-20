@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { API_URL, WEB_SOCKET_URL } from '../../../../../config.js';
-import { updateDailyBudget } from '../../../../actions/miningOperationsActions.js';
+import { updateDailyBudget, isNiceHashMinimum } from '../../../../actions/miningOperationsActions.js';
 import ToggleSwitch from '../../../helpers/toggle/ToggleSwitch';
 import { connect } from 'react-redux';
 import MarketsNPools from '../../../settings/prefrences/merc/MercMode'
@@ -18,8 +18,6 @@ const MiningOperations = (props) => {
         socket.current.onopen = (e) => {
             socket.current.send(JSON.stringify({ action: 'connect' }));
         };
-
-        
     }
 
     useEffect(() => {
@@ -333,9 +331,12 @@ const MiningOperations = (props) => {
         }
     }
 
+
     const updatePercent = e => {
         let value = e.target.value
-        props.dispatch(updateDailyBudget({ ...miningOperations, Xpercent: value }))
+        console.log('value:', value)
+        // props.dispatch(isNiceHashMinimum(value, token))
+        props.dispatch(updateDailyBudget({ ...miningOperations, Xpercent: value }, 'upDateNiceHashMinimum'))
         setOperations({ ...miningOperations, Xpercent: value })
     }
     const showPercentInput = () => {
@@ -455,7 +456,7 @@ const MiningOperations = (props) => {
                         <circle cx="16" cy="16" r="16" className={miningOperations.autoRent ? 'ledBulb' : 'hideLed'} fill=" url(#radial-gradient)"/>
                         <path d="M16,1A15,15,0,1,1,1,16,15,15,0,0,1,16,1m0-1A16,16,0,1,0,32,16,16,16,0,0,0,16,0Z" fill="#444"/>
                         </svg> */}
-                            <svg viewBox="0 0 88 88" width="33" height="33">
+                            <svg viewBox="0 0 88 88" width="30" height="30">
                                 <defs>
                                     <radialGradient id="radial-gradient" cx="29.31" cy="20.41" fx="-2.4352928907866698" fy="49.26989691412602" r="51.42" gradientTransform="translate(77.07 3.92) rotate(123.04) scale(1 1.1)" gradientUnits="userSpaceOnUse">
                                         <stop offset="0" stopColor="#828282" />
@@ -536,6 +537,7 @@ const MiningOperations = (props) => {
                             </label>
                             </div>
                             <div className="percent-container">
+                                <PercentModal miningOperations={miningOperations} state={props}/>
                                 <div className="form-check">
                                     <input className="form-check-input" type="radio" id="alwaysMineXPercent"
                                         value={alwaysMineXPercent}
@@ -598,9 +600,57 @@ const MiningOperations = (props) => {
     );
 };
 
+const PercentModal = (props) => {
+console.log('props:', props)
+    let percent = props.miningOperations.Xpercent
+    // let modalOpen = props.state.percentModal
+    console.log('modalOpen:', props.state.percentModal)
+    const modalOpen = () => {
+        if(props.state.percentModal === 'open') {
+            return {
+                opacity: 1,
+                transform: 'scale(1)'
+            }
+        } else {
+            return {
+                opacity: 0,
+                transform: 'scale(0)'
+            }
+        }
+    }
+
+    return (
+        <div className="percent-modal-container" style={modalOpen()}>
+            <div className="percent-modal">
+                <header className="percent-header"></header>
+                <button type="button" className="close" data-dismiss="modal" aria-label="Close"
+                onClick={()=> { props.state.dispatch(isNiceHashMinimum(0,0,'close'))} }>
+                    <span aria-hidden="true" className="white-text">&times;</span>
+                </button>
+                <div className="content-wrapper">
+                    <i className="fa fa-bell-o" aria-hidden="true"></i>
+                    <p>Your <span>{percent}%</span> is too low for Nicehash's minimum, so MiningRigRentals will be used by default. 
+                    If you would like to have Spartan also consider the Nicehash rental provider, please increase percentage.</p>
+                </div>
+                
+                <div className="modal-footer flex-center">
+                    <button className="btn btn-primary">CHANGE IT FOR ME
+                    {/* <i className="far fa-gem ml-1 white-text"></i> */}
+                    </button>
+                    <button type="button" className="btn btn-outline-danger" data-dismiss="modal"
+                    onClick={()=> { props.state.dispatch(isNiceHashMinimum(0,0,'close'))} }>OK, THANKS</button>
+                </div>
+            </div>
+            <span className="error-arrow"></span>
+        </div>
+    )
+}
 
 const mapStateToProps = state => {
+    
+    console.log('state:', state)
     return {
+        percentModal: state.percentModalReducer.percentModalopen,
         user: state.auth.user,
         address: state.account.wallet,
         dailyBudget: state.miningOperationsReducer.dailyBudget

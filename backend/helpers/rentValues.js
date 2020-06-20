@@ -11,7 +11,7 @@ exports.Rent = async (  token, percent) => {
                 });
                 response.on('end', () => {
                     let data = JSON.parse(body)
-                    if(!data) console.log('HEY')
+                    if(!data) console.log('Data variable in rent function rentValues.js needs to have a catch for it, Flocha api is down!')
                     let difficulty = data.info.difficulty
                     let hashrate = difficulty * Math.pow(2, 32) / 40
                     let Networkhashrate = hashrate / 1000000000000;  // TH/s

@@ -31,7 +31,7 @@
   -webkit-box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
           box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
   position: absolute;
-  top: -1.5px;
+  top: -2px;
   z-index: 1;
   left: -2px;
   pointer-events: none;
