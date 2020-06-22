@@ -601,10 +601,8 @@ const MiningOperations = (props) => {
 };
 
 const PercentModal = (props) => {
-console.log('props:', props)
     let percent = props.miningOperations.Xpercent
     // let modalOpen = props.state.percentModal
-    console.log('modalOpen:', props.state.percentModal)
     const modalOpen = () => {
         if(props.state.percentModal === 'open') {
             return {
