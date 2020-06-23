@@ -7,6 +7,8 @@ const SpartanBot = require('spartanbot').SpartanBot;
 const Events = require('events').EventEmitter;
 const emitter = new Events()
 const wss = require('../routes/socket')
+const Timer = require('../helpers/timer')
+
 
 class Client {
     constructor(settings) {
@@ -18,7 +20,8 @@ class Client {
                 name: name,
                 id: userId.toString(),
                 spartan: new SpartanBot(),
-                emitter: emitter
+                emitter: emitter,
+                timer: Timer
             })
             if(callback) {
                 callback(this.users[this.users.length-1])

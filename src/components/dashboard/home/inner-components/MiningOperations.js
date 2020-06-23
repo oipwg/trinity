@@ -9,25 +9,33 @@ import { isEqual } from 'lodash'
 
 const MiningOperations = (props) => {
     const socket = useRef(null)
+    const user_id = useRef(null)
 
     function connectSocket(){
         socket.current = new WebSocket(WEB_SOCKET_URL);
         socket.current.onclose = (e) => {
+            console.log(socket)
+            if(socket.current) {
+                console.log('Going to try and connect again')
+                connectSocket()
+            }
             console.log('onClose:')
+            
         }
         socket.current.onopen = (e) => {
             socket.current.send(JSON.stringify({ action: 'connect' }));
         };
     }
-
+   
     useEffect(() => {
         connectSocket()
         return () => {
             // When MiningOperations unmounts it wont let the timer update and run to prevent memory leaks
             socket.current.close()
+            socket.current = false
         }
     }, [])
-
+    
     if (socket.current) {
         socket.current.onmessage = (e) => {
             if (e.data === '__ping__') {
@@ -35,7 +43,9 @@ const MiningOperations = (props) => {
                 socket.current.send(JSON.stringify({ keepAlive: true }));
             } else {
                 let message = JSON.parse(e.data)
-                if(message.userId === props.user._id) {
+                console.log('message:', message)
+                // if(message.userId === props.user._id) {
+                    if(message.userId === user_id.current) {
                     processReturnData(message)
                 }
             }
@@ -110,7 +120,7 @@ const MiningOperations = (props) => {
             }
             
             setOperations({...miningOperations, ...profile })
-
+            user_id.current = props.user._id
             // setError('')
 
         } else {
@@ -220,7 +230,7 @@ const MiningOperations = (props) => {
         }).then((response) => {
             return response.json();
         }).then((data) => {
-            console.log('data:', data)
+            console.log('Response data from renting:', data)
         }).catch((err) => {
             console.log(err)
         });
@@ -272,7 +282,6 @@ const MiningOperations = (props) => {
                             return setError({ autoRent: true })
                         }
                         let options = { ...miningOperations, autoRent: !autoRent, autoTrade: false }
-                        console.log('options:', options)
                         setOperations(options)
                     }
                     break;
@@ -334,8 +343,6 @@ const MiningOperations = (props) => {
 
     const updatePercent = e => {
         let value = e.target.value
-        console.log('value:', value)
-        // props.dispatch(isNiceHashMinimum(value, token))
         props.dispatch(updateDailyBudget({ ...miningOperations, Xpercent: value }, 'upDateNiceHashMinimum'))
         setOperations({ ...miningOperations, Xpercent: value })
     }
@@ -645,8 +652,6 @@ const PercentModal = (props) => {
 }
 
 const mapStateToProps = state => {
-    
-    console.log('state:', state)
     return {
         percentModal: state.percentModalReducer.percentModalopen,
         user: state.auth.user,

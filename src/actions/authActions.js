@@ -156,7 +156,6 @@ export const loginUser = ({ userName, password }, history) => dispatch => {
     axios
         .post(`${API_URL}/users/login`, body, config)
         .then(res => {
-            console.log('login', res);
             dispatch({
                 type: LOGIN_SUCCESS,
                 payload: res.data,
