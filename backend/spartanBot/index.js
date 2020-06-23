@@ -82,6 +82,7 @@ class Client {
 
         options.SpartanBot = user.spartan
         options.emitter = user.emitter
+        options.Timer = user.timer
         console.log('options.userName', options.userName)
         console.log('this.users', this.users)
 

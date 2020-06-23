@@ -8,7 +8,6 @@ const User = require('../models/user');
 const bip32 = require('bip32');
 const { Account, Networks, Address } = require('@oipwg/hdmw');
 const auth = require('../middleware/auth');
-const Timer = require('../helpers/timer');
 const { Rent, getPriceBtcUsd } = require('../helpers/rentValues')
 
 
@@ -171,10 +170,11 @@ const processData = async (req, res) => {
             timerData.profiles = user.profiles
             timerData.profile_id = userInput.profile_id 
             timerData.duration = userInput.duration
-  
+ 
+            let Timer = timerData.timer
             new Timer(timerData, req).setTimer()
+
             let message = JSON.stringify(msg)
-            console.log('message:', msg.db)
             res.status(200).send({db: msg.db})
 
         } catch (err) {
