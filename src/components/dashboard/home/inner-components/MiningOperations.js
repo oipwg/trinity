@@ -14,13 +14,11 @@ const MiningOperations = (props) => {
     function connectSocket(){
         socket.current = new WebSocket(WEB_SOCKET_URL);
         socket.current.onclose = (e) => {
-            console.log(socket)
+            console.log('onClose:')
             if(socket.current) {
                 console.log('Going to try and connect again')
                 connectSocket()
             }
-            console.log('onClose:')
-            
         }
         socket.current.onopen = (e) => {
             socket.current.send(JSON.stringify({ action: 'connect' }));
@@ -43,7 +41,6 @@ const MiningOperations = (props) => {
                 socket.current.send(JSON.stringify({ keepAlive: true }));
             } else {
                 let message = JSON.parse(e.data)
-                console.log('message:', message)
                 // if(message.userId === props.user._id) {
                     if(message.userId === user_id.current) {
                     processReturnData(message)
