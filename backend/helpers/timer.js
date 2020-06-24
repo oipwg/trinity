@@ -1,16 +1,5 @@
 const { on } = require('../controllers/autoTrade');
 const User = require('../models/user');
-const spartanbot = require('spartanbot')
-
-const timestamp = () => {
-	let date = new Date()
-	    return date.getFullYear() + "-" +
-		   (date.getMonth() + 1) + "-" +
-		   date.getDate() + " " +
-		   date.getHours() + ":" +
-		   date.getMinutes() + ":" +
-		   date.getSeconds()
-}
 
 /**
  * Class to start a timer to gather data at end of rental
@@ -23,6 +12,7 @@ class Timer {
      */
     constructor(settings, req) {
         console.log('settings:', settings)
+        this.name = settings.name
         this.profiles = settings.profiles
         this.duration = settings.duration
         this.profileId = settings.profile_id
@@ -44,9 +34,20 @@ class Timer {
             }
         }
     }
+    timestamp() {
+        let name = this.name+':';
+        let date = new Date()
+        return name + ' '+ date.getFullYear() + "-" +
+               (date.getMonth() + 1) + "-" +
+               date.getDate() + " " +
+               date.getHours() + ":" +
+               date.getMinutes() + ":" +
+               date.getSeconds()
+    }
 
     async getProviderAddress() {
-        console.log('this.provider timer.js', this.provider.constructor.name)
+       
+        console.log(this.timestamp() ,'this.provider timer.js', this.provider.constructor.name)
         if(this.provider.constructor.name === 'NiceHashProvider') {
 
             let address = ( await this.provider.getDepositAddresses('BTC') ).list[0].address
@@ -85,24 +86,27 @@ class Timer {
             let transactions = res.data.transactions;
             return this.getCostOfRental(transactions)
         } catch(e) {
-            console.log(timestamp(), ' Error during getTransactions timer.js: ',e)
+            console.log(this.timestamp(), ' Error during getTransactions timer.js: ',e)
         }
     }
 
     
     setTimer() {
+        let name = this.name
+        console.log(this.timestamp(),'THIS NAME', name)
         setTimeout(async () => {
             try {
                 let address = await this.getProviderAddress()
-                let payout = await on(this.req, address)
-                console.log(timestamp(), ' payout:', payout)
+                let payout = await on(this.req, address, name)
+                console.log(this.timestamp(), ' payout:', payout)
+
                 this.emitter.emit('message', JSON.stringify({
                     userId: this.userId,
                     message: 'Auto trading is starting...'
                 }))
                 
             } catch(e) {
-                console.log(timestamp(), ' ERROR', e)
+                console.log(this.timestamp(), ' ERROR', e)
                 this.emitter.emit('message', JSON.stringify({
                     userId: this.userId,
                     autoRent: false,
@@ -113,7 +117,7 @@ class Timer {
                 if (this.provider.constructor.name === 'MRRProvider') {
                     try{
                         let CostOfRentalBtc = await this.getTransactions()
-                        console.log(timestamp(), ' CostOfRentalBtc:', Math.abs(CostOfRentalBtc).toFixed(8))     
+                        console.log(this.timestamp(), ' CostOfRentalBtc:', Math.abs(CostOfRentalBtc).toFixed(8))     
                         
                         this.emitter.emit('message', JSON.stringify({
                             userId: this.userId,
@@ -123,10 +127,9 @@ class Timer {
                         console.log(e)
                     }
                 }
-            },5 * 60 * 1000 )
-        },3 * 55 * 60 * 1000)
-    // },1000)
-
+            },20 * 1000 )
+        // },3 * 55 * 60 * 1000)
+    },1000)
     }
 }
 

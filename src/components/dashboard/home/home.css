@@ -461,8 +461,8 @@ main {
   z-index: 100;
   -webkit-box-shadow: 0 15px 35px rgba(50, 50, 93, 0.1), 0 5px 15px rgba(0, 0, 0, 0.07);
   box-shadow: 0 15px 35px rgba(50, 50, 93, 0.1), 0 5px 15px rgba(0, 0, 0, 0.07);
-  -webkit-transition: all .5s ease-in;
-  transition: all .5s ease-in;
+  -webkit-transition: all .4s ease-in;
+  transition: all .4s ease-in;
 }
 
 .percent-modal-container header {

@@ -324,7 +324,6 @@ const Setup = props => {
             }
             
             // If index is greater than 0 then it's return data from signIn or new page from auto_setup_provider only
-            console.log(index.current, signInData.length)
             if(index.current) {
                 signInData.push(responseData)
 
@@ -507,7 +506,6 @@ const Setup = props => {
 
     return (
         <>
-        {console.log(SpartanBot)}
         <div className="setup">
         <div className="setup-container">
             <Navigation />
