@@ -11,13 +11,10 @@ module.exports = {
             const accessToken = req.headers['x-auth-token']
             let _id = profile_id;
 
-
             const user = await User.findById(req.user.id).select('-password')
-
 
             let profile = user.profiles.filter(profile => profile._id == _id)
             console.log({profile})
-
 
             ATSupportedEx(...profile, accessToken, user.wallet, rentalAddress)
 

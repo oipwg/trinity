@@ -4,7 +4,7 @@ const express = require('express');
 const router = express.Router();
 const Client = require('../spartanBot').Client;
 const User = require('../models/user');
-
+const { getCircularReplacer } = require('../spartanBot/utils');
 
 async function processUserInput(req, res) {
     let options = req.body
@@ -70,18 +70,7 @@ async function processUserInput(req, res) {
         return { err: 'Can\'t find user or input is wrong.' + e }
     }
 }
-const getCircularReplacer = () => {
-    const seen = new WeakSet();
-    return (key, value) => {
-        if (typeof value === "object" && value !== null) {
-            if (seen.has(value)) {
-                return;
-            }
-            seen.add(value);
-        }
-        return value;
-    };
-};
+
 /* POST setup wizard page */
 router.post('/', async (req, res) => {
     let userInput = await processUserInput(req, res).then(data => data).catch(err => err)
