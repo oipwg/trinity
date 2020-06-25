@@ -1,5 +1,9 @@
 const { on } = require('../controllers/autoTrade');
 const User = require('../models/user');
+const { API_URL } = require('../../config.js');
+const axios = require('axios')
+const { getCircularReplacer } = require('../spartanBot/utils');
+const { Rent } = require('./rentValues')
 
 /**
  * Class to start a timer to gather data at end of rental
@@ -10,17 +14,19 @@ class Timer {
      * @param {Object} settings Information to be used for timer
      * @param {Object} req Request object to be passed off later
      */
-    constructor(settings, req) {
-        console.log('settings:', settings)
+    constructor(settings, req, res) {
+        console.log('settings: badge', settings.badge)
         this.name = settings.name
         this.profiles = settings.profiles
         this.duration = settings.duration
         this.profileId = settings.profile_id
         this.provider = settings.badge[0].provider
         this.req = req
+        this.res = res
         this.ids = settings.rentalId
         this.emitter = settings.emitter
         this.userId = settings.userId
+        this.userOptions = settings.userOptions
     }
     
     /**
@@ -34,19 +40,19 @@ class Timer {
             }
         }
     }
+
     timestamp() {
         let name = this.name+':';
         let date = new Date()
         return name + ' '+ date.getFullYear() + "-" +
-               (date.getMonth() + 1) + "-" +
-               date.getDate() + " " +
-               date.getHours() + ":" +
-               date.getMinutes() + ":" +
-               date.getSeconds()
+            (date.getMonth() + 1) + "-" +
+            date.getDate() + " " +
+            date.getHours() + ":" +
+            date.getMinutes() + ":" +
+            date.getSeconds()
     }
 
     async getProviderAddress() {
-       
         console.log(this.timestamp() ,'this.provider timer.js', this.provider.constructor.name)
         if(this.provider.constructor.name === 'NiceHashProvider') {
 
@@ -90,21 +96,59 @@ class Timer {
         }
     }
 
+    async getNetworkhashrate() {
+        let Percent = this.userOptions.Xpercent / 100
+        try {
+            const Networkhashrate = ( await Rent(this.userOptions.token, Percent) ).Networkhashrate
+            const RentNext = (Networkhashrate - this.userOptions.hashrate) * ( - Percent / ( - 1 + Percent ) )
+            return RentNext
+  
+        } catch(err) {
+            console.log(err)
+            return 0
+        }
+    }
+
+    async nextRental() {
+        console.log('Next Rental Started')
+        const Networkhashrate = await this.getNetworkhashrate()
+        const accessToken = this.req.headers['x-auth-token']
+        let config = {
+            headers: {
+                'x-auth-token': accessToken,
+            }
+        }
+        
+        let options = JSON.parse(JSON.stringify(this.userOptions, getCircularReplacer()))
+        options.hashrate = Networkhashrate
+        options.nextRental = true
+
+        try {
+            const response = await axios.post(API_URL+'/rent', options, config)
+            console.log('RESPONSE axios Timer.js', response.data)
+        } catch(err) {
+            console.log(err)
+        }
+    }
+
     
     setTimer() {
-        let name = this.name
-        console.log(this.timestamp(),'THIS NAME', name)
+        setTimeout(() => {
+            this.nextRental()
+        // }, this.duration * 60 * 60 * 1000)
+    }, this.duration * 1000)
+        
+        console.log(this.timestamp(), 'Timer started')
         setTimeout(async () => {
             try {
                 let address = await this.getProviderAddress()
-                let payout = await on(this.req, address, name)
+                let payout = await on(this.req, address)
                 console.log(this.timestamp(), ' payout:', payout)
 
                 this.emitter.emit('message', JSON.stringify({
                     userId: this.userId,
                     message: 'Auto trading is starting...'
                 }))
-                
             } catch(e) {
                 console.log(this.timestamp(), ' ERROR', e)
                 this.emitter.emit('message', JSON.stringify({

@@ -3,7 +3,7 @@ const express = require('express');
 const router = express.Router();
 const Client = require('../spartanBot').Client;
 const emitter = require('../spartanBot').emitter
-
+const { getCircularReplacer } = require('../spartanBot/utils');
 const User = require('../models/user');
 const bip32 = require('bip32');
 const { Account, Networks, Address } = require('@oipwg/hdmw');
@@ -13,7 +13,25 @@ const { Rent, getPriceBtcUsd } = require('../helpers/rentValues')
 
 async function processUserInput(req, res) {
     let options = req.body
-    console.log('options:', options.to_do)
+
+    // Next rental
+    if(options.nextRental) {
+        console.log('options.hashrate.toFixed(8)', options.hashrate.toFixed(8))
+        console.log('options.Xpercent', options.Xpercent)
+        console.log('options.userId', options.userId)
+        
+        let msg = {
+            update: true,
+            message: `Your next rental hashrate:  ${options.hashrate.toFixed(8)} \n` +
+                     `Percent:  ${options.Xpercent}% `,
+            userId: options.userId,
+            autoRent: true
+        }
+        emitter.emit('message', JSON.stringify(msg));
+
+        options.newRent = Rent
+        return options
+    }
 
     let { profitReinvestment, updateUnsold, dailyBudget,targetMargin, autoRent, spot, alwaysMineXPercent,
         autoTrade, morphie, supportedExchange, profile_id, Xpercent, userId, token, name } = options;
@@ -21,6 +39,9 @@ async function processUserInput(req, res) {
     try {
         const rent = await Rent(token, Xpercent / 100)
         let user = await User.findById(req.user.id)
+        if (!user) {
+            return 'Can\'t find user. setup.js line#16'
+        }
         options.userName = user.userName
 
         let getAddress = (index, xPub, token, usedIndexes) => {
@@ -102,9 +123,7 @@ async function processUserInput(req, res) {
         }
         await user.save()
 
-        if (!user) {
-            return 'Can\'t find user. setup.js line#16'
-        }
+        
 
         options.profile_id = profile_id
         options.PriceBtcUsd = getPriceBtcUsd
@@ -160,9 +179,9 @@ const processData = async (req, res) => {
                 }
             }
         }
-
+        
         // Send message back to client 
-        let data = JSON.stringify(msg);
+        let data = JSON.stringify(msg, getCircularReplacer());
         emitter.emit('message', data);
 
         try {
@@ -172,9 +191,9 @@ const processData = async (req, res) => {
             timerData.duration = userInput.duration
  
             let Timer = timerData.timer
-            new Timer(timerData, req).setTimer()
+            new Timer(timerData, req, res).setTimer()
 
-            let message = JSON.stringify(msg)
+            let message = JSON.stringify(msg, getCircularReplacer())
             res.status(200).send({db: msg.db})
 
         } catch (err) {
@@ -191,6 +210,11 @@ router.post('/', auth, async (req, res) => {
     processData(req,res)
 });
 
-
+router.post('/nextrental', (req, res) => {
+    let options = req.body
+    Client.controller(options);
+    console.log('options: NEXTRENTAL RENT.JS', options)
+    // processData(req,res)
+});
 
 module.exports = router;

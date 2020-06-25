@@ -5,9 +5,10 @@ const add = require('./RentalProvider/add/add');
 const clearSpartanBot = require('./RentalProvider/clearSpartanBot');
 const SpartanBot = require('spartanbot').SpartanBot;
 const Events = require('events').EventEmitter;
+const Timer = require('../helpers/timer')
 const emitter = new Events()
 const wss = require('../routes/socket')
-const Timer = require('../helpers/timer')
+
 
 
 class Client {
@@ -38,6 +39,7 @@ class Client {
     }
 
     async getUser(userName, userId) {
+        console.log('userName, userId:', userName, userId)
         let users = this.users
         let i = users.length
         let updatedUser;
