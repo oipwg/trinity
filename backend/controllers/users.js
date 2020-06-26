@@ -1,6 +1,8 @@
 require('dotenv').config();
 const Client = require('../spartanBot').Client
 
+const { getCircularReplacer } = require('../spartanBot/utils');
+
 const JWT = require('jsonwebtoken');
 const {
     JWT_SECRET,
@@ -21,18 +23,6 @@ let signToken = user => {
         },
         JWT_SECRET
     );
-};
-const getCircularReplacer = () => {
-    const seen = new WeakSet();
-    return (key, value) => {
-        if (typeof value === "object" && value !== null) {
-            if (seen.has(value)) {
-                return;
-            }
-            seen.add(value);
-        }
-        return value
-    }
 };
 
 module.exports = {
