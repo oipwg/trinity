@@ -210,11 +210,5 @@ router.post('/', auth, async (req, res) => {
     processData(req,res)
 });
 
-router.post('/nextrental', (req, res) => {
-    let options = req.body
-    Client.controller(options);
-    console.log('options: NEXTRENTAL RENT.JS', options)
-    // processData(req,res)
-});
 
 module.exports = router;
