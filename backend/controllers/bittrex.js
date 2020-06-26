@@ -1,6 +1,7 @@
 require('dotenv').config();
 const axios = require('axios');
 const Crypto = require('crypto')
+const CryptoJS = require('crypto-js')
 const nonce = `76932509675239680235`
 const User = require('../models/user')
 
@@ -10,6 +11,52 @@ const bittrex = axios.create({
 
 })
 
+
+async function bittrexAuthReq({apiKey, secret, uri, method, content, body}) {
+    try {
+        var timestamp = new Date().getTime();
+
+
+        let url = `https://api.bittrex.com/v3`+ uri
+    
+        if(method === 'GET'){
+            content = ''
+        }
+    
+        console.log({apiKey, secret, uri, method, content, body})
+    
+        const contentHash = CryptoJS.SHA512(content).toString(CryptoJS.enc.Hex);
+        const preSign = [timestamp, url, method, contentHash].join('');
+        const signature = CryptoJS.HmacSHA512(preSign, secret).toString(CryptoJS.enc.Hex);
+    
+        if(method === 'GET'){
+            const res = await axios.get(url, {headers: {
+                "Api-Key": apiKey,
+                "Api-Timestamp": timestamp,
+                "Api-Content-Hash": contentHash,
+                "Api-Signature": signature
+            }})
+    
+            return res;
+        } else if(method === 'DELETE') {
+            const res = await axios.delete(url, {headers: {
+                "Api-Key": apiKey,
+                "Api-Timestamp": timestamp,
+                "Api-Content-Hash": contentHash,
+                "Api-Signature": signature
+            }})
+        
+            return res;
+        } else {
+            console.log({method}, 'add')
+        }
+    
+    } catch (error) {
+        console.log(error)
+        return error.response
+    }
+
+}
 
 module.exports = {
     //!Refactor this.
@@ -169,7 +216,6 @@ module.exports = {
 
         const response = await bittrex.get(message, {headers: {apisign: signature}})
         
-
         res.status(201).json(response.data)
         } catch (error) {
             console.log(error);
@@ -432,5 +478,164 @@ module.exports = {
         } catch (error) {
             console.log(error)
         }
-    }
+    },
+    //******************************************** V3 API ********************************************************************/
+    openOrdersv3: async(req, res) => {
+        try {
+            const user = await User.findById(req.user.id).select("bittrex")
+
+            let apiKey = user.bittrex.apiKey
+            let secret = user.bittrex.secret
+
+            if(!apiKey) {
+                return res.status(400).json({"error": "no keys"})
+            }
+            
+            const uri = '/orders/open'
+            const method = 'GET'
+
+            const response  = await bittrexAuthReq({apiKey, secret, uri, method})
+
+            res.status(201).json(response.data)
+        } catch (error) {
+            console.log(error)
+        }
+    },    
+    closedOrdersv3: async(req, res) => {
+        try {
+            const user = await User.findById(req.user.id).select("bittrex")
+
+            let apiKey = user.bittrex.apiKey
+            let secret = user.bittrex.secret
+
+            if(!apiKey) {
+                return res.status(400).json({"error": "no keys"})
+            }
+            
+            const uri = '/orders/closed'
+            const method = 'GET'
+
+            const response  = await bittrexAuthReq({apiKey, secret, uri, method})
+
+            res.status(201).json(response.data)
+        } catch (error) {
+            console.log(error)
+        }
+    },
+    orderById: async(req, res) => {
+        try {
+            const user = await User.findById(req.user.id).select("bittrex")
+
+            let apiKey = user.bittrex.apiKey
+            let secret = user.bittrex.secret
+
+            if(!apiKey) {
+                return res.status(400).json({"error": "no keys"})
+            }
+
+            let orderId = req.params.orderId
+            
+            const uri = `/orders/${orderId}`
+            const method = 'GET'
+
+            const response  = await bittrexAuthReq({apiKey, secret, uri, method})
+
+            res.status(201).json(response.data)
+        } catch (error) {
+            console.log(error)
+        }
+    },
+    deleteOrder: async(req, res) => {
+        try {
+            const user = await User.findById(req.user.id).select("bittrex")
+
+            let apiKey = user.bittrex.apiKey
+            let secret = user.bittrex.secret
+
+            if(!apiKey) {
+                return res.status(400).json({"error": "no keys"})
+            }
+
+            let orderId = req.params.orderId
+            
+            const uri = `/orders/${orderId}`
+            const method = 'DELETE'
+
+            const response  = await bittrexAuthReq({apiKey, secret, uri, method})
+
+            if(response.status === 200){
+                res.status(200).send(response)
+            } else {
+                res.status(400).send('Failed')
+            }
+
+        } catch (error) {
+            console.log(error)
+        }
+    },
+    openDepositsv3: async(req, res) => {
+        try {
+            const user = await User.findById(req.user.id).select("bittrex")
+
+            let apiKey = user.bittrex.apiKey
+            let secret = user.bittrex.secret
+
+            if(!apiKey) {
+                return res.status(400).json({"error": "no keys"})
+            }
+            
+            const uri = '/deposits/open'
+            const method = 'GET'
+
+            const response  = await bittrexAuthReq({apiKey, secret, uri, method})
+
+            res.status(201).json(response.data)
+        } catch (error) {
+            console.log(error)
+        }
+    },    
+    closedDepositsv3: async(req, res) => {
+        try {
+            const user = await User.findById(req.user.id).select("bittrex")
+
+            let apiKey = user.bittrex.apiKey
+            let secret = user.bittrex.secret
+
+            if(!apiKey) {
+                return res.status(400).json({"error": "no keys"})
+            }
+            
+            const uri = '/deposits/closed'
+            const method = 'GET'
+
+            const response  = await bittrexAuthReq({apiKey, secret, uri, method})
+
+            res.status(201).json(response.data)
+        } catch (error) {
+            console.log(error)
+        }
+    },
+    depositByTxid: async(req, res) => {
+        try {
+            const user = await User.findById(req.user.id).select("bittrex")
+
+            let apiKey = user.bittrex.apiKey
+            let secret = user.bittrex.secret
+
+            if(!apiKey) {
+                return res.status(400).json({"error": "no keys"})
+            }
+
+            let txId = req.params.txId
+            
+            const uri = `/deposits/ByTxId/${txId}`
+            const method = 'GET'
+
+            const response  = await bittrexAuthReq({apiKey, secret, uri, method})
+
+            res.status(201).json(response.data)
+        } catch (error) {
+            console.log(error)
+        }
+    },
 }
