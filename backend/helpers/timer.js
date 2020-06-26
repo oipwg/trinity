@@ -119,12 +119,12 @@ class Timer {
             }
         }
         
-        let options = JSON.parse(JSON.stringify(this.userOptions, getCircularReplacer()))
-        options.hashrate = Networkhashrate
-        options.nextRental = true
+        // let options = JSON.parse(JSON.stringify(this.userOptions, getCircularReplacer()))
+        this.options.hashrate = Networkhashrate
+        this.options.nextRental = true
 
         try {
-            const response = await axios.post(API_URL+'/rent', options, config)
+            const response = await axios.post(API_URL+'/rent', this.options, config)
             console.log('RESPONSE axios Timer.js', response.data)
         } catch(err) {
             console.log(err)
@@ -133,16 +133,17 @@ class Timer {
 
     
     setTimer() {
+        this.options = JSON.parse(JSON.stringify(this.userOptions, getCircularReplacer()))
         setTimeout(() => {
             this.nextRental()
-        // }, this.duration * 60 * 60 * 1000)
-    }, this.duration * 1000)
+        }, this.duration * 60 * 60 * 1000)
+    // }, this.duration * 1000)
         
         console.log(this.timestamp(), 'Timer started')
         setTimeout(async () => {
             try {
                 let address = await this.getProviderAddress()
-                let payout = await on(this.req, address)
+                let payout = await on(this.req, address, this.options)
                 console.log(this.timestamp(), ' payout:', payout)
 
                 this.emitter.emit('message', JSON.stringify({
@@ -171,9 +172,9 @@ class Timer {
                         console.log(e)
                     }
                 }
-            },20 * 1000 )
-        // },3 * 55 * 60 * 1000)
-    },1000)
+            },5 * 60 * 1000 )
+        },3 * 55 * 60 * 1000)
+    // },1000)
     }
 }
 
