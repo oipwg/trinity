@@ -697,26 +697,24 @@ module.exports = async function(profile, accessToken, wallet, rentalAddress, nam
 
                 log(name, {timeStarted}, Date.now(), (Date.now() > (timeStarted + (21 * ONE_HOUR))))
 
-                if(Date.now() > (timeStarted + (DURATION - ONE_HOUR))){ 
+                if(btc <= 0){
+                    return;
+                }
+
                     log(name,'Withdraw from bittrex ---')
                     let sentToHDMW = await withdrawFromBittrex('BTC', btc, rentalAddress);
                     btc = 0;
                     log(name,'sentToProvider ---', sentToHDMW)
                     // clearAllIntervals(timer, update, orderStatus);
-                }       
             }
 
             let timer = setInterval(() => {
                 checkConfirmations()
             }, (3 * ONE_MINUTE))
 
-            // let update = setInterval(() => {
-            //     shouldIUpdated()
-            // },(ONE_HOUR / updateUnsold))
-
             let update = setInterval(() => {
                 shouldIUpdated()
-            },(ONE_MINUTE))
+            },(ONE_HOUR / updateUnsold))
 
             let orderStatus = setInterval(() => {
                 checkOrderStatus()
