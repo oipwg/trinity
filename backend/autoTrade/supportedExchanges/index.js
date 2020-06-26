@@ -10,6 +10,11 @@ const MIN_FEE_PER_BYTE = 0.00000001
 const { log }= require('../../helpers/log')
 
 
+
+
+
+
+module.exports = async function(profile, accessToken, wallet, rentalAddress, name, duration) {
 let TotalQty  = 0; //Receviced + FeeFloTx1
 let ReceivedQty; //what is deposited from rentals
 let FeeFloTx1; //cumulative fee from rentals.
@@ -38,9 +43,7 @@ let BtcFromsPartialTrades = 0;
 let Confirms = 0;
 let btc = 0;
 
-
-
-module.exports = async function(profile, accessToken, wallet, rentalAddress, name) {
+const DURATION = duration
 
     if(!accessToken){
         log(name,'no access token');
@@ -385,7 +388,6 @@ module.exports = async function(profile, accessToken, wallet, rentalAddress, nam
     } = profile
 
     const timeStarted = Date.now()
-    const DURATION = 24;
 
 
 
