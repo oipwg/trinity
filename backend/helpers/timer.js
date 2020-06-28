@@ -18,7 +18,7 @@ class Timer {
         console.log('settings: badge', settings.badge)
         this.name = settings.name
         this.profiles = settings.profiles
-        this.duration = settings.duration
+        this.duration = Number(settings.badge[0].duration)
         this.profileId = settings.profile_id
         this.provider = settings.badge[0].provider
         this.req = req
@@ -141,13 +141,14 @@ class Timer {
         console.log(this.timestamp(), 'Timer started')
         setTimeout(async () => {
             try {
+                console.log('THIS.DURATION', Number(this.duration))
                 this.options.duration = this.duration - 3  // Offset duration with timer duration
                 let address = await this.getProviderAddress()
                 let payout = await on(this.req, address, this.options)
 
                 console.log(this.timestamp(), ' payout:', payout)
                 console.log(this.timestamp(), 'this.options duration: ', this.options.duration)
-                
+
                 this.emitter.emit('message', JSON.stringify({
                     userId: this.userId,
                     message: 'Auto trading is starting...'
