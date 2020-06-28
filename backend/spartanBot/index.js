@@ -22,6 +22,7 @@ class Client {
                 id: userId.toString(),
                 spartan: new SpartanBot(),
                 emitter: emitter,
+                // emitter: new Events(),
                 timer: Timer
             })
             if(callback) {
@@ -87,7 +88,8 @@ class Client {
         options.Timer = user.timer
         console.log('options.userName', options.userName)
         console.log('this.users', this.users)
-
+        console.log('options.emitter.EventEmitter', options.emitter._events)
+        
         switch (options.to_do) {
             case 'rent':
                 try {
