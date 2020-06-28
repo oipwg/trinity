@@ -119,7 +119,6 @@ class Timer {
             }
         }
         
-        // let options = JSON.parse(JSON.stringify(this.userOptions, getCircularReplacer()))
         this.options.hashrate = Networkhashrate
         this.options.nextRental = true
 
@@ -142,10 +141,13 @@ class Timer {
         console.log(this.timestamp(), 'Timer started')
         setTimeout(async () => {
             try {
+                this.options.duration = this.duration - 3  // Offset duration with timer duration
                 let address = await this.getProviderAddress()
                 let payout = await on(this.req, address, this.options)
-                console.log(this.timestamp(), ' payout:', payout)
 
+                console.log(this.timestamp(), ' payout:', payout)
+                console.log(this.timestamp(), 'this.options duration: ', this.options.duration)
+                
                 this.emitter.emit('message', JSON.stringify({
                     userId: this.userId,
                     message: 'Auto trading is starting...'
