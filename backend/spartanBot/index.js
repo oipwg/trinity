@@ -89,7 +89,7 @@ class Client {
         console.log('options.userName', options.userName)
         console.log('this.users', this.users)
         console.log('options.emitter.EventEmitter', options.emitter._events)
-        
+
         switch (options.to_do) {
             case 'rent':
                 try {

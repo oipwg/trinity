@@ -160,7 +160,9 @@ const processData = async (req, res) => {
     } 
 
     // From within SpartanBot only
-    emitter.once('rented', async (msg) => {
+    
+    // emitter.once('rented', async function _rent(msg){
+    const _rent = async (msg) => {
         const user = await User.findById(req.user.id).select('profiles')
         console.log('MSG', msg)
         // If data needs to be saved to Database
@@ -202,7 +204,9 @@ const processData = async (req, res) => {
             res.write(message)
         }
         return user.save()
-    })
+    }
+    emitter.once('rented', _rent)
+    // emitter.removeListener('rented', _rent)
 }
 
 /* POST settings  page */
