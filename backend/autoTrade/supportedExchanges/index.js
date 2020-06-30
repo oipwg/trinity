@@ -1,6 +1,6 @@
 require('dotenv').config();
 const { API_URL}  = process.env
-const { Account, Address, TransactionBuilder, Networks, Wallet } = require('@oipwg/hdmw')
+const { Account, Address, TransactionBuilder, Networks } = require('@oipwg/hdmw')
 const bip32 = require('bip32')
 const axios = require('axios')
 const { timestamp } = require('../../helpers/timestamp')
@@ -754,13 +754,9 @@ let MIN_FEE_PER_BYTE = 0.00000001
                 checkConfirmations()
             }, (3 * ONE_MINUTE))
 
-            // let update = setInterval(() => {
-            //     shouldIUpdated()
-            // },(ONE_HOUR / updateUnsold))
-
             let update = setInterval(() => {
                 shouldIUpdated()
-            },(5 * ONE_MINUTE))
+            },(ONE_HOUR / updateUnsold))
 
             let orderStatus = setInterval(() => {
                 checkOrderStatus()
