@@ -4,8 +4,15 @@ import { API_URL } from '../../config';
 
 export const updateDailyBudget = (inputs, upDateNiceHashMinimum) => async (dispatch) =>{
     if (inputs.targetMargin === '' || inputs.profitReinvestment === '' || inputs.Xpercent === '') return
-    const Percent = inputs.Xpercent
 
+    if(inputs.token === 'RVN') {
+        inputs.algorithm = 'KAWPOW'
+    } else {
+        inputs.algorithm = 'SCRYPT'
+    }
+    
+    const Percent = inputs.Xpercent
+    console.log('INPUTS MININOPERTIONSACTIONS.JS ', inputs)
     inputs.to_do = 'returnSpartanBot'
 
     fetch(API_URL+'/daily-budget',{

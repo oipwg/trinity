@@ -15,29 +15,30 @@ async function processUserInput(req, res) {
     let options = req.body
 
     // Next rental
-    if(options.nextRental) {
-        console.log('options.hashrate.toFixed(8)', options.hashrate.toFixed(8))
-        console.log('options.Xpercent', options.Xpercent)
-        console.log('options.userId', options.userId)
+    // if(options.nextRental) {
+    //     console.log('options.hashrate.toFixed(8)', options.hashrate.toFixed(8))
+    //     console.log('options.Xpercent', options.Xpercent)
+    //     console.log('options.userId', options.userId)
         
-        let msg = {
-            update: true,
-            message: `Your next rental hashrate:  ${options.hashrate.toFixed(8)} \n` +
-                     `Percent:  ${options.Xpercent}% `,
-            userId: options.userId,
-            autoRent: true
-        }
-        emitter.emit('message', JSON.stringify(msg));
+    //     let msg = {
+    //         update: true,
+    //         message: `Your next rental hashrate:  ${options.hashrate.toFixed(8)} \n` +
+    //                  `Percent:  ${options.Xpercent}% `,
+    //         userId: options.userId,
+    //         autoRent: true
+    //     }
+    //     emitter.emit('message', JSON.stringify(msg));
 
-        options.newRent = Rent
-        return options
-    }
+    //     options.newRent = Rent
+    //     return options
+    // }
 
     let { profitReinvestment, updateUnsold, dailyBudget,targetMargin, autoRent, spot, alwaysMineXPercent,
         autoTrade, morphie, supportedExchange, profile_id, Xpercent, userId, token, name } = options;
 
     try {
-        const rent = await Rent(token, Xpercent / 100)
+        const rent = await Rent(token, Xpercent)
+        console.log('rent: RENT.JS', rent)
         let user = await User.findById(req.user.id)
         if (!user) {
             return 'Can\'t find user. setup.js line#16'
@@ -123,8 +124,6 @@ async function processUserInput(req, res) {
         }
         await user.save()
 
-        
-
         options.profile_id = profile_id
         options.PriceBtcUsd = getPriceBtcUsd
         options.NetworkHashRate = rent.Networkhashrate
@@ -136,7 +135,7 @@ async function processUserInput(req, res) {
         options.hashrate = rent.Rent
         options.rentType = 'Manual'
         options.type = 'FIXED',
-        options.algorithm = 'SCRYPT'
+        options.algorithm = token === 'RVN' ? 'KAWPOW' : 'SCRYPT'
         return options
     } catch (e) {
         console.log('Catch error rent.js line 140: .' + e )
@@ -160,8 +159,6 @@ const processData = async (req, res) => {
     } 
 
     // From within SpartanBot only
-    
-    // emitter.once('rented', async function _rent(msg){
     const _rent = async (msg) => {
         const user = await User.findById(req.user.id).select('profiles')
         console.log('MSG', msg)
@@ -215,4 +212,6 @@ router.post('/', auth, async (req, res) => {
 });
 
 
-module.exports = router;
+module.exports = {
+    router
+}

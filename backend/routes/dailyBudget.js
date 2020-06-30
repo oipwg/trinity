@@ -15,6 +15,7 @@ class DailyBudget {
         this.token = inputs.token
         this.inputs = inputs
         this.user = user
+        this.algorithm = inputs.algorithm
     }
 
     savePriceBtcUsd(PriceBtcUsd) {
@@ -28,6 +29,7 @@ class DailyBudget {
     }
 
     async updateDailyBudget(MarketPrice) {
+        if (this.token)
         try {
             let priceUSD = await getPriceBtcUsd()
             const PriceBtcUsd = priceUSD.data.rates.USD;
@@ -60,10 +62,17 @@ class DailyBudget {
                 }
     
                 if (provider.getInternalType() === 'NiceHash') {
-                    let orderBook = await provider.getOrderBook();
+                    let orderBook = await provider.getOrderBook(this.algorithm);
                     let orders = orderBook.stats.USA.orders;
                     let length = orders.length;
-                    let lowestPrice = orders[0].price;
+                    let lowestPrice;
+                    console.log('ALGORITHM', this.algorithm)
+                    if (this.algorithm === 'KAWPOW') {
+                        lowestPrice = orders[0].price
+                    } else {
+                        lowestPrice = orders[0].price
+                    }
+                    // let lowestPrice = orders[0].price;
     
                     for (let i = 0; i < length; i++) {
                         if (orders[i].rigsCount > 0) {
@@ -74,7 +83,9 @@ class DailyBudget {
                     }
     
                     NiceHash.success = true;
-                    NiceHash.marketPriceNhScryptBtcThSD = lowestPrice / 1000;
+                    NiceHash.marketPriceNhScryptBtcThSD = this.algorithm === 'KAWPOW' ? lowestPrice : lowestPrice / 1000;
+     
+                    console.log('NICEHASH MARKETPRICENH', lowestPrice)
                 }
             }
         } catch(e) {

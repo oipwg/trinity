@@ -12,8 +12,8 @@ const wss = require('../routes/socket')
 
 
 class Client {
-    constructor(settings) {
-        this.settings = settings
+    constructor(res) {
+        this.res = res
         this.users = []
         this.loadMessages()
         this.newSpartan = (name, userId, callback) => {

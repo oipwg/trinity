@@ -2,7 +2,10 @@ const https = require('https');
 const request = require('request');
 
 exports.Rent = async (  token, percent) => {
+
     if (token === "FLO") {
+
+        console.log('FLO HIT')
         return await new Promise((resolve, reject) => {
             https.get('https://livenet.flocha.in/api/status?q=getInfos', (response) => {
                 let body = ''
@@ -16,10 +19,10 @@ exports.Rent = async (  token, percent) => {
                     let hashrate = difficulty * Math.pow(2, 32) / 40
                     let Networkhashrate = hashrate / 1000000000000;  // TH/s
                     let Rent = Networkhashrate * (-percent / (-1 + percent)) // * 1000000 for MRR to MH/s
+                    console.log('Rent: FLO', Rent)
                     let MinPercentFromMinHashrate = 1000000000000 * .01 / ((difficulty * Math.pow(2, 32) / 40) + (1000000000000 * .01))
                     resolve({ Rent, MinPercentFromMinHashrate, difficulty, Networkhashrate })
                 });
-                
             }).on("error", (error) => {
                 console.log("Error: " + error.message);
                 reject("Error: " + error.message)
@@ -34,11 +37,15 @@ exports.Rent = async (  token, percent) => {
                 if (err) {
                     reject(err)
                 }
+                console.log('PERCENT', percent)
                 let data = JSON.parse(body);
                 let difficulty = data.nodes[0].difficulty;
+                console.log('difficulty:', difficulty)
                 let hashrate = difficulty * Math.pow(2, 32) / 60;
+                console.log('hashrate:', hashrate)
                 let Networkhashrate = hashrate / 1000000000000; // TH/s
                 let Rent = Networkhashrate * (-percent / (-1 + percent))   // * 1000000 for MRR to MH/s
+                console.log('Rent: RAVEN', Rent)
                 let MinPercentFromMinHashrate = 1000000000000 * .01 / ((difficulty * Math.pow(2, 32) / 60) + (1000000000000 * .01))
                 resolve({ Rent, MinPercentFromMinHashrate, difficulty, Networkhashrate })
             })
