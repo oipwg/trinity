@@ -3,5 +3,5 @@ const { formatToDate, formatTime } = require('../../src/helpers-functions/dateFo
 exports.timestamp = () => {
     let time = Date.now();
     
-    return `${formatToDate(time)}: ${formatTime(time)}` 
+    return `[${formatToDate(time)} ${formatTime(time)}]` 
 }
