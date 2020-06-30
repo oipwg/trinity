@@ -1,12 +1,11 @@
 require('dotenv').config();
 const { API_URL}  = process.env
-const { Account, Address, TransactionBuilder, Networks } = require('@oipwg/hdmw')
+const { Account, Address, TransactionBuilder, Networks, Wallet } = require('@oipwg/hdmw')
 const bip32 = require('bip32')
 const axios = require('axios')
 const { timestamp } = require('../../helpers/timestamp')
 const ONE_MINUTE = 60 * 1000;
 const ONE_HOUR = 60 * ONE_MINUTE;
-const MIN_FEE_PER_BYTE = 0.00000001
 const { log }= require('../../helpers/log')
 
 
@@ -42,8 +41,48 @@ let orderReceiptID = ''
 let BtcFromsPartialTrades = 0;
 let Confirms = 0;
 let btc = 0;
+let BLOCK_EXPLORER = ''
 
 const DURATION = duration
+
+let {
+    address,
+    token,
+    targetMargin,
+    profitReinvestment,
+    updateUnsold,
+    dailyBudget,
+    _id,
+    CostOfRentalBtc
+} = profile
+
+const timeStarted = Date.now();
+const margin = targetMargin / 100;
+const ProfitReinvestmentRate = profitReinvestment / 100;
+let userBTCAddress = address.btcAddress;
+CostOfRentalBTC = CostOfRentalBtc
+address = address.publicAddress;
+let coin = token.toLowerCase();
+if(coin === 'rvn' ){
+    coin = 'raven'
+}
+
+const getCurrencyInfo = async (token) => {
+    try {
+        const res = await axios.get(`https://api.bittrex.com/v3/currencies/${token}`)
+
+        return res.data
+    } catch (error) {
+        console.log(error)
+    }
+}
+
+let currency = await getCurrencyInfo(token)
+let minConfirmations = currency.minConfirmations;
+let MIN_FEE_PER_BYTE = 0.00000001
+
+
+
 
     if(!accessToken){
         log(name,'no access token');
@@ -60,6 +99,17 @@ const DURATION = duration
             'x-auth-token': accessToken
         },
     };
+
+    switch(token){
+        case 'FLO':
+            BLOCK_EXPLORER = 'https://livenet.flocha.in'
+            MIN_FEE_PER_BYTE = 0.00000001
+            break;
+        case 'RVN':
+            BLOCK_EXPLORER = `https://main.rvn.explorer.oip.io`
+            MIN_FEE_PER_BYTE = .0000001
+            break;
+    }
 
     // formulas
     const getTotalQty = (ReceivedQty, FeeFloTx1) => {
@@ -100,7 +150,7 @@ const DURATION = duration
 
     const getBalanceFromAddress = async (address) => {
         try {
-            let res = await axios.get(`https://livenet.flocha.in/api/addr/${address}`)
+            let res = await axios.get(`${BLOCK_EXPLORER}/api/addr/${address}`)
 
             if(res.status != 200){
                 return log(name,res)
@@ -192,7 +242,7 @@ const DURATION = duration
     
         for(let i = 0; i < transactions.length; i++){
             
-            let res = await axios.get(`https://livenet.flocha.in/api/tx/${transactions[i]}`)
+            let res = await axios.get(`${BLOCK_EXPLORER}/api/tx/${transactions[i]}`)
             if(res.status != 200) return log(name,res)
 
             total += res.data.fees
@@ -284,13 +334,16 @@ const DURATION = duration
         }
     }
 
-    const buildTransaction = async (address, amount) => {
+    const buildTransaction = async (address, amount, coin) => {
         try {
-            let addressObj = new Address(address, Networks.flo, false);
 
-            let builder = new TransactionBuilder(Networks.flo, {
-                from: addressObj,
-                to: {[floBittrexAddress]: amount}
+            
+            let addressObj = new Address(address, Networks[coin], false);
+
+
+            let builder = new TransactionBuilder(Networks[coin], {
+                // from: addressObj,
+                to: {[BittrexAddress]: amount}
             }, account)
             
             
@@ -308,9 +361,9 @@ const DURATION = duration
 
             const adjustedAmount = Number((amount - fee).toFixed(8))
     
-            let builder2 = new TransactionBuilder(Networks.flo, {
-                from: addressObj,
-                to: {[floBittrexAddress]: adjustedAmount}
+            let builder2 = new TransactionBuilder(Networks[coin], {
+                // from: addressObj,
+                to: {[BittrexAddress]: adjustedAmount}
             }, account)
     
     
@@ -320,7 +373,7 @@ const DURATION = duration
                         return calculated;
             })
         
-            return (inNOuts.fee * MIN_FEE_PER_BYTE)
+            return Number((inNOuts.fee * MIN_FEE_PER_BYTE).toFixed(8))
         } catch (error) {
             log(name,'ERR; builTransaction ------', error)
         }
@@ -329,7 +382,7 @@ const DURATION = duration
 
     const checkMarketPrice = async (offerPrice) => {
         try {
-            const res = await axios.get('https://api.bittrex.com/api/v1.1/public/getticker?market=BTC-FLO')
+            const res = await axios.get(`https://api.bittrex.com/api/v1.1/public/getticker?market=BTC-${token}`)
             let marketPrice = res.data.result.Bid
 
             log(name,'checking market price', {offerPrice, marketPrice}, 'offerPrice < marketPrice:', (offerPrice < marketPrice))
@@ -343,76 +396,65 @@ const DURATION = duration
         }        
     }
 
-    const rent = (options) => { 
+    // const rent = (options) => { 
 
-        let body = {
-            targetMargin: options.targetMargin,
-            profitReinvestment: options.profitReinvestment,
-            updateUnsold: options.updateUnsold,
-            dailyBudget: options.dailyBudget,
-            autoRent: options.autoRent.on,
-            spot: options.autoRent.mode.spot,
-            alwaysMineXPercent: options.autoRent.mode.alwaysMineXPercent.on,
-            autoTrade: options.autoTrade.on,
-            morphie: options.autoTrade.mode.morphie,
-            supportedExchange: options.autoTrade.mode.supportedExchanges,
-            Xpercent: options.autoRent.mode.alwaysMineXPercent.Xpercent,
-            token: options.token,
-            message: options.message,
-            update: false,
-            to_do: 'rent',
-            profile_id: options._id
-        }
+    //     let body = {
+    //         targetMargin: options.targetMargin,
+    //         profitReinvestment: options.profitReinvestment,
+    //         updateUnsold: options.updateUnsold,
+    //         dailyBudget: options.dailyBudget,
+    //         autoRent: options.autoRent.on,
+    //         spot: options.autoRent.mode.spot,
+    //         alwaysMineXPercent: options.autoRent.mode.alwaysMineXPercent.on,
+    //         autoTrade: options.autoTrade.on,
+    //         morphie: options.autoTrade.mode.morphie,
+    //         supportedExchange: options.autoTrade.mode.supportedExchanges,
+    //         Xpercent: options.autoRent.mode.alwaysMineXPercent.Xpercent,
+    //         token: options.token,
+    //         message: options.message,
+    //         update: false,
+    //         to_do: 'rent',
+    //         profile_id: options._id
+    //     }
         
-        axios.post(API_URL+'/rent',
-            body,
-            config
-        ).then((response) => {
-            log(name,response)
-        }).catch((err)=> {
-            log(name,err)
-        })
-    }
+    //     axios.post(API_URL+'/rent',
+    //         body,
+    //         config
+    //     ).then((response) => {
+    //         log(name,response)
+    //     }).catch((err)=> {
+    //         log(name,err)
+    //     })
+    // }
 
     
     // ------------  START -------------- 
-    let {
-        address,
-        token,
-        targetMargin,
-        profitReinvestment,
-        updateUnsold,
-        dailyBudget,
-        _id,
-        CostOfRentalBtc
-    } = profile
-
-    const timeStarted = Date.now()
-
-
-
-    let userBTCAddress = address.btcAddress;
-    CostOfRentalBTC = CostOfRentalBtc
-
-    address = address.publicAddress;
-    log(name, 'START AUTO TRADE', {timeStarted, address, userBTCAddress, rentalAddress})
+    log(name, 'START AUTO TRADE', {timeStarted, address, userBTCAddress, rentalAddress, token})
 
     if(!address){
         log(name, 'No Address')
         return 'No Address'
     }
 
-    const margin = targetMargin / 100;
-    const ProfitReinvestmentRate = profitReinvestment / 100;
 
 
-    const accountMaster = bip32.fromBase58(wallet.flo.xPrv, Networks.flo.network)
-    let account = new Account(accountMaster, Networks.flo);
+    const accountMaster = bip32.fromBase58(wallet[token.toLowerCase()].xPrv, Networks[coin].network)
 
-    account.discoverChains();
+
+    let account = new Account(accountMaster, Networks[coin]);
+        account.discoverChains().then((acc) => {
+            // console.log(acc.getChain(0).addresses)
+            // console.log(acc.getChain(1).addresses)
+        })
+
+    //   const EXTERNAL_CHAIN = 0
+    // for (let i = 0; i < 25; i++) {
+    //   console.log(`${i}: ${account.getAddress(EXTERNAL_CHAIN, i).getPublicAddress()}`)
+    // }
+
 
     let {balance, transactions} = await getBalanceFromAddress(address);
-    const floBittrexAddress = await getBittrexAddress(token);
+    const BittrexAddress = await getBittrexAddress(token);
 
             
         if(transactions){
@@ -424,20 +466,19 @@ const DURATION = duration
             TotalQty = getTotalQty(ReceivedQty, FeeFloTx1)
 
 
-            log(name,'pre call -----', {ReceivedQty, FeeFloTx1, TotalQty, floBittrexAddress})
+            log(name,'pre call -----', {ReceivedQty, FeeFloTx1, TotalQty, BittrexAddress})
     
     let bittrexTX
-    
 
             if(balance > 0) {
-                FloTradeFee = await buildTransaction(address, ReceivedQty)
+                FloTradeFee = await buildTransaction(address, ReceivedQty, coin)
                 let sendAmount = Number((ReceivedQty - (FloTradeFee)).toFixed(8))
                 log(name,'sending to bittrex: 1', {sendAmount, FloTradeFee})
                 try {
                     bittrexTX = await account.sendPayment({
-                        to: {[floBittrexAddress]: sendAmount},
+                        to: {[BittrexAddress]: sendAmount},
                         from: address,
-                        discover: false
+                        discover: true
                     })
                     totalSent += sendAmount
                 } catch (error) {
@@ -462,7 +503,7 @@ const DURATION = duration
                             return log(name,'no bittrexTx')
                         }
 
-                        let res = await axios.get(`https://livenet.flocha.in/api/tx/${bittrexTX}`)
+                        let res = await axios.get(`${BLOCK_EXPLORER}/api/tx/${bittrexTX}`)
 
                         if(res.status != 200){
                             return log(name,res)
@@ -503,8 +544,7 @@ const DURATION = duration
                                 }
                             )
     
-                        // bittrex needs 150 confirmations 
-                        if(Confirms > 150){
+                        if(Confirms > minConfirmations){
                             if(isUpdate){
 
                                
@@ -598,7 +638,7 @@ const DURATION = duration
                             isUpdate = true;
 
                             //push new tokens to wallet
-                            FloTradeFee = await buildTransaction(address, updatedBalance)
+                            FloTradeFee = await buildTransaction(address, updatedBalance, coin)
                             log(name,{FloTradeFee})
                             if(!FloTradeFee || (typeof FloTradeFee != 'number')) return;
 
@@ -607,7 +647,7 @@ const DURATION = duration
 
                             try {
                                 bittrexTX = await account.sendPayment({
-                                    to: {[floBittrexAddress]: sendAmount},
+                                    to: {[BittrexAddress]: sendAmount},
                                     from: address,
                                     discover: false
                                 })
@@ -714,9 +754,13 @@ const DURATION = duration
                 checkConfirmations()
             }, (3 * ONE_MINUTE))
 
+            // let update = setInterval(() => {
+            //     shouldIUpdated()
+            // },(ONE_HOUR / updateUnsold))
+
             let update = setInterval(() => {
                 shouldIUpdated()
-            },(ONE_HOUR / updateUnsold))
+            },(5 * ONE_MINUTE))
 
             let orderStatus = setInterval(() => {
                 checkOrderStatus()
