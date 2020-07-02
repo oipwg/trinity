@@ -3,14 +3,14 @@ import { API_URL } from '../../config';
 
 
 export const updateDailyBudget = (inputs, upDateNiceHashMinimum) => async (dispatch) =>{
-    if (inputs.targetMargin === '' || inputs.profitReinvestment === '' || inputs.Xpercent === '') return
+    if (inputs.targetMargin === '' || inputs.profitReinvestment === '' || inputs.Xpercent === '' || inputs.token === '') return
 
     if(inputs.token === 'RVN') {
         inputs.algorithm = 'KAWPOW'
     } else {
         inputs.algorithm = 'SCRYPT'
     }
-    
+
     const Percent = inputs.Xpercent
     console.log('INPUTS MININOPERTIONSACTIONS.JS ', inputs)
     inputs.to_do = 'returnSpartanBot'
@@ -26,7 +26,7 @@ export const updateDailyBudget = (inputs, upDateNiceHashMinimum) => async (dispa
     .then((data)=> {
         let dailyBudget = data.EstRentalBudgetPerCycleUSD.toFixed(2)
         if (upDateNiceHashMinimum) dispatch(isNiceHashMinimum(Percent, data.Networkhashrate))
-  
+   
         dispatch({
             type: DAILY_BUDGET,
             payload: dailyBudget

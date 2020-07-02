@@ -63,7 +63,7 @@ const MiningOperations = (props) => {
         morphie: false,
         supportedExchange: false,
         Xpercent: 15,
-        token: 'RVN',
+        token: '',
         message: [],
         update: false,
         CostOfRentalBtc: '',
@@ -89,14 +89,11 @@ const MiningOperations = (props) => {
 
     useEffect(() => {
 
-
         if (props.user && props.profile) {
-            props.dispatch(updateDailyBudget({...miningOperations, userId: props.user._id, profile_id: props.profile._id}))
-
             const {
                 targetMargin, profitReinvestment, updateUnsold, dailyBudget, autoRent, autoTrade, token, name, _id
             } = props.profile
-
+            
             let profile = {
                 targetMargin: targetMargin,
                 profitReinvestment: profitReinvestment,
@@ -114,7 +111,8 @@ const MiningOperations = (props) => {
                 profile_id: _id,
                 userId: props.user._id
             }
-            
+
+            props.dispatch(updateDailyBudget({...profile, userId: props.user._id, profile_id: props.profile._id}))
             setOperations({...miningOperations, ...profile })
             user_id.current = props.user._id
             // setError('')
@@ -132,7 +130,7 @@ const MiningOperations = (props) => {
                 morphie: false,
                 supportedExchange: false,
                 Xpercent: 15,
-                token: 'RVN',
+                token: '',
                 message: [],
                 update: false,
                 CostOfRentalBtc: '',
@@ -143,6 +141,7 @@ const MiningOperations = (props) => {
     }, [props.profile, props.address])
 
     useEffect((prevProf = props.profile) => {
+        
         let formatedState = {
             profile: {
                 autoRent: {

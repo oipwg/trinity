@@ -38,7 +38,7 @@ class Client {
             })
         })
     }
-
+            
     async getUser(userName, userId) {
         console.log('userName, userId:', userName, userId)
         let users = this.users
