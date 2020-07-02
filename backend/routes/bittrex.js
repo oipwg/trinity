@@ -1,3 +1,4 @@
+
 const express = require('express');
 const router = express.Router();
 const auth = require('../middleware/auth')
@@ -21,8 +22,6 @@ router.get('/salesHistory', auth, BittrexController.salesHistory)
 
 router.get('/getBalance', auth, BittrexController.getBalance)
 
-router.get('/getCurrencyBalance/:currency', auth, BittrexController.getCurrencyBalance)
-
 router.post('/withdraw', auth, BittrexController.withdraw)
 
 router.post('/cancelOrder', auth, BittrexController.cancelOrder);
@@ -30,6 +29,24 @@ router.post('/cancelOrder', auth, BittrexController.cancelOrder);
 router.post('/updateOrder', auth, BittrexController.updateOrder);
 
 router.post('/createBuyOrder', auth, BittrexController.createBuyOrder);
+
+//v3 api
+router.get('/open-orders', auth, BittrexController.openOrdersv3)
+
+router.get('/closed-orders', auth, BittrexController.closedOrdersv3)
+
+router.get('/order/:orderId', auth, BittrexController.orderById);
+
+router.get('/delete-order/:orderId', auth, BittrexController.deleteOrder);
+
+router.get('/open-deposits', auth, BittrexController.openDepositsv3)
+
+router.get('/closed-deposits', auth, BittrexController.closedDepositsv3)
+
+router.get('/deposit/:txId', auth, BittrexController.depositByTxid);
+
+
+
 
 
 module.exports = router

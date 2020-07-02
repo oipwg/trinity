@@ -1,6 +1,6 @@
 require('dotenv').config();
 const { API_URL}  = process.env
-const timestamp = require('../../helpers/timestamp')
+const {timestamp} = require('../../helpers/timestamp')
 const axios = require('axios');
 
 
@@ -159,15 +159,24 @@ const checkMarketPrice = async (offerPrice) => {
 
 const getMinTradeSize = async (currency) => {
     try {
-        const res = await axios.get(`https://api.bittrex.com/api/v1.1/public/getmarkets`)
+        const res = await axios.get(`https://api.bittrex.com/v3/markets/${currency}-BTC`)
 
-        let data = res.data.result;
-        let market = data.find(market => market.MarketCurrency === currency)
+        let data = res.data
         
-        return market.MinTradeSize;
+        return data.minTradeSize;
 
     } catch (error) {
         console.log(error)
+    }
+}
+
+const getCurrencyInfo = async (token) => {
+    try {
+        const res = await axios.get(`https://api.bittrex.com/v3/currencies/${token}`)
+
+        return res.data
+    } catch (error) {
+        log(error)
     }
 }
 
@@ -188,5 +197,6 @@ module.exports = {
     getFees,
     checkMarketPrice,
     getTxidInfo,
-    getMinTradeSize
+    getMinTradeSize,
+    getCurrencyInfo
 }
