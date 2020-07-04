@@ -11,16 +11,19 @@ const auth = require('../middleware/auth');
 const { Rent, getPriceBtcUsd } = require('../helpers/rentValues')
 
 function isCorrectPublicAddress(publicAddress, usedAddresses, token) {
+    console.log('publicAddress:', publicAddress)
     console.log('usedAddresses:', usedAddresses)
     const pattern = /^./g;
     const foundToken = token.match(pattern)[0].toUpperCase()
-    const foundAddress = publicAddress.match(pattern)[0].toUpperCase()
 
     // 1st check if publicAddress from Database is empty return false so a new address can be derived and saved to DB
     if(publicAddress === '') {
         return false
+    
+    }
     // 2nd check, if public address is the correct address for the given token, if not check used address, if usedAddress does return that address else return false
-    } else if ( foundAddress !== foundToken  ) {
+    const foundAddress = publicAddress.match(pattern)[0].toUpperCase()
+    if ( foundAddress !== foundToken  ) {
         if (usedAddresses.length === 0) return false
         // Checks usedAddresses in database, if one exist return it
         for(let usedAddress of usedAddresses) {
@@ -130,7 +133,7 @@ async function processUserInput(req, res) {
                 profile.dailyBudget = dailyBudget
 
                 let isCorrectAddress = isCorrectPublicAddress(profile.address.publicAddress, profile.usedAddresses, token)
-                console.log('isCorrectAddress:', isCorrectAddress)
+
                 // If user doesn't have a generated address will generate a new one and save address and index to DB
                 if ( !isCorrectAddress ) {
                 // if (profile.address.publicAddress === '') {
