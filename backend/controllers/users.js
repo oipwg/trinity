@@ -62,7 +62,7 @@ module.exports = {
             // }
 
             const user = await newUser.save()
-            Client.newSpartan(user.userName, user._id, res)
+            Client.newSpartan(user.userName, user._id)
 
             const sendUser = await User.findOne({ userName: user.userName }).select('-password');
             
