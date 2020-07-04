@@ -170,8 +170,8 @@ async function processUserInput(req, res) {
         options.algorithm = token === 'RVN' ? 'KAWPOW' : 'SCRYPT'
         return options
     } catch (e) {
-        console.log('Catch error rent.js line 140: .' + e )
-        return { err: 'Catch error rent.js line 140: .' + e }
+        console.log('Catch error rent.js line 173: .' + e )
+        return { err: 'Catch error rent.js line 173: .' + e }
     }
 }
 
