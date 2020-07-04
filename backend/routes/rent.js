@@ -10,35 +10,61 @@ const { Account, Networks, Address } = require('@oipwg/hdmw');
 const auth = require('../middleware/auth');
 const { Rent, getPriceBtcUsd } = require('../helpers/rentValues')
 
+function isCorrectPublicAddress(publicAddress, usedAddresses, token) {
+    console.log('usedAddresses:', usedAddresses)
+    const pattern = /^./g;
+    const foundToken = token.match(pattern)[0].toUpperCase()
+    const foundAddress = publicAddress.match(pattern)[0].toUpperCase()
+
+    // 1st check if publicAddress from Database is empty return false so a new address can be derived and saved to DB
+    if(publicAddress === '') {
+        return false
+    // 2nd check, if public address is the correct address for the given token, if not check used address, if usedAddress does return that address else return false
+    } else if ( foundAddress !== foundToken  ) {
+        if (usedAddresses.length === 0) return false
+        // Checks usedAddresses in database, if one exist return it
+        for(let usedAddress of usedAddresses) {
+            let foundUsedAddress = usedAddress.match(pattern)[0].toUpperCase()
+            if ( foundUsedAddress === foundToken ) {
+                return usedAddress
+            } else {
+                return false
+            }
+        }
+        // If publicAddress is the correct address for the given token return it
+    } else {
+        return publicAddress
+    }
+}
 
 async function processUserInput(req, res) {
     let options = req.body
 
     // Next rental
-    // if(options.nextRental) {
-    //     console.log('options.hashrate.toFixed(8)', options.hashrate.toFixed(8))
-    //     console.log('options.Xpercent', options.Xpercent)
-    //     console.log('options.userId', options.userId)
+    if(options.nextRental) {
+        console.log('options.hashrate.toFixed(8)', options.hashrate.toFixed(8))
+        console.log('options.Xpercent', options.Xpercent)
+        console.log('options.userId', options.userId)
         
-    //     let msg = {
-    //         update: true,
-    //         message: `Your next rental hashrate:  ${options.hashrate.toFixed(8)} \n` +
-    //                  `Percent:  ${options.Xpercent}% `,
-    //         userId: options.userId,
-    //         autoRent: true
-    //     }
-    //     emitter.emit('message', JSON.stringify(msg));
+        let msg = {
+            update: true,
+            message: `Your next rental hashrate:  ${options.hashrate.toFixed(8)} \n` +
+                     `Percent:  ${options.Xpercent}% `,
+            userId: options.userId,
+            autoRent: true
+        }
+        emitter.emit('message', JSON.stringify(msg));
 
-    //     options.newRent = Rent
-    //     return options
-    // }
+        options.newRent = Rent
+        return options
+    }
 
     let { profitReinvestment, updateUnsold, dailyBudget,targetMargin, autoRent, spot, alwaysMineXPercent,
         autoTrade, morphie, supportedExchange, profile_id, Xpercent, userId, token, name } = options;
 
     try {
         const rent = await Rent(token, Xpercent)
-        console.log('rent: RENT.JS', rent)
+
         let user = await User.findById(req.user.id)
         if (!user) {
             return 'Can\'t find user. setup.js line#16'
@@ -103,22 +129,28 @@ async function processUserInput(req, res) {
                 profile.updateUnsold = updateUnsold
                 profile.dailyBudget = dailyBudget
 
+                let isCorrectAddress = isCorrectPublicAddress(profile.address.publicAddress, profile.usedAddresses, token)
+                console.log('isCorrectAddress:', isCorrectAddress)
                 // If user doesn't have a generated address will generate a new one and save address and index to DB
-                if (profile.address.publicAddress === '') {
+                if ( !isCorrectAddress ) {
+                // if (profile.address.publicAddress === '') {
                     let usedIndexes = user.indexes
                     let newAddress = getAddress(0, paymentRecieverXPub, token, usedIndexes)
                     let btcAddress = getAddress(0, btcxPrv, 'bitcoin', usedIndexes)
 
                     profile.address.publicAddress = newAddress.address
                     profile.address.btcAddress = btcAddress.address
-                          
+
+                    profile.usedAddresses.push(newAddress.address)
+
                     options.address = newAddress.address
                     let index = newAddress.index
                     user.indexes.push(index)
                     
                     break;
                 } else {
-                    options.address = profile.address.publicAddress
+                    console.log('ELSE ADDRESS', isCorrectAddress)
+                    options.address = isCorrectAddress
                 }
             }
         }
