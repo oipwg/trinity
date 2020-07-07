@@ -5,8 +5,11 @@ const axios = require('axios');
 
 
 const getTotalQty = (receivedQtyHourly, feeFloTx1) => {
-    return Number((receivedQtyHourly + feeFloTx1).toFixed(8));
+            console.log({receivedQtyHourly, feeFloTx1})
+        let total = receivedQtyHourly + feeFloTx1
+    return Number(total.toFixed(8))
 }
+
 
 const getOfferPriceBtc = (costOfRentalBTCHourly, bittrexTradeFee, targetMargin, bittrexWithdrawlFee, estFeeBtcTx1, sellableQty) => {
     console.log({costOfRentalBTCHourly, bittrexTradeFee, targetMargin, bittrexWithdrawlFee, estFeeBtcTx1, sellableQty})

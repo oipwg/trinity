@@ -127,8 +127,6 @@ module.exports = {
         try {
             const { password } = req.body;
 
-            console.log(req.body)
-
             const user = await User.findById(req.user.id)
             
             if (!user) {
@@ -146,5 +144,5 @@ module.exports = {
         } catch (error) {
             console.log('error', error);
         }
-    },
+    }
 };
