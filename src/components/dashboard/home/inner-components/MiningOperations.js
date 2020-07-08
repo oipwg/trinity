@@ -49,7 +49,7 @@ const MiningOperations = (props) => {
     }
 
 
-
+    const [showSettingaModal, setShowSettingsModal] = useState(false)
     const [err, setError] = useState({ autoRent: false, autoTrade: false })
     const [miningOperations, setOperations] = useState({
         targetMargin: 0,
@@ -67,24 +67,13 @@ const MiningOperations = (props) => {
         message: [],
         update: false,
         CostOfRentalBtc: '',
-        spartanbot: {},
-        userId: ''
+        userId: '',
+        mining: false
     });
 
-
-    const [showSettingaModal, setShowSettingsModal] = useState(false)
     let {
-        targetMargin,
-        profitReinvestment,
-        updateUnsold,
-        dailyBudget,
-        autoRent,
-        spot,
-        alwaysMineXPercent,
-        autoTrade,
-        morphie,
-        supportedExchange,
-        Xpercent
+        targetMargin, profitReinvestment, updateUnsold, dailyBudget, autoRent, spot, alwaysMineXPercent, autoTrade,
+        morphie, supportedExchange, Xpercent, token, mining
     } = miningOperations
 
     useEffect(() => {
@@ -115,13 +104,12 @@ const MiningOperations = (props) => {
             props.dispatch(updateDailyBudget({...profile, userId: props.user._id, profile_id: props.profile._id}))
             setOperations({...miningOperations, ...profile })
             user_id.current = props.user._id
-            // setError('')
 
         } else {
             setOperations({
-                targetMargin: 1,
-                profitReinvestment: 1,
-                updateUnsold: '1',
+                targetMargin: 0,
+                profitReinvestment: 0,
+                updateUnsold: '0',
                 dailyBudget: dailyBudget,
                 autoRent: false,
                 spot: false,
@@ -129,13 +117,13 @@ const MiningOperations = (props) => {
                 autoTrade: false,
                 morphie: false,
                 supportedExchange: false,
-                Xpercent: 15,
+                Xpercent: 0,
                 token: '',
                 message: [],
                 update: false,
                 CostOfRentalBtc: '',
                 userId: '',
-                spartanbot: JSON.parse( sessionStorage.getItem('spartanbot') )
+                mining: false
             })
         }
     }, [props.profile, props.address])
@@ -177,7 +165,7 @@ const MiningOperations = (props) => {
 
         if (miningOperations.autoRent) {
             // If update has a value of true it removes back to undefined to be updated once again on the backend
-            setOperations({ ...miningOperations, message: [], update: false })
+            setOperations({ ...miningOperations, message: [], update: false, mining: false })
             rent(miningOperations)
         }
     }, [autoRent]);
@@ -199,6 +187,8 @@ const MiningOperations = (props) => {
             } else if (key === 'update') {
                 newValues[key] = data[key]
             } else if (key === 'autoRent') {
+                newValues[key] = data[key]
+            } else if (key === 'mining') {
                 newValues[key] = data[key]
             } else if (key === 'db') {
                 for (let key in data.db) {
@@ -252,7 +242,7 @@ const MiningOperations = (props) => {
 
 
 
-
+    // When slider is clicked to switch it checks to make sure inputs have values in them first.
     const checkInputsAndRent = (e, slider) => {
         let profile = {}
 
@@ -442,7 +432,7 @@ const MiningOperations = (props) => {
                     {/* AUTO RENTING CONTAINER */}
                     <div className="automatic-renting-container">
                         <span className="renting-light-container">
-                            <p>RENTING</p>
+                            <p>Mining</p>
                             {/* <svg viewBox="0 0 32 32" width="22" height="22">
                         <defs>
                             <radialGradient id="radial-gradient" cx="16" cy="16" r="16" gradientUnits="userSpaceOnUse">
@@ -458,64 +448,37 @@ const MiningOperations = (props) => {
                         <circle cx="16" cy="16" r="16" className={miningOperations.autoRent ? 'ledBulb' : 'hideLed'} fill=" url(#radial-gradient)"/>
                         <path d="M16,1A15,15,0,1,1,1,16,15,15,0,0,1,16,1m0-1A16,16,0,1,0,32,16,16,16,0,0,0,16,0Z" fill="#444"/>
                         </svg> */}
-                            <svg viewBox="0 0 88 88" width="30" height="30">
-                                <defs>
-                                    <radialGradient id="radial-gradient" cx="29.31" cy="20.41" fx="-2.4352928907866698" fy="49.26989691412602" r="51.42" gradientTransform="translate(77.07 3.92) rotate(123.04) scale(1 1.1)" gradientUnits="userSpaceOnUse">
-                                        <stop offset="0" stopColor="#828282" />
-                                        <stop offset="1" />
-                                    </radialGradient>
-                                    <radialGradient id="radial-gradient-2" cx="56.11" cy="60.95" fx="56.114242650427514" fy="60.94565712206986" r="42.95" gradientTransform="translate(34.01 -17.42) rotate(35.76)" href="#radial-gradient" />
-                                    <linearGradient id="linear-gradient" x1="43.32" y1="69.74" x2="44.67" y2="18.93" gradientTransform="translate(30.52 -16.75) rotate(32.49)" gradientUnits="userSpaceOnUse">
-                                        <stop offset="0" stopColor="#79aa00" />
-                                        <stop offset="1" stopColor="#307f00" />
-                                    </linearGradient>
-                                    <radialGradient id="radial-gradient-3" cx="44" cy="44" r="41.76" gradientUnits="userSpaceOnUse">
-                                        <stop offset="0" stopColor="#79aa00" />
-                                        <stop offset="0.12" stopColor="#72b000" stopOpacity="0.93" />
-                                        <stop offset="0.33" stopColor="#5fbe00" stopOpacity="0.76" />
-                                        <stop offset="0.6" stopColor="#41d600" stopOpacity="0.48" />
-                                        <stop offset="0.93" stopColor="#17f700" stopOpacity="0.09" />
-                                        <stop offset="1" stopColor="#0dff00" stopOpacity="0" />
-                                    </radialGradient>
-                                    <radialGradient id="radial-gradient-4" cx="44" cy="44" r="31.35" gradientTransform="translate(7.64 -6.49) rotate(9.24)" gradientUnits="userSpaceOnUse">
-                                        <stop offset="0" stopColor="#f80" />
-                                        <stop offset="0.19" stopColor="#ff7a00" stopOpacity="0.83" />
-                                        <stop offset="0.62" stopColor="#ff5600" stopOpacity="0.39" />
-                                        <stop offset="1" stopColor="#ff3600" stopOpacity="0" />
-                                    </radialGradient>
-                                    <linearGradient id="linear-gradient-2" x1="44" y1="73.76" x2="44" y2="61.9" gradientUnits="userSpaceOnUse">
-                                        <stop offset="0" stopColor="#fff" stopOpacity="0.5" />
-                                        <stop offset="1" stopColor="#fdf0ec" stopOpacity="0" />
-                                    </linearGradient>
-                                    <linearGradient id="linear-gradient-3" x1="43.91" y1="38.78" x2="43.91" y2="14.02" gradientUnits="userSpaceOnUse">
-                                        <stop offset="0" stopColor="#fdf0ec" stopOpacity="0" />
-                                        <stop offset="0.11" stopColor="#fdf0ed" stopOpacity="0.02" />
-                                        <stop offset="0.25" stopColor="#fdf2ee" stopOpacity="0.09" />
-                                        <stop offset="0.42" stopColor="#fdf4f1" stopOpacity="0.2" />
-                                        <stop offset="0.59" stopColor="#fef7f4" stopOpacity="0.35" />
-                                        <stop offset="0.79" stopColor="#fefaf9" stopOpacity="0.55" />
-                                        <stop offset="0.98" stopColor="#fff" stopOpacity="0.78" />
-                                        <stop offset="1" stopColor="#fff" stopOpacity="0.8" />
-                                    </linearGradient>
-                                </defs>
-                                <g id="outter-shadow">
-                                    <path d="M64.92,5.3A44,44,0,1,0,82.7,64.92,44,44,0,0,0,64.92,5.3Zm-37.82,70A35.53,35.53,0,1,1,75.25,60.9,35.54,35.54,0,0,1,27.1,75.25Z" fill=" url(#radial-gradient)" />
-                                </g>
-                                <g id="ring-inner-shadow">
-                                    <path d="M65.23,14.52a36.33,36.33,0,1,0,8.25,50.71A36.34,36.34,0,0,0,65.23,14.52ZM25.68,69.44a31.35,31.35,0,1,1,43.76-7.12A31.36,31.36,0,0,1,25.68,69.44Z" fill=" url(#radial-gradient-2)" />
-                                </g>
-                                <g id="green-bulb">
-                                    <circle cx="44" cy="44" r="31.35" transform="translate(-16.75 30.52) rotate(-32.49)" fill=" url(#linear-gradient)" />
-                                    <circle id="green-glow" cx="44" cy="44" r="41.76" fill=" url(#radial-gradient-3)" />
-                                </g>
-                                <g id="red-bulb">
-                                    <circle cx="44" cy="44" r="31.35" transform="translate(-16.75 30.52) rotate(-32.49)" fill=" #ff3600" />
-                                    <circle cx="44" cy="44" r="31.35" transform="translate(-6.49 7.64) rotate(-9.24)" fill=" url(#radial-gradient-4)" />
-                                </g>
-                                <g id="bulb-bottom-highlight">
-                                    <path d="M66.77,61.9a27.79,27.79,0,0,1-45.54,0Z" fill=" url(#linear-gradient-2)" />
-                                </g>
-                                <ellipse id="bulb-top-hightlight" cx="43.91" cy="26.4" rx="20.96" ry="12.38" fill=" url(#linear-gradient-3)" />
+                            <svg viewBox="0 0 124 124" width="28" height="28">
+                            <style type="text/css">
+                                {
+                            '.st0{fill:url(#SVGID_1_);}'+
+                            '.st1{fill:url(#green-glow_1_);}'+
+                            '.st2{fill:url(#SVGID_2_);}'
+                            }
+                            </style>
+                            <g id="green-bulb">
+                             <linearGradient id="SVGID_1_" gradientUnits="userSpaceOnUse" x1="61.3183" y1="38.26" x2="62.6683" y2="89.07" gradientTransform="matrix(1 0 0 -1 -4.134885e-03 125.9977)">
+                              <stop  offset="0" stopColor="#79AA00"/>
+                              <stop  offset="1" stopColor="#307F00"/>
+                             </linearGradient>
+                             <circle className="st0" cx="62" cy="62" r="31.3"/>
+                             <radialGradient id="green-glow_1_" cx="62" cy="64" r="41.76" gradientTransform="matrix(1 0 0 -1 0 126)" gradientUnits="userSpaceOnUse">
+                              <stop  offset="0" stopColor="#79AA00"/>
+                              <stop  offset="0.12" stopColor="#72B000" stopOpacity="0.93"/>
+                              <stop  offset="0.33" stopColor="#5FBE00" stopOpacity="0.76"/>
+                              <stop  offset="0.6" stopColor="#41D600" stopOpacity="0.48"/>
+                              <stop  offset="0.93" stopColor="#17F700" stopOpacity="9.000000e-02"/>
+                              <stop  offset="1" stopColor="#0DFF00" stopOpacity="0"/>
+                             </radialGradient>
+                             <circle id="green-glow" className="st1" cx="62" cy="62" r="41.8"/>
+                            </g>
+                            <radialGradient id="SVGID_2_" cx="61.9954" cy="64.0035" r="31.3547" gradientTransform="matrix(1 0 0 -1 8.765546e-03 126.0075)" gradientUnits="userSpaceOnUse">
+                             <stop  offset="0" stopColor="#FF8800"/>
+                             <stop  offset="0.19" stopColor="#FF7A00" stopOpacity="0.83"/>
+                             <stop  offset="0.62" stopColor="#FF5600" stopOpacity="0.39"/>
+                             <stop  offset="1" stopColor="#FF3600" stopOpacity="0"/>
+                            </radialGradient>
+                            <circle className="st2" cx="62" cy="62" r="31.4"/>
                             </svg>
                         </span>
                         <ToggleSwitch
@@ -572,7 +535,6 @@ const MiningOperations = (props) => {
                             <div className="form-check">
                                 <input className="form-check-input" type="radio" id="morphie"
                                     value={morphie}
-                                    // checked={morphie}
                                     checked={miningOperations.morphie ? true : false}
                                     name="auto-trading"
                                     onChange={(e) => { updateInputs(e) }} />
@@ -603,10 +565,12 @@ const MiningOperations = (props) => {
 };
 
 const PercentModal = (props) => {
+    
     let percent = props.miningOperations.Xpercent
-    // let modalOpen = props.state.percentModal
+    let token = props.miningOperations.token
+
     const modalOpen = () => {
-        if(props.state.percentModal === 'open') {
+        if(props.state.percentModal === 'open' && token !== 'RVN') {
             return {
                 opacity: 1,
                 transform: 'scale(1)'

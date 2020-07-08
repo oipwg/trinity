@@ -66,13 +66,12 @@ class DailyBudget {
                     let orders = orderBook.stats.USA.orders;
                     let length = orders.length;
                     let lowestPrice;
-                    console.log('ALGORITHM', this.algorithm)
+                    console.log('ALGORITHM in dailybudget.js', this.algorithm)
                     if (this.algorithm === 'KAWPOW') {
                         lowestPrice = orders[0].price
                     } else {
                         lowestPrice = orders[0].price
                     }
-                    // let lowestPrice = orders[0].price;
     
                     for (let i = 0; i < length; i++) {
                         if (orders[i].rigsCount > 0) {

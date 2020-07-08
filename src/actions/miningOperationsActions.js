@@ -10,9 +10,8 @@ export const updateDailyBudget = (inputs, upDateNiceHashMinimum) => async (dispa
     } else {
         inputs.algorithm = 'SCRYPT'
     }
-
+    // console.log('INPUTS ACTIONS ', inputs)
     const Percent = inputs.Xpercent
-    console.log('INPUTS MININOPERTIONSACTIONS.JS ', inputs)
     inputs.to_do = 'returnSpartanBot'
 
     fetch(API_URL+'/daily-budget',{
@@ -45,7 +44,7 @@ export const isNiceHashMinimum = (percent = 0, NetworkhashrateFlo = 0, status) =
             payload: status
         })
     }
-    console.log('NetworkhashrateFlo:', NetworkhashrateFlo * ( - Percent  / ( -1 + Percent ) ))
+
     if (networkHashRate < 0.01 ) {
         dispatch({
             type: PERCENT_MODAL,
