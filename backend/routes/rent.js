@@ -19,7 +19,6 @@ function isCorrectPublicAddress(publicAddress, usedAddresses, token) {
     // 1st check if publicAddress from Database is empty return false so a new address can be derived and saved to DB
     if(publicAddress === '') {
         return false
-    
     }
     // 2nd check, if public address is the correct address for the given token, if not check used address, if usedAddress does return that address else return false
     const foundAddress = publicAddress.match(pattern)[0].toUpperCase()
@@ -35,9 +34,8 @@ function isCorrectPublicAddress(publicAddress, usedAddresses, token) {
             }
         }
         // If publicAddress is the correct address for the given token return it
-    } else {
+    } else 
         return publicAddress
-    }
 }
 
 async function processUserInput(req, res) {

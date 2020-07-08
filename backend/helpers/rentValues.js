@@ -40,8 +40,10 @@ exports.Rent = async (  token, percent) => {
                 let data = JSON.parse(body);
                 let difficulty = data.nodes[0].difficulty;
                 console.log('difficulty:', difficulty)
-                let hashrate = difficulty * Math.pow(2, 32) / 60;
-                console.log('hashrate:', hashrate)
+                let hashrate = data.nodes[0].networkhashps;
+                // console.log('newHashrate:', hashrat)
+                // let hashrate = difficulty * Math.pow(2, 32) / 60;
+                console.log('data.nodes[0].networkhashps hashrate:', hashrate)
                 let Networkhashrate = hashrate / 1000000000000; // TH/s
                 let Rent = Networkhashrate * (-percent / (-1 + percent))   // * 1000000 for MRR to MH/s
                 console.log('Rent: RAVEN', Rent)
