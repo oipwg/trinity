@@ -26,51 +26,58 @@ module.exports = {
     },
         results: async (req,res, next) => {
         try {
-            const {timestarted, profile, rental, costOfRentalBtc, priceBtcUsd, duration, btcFromTrades, totalMined, profitReinvestment, completedOrders} = req.body
+            const {timestarted, uuid, profile, rental, costOfRentalBtc, priceBtcUsd, duration, btcFromTrades, totalMined, profitReinvestment, completedOrders} = req.body
 
 
             
 
             let obj = {
-                     [profile] : [{
-                        timestarted,
-                        costOfRentalBtc,
-                        priceBtcUsd,
-                        duration,
-                        btcFromTrades,
-                        totalMined,
-                        profitReinvestment,
-                        completedOrders
-                     }]
-                }
-            const user = await User.findById(req.user.id).select('results')
-
-            let foundProfile = user.results.find(obj => Object.keys(obj) == profile)
-            let index = user.results.findIndex(obj => Object.keys(obj) == profile)
-
-            if(foundProfile) {
-                let obj = {
-                        timestarted,
-                        costOfRentalBtc,
-                        priceBtcUsd,
-                        duration,
-                        btcFromTrades,
-                        totalMined,
-                        profitReinvestment,
-                        completedOrders
-                }
-
-                user.results[index][profile].push({...obj})
-            } else {
-                user.results.push(obj)
+                    uuid,
+                    profile,
+                    timestarted,
+                    costOfRentalBtc,
+                    priceBtcUsd,
+                    duration,
+                    btcFromTrades,
+                    totalMined,
+                    profitReinvestment,
+                    completedOrders,
             }
+            let user = await User.findByIdAndUpdate(req.user.id).select('results')
 
-            await user.save()                                            
+            // let foundProfile = user.results.find(obj => Object.keys(obj) == profile)
+
+            // let index = user.results.findIndex(obj => Object.keys(obj) == profile)
+
+            // if(foundProfile) {
+            //     console.log("IF")
+            //     let newObj = {
+            //             timestarted,
+            //             costOfRentalBtc,
+            //             priceBtcUsd,
+            //             duration,
+            //             btcFromTrades,
+            //             totalMined,
+            //             profitReinvestment,
+            //             completedOrders
+            //     }
+
+            //     user.results = {...user.results, ...obj}
+            // } else {
+            //     console.log('ELSEEEEE')
+            // }
+
+            user.results.push(obj)
 
 
-            res.status(200).json({
-                success: 'RESULTS POSTED!', user
-            });    
+            await user.save(function(err){
+                if(err){
+                     console.log(err);
+                     return;
+                }
+          
+                res.json({user: user });
+          }); 
         
         } catch (error) {
             console.log({error})

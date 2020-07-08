@@ -111,6 +111,46 @@ let TokensFromCanOffer,
         },
     };
 
+    const postResults = async ({ID, _id, timestarted, costOfRentalBtc, priceBtcUsd, duration, btcFromTrades, totalMined, profitReinvestment, completedOrders}) => {
+        try {
+
+            console.log({ID, _id, timestarted, costOfRentalBtc, priceBtcUsd, duration, btcFromTrades, totalMined, profitReinvestment, completedOrders})
+
+            let body = {
+                uuid: ID,
+                profile: _id,
+                timestarted,
+                costOfRentalBtc,
+                priceBtcUsd,
+                duration,
+                btcFromTrades,
+                totalMined,
+                profitReinvestment,
+                completedOrders,
+            }
+
+            axios.post(`${API_URL}/auto-trade/results`, body, config)
+
+        } catch (error) {
+            log(name, {ID}, 'postResults ---', error)
+        }
+    }
+
+    const confirmBalance = async (arr) => {
+        let res = await axios.get(`${API_URL}/bittrex/closed-deposits`, config)
+                        
+        let closedDeposits = res.data;
+        
+        let tokens = 0;
+        
+        arr.map(txid => {
+                let order = closedDeposits.find(order => order.txId == txid)
+    
+                tokens += Number(order.quantity)
+            })
+
+        return tokens;
+    }
 
     //bittrex wallet address
     const getBittrexAddress = async (token) => {
@@ -326,6 +366,16 @@ let TokensFromCanOffer,
             log(name, {ID} , "ERR; SendPayment", error)
         }
     }
+
+    const pushTokensToBittrex = async () => {
+        let res = await getBalanceFromAddress(userAddress)
+
+        if(res.balance){
+            
+        }
+
+
+    }
     
     // ------------  START -------------- 
 
@@ -370,6 +420,8 @@ let TokensFromCanOffer,
     let context = {
         btcFromOrders: 0,
         bittrexBalance: 0,
+        pendingBalance: 0,
+        confirmedBalance: 0,
         duration: DURATION,
         hour: 1,
         blockHeight: 0,
@@ -388,7 +440,7 @@ let TokensFromCanOffer,
         orders: [],
         completedOrders: [],
         currentOrder: null,
-        statTime: Date.now(),
+        startTime: Date.now(),
         currentTime: timerInt()
       }
 
@@ -409,19 +461,21 @@ let TokensFromCanOffer,
                     context.hourlyCostOfRentalBtc = Number((costOfRentalUsd / context.duration / priceBtcAtStart).toFixed(8))
                     context.totalQty = getTotalQty(context.receivedQty, context.feeFloTx1)
                     log(name, {ID}, context)
-                    this.changeState('TRANSFER')
-                    this.dispatch('moving')
-                  }
+                    // this.changeState('TRANSFER')
+                    // this.dispatch('moving')
+                  },
+                  
               },
               "TRANSFER": {
                   moving: async function() {
 
                     if(context.receivedQty <= 0){
                         log(name, {ID}, "NO BALANCE ---")
-                         return setTimeout(() => {
+                        //wait... go back to start
+                        return setTimeout(() => {
                             this.changeState("START")
                             this.dispatch("starting")
-                        }, (ONE_MINUTE)) //! UPDATEUNSOLD 
+                        }, (ONE_HOUR / updateUnsold)) //! UPDATEUNSOLD 
                         //have this go to an idle state. wait. try go back to start??
                     }
                     let txid = await sendPayment(BittrexAddress, userAddress, context.receivedQty, coin)
@@ -476,6 +530,9 @@ let TokensFromCanOffer,
                         log("deposit", {res})
 
                         let order =  res.find(order => order.txId === context.bittrexTxid[context.bittrexTxid.length - 1])
+
+                        let bal = await confirmBalance(context.bittrexTxid)
+                        console.log('confirmed bal', bal)
 
                         console.log({order})
 
@@ -551,7 +608,7 @@ let TokensFromCanOffer,
                             return setTimeout(() => {
                                 this.changeState("LOOP")
                                 this.dispatch("looping")
-                            }, 5000) //! ONE_HOUR
+                            }, ONE_HOUR) //! ONE_HOUR
                             
                         }
 
@@ -651,6 +708,10 @@ let TokensFromCanOffer,
                 looping: function() {
                     log("LOOOPPPPINGGGGGGG!!", {context}, Date.now())
 
+                    if(Date.now() > (context.timestarted + (context.duration * ONE_HOUR))){
+                        log('it hit this should this chage state????')
+                    }
+
                     if(context.hour < context.duration){
                         context.hour += 1;
                         this.changeState('START')
@@ -661,10 +722,8 @@ let TokensFromCanOffer,
                     }
                 }
               },
-
               "CLOSE": {
                   closing: async function() {
-                    log("do some stuff...like calculating....and then withdraw")
 
                         let res = await axios.get(`${API_URL}/bittrex/closed-orders`, config)
                         
@@ -678,33 +737,48 @@ let TokensFromCanOffer,
                                 btcBalance += (order.proceeds - order.commission)
                             })
 
-                        console.log({btcBalance})
-
                         context.btcFromOrders = btcBalance;
 
                         // profitUsd = (btcFromTrade * priceCoinbaseUsdBtc) - costOfRentalUsd
                         // takeProfitBtc = profitUsd * (1 - profitReinvestmentRate) / priceCoinbaseUsdBtc
 
-                        this.change(WITHDRAWL)
+                        this.changeState('WITHDRAWL')
+                        this.dispatch('withdrawing')
 
                   }
               },
               "WITHDRAWL": {
-                withdraw: async function() {
+                withdrawing: async function() {
                     //Move btc to HDMW
 
                     //Move takeProfitBtc to coinbase
 
                     //Move left over btcFromTrade back to rental provider.
+                    try {
                         let sentToHDMW = await withdrawFromBittrex('BTC', contect.btcFromOrders, rentalAddress);
-                        console.log({sentToHDMW})
+                        log({sentToHDMW})
 
-                    // Save rental stats to DB and reset context valuess
+                        if(sentToHDMW){
+                            this.changeState('RESULTS')
+                            this.dispatch('results')
+                        }
+                    } catch (error) {
+                        log(error)
+                    }
                 }
               },
+
               "RESULTS": {
                   results: function() {
-                      
+                      postResults({
+                        ID, _id, timestarted: context.startTime, 
+                        costOfRentalBtc: CostOfRentalBtc, duration: DURATION, 
+                        priceBtcUsd: priceBtcAtStart,
+                        btcFromTrades: context.btcFromOrders, 
+                        totalMined: context.totalQty, profitReinvestment, 
+                        completedOrders: context.completedOrders
+                    })
+
                   }
               },
               "ERROR": {
@@ -738,7 +812,12 @@ let TokensFromCanOffer,
       })
 
       log("CURRENT STATE ---", Trade.state)
-      Trade.dispatch("starting")
+    //   Trade.dispatch("starting")
+
+      let pushTokensInt = setInterval(() => {
+          pushTokensToBittrex()
+      }, (5 * ONE_MINUTE)) //! ONE HOUR
+
 
 
 
