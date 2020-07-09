@@ -116,23 +116,32 @@ main {
   padding: 1.5rem;
 }
 
+.green-glow {
+  transform-origin: center;
+  transform: scale(.6);
+}
+
 .hideLed {
   display: none
 }
 
 .ledBulb {
+  transform-origin: center;
   animation: pulse 1s ease-out infinite;
 }
 
 @keyframes pulse {
   0% {
+    transform: scale(.6);
     opacity: 0;
   }
   70% {
-    opacity: 1;
+    transform: scale(1.2);
+    opacity: .9;
   }
   100% {
-    opacity: 1;
+    transform: scale(1.6);
+    opacity: .6;
   }
 }
 
@@ -142,12 +151,15 @@ main {
   position: absolute;
   right: 100px;
   top: 45px;
-  width: 115px;
+  width: 111px;
   align-items: flex-end;
 }
 
 .renting-light-container p {
   margin: 0;
+  font-weight: 500;
+  font-size: 1.2rem;
+  padding-bottom: 6px;
 }
 
 .automatic-renting-content {
@@ -376,7 +388,7 @@ main {
     transition: all .4s ease-in;
 }
 
-.percent-modal-container header{
+.percent-modal-container header {
   height: 50px;
   background: #0082f9;
 }

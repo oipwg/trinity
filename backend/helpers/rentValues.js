@@ -1,5 +1,5 @@
 const https = require('https');
-const request = require('request');
+
 
 exports.Rent = async (  token, percent) => {
 
@@ -32,23 +32,29 @@ exports.Rent = async (  token, percent) => {
     if (token === "RVN") {
         console.log('RVN HIT')
         return await new Promise((resolve, reject) => {
-            request({ url: 'https://rvn.2miners.com/api/stats' }, (err, res, body) => {
-                if (err) {
-                    reject(err)
-                }
-                console.log('PERCENT', percent)
-                let data = JSON.parse(body);
+            https.get('https://rvn.2miners.com/api/stats', (response) => {
+              let body = ''
+              response.on('data', (chunk) => {
+                  body += chunk;
+              });
+              response.on('end', () => {
+                let data = JSON.parse(body)
+                if(!data) console.log('Something wrong with the api or syntax')
+        
                 let difficulty = data.nodes[0].difficulty;
                 console.log('difficulty:', difficulty)
                 let hashrate = data.nodes[0].networkhashps;
-                // console.log('newHashrate:', hashrat)
-                // let hashrate = difficulty * Math.pow(2, 32) / 60;
-                console.log('data.nodes[0].networkhashps hashrate:', hashrate)
-                let Networkhashrate = hashrate / 1000000000000; // TH/s
-                let Rent = Networkhashrate * (-percent / (-1 + percent))   // * 1000000 for MRR to MH/s
-                console.log('Rent: RAVEN', Rent)
+                // let hashrate = difficulty * Math.pow(2, 32) / 60;    // Old hashrate if you want to play with this
+                let Networkhashrate = hashrate / 1000000000000; 
+                let Rent = Networkhashrate * (-percent / (-1 + percent)) 
                 let MinPercentFromMinHashrate = 1000000000000 * .01 / ((difficulty * Math.pow(2, 32) / 60) + (1000000000000 * .01))
+                console.log('MinPercentFromMinHashrate:', MinPercentFromMinHashrate)
                 resolve({ Rent, MinPercentFromMinHashrate, difficulty, Networkhashrate })
+              })
+        
+              }).on("error", (error) => {
+                console.log("Error: " + error.message);
+                reject("Error: " + error.message)
             })
         })
     }
