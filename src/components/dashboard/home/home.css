@@ -139,36 +139,57 @@ main {
   padding: 1.5rem;
 }
 
+.green-glow {
+  -webkit-transform-origin: center;
+          transform-origin: center;
+  -webkit-transform: scale(0.6);
+          transform: scale(0.6);
+}
+
 .hideLed {
   display: none;
 }
 
 .ledBulb {
+  -webkit-transform-origin: center;
+          transform-origin: center;
   -webkit-animation: pulse 1s ease-out infinite;
           animation: pulse 1s ease-out infinite;
 }
 
 @-webkit-keyframes pulse {
   0% {
+    -webkit-transform: scale(0.6);
+            transform: scale(0.6);
     opacity: 0;
   }
   70% {
-    opacity: 1;
+    -webkit-transform: scale(1.2);
+            transform: scale(1.2);
+    opacity: .9;
   }
   100% {
-    opacity: 1;
+    -webkit-transform: scale(1.6);
+            transform: scale(1.6);
+    opacity: .6;
   }
 }
 
 @keyframes pulse {
   0% {
+    -webkit-transform: scale(0.6);
+            transform: scale(0.6);
     opacity: 0;
   }
   70% {
-    opacity: 1;
+    -webkit-transform: scale(1.2);
+            transform: scale(1.2);
+    opacity: .9;
   }
   100% {
-    opacity: 1;
+    -webkit-transform: scale(1.6);
+            transform: scale(1.6);
+    opacity: .6;
   }
 }
 
@@ -182,7 +203,7 @@ main {
   position: absolute;
   right: 100px;
   top: 45px;
-  width: 115px;
+  width: 111px;
   -webkit-box-align: end;
       -ms-flex-align: end;
           align-items: flex-end;
@@ -190,6 +211,9 @@ main {
 
 .renting-light-container p {
   margin: 0;
+  font-weight: 500;
+  font-size: 1.2rem;
+  padding-bottom: 6px;
 }
 
 .automatic-renting-content {
