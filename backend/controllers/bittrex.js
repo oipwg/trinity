@@ -610,9 +610,6 @@ module.exports = {
 
             const response  = await bittrexAuthReq({apiKey, secret, uri, method})
 
-
-            console.log({response})
-
             res.status(201).json(response.data)
         } catch (error) {
             console.log(error)
