@@ -127,21 +127,21 @@ main {
 
 .ledBulb {
   transform-origin: center;
-  animation: pulse 1s ease-out infinite;
+  animation: pulse .9s ease-out infinite;
 }
 
 @keyframes pulse {
   0% {
-    transform: scale(.6);
+    transform: scale(0);
     opacity: 0;
   }
   70% {
-    transform: scale(1.2);
-    opacity: .9;
+    transform: scale(1.5);
+    opacity: 1;
   }
   100% {
-    transform: scale(1.6);
-    opacity: .6;
+    transform: scale(.5);
+    opacity: 0;
   }
 }
 

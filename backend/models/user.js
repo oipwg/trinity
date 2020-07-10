@@ -64,6 +64,10 @@ const profileSchema = new Schema({
         type: Number,
         default: 0,
     },
+    mining: {
+        type: Boolean,
+        default: false
+    },
     notes: {
         type: String,
         default: ''

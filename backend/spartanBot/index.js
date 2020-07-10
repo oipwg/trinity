@@ -39,8 +39,9 @@ class Client {
         })
     }
             
-    async getUser(userName, userId) {
-        console.log('userName, userId:', userName, userId)
+    async getUser({userName, userId}) {
+    console.log('userName, userId, autoRent:', userName, userId)
+
         let users = this.users
         let i = users.length
         let updatedUser;
@@ -80,8 +81,14 @@ class Client {
         }
     }
 
+    // Remove spartanbot from user 
+    stopRental(userId) {
+
+    }
+
     async controller(options) {
-        let user = await this.getUser(options.userName, options.userId)
+        let user = await this.getUser(options)
+        user.spartan.renting = options.autoRent
 
         options.SpartanBot = user.spartan
         options.emitter = user.emitter
@@ -89,9 +96,10 @@ class Client {
         console.log('options.userName', options.userName)
         console.log('this.users', this.users)
         console.log('options.emitter.EventEmitter', options.emitter._events)
-
+        console.log('SPARTANBOT', user.spartan.renting)
         switch (options.to_do) {
             case 'rent':
+                
                 try {
                     return await rent(options)
                 }catch (err) {
@@ -111,6 +119,10 @@ class Client {
                 break;
             case 'returnSpartanBot': 
                  return options
+                break;
+            case 'stopRental': 
+                let rentalCleared = this.stopRental(options.userId)
+                return options
                 break;
         }
     }

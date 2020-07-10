@@ -153,43 +153,43 @@ main {
 .ledBulb {
   -webkit-transform-origin: center;
           transform-origin: center;
-  -webkit-animation: pulse 1s ease-out infinite;
-          animation: pulse 1s ease-out infinite;
+  -webkit-animation: pulse .9s ease-out infinite;
+          animation: pulse .9s ease-out infinite;
 }
 
 @-webkit-keyframes pulse {
   0% {
-    -webkit-transform: scale(0.6);
-            transform: scale(0.6);
+    -webkit-transform: scale(0);
+            transform: scale(0);
     opacity: 0;
   }
   70% {
-    -webkit-transform: scale(1.2);
-            transform: scale(1.2);
-    opacity: .9;
+    -webkit-transform: scale(1.5);
+            transform: scale(1.5);
+    opacity: 1;
   }
   100% {
-    -webkit-transform: scale(1.6);
-            transform: scale(1.6);
-    opacity: .6;
+    -webkit-transform: scale(0.5);
+            transform: scale(0.5);
+    opacity: 0;
   }
 }
 
 @keyframes pulse {
   0% {
-    -webkit-transform: scale(0.6);
-            transform: scale(0.6);
+    -webkit-transform: scale(0);
+            transform: scale(0);
     opacity: 0;
   }
   70% {
-    -webkit-transform: scale(1.2);
-            transform: scale(1.2);
-    opacity: .9;
+    -webkit-transform: scale(1.5);
+            transform: scale(1.5);
+    opacity: 1;
   }
   100% {
-    -webkit-transform: scale(1.6);
-            transform: scale(1.6);
-    opacity: .6;
+    -webkit-transform: scale(0.5);
+            transform: scale(0.5);
+    opacity: 0;
   }
 }
 
