@@ -61,7 +61,7 @@ async function processUserInput(req, res) {
     }
 
     let { profitReinvestment, updateUnsold, dailyBudget,targetMargin, autoRent, spot, alwaysMineXPercent,
-        autoTrade, morphie, supportedExchange, profile_id, Xpercent, userId, token, name } = options;
+        autoTrade, morphie, supportedExchange, profile_id, Xpercent, userId, token, name, mining } = options;
 
     try {
         const rent = await Rent(token, Xpercent)
@@ -129,6 +129,7 @@ async function processUserInput(req, res) {
                 profile.profitReinvestment = profitReinvestment
                 profile.updateUnsold = updateUnsold
                 profile.dailyBudget = dailyBudget
+                profile.mining = mining
 
                 let isCorrectAddress = isCorrectPublicAddress(profile.address.publicAddress, profile.usedAddresses, token)
 
@@ -200,7 +201,10 @@ const processData = async (req, res) => {
             for(let profile of user.profiles) {
                 if(profile._id.toString() === req.body.profile_id) {
                     for (let key in msg) {
-                        if (key === 'autoRent') {
+                        if(key === 'mining') {
+                            // profile.mining = msg[key]
+                            profile.mining = true
+                        } else if (key === 'autoRent') {
                             profile.autoRent.on = msg[key]
                         } else if (key === 'db') {
                             for (let key in msg.db) {

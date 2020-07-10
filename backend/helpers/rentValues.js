@@ -1,11 +1,9 @@
 const https = require('https');
 
-
 exports.Rent = async (  token, percent) => {
 
     if (token === "FLO") {
         let Percent = percent / 100
-        console.log('FLO HIT')
         return await new Promise((resolve, reject) => {
             https.get('https://livenet.flocha.in/api/status?q=getInfos', (response) => {
                 let body = ''
@@ -30,7 +28,6 @@ exports.Rent = async (  token, percent) => {
     }
 
     if (token === "RVN") {
-        console.log('RVN HIT')
         return await new Promise((resolve, reject) => {
             https.get('https://rvn.2miners.com/api/stats', (response) => {
               let body = ''
@@ -40,15 +37,11 @@ exports.Rent = async (  token, percent) => {
               response.on('end', () => {
                 let data = JSON.parse(body)
                 if(!data) console.log('Something wrong with the api or syntax')
-        
                 let difficulty = data.nodes[0].difficulty;
-                console.log('difficulty:', difficulty)
                 let hashrate = data.nodes[0].networkhashps;
-                // let hashrate = difficulty * Math.pow(2, 32) / 60;    // Old hashrate if you want to play with this
                 let Networkhashrate = hashrate / 1000000000000; 
                 let Rent = Networkhashrate * (-percent / (-1 + percent)) 
                 let MinPercentFromMinHashrate = 1000000000000 * .01 / ((difficulty * Math.pow(2, 32) / 60) + (1000000000000 * .01))
-                console.log('MinPercentFromMinHashrate:', MinPercentFromMinHashrate)
                 resolve({ Rent, MinPercentFromMinHashrate, difficulty, Networkhashrate })
               })
         
