@@ -134,7 +134,8 @@ const userSchema = new Schema({
         api_id: String
     }],
     indexes : [],
-    profiles: [profileSchema]
+    profiles: [profileSchema],
+    results: []
 });
 
 userSchema.pre('save', async function(next) {

@@ -44,7 +44,8 @@
     "spartanbot": "git+https://github.com/bradicalone/spartanbot.git",
     "timestring": "^6.0.0",
     "uid": "^1.0.0",
-    "ws": "^7.2.3"
+    "ws": "^7.2.3",
+    "xstate": "^4.10.0"
   },
   "optionalDependencies": {
     "fsevents": "^2.1.2"

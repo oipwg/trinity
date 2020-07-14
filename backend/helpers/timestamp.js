@@ -1,4 +1,4 @@
-const { formatToDate, formatTime } = require('../../src/helpers-functions/dateFormatter')
+  const { formatToDate, formatTime } = require('../../src/helpers-functions/dateFormatter')
 
 exports.timestamp = () => {
     let time = Date.now();

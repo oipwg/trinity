@@ -22,9 +22,7 @@ async function bittrexAuthReq({apiKey, secret, uri, method, content, body}) {
         if(method === 'GET'){
             content = ''
         }
-    
-        console.log({apiKey, secret, uri, method, content, body})
-    
+        
         const contentHash = CryptoJS.SHA512(content).toString(CryptoJS.enc.Hex);
         const preSign = [timestamp, url, method, contentHash].join('');
         const signature = CryptoJS.HmacSHA512(preSign, secret).toString(CryptoJS.enc.Hex);

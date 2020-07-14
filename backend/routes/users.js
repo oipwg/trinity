@@ -29,4 +29,5 @@ router.get('/user', auth, UsersController.user);
 
 router.post('/validatePassword', auth, UsersController.validatePassword);
 
+
 module.exports = router;
