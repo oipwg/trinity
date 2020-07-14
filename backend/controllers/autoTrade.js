@@ -33,7 +33,9 @@ module.exports = {
                 completedOrders,
                 bittrexTxid,
                 currentOrder,
-                currentTxid
+                currentTxid,
+                commission,
+                openOrders
             
             } = req.body
 
@@ -50,7 +52,9 @@ module.exports = {
                     completedOrders,
                     bittrexTxid,
                     currentOrder,
-                    currentTxid
+                    currentTxid,
+                    commission,
+                    openOrders
             }
             let user = await User.findByIdAndUpdate(req.user.id).select('results')
 

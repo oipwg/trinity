@@ -66,7 +66,9 @@ let currency = await getCurrencyInfo(token)
 let minConfirmations = currency.minConfirmations;
 const MIN_TRADE_SIZE = await getMinTradeSize(token)
 
-const CostOfWithdrawalPerCycleBTC = 0.0005;
+let btcInfo = await getCurrencyInfo('BTC')
+const CostOfWithdrawalPerCycleBTC = btcInfo.txFee;
+const BittrexComissionFee = btcInfo.txFee
 
     
     if(!accessToken){
@@ -416,7 +418,7 @@ const CostOfWithdrawalPerCycleBTC = 0.0005;
         feeFloTx1: 0,
         feeFloTx2: 0,
         bittrexTradeFee: 0.002,
-        bittrexWithdrawlFee: .0005,
+        bittrexWithdrawlFee: BittrexComissionFee,
         estFeeBtcTx1: 0.00001551,
         offerPriceBtc: 0,
         offerPriceBtc24h: 0,
@@ -819,6 +821,8 @@ const CostOfWithdrawalPerCycleBTC = 0.0005;
                         bittrexTxid: context.bittrexTxid,
                         currentOrder: context.currentOrder,
                         currentTxid: context.currentTxid,
+                        commission: context.bittrexWithdrawlFee,
+                        openOrders: context.currentOrder
                     })
                   }
               },
