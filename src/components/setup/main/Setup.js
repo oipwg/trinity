@@ -5,27 +5,15 @@ import { connect } from 'react-redux';
 import { addProvider, addBittrex } from '../../../actions/setupActions.js';
 import Navigation from '../nav/Navigation';
 import './setup.css';
-let socket = new WebSocket( WEB_SOCKET_URL );
-
-
 
 const Setup = props => {
     const userdata = props.userData
+    const [SpartanBot, setSpartanBot] = useState({})
     const bittrexData = props.setupBittrex
     const userId = useRef('');
     const index = useRef(0);
     const merge = ( ...objects ) => ( [...objects] );
 
-    socket.onopen = (e) => {
-        socket.send(JSON.stringify({action: 'connect'}));
-    };
-
-    socket.onmessage = (e) => {
-        if (e.data === '__ping__') {
-            console.log('Still alive')
-            socket.send(JSON.stringify({keepAlive: true}));
-        }
-    }
     // Right before refreshes saves current state to local stroage
     window.onunload = function(event) {
         if(bittrexData.credentials) {
@@ -35,7 +23,7 @@ const Setup = props => {
         
         if(userdata.length > 0 && userdata[0].credentials) {
             const serializedState = JSON.stringify(userdata);
-            sessionStorage.setItem('state', serializedState)
+            sessionStorage.setItem('provider', serializedState)
         } 
     };
 
@@ -59,10 +47,10 @@ const Setup = props => {
     }
  
     useEffect(() => {
-        select_provider_opiton(userdata) 
+        select_provider_option(userdata) 
         // If global state is empty from changing pages will check local storage and fill current state
         if(!userdata.length){
-            const providerState = JSON.parse( sessionStorage.getItem('state') )
+            const providerState = JSON.parse( sessionStorage.getItem('provider') )
             const bittrexState = JSON.parse( sessionStorage.getItem('bittrex') )
             if(providerState !== null) {
                 props.dispatch( addProvider(providerState) ) 
@@ -71,20 +59,42 @@ const Setup = props => {
                 props.dispatch( addBittrex(bittrexState) ) 
             }
         } else {
-            select_provider_opiton( userdata )
+            select_provider_option( userdata )
         }
         if (props.user) {
             let id = props.user._id || props.user.id
-            console.log('id:', id)
             userId.current = id
             auto_setup_provider(props.login)
             auto_setup_bittrex()
         }
+        
     }, [props.user, props.login])
 
+    //Updates sessionStorage with provider when page change
+    useEffect(() => {
+        if(props.SpartanBot) {
+            console.log(props.SpartanBot)
+            let spartan = {spartan: props.SpartanBot}
+            const serializedState = JSON.stringify(props.SpartanBot);
+            sessionStorage.setItem('spartanbot', serializedState)
+            
+            setSpartanBot({...SpartanBot, ...spartan})
+        }
+        return () => {
+            if(bittrexData.credentials) {
+                const bittrexState = JSON.stringify(bittrexData);
+                sessionStorage.setItem('bittrex', bittrexState)
+            }
+            
+            if(userdata.length > 0 && userdata[0].credentials) {
+                const serializedState = JSON.stringify(userdata);
+                sessionStorage.setItem('provider', serializedState)
+            } 
+        }
+    }, [])
 
 
-    function select_provider_opiton(userData) {
+    function select_provider_option(userData) {
         if(userData.length) {
             let selectedProvider = userData[0].provider
             document.getElementsByClassName('provider')[0].value = selectedProvider
@@ -194,7 +204,7 @@ const Setup = props => {
         //Adds the rental_provider key again
         userdata[0].rental_provider = userdata[0].provider
         let sentData = {...userdata[0], poolData:{...poolData}}
-
+        sentData.to_do = 'add'
         setup_Provider(sentData)
     }
 
@@ -222,11 +232,12 @@ const Setup = props => {
                     break;
             }    
         }
-        console.log('options', options)
+
         props.dispatch(addBittrex(options))
         setup_Provider(options)
     }
     function set_provider_values(e) {
+        index.current = 0
         e.preventDefault();
         const form = document.getElementsByClassName('wizard-form')[0]
         const form_inputs = form.elements
@@ -271,50 +282,65 @@ const Setup = props => {
     }
 
     let signInData = []
+    
     function process_returned_data(data) {
-        console.log('data:', data)
+        console.log('returned data:', data)
         if (data.provider === "Bittrex") {
             props.dispatch(addBittrex({...data}))
-  
         } else {
             let responseData = {}
+           
+            
             
             for (let key in data) {
                 let value = data[key]
                 let property = key
-        
+   
                 switch (property) {
                     case 'err': 
                         responseData[property] = value
+                        break;
                     case 'message':
-                        responseData[property] = value    
+                        responseData[property] = value
+                        break;
                     case 'pool':
                         responseData[property] = value
+                        break;
                     case 'credentials':
                         responseData[property] = value
+                        break;
                     case 'success':
                         responseData[property] = value
+                        break;
                     case 'provider':
                         responseData[property] = value
                         responseData.rental_provider = value
+                        break;
+                    case 'spartan':
+    
+                        // responseData[property] = value
+                        sessionStorage.setItem('spartanbot', JSON.stringify(value))
                 }
             }
+            
             // If index is greater than 0 then it's return data from signIn or new page from auto_setup_provider only
             if(index.current) {
                 signInData.push(responseData)
 
                 // Update providers when all have been pushed
                 if (index.current === signInData.length) {
+                    console.log('signInData:', signInData)
                     props.dispatch( addProvider(signInData) )
                 }
             } else {
+                console.log('responseData:', responseData)
                 // Top exsisting data / object, and response object that came back merged together
                 let allData = {...userdata[0], ...responseData}
+
                 if ( userdata.length > 1) {
                     props.dispatch(addProvider( merge(allData, userdata[1]) ))
                 } else {
                     props.dispatch(addProvider([allData]))
-
                 }
             }
             
@@ -323,8 +349,6 @@ const Setup = props => {
 
     async function setup_Provider(data) {
         data.userId = userId.current
-        data.to_do = 'add'
-
         const endPoint = data.bittrex ? '/auth/bittrex' : '/setup';
 
         try {
@@ -335,7 +359,7 @@ const Setup = props => {
                 },
                 body: JSON.stringify(data),
             });
-        
+  
             let res = await response.json()
             process_returned_data(res.data)
         } catch (e) {
@@ -796,6 +820,7 @@ const Pools = (props) => {
 
 const mapStateToProps = state => {
     return {
+        SpartanBot: state.auth.SpartanBot,
         user: state.auth.user,
         userData: state.userData,
         login: state.login,

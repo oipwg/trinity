@@ -12,32 +12,27 @@ import Dashboard from './dashboard/Dashboard';
 import NoMatch404 from './noMatch404/noMatch404';
 import { loadUser } from '../actions/authActions';
 import { connect } from 'react-redux';
-import { WEB_SOCKET_URL } from '../../config.js';
 import PrivateRoute from './PrivateRoute';
-let socket = new WebSocket( WEB_SOCKET_URL );
 
 
 const App = props => {
     
     useEffect(() => { 
-        socket.onopen = (e) => {
-            socket.send(JSON.stringify({action: 'connect'}));
-        };
         props.loadUser();
     }, []);
 
     return (
         <Router>
             <NavBar user={props.user} />
+            
             <Switch>
                  {/* 'Test' */}
-                 
-                <Route
-                    path="/dashboard"
+                {/* <Route path="/dashboard"
                     component={Dashboard}
                     isAuthenticated={props.isAuthenticated}
-                />
-
+                /> */}
+                <Route path="/dashboard" render={(props) => (<Dashboard {...props} ws={'hey'}/>)}/>
+                
                 <Route path="/settings" component={Settings} /> 
                 {/* 'Test' */}
                 <Route path="/setup" component={Setup} /> 

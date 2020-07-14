@@ -1,5 +1,6 @@
 //initialize a simple http server
 const WebSocket = require('ws');
+const events = require('events');
 let wss = new WebSocket.Server({ port: 3031 });
 
 /**
@@ -11,7 +12,6 @@ function connect() {
 
     wss.on('connection', (ws) => {
         const ping = () => {
-            console.log('ws.readyState', ws.readyState)
             if (ws.readyState === 1) {
               ws.send('__ping__');
             } 
@@ -24,7 +24,7 @@ function connect() {
                 ping();
             }, 20000);
         }
-        
+
         ws.on('close', ()=> {
             console.log('Socket closed, and will reconnect')
         })
@@ -32,7 +32,7 @@ function connect() {
         ws.on('ping', message => {
             console.log('SERVER PING', message)
         })
-
+        
         ws.on('message', ( message )=> {
             console.log('message: SERVER', message)
             let obj = JSON.parse(message);
@@ -47,10 +47,9 @@ function connect() {
             }
 
         })
+        console.log('New Client')
     });
 }
 connect()
 
-
-
-module.exports.wss = wss
+module.exports = wss

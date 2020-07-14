@@ -156,7 +156,6 @@ export const loginUser = ({ userName, password }, history) => dispatch => {
     axios
         .post(`${API_URL}/users/login`, body, config)
         .then(res => {
-            console.log('login', res);
             dispatch({
                 type: LOGIN_SUCCESS,
                 payload: res.data,
@@ -183,8 +182,15 @@ export const loginUser = ({ userName, password }, history) => dispatch => {
         });
 };
 
-export const logoutUser = history => dispatch => {
-    
+export const logoutUser = (history, user) => dispatch => {
+    if(user === null) return
+ 
+    const options = {
+        to_do: 'clearSpartanBot',
+        userName: user.userName,
+        userId: user._id
+    }
+
     const clearStorage = async () => {
         sessionStorage.clear()
         fetch(API_URL + '/setup', {
@@ -192,7 +198,7 @@ export const logoutUser = history => dispatch => {
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({to_do: 'clearSpartanBot'})
+            body: JSON.stringify(options)
         });
     }
 

@@ -7,7 +7,22 @@ const ERROR = 'ERROR';
 // Function ran from index.js as a command of Rent
 module.exports = async function(options) {
     let spartan = options.SpartanBot;
+    console.log('spartan: rent.js 10', spartan.renting)
+    if (spartan.renting === false) {
+        let msg = {
+            userId: options.userId,
+            update: false,
+            autoRent: false,
+            mining: false,
+            message: "Your next rental has been stoped.",
+            emitter: options.emitter,
+            timer: options.Timer,
+            name: options.name,
+            userOptions: options,
+          };
+          options.emitter.emit('rented', msg);
 
+    }
 
         let rental_providers = spartan.getRentalProviders();
         if(rental_providers.length === 0) {
@@ -23,22 +38,7 @@ module.exports = async function(options) {
         spartan.onRentalWarning(() => {});
         spartan.onRentalError(() => {});
 
-        function onRentalFnFinish(rental_info) {
-            switch (rental_info.status) {
-                case NORMAL:
-                    console.log(`Rental was a success!`);
-                    break;
-                case WARNING:
-                    console.log(`Status: Warning`);
-                    break;
-                case ERROR:
-                   console.log( `There was an error attempting to rent.` );
 
-                    break;
-                default:
-                    console.log('Rental info not of expected type!');
-            }
-        }
 
         // spartan.emitter.once('RentalFunctionFinish', onRentalFnFinish);
 
@@ -46,14 +46,14 @@ module.exports = async function(options) {
             manualRent(options);
         }
 
-        if (rentType === 'Spot') {
+        if (options.rentType === 'Spot') {
         }
         //Morphie
-        if (rentType === 'Tradebot') {
+        if (options.rentType === 'Tradebot') {
 
         }
 
-        if (rentType === 'Collective Defense') {
+        if (options.rentType === 'Collective Defense') {
 
         }
 };

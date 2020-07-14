@@ -64,6 +64,10 @@ const profileSchema = new Schema({
         type: Number,
         default: 0,
     },
+    mining: {
+        type: Boolean,
+        default: false
+    },
     notes: {
         type: String,
         default: ''
@@ -74,7 +78,11 @@ const profileSchema = new Schema({
     CostOfRentalBtc: {
         type: Number,
         default: 0
-    }
+    },
+    priceBtcUsd: {
+        type: Number,
+        default: 0
+    },
 });
 
 

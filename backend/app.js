@@ -10,7 +10,7 @@ const setupRouter = require('./routes/setup');
 const settingsRouter = require('./routes/settings');
 const authRouter = require('./routes/auth');
 const bittrexRouter = require('./routes/bittrex');
-const rentRouter = require('./routes/rent');
+const rentRouter = require('./routes/rent').router;
 const userProfiles = require('./routes/userProfiles')
 const passport = require('passport');
 const autoTradeRouter = require('./routes/autoTrade')
@@ -19,7 +19,6 @@ const { NODE_ENV, MONGO_URL } = process.env;
 console.log('NODE_ENV:', NODE_ENV)
 
 const app = express();
-
 
 mongoose
     .connect(MONGO_URL, {
@@ -39,7 +38,7 @@ if(NODE_ENV === 'development'){
 let allowCrossDomain = function(req, res, next) {
     res.header('Access-Control-Allow-Origin', '*');
     res.header('Access-Control-Allow-Headers', '*');
-    res.header('Access-Control-Allow-Methods', 'POST, GET, DELETE')
+    res.header('Access-Control-Allow-Methods', 'POST, GET, DELETE');
     next();
 };
 app.use(allowCrossDomain);

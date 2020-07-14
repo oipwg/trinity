@@ -1,5 +1,5 @@
 require('dotenv').config();
-
+const SpartanBot = require('spartanbot').SpartanBot;
 const {
     Prompt_NiceHashCreatePool,
 } = require('./promptFunctions');
@@ -24,15 +24,15 @@ let addPool = async function(setup_success, options) {
     const provider = setup_success.proivder || setup_success;
   
     let pool;
-    for (let p of this.getRentalProviders()) {
-        if ( p.getUID() !== provider.getUID() ) {
-            p._addPools(options.poolData);
-        }
-    }
+    // for (let p of this.getRentalProviders()) {
+    //     if ( p.getUID() !== provider.getUID() ) {
+    //         p._addPools(options.poolData);
+    //     }
+    // }
     try {
         if (provider.name === 'NiceHash') pool = await provider._createPool(options.poolData)
         if (provider.name === 'MiningRigRentals') pool = await provider.createPoolAndProfile(options.poolData)
-        console.log('pool: 57 add.js', pool)
+        console.log('pool: 35 add.js', pool)
         
         this.serialize()
         if ( pool.error ) {
@@ -43,7 +43,8 @@ let addPool = async function(setup_success, options) {
                 message: `Error while creating the pool: ${pool.data.message}`,
                 pool: false,
                 credentials: true,
-                success: false
+                success: false,
+                spartanbot: this
             }
         } else {
             return {
@@ -51,10 +52,11 @@ let addPool = async function(setup_success, options) {
                 provider: options.provider,
                 rental_provider: options.provider,
                 message: `${options.provider} and Pool successfully added, \n` + 
-                            `profile id: ${pool.profileID} & pool id: ${pool.poolid} `,
+                            `pool name: ${pool.name} & pool id: ${pool.id} `,
                 pool: true,
                 credentials: true,
-                success: true
+                success: true,
+                spartanbot: this
             }
         }
         
@@ -66,7 +68,8 @@ let addPool = async function(setup_success, options) {
             message: `Error while creating the pool: ${e}`,
             pool: false,
             credentials: true,
-            success: false
+            success: false,
+            spartanbot: this
         }
     }
 }
@@ -101,12 +104,12 @@ const deletePoolProfile = async function(id = '') {
 }
 
 
-
 const MiningRigRentals = 'MiningRigRentals';
 const NiceHash = 'NiceHash';
 
 module.exports = async function(options) {
     const spartan = options.SpartanBot;
+
     let rental_provider_type = options.rental_provider;
     let rentalProviders = spartan.getRentalProviders();
 
@@ -118,7 +121,6 @@ module.exports = async function(options) {
         for (let provider of providers) {
             let poolArray = await spartan.returnPools(provider);
             poolCount = poolArray.length
-            console.log('poolArray:', poolArray)
         }
         return {
             err: 'provider',
@@ -128,7 +130,8 @@ module.exports = async function(options) {
             credentials: true,
             success: poolCount ? true : false,
             pools: poolCount,
-            provider: rental_provider_type
+            provider: rental_provider_type,
+            spartanbot: spartan
         }
     }
         
@@ -158,7 +161,8 @@ module.exports = async function(options) {
                     credentials: true,
                     success: poolArray.length ? true : false,
                     pools: poolArray.length,
-                    provider: rental_provider_type
+                    provider: rental_provider_type,
+    
                 }
             } 
             else {
@@ -173,14 +177,14 @@ module.exports = async function(options) {
                         pool:  false,
                         credentials: true,
                         success: false,
-                        provider: rental_provider_type
+                        provider: rental_provider_type,
+                        spartanbot: spartan
                     }
                 }
             }
         }
     } else if (rental_provider_type === NiceHash) {
-       
-        // console.log('poolArray: add.js 210', poolArray)
+
         if (checkProviders(NiceHash)){
             let poolArray = await spartan.returnPools(NiceHash);
             console.log('poolArray: ADD.JS 214', poolArray)
@@ -213,7 +217,8 @@ module.exports = async function(options) {
                         credentials: true,
                         success: false,
                         pools: poolArray.length,
-                        provider: 'NiceHash'
+                        provider: 'NiceHash',
+                        spartanbot: spartan
                     }
                 }
             }
@@ -230,27 +235,27 @@ module.exports = async function(options) {
             name: options.profileName || rental_provider_type
         });
         // return setup_success.provider.deletePoolProfile('99882').then(res => console.log('deletedPoolProfile: ',res))
-        console.log('setup_success: top \n', setup_success.success);
+        console.log('setup_success: top \n', setup_success.name);
 
 
         if (setup_success.success) {
             if (setup_success.type === MiningRigRentals) {
                 let poolArray = await spartan.returnPools(setup_success.type);
-                console.log('poolArray: 265', poolArray)
                 /**
                  * @param {Object} - Add profile and pool 
                  * */
                 
                 if ( setup_success.poolProfiles.length === 0 ) {
                     //if user has no poolProfiles, prompt to create one
-                    if (options.poolData === undefined){
+                    if (options.poolData === undefined) {
                         return {
                             err: 'pool',
                             message: `No pools found, input pool info below to continue:`,
                             pool: false,
                             credentials: true,
                             success: false,
-                            provider: MiningRigRentals
+                            provider: MiningRigRentals,
+                            spartanbot: spartan
                         }
                     }
                 } else {
@@ -269,8 +274,7 @@ module.exports = async function(options) {
                         }
                       
                         for (let id of profileIDs) {
-                            console.log('profileIDs:', profileIDs)
-                            
+
                             // if (poolToAdd.includes(id)) {
                                 setup_success.provider.setActivePoolProfile(id);
                                 // const len = poolProfiles.length
@@ -290,7 +294,8 @@ module.exports = async function(options) {
                                      `to add another or click continue  `,
                             pool: setup_success.pools.length ? true : false,
                             credentials: true,
-                            success: true
+                            success: true,
+                            spartan
                         }
                     } else {
                         /**
@@ -308,7 +313,8 @@ module.exports = async function(options) {
                                 pool:  false,
                                 credentials: true,
                                 success: false,
-                                provider: MiningRigRentals
+                                provider: MiningRigRentals,
+                                spartanbot: spartan
                             }
                         }
                     }
@@ -316,8 +322,7 @@ module.exports = async function(options) {
             }
             if (setup_success.type === NiceHash) {
                 let poolArray = await spartan.returnPools(setup_success.type);
-                console.log('poolArray: 342 Nice Hash', poolArray)
-
+                
                 //if on pools, ask if they want to create one
                 if (poolArray.length === 0) {
                     console.log('Found no pools to add, would you like to create one? 346')
@@ -328,7 +333,8 @@ module.exports = async function(options) {
                             pool: false,
                             credentials: true,
                             success: false,
-                            provider: NiceHash
+                            provider: NiceHash,
+                            spartanbot: spartan
                         }
                     } else {
                         const currentProvider = getCurrentProvider.call(rentalProviders, options)
@@ -345,13 +351,11 @@ module.exports = async function(options) {
                     }
                 } else {
                     let PoolArray = [];
-                    
                     for (let pool of poolArray) {
                         PoolArray.push(pool.id)
                         setup_success.provider.setActivePool(pool.id);
                         setup_success.provider.addPools(pool);
                     }
-                    console.log('PoolArray:', PoolArray)
                     return {
                         provider: NiceHash,
                         err: 'pool',
@@ -359,7 +363,8 @@ module.exports = async function(options) {
                                  `Pool id: ${PoolArray}  `,
                         pool: true,
                         credentials: true,
-                        success: true
+                        success: true,
+                        spartanbot: setup_success.spartan
                     }
                 }
             }
@@ -372,7 +377,8 @@ module.exports = async function(options) {
                     message: 'settings.api_key is required!',
                     credentials: false,
                     success: false,
-                    provider: rental_provider_type
+                    provider: rental_provider_type,
+                    spartanbot: spartan
                 }
             } else if (setup_success.message === 'settings.api_secret is required!') {
                 console.log('You must input an API Secret!')
@@ -381,7 +387,8 @@ module.exports = async function(options) {
                     message: 'You must input an API Secret!',
                     credentials: false,
                     success: false,
-                    provider: rental_provider_type
+                    provider: rental_provider_type,
+                    spartanbot: spartan
                 }
             } else if ( setup_success.message === 'Provider Authorization Failed') {
                 console.log('Unable to login to Account using API Key & API Secret, please check your keys and try again');
@@ -391,7 +398,8 @@ module.exports = async function(options) {
                              'please check your credentials and try again',
                     credentials: false,
                     success: false,
-                    provider: rental_provider_type
+                    provider: rental_provider_type,
+                    spartanbot: spartan
                 }
             } else {
                 return {
@@ -399,7 +407,8 @@ module.exports = async function(options) {
                     message: setup_success.message,
                     credentials: false,
                     success: false,
-                    provider: rental_provider_type
+                    provider: rental_provider_type,
+                    spartanbot: spartan
                 }
             }
         }
@@ -412,7 +421,8 @@ module.exports = async function(options) {
             credentials: false,
             pool: false,
             success: false,
-            provider: rental_provider_type
+            provider: rental_provider_type,
+            spartanbot: spartan
         }
     }
 };

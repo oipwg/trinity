@@ -1,39 +1,134 @@
-// Import each command
-// import Pools from './Pools'
+// @ts-nocheck
+
 const rent = require('./rent/rent');
 const add = require('./RentalProvider/add/add');
-const attachSpartanBot = require('./RentalProvider/returnSpartanBot.js')
 const clearSpartanBot = require('./RentalProvider/clearSpartanBot');
 const SpartanBot = require('spartanbot').SpartanBot;
-const spartan = new SpartanBot();
+const Events = require('events').EventEmitter;
+const Timer = require('../helpers/timer')
+const emitter = new Events()
+const wss = require('../routes/socket')
 
 
-module.exports = async function(options) {
-    
-    options.SpartanBot = spartan;
-    
-    let to_do = options.to_do
-    console.log('to_do:', to_do)
 
-    // Switch based on user input object
-    switch (to_do) {
-        case 'rent':
-            console.log('OPTIONS', options)
-            let rented = await rent(options).then((data)=>{
-            }).catch(err => err);
-                return rented
-        case 'add':
-            let added = await add(options).then((data)=>{
-                return data
-            }).catch(err => err);
-            return added;
-        case 'clearSpartanBot':
-            let cleared = clearSpartanBot(options)
-            return cleared
-            break;
-        case 'returnSpartanBot':
-            let data = await attachSpartanBot(options)
-            return options
-            break;
+class Client {
+    constructor(res) {
+        this.res = res
+        this.users = []
+        this.loadMessages()
+        this.newSpartan = (name, userId, callback) => {
+            this.users.push({
+                name: name,
+                id: userId.toString(),
+                spartan: new SpartanBot(),
+                emitter: emitter,
+                // emitter: new Events(),
+                timer: Timer
+            })
+            if(callback) {
+                callback(this.users[this.users.length-1])
+            }
+        }
     }
-};
+
+    loadMessages() {
+        wss.on('connection', ws => {
+            emitter.on('message', msg => {
+                ws.send(msg);
+            })
+        })
+    }
+            
+    async getUser({userName, userId}) {
+    console.log('userName, userId, autoRent:', userName, userId)
+
+        let users = this.users
+        let i = users.length
+        let updatedUser;
+
+        // If users array is empty will make new user / spartanbot and return it
+        if(!users.length) {
+            let data = this.newSpartan(userName, userId, (newUser) => {
+                updatedUser = newUser
+            })
+            return updatedUser
+        }
+        
+        while(i--) {
+            let user = users[i]
+            if (user.id === userId) {
+                return user
+            //If user doesn't exist in users array (no providers), make a new user and return it.
+            } else if (!i) {
+                this.newSpartan(userName, userId, (newUser) => {
+                    updatedUser = newUser
+                })
+                return updatedUser
+            }
+        }
+    }
+    // Sign out
+    removeUser(userId) {
+        let users = this.users
+        let i = users.length
+
+        while(i--) {
+            let user = users[i]
+            if (user.id === userId) {
+                this.users.splice(i,1)
+                return this.users
+            }
+        }
+    }
+
+    // Remove spartanbot from user 
+    stopRental(userId) {
+
+    }
+
+    async controller(options) {
+        let user = await this.getUser(options)
+        user.spartan.renting = options.autoRent
+
+        options.SpartanBot = user.spartan
+        options.emitter = user.emitter
+        options.Timer = user.timer
+        console.log('options.userName', options.userName)
+        console.log('this.users', this.users)
+        console.log('options.emitter.EventEmitter', options.emitter._events)
+        console.log('SPARTANBOT', user.spartan.renting)
+        switch (options.to_do) {
+            case 'rent':
+                
+                try {
+                    return await rent(options)
+                }catch (err) {
+                    return err
+                }
+            case 'add':
+                try {
+                    return await add(options)
+                } catch (err) {
+                    return err
+                }
+            case 'clearSpartanBot':
+                let removedUser = this.removeUser(options.userId)
+                console.log('Current Users after signout:', removedUser)
+                return removedUser
+                // return clearSpartanBot(options)
+                break;
+            case 'returnSpartanBot': 
+                 return options
+                break;
+            case 'stopRental': 
+                let rentalCleared = this.stopRental(options.userId)
+                return options
+                break;
+        }
+    }
+}
+module.exports = {
+    Client: new Client(),
+    emitter: emitter
+}
+

@@ -34,7 +34,6 @@ router.get('/coinbase/callback', auth, passportCoinbase, async (req, res) => {
 
     // Change this if you need to, but added this layer incase you are still needing to use adding bittrex on your end another way. 
     let _id = req.user ? req.user.id : req.body.userId
-    console.log('_id:', _id)
 
     try {
       const { apiKey, secret } = req.body;

@@ -41,7 +41,6 @@ const Login = props => {
                 userName: username,
                 password: password,
             };
-
             props.loginUser(user, props.history);
         } catch (error) {
             console.log(error);

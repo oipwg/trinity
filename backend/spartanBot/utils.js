@@ -43,13 +43,17 @@ exports.convertHumanHashrateToMH = function(human_hashrate) {
         convertHumanHashrateToMH(`${human_hashrate}mh`);
     }
 };
-
-exports.fmtPool = (pool, vorpal) => {
-    return vorpal.chalk.white(
-        `${vorpal.chalk.blue(pool.type)} ${vorpal.chalk.green(
-            pool.host + ':' + pool.port
-        )} ${pool.name ? vorpal.chalk.yellow(pool.name + ' ') : ''}${pool.user}`
-    );
+exports.getCircularReplacer = () => {
+    const seen = new WeakSet();
+    return (key, value) => {
+        if (typeof value === "object" && value !== null) {
+            if (seen.has(value)) {
+                return;
+            }
+            seen.add(value);
+        }
+        return value;
+    };
 };
 
 exports.serPool = pool => {
