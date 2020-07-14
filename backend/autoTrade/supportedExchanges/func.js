@@ -1,14 +1,13 @@
 require('dotenv').config();
-const { API_URL}  = process.env
 const {timestamp} = require('../../helpers/timestamp')
 const axios = require('axios');
+
 
 
 const getTotalQty = (receivedQtyHourly, feeFloTx1) => {
         let total = receivedQtyHourly + feeFloTx1
     return Number(total.toFixed(8))
 }
-
 
 const getOfferPriceBtc = (costOfRentalBTCHourly, bittrexTradeFee, targetMargin, bittrexWithdrawlFee, estFeeBtcTx1, sellableQty) => {
     let OfferPrice =   ( costOfRentalBTCHourly * ( bittrexTradeFee + 1 ) * ( targetMargin + 1 ) + bittrexWithdrawlFee + estFeeBtcTx1 ) / sellableQty
@@ -81,9 +80,9 @@ const getPriceBittrexBtcToken = async (token) => {
     }
 };
 
-const getBlockHeightFlo = async () => {
+const getBlockHeightFlo = async (BLOCK_EXPLORER) => {
     try {
-        const res = await axios.get(`https://livenet.flocha.in/api/status?q=getInfo`)
+        const res = await axios.get(`${BLOCK_EXPLORER}/api/status?q=getInfo`)
     } catch (error) {
         console.log(timestamp(), error)
     }
@@ -97,9 +96,9 @@ const getBlockHeightRvn = async () => {
     }
 }
 
-async function getBalanceFromAddress(address){
+async function getBalanceFromAddress(BLOCK_EXPLORER, address){
     try {
-        let res = await axios.get(`https://livenet.flocha.in/api/addr/${address}`)
+        let res = await axios.get(`${BLOCK_EXPLORER}/api/addr/${address}`)
 
         if(res.status != 200){
             return console.log(timestamp(),res)
@@ -111,9 +110,9 @@ async function getBalanceFromAddress(address){
     }
 }
 
-async function getTxidInfo(txid){
+async function getTxidInfo(BLOCK_EXPLORER, txid){
     try {
-        let res = await axios.get(`https://livenet.flocha.in/api/tx/${txid}`)
+        let res = await axios.get(`${BLOCK_EXPLORER}/api/tx/${txid}`)
 
         return res.data;
 
@@ -122,7 +121,7 @@ async function getTxidInfo(txid){
     }
 }
 
-const getFees = async transactions => {
+const getFees = async (BLOCK_EXPLORER, transactions) => {
     let total = 0;
 
     if(!transactions){
@@ -133,7 +132,7 @@ const getFees = async transactions => {
 
     for(let i = 0; i < transactions.length; i++){
         
-        let res = await axios.get(`https://livenet.flocha.in/api/tx/${transactions[i]}`)
+        let res = await axios.get(`${BLOCK_EXPLORER}/api/tx/${transactions[i]}`)
         if(res.status != 200) return console.log(timestamp(),res)
 
         total += res.data.fees

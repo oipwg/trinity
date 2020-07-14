@@ -44,8 +44,8 @@ let {
     priceBtcUsd
 } = profile
 
+
 let MIN_FEE_PER_BYTE = 0;
-let BLOCK_EXPLORER = ''
     switch(token){
         case 'FLO':
             BLOCK_EXPLORER = 'https://livenet.flocha.in'
@@ -55,7 +55,12 @@ let BLOCK_EXPLORER = ''
             BLOCK_EXPLORER = `https://main.rvn.explorer.oip.io`
             MIN_FEE_PER_BYTE = .0000001
             break;
+        default:
+            BLOCK_EXPLORER = 'https://livenet.flocha.in'
+
     }
+
+
 const ID = uuidv4();
 const DURATION = duration
 let coin = token.toLowerCase();
@@ -67,8 +72,8 @@ let minConfirmations = currency.minConfirmations;
 const MIN_TRADE_SIZE = await getMinTradeSize(token)
 
 let btcInfo = await getCurrencyInfo('BTC')
-const CostOfWithdrawalPerCycleBTC = btcInfo.txFee;
-const BittrexComissionFee = btcInfo.txFee
+const CostOfWithdrawalPerCycleBTC = Number(btcInfo.txFee)
+const BittrexComissionFee = Number(btcInfo.txFee)
 
     
     if(!accessToken){
@@ -358,7 +363,7 @@ const BittrexComissionFee = btcInfo.txFee
 
     const pushTokensToBittrex = async () => {
         log('pushTokensToBittrex')
-        let res = await getBalanceFromAddress(userAddress)
+        let res = await getBalanceFromAddress(BLOCK_EXPLORER, userAddress)
 
         if(res.balance > 0){
             let txid = await sendPayment(BittrexAddress, userAddress, res.balance, coin)
@@ -380,7 +385,7 @@ const BittrexComissionFee = btcInfo.txFee
         return 'no profile found'
     }
 
-    const accountMaster = bip32.fromBase58(wallet[coin].xPrv, Networks[coin].network)
+    const accountMaster = bip32.fromBase58(wallet[token.toLowerCase()].xPrv, Networks[coin].network)
     let account = new Account(accountMaster, Networks[coin]);
     account.discoverChains();
     const margin = targetMargin / 100;
@@ -442,8 +447,8 @@ const BittrexComissionFee = btcInfo.txFee
                     log(name, {ID}, 'Staring...')
 
 
-                    let {balance, transactions} = await getBalanceFromAddress(userAddress)
-                    let fees = await getFees(transactions);
+                    let {balance, transactions} = await getBalanceFromAddress(BLOCK_EXPLORER, userAddress)
+                    let fees = await getFees(BLOCK_EXPLORER, transactions);
 
                     context.receivedQty = balance;
                     context.feeFloTx1 = fees
@@ -515,7 +520,7 @@ const BittrexComissionFee = btcInfo.txFee
                         context.bittrexTxid.push(txid)
 
                         setTimeout(async () => {
-                            let { fees } = await getTxidInfo(txid)
+                            let { fees } = await getTxidInfo(BLOCK_EXPLORER, txid)
                             context.feeFloTx2 = fees;
                             context.bittrexBalance += (context.receivedQty - fees)
                             context.sellableQty = getSellableQty(context.totalQty, context.feeFloTx2);
@@ -531,7 +536,7 @@ const BittrexComissionFee = btcInfo.txFee
                       let timer = setInterval(async () => {
                         try {
                             
-                            // let { confirmations } = await getTxidInfo(context.bittrexTxid[context.bittrexTxid.length - 1])
+                            // let { confirmations } = await getTxidInfo(BLOCK_EXPLORER, context.bittrexTxid[context.bittrexTxid.length - 1])
                             let res = await checkBittrexDeposit(context.currentTxid)
 
                             let confirmations = res[0].confirmations
@@ -581,12 +586,15 @@ const BittrexComissionFee = btcInfo.txFee
               "CALC": {
                 calculating: async function() {
                     let bal = await confirmedBalance(context.bittrexTxid)
+                    let feeFloTx1 = await getFees(BLOCK_EXPLORER, transactions);
+                    context.feeFloTx1 = feeFloTx1
+                    
                     context.confirmedBalance = bal - context.offsetBal
 
                     context.hourlyCostOfRentalBtc = Number((costOfRentalUsd / context.duration / priceBtcUsd).toFixed(8))
                     context.totalQty = getTotalQty(context.receivedQty, context.feeFloTx1)
 
-                    let { fees } = await getTxidInfo(context.bittrexTxid[context.bittrexTxid.length - 1])
+                    let { fees } = await getTxidInfo(BLOCK_EXPLORER, context.bittrexTxid[context.bittrexTxid.length - 1])
                     context.feeFloTx2 = fees;
                     context.sellableQty = getSellableQty(context.totalQty, context.feeFloTx2);
 
