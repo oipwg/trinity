@@ -586,8 +586,7 @@ const BittrexComissionFee = Number(btcInfo.txFee)
               "CALC": {
                 calculating: async function() {
                     let bal = await confirmedBalance(context.bittrexTxid)
-                    let feeFloTx1 = await getFees(BLOCK_EXPLORER, transactions);
-                    context.feeFloTx1 = feeFloTx1
+
                     
                     context.confirmedBalance = bal - context.offsetBal
 
