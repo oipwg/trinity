@@ -1,7 +1,6 @@
 require('dotenv').config();
 const User = require('../models/user')
 const ATSupportedEx = require('../autoTrade/supportedExchanges')
-const { merge } = require('lodash')
 
 module.exports = {
     on: async(req, rentalAddress, options) => {
@@ -10,15 +9,13 @@ module.exports = {
             let { name, duration } = options
             const { profile_id } = req.body
             const accessToken = req.headers['x-auth-token']
-            // let _id = profile_id;
-            let _id = req.params._id
+            let _id = profile_id;
 
             const user = await User.findById(req.user.id).select('-password')
 
             let profile = user.profiles.filter(profile => profile._id == _id)
 
-            ATSupportedEx(...profile, accessToken, user.wallet, 'sajhasdjhad', 'eddie', 4)
-
+            ATSupportedEx(...profile, accessToken, user.wallet, rentalAddress, name, duration)
             return {success: 'Auto Trading Started.'}
         } catch (error) {
             console.log(error);
@@ -26,10 +23,19 @@ module.exports = {
     },
         results: async (req,res, next) => {
         try {
-            const {timestarted, uuid, profile, rental, costOfRentalBtc, priceBtcUsd, duration, btcFromTrades, totalMined, profitReinvestment, completedOrders} = req.body
-
-
+            const {timestarted, uuid, profile, rental, 
+                costOfRentalBtc, 
+                priceBtcUsd, 
+                duration, 
+                btcFromTrades, 
+                totalMined, 
+                profitReinvestment, 
+                completedOrders,
+                bittrexTxid,
+                currentOrder,
+                currentTxid
             
+            } = req.body
 
             let obj = {
                     uuid,
@@ -42,30 +48,11 @@ module.exports = {
                     totalMined,
                     profitReinvestment,
                     completedOrders,
+                    bittrexTxid,
+                    currentOrder,
+                    currentTxid
             }
             let user = await User.findByIdAndUpdate(req.user.id).select('results')
-
-            // let foundProfile = user.results.find(obj => Object.keys(obj) == profile)
-
-            // let index = user.results.findIndex(obj => Object.keys(obj) == profile)
-
-            // if(foundProfile) {
-            //     console.log("IF")
-            //     let newObj = {
-            //             timestarted,
-            //             costOfRentalBtc,
-            //             priceBtcUsd,
-            //             duration,
-            //             btcFromTrades,
-            //             totalMined,
-            //             profitReinvestment,
-            //             completedOrders
-            //     }
-
-            //     user.results = {...user.results, ...obj}
-            // } else {
-            //     console.log('ELSEEEEE')
-            // }
 
             user.results.push(obj)
 

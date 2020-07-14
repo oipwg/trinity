@@ -5,14 +5,12 @@ const axios = require('axios');
 
 
 const getTotalQty = (receivedQtyHourly, feeFloTx1) => {
-            console.log({receivedQtyHourly, feeFloTx1})
         let total = receivedQtyHourly + feeFloTx1
     return Number(total.toFixed(8))
 }
 
 
 const getOfferPriceBtc = (costOfRentalBTCHourly, bittrexTradeFee, targetMargin, bittrexWithdrawlFee, estFeeBtcTx1, sellableQty) => {
-    console.log({costOfRentalBTCHourly, bittrexTradeFee, targetMargin, bittrexWithdrawlFee, estFeeBtcTx1, sellableQty})
     let OfferPrice =   ( costOfRentalBTCHourly * ( bittrexTradeFee + 1 ) * ( targetMargin + 1 ) + bittrexWithdrawlFee + estFeeBtcTx1 ) / sellableQty
     return Number(OfferPrice.toFixed(8))
 }
@@ -125,10 +123,10 @@ async function getTxidInfo(txid){
 }
 
 const getFees = async transactions => {
-    console.log(timestamp(),'getting fees...')
     let total = 0;
 
     if(!transactions){
+            console.log("No", {transactions})
         return;
     }
 
