@@ -636,4 +636,52 @@ module.exports = {
             console.log(error)
         }
     },
+    balances: async(req, res) => {
+        try {
+            const user = await User.findById(req.user.id).select("bittrex")
+
+            let apiKey = user.bittrex.apiKey
+            let secret = user.bittrex.secret
+
+            if(!apiKey) {
+                return res.status(400).json({"error": "no keys"})
+            }
+
+            const uri = `/balances`
+
+            const method = 'GET'
+
+            const response  = await bittrexAuthReq({apiKey, secret, uri, method})
+
+            res.status(201).json(response.data)
+
+        } catch(error){
+            console.log(error)
+        }
+    },
+    balance: async(req, res) => {
+        try {
+            const user = await User.findById(req.user.id).select("bittrex")
+
+            let apiKey = user.bittrex.apiKey
+            let secret = user.bittrex.secret
+
+            let currency = req.params.currency
+
+            if(!apiKey) {
+                return res.status(400).json({"error": "no keys"})
+            }
+
+            const uri = `/balances/${currency}`
+
+            const method = 'GET'
+
+            const response  = await bittrexAuthReq({apiKey, secret, uri, method})
+
+            res.status(201).json(response.data)
+
+        } catch(error){
+            console.log(error)
+        }
+    }
 }

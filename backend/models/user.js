@@ -83,6 +83,10 @@ const profileSchema = new Schema({
         type: Number,
         default: 0
     },
+    instaArb: {
+        type: Boolean,
+        default: false,
+    }
 });
 
 

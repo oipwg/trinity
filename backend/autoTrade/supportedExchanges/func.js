@@ -176,7 +176,7 @@ const getCurrencyInfo = async (token) => {
 
         return res.data
     } catch (error) {
-        log(error)
+        console.log(error)
     }
 }
 
