@@ -41,13 +41,14 @@ let {
     dailyBudget,
     _id,
     CostOfRentalBtc,
-    priceBtcUsd
+    priceBtcUsd,
+    instaArb,
 } = profile
-
 
 let MIN_FEE_PER_BYTE = 0;
     switch(token){
         case 'FLO':
+            // BLOCK_EXPLORER = 'https://explorer.mediciland.com'
             BLOCK_EXPLORER = 'https://livenet.flocha.in'
             MIN_FEE_PER_BYTE = 0.00000001
             break;
@@ -74,6 +75,8 @@ const MIN_TRADE_SIZE = await getMinTradeSize(token)
 let btcInfo = await getCurrencyInfo('BTC')
 const CostOfWithdrawalPerCycleBTC = Number(btcInfo.txFee)
 const BittrexComissionFee = Number(btcInfo.txFee)
+log(name, {ID}, {profile, accessToken, wallet, rentalAddress, name, duration})
+
 
     
     if(!accessToken){
@@ -218,7 +221,7 @@ const BittrexComissionFee = Number(btcInfo.txFee)
 
             if(res){
                 return res.data
-            } else log(res)
+            } else log(res.data)
         } catch (error) {
             log(name, {ID} ,'updateOrder ---', error)
         }
@@ -362,12 +365,13 @@ const BittrexComissionFee = Number(btcInfo.txFee)
     }
 
     const pushTokensToBittrex = async () => {
-        log('pushTokensToBittrex')
         let res = await getBalanceFromAddress(BLOCK_EXPLORER, userAddress)
+        log(name, {ID},'Checking wallet balance', res.balance)
 
         if(res.balance > 0){
             let txid = await sendPayment(BittrexAddress, userAddress, res.balance, coin)
-            log(name, {ID}, txid)
+
+            log(name, {ID}, 'pushing tokens', txid)
 
             if(txid){
                 context.bittrexTxid.push(txid)
@@ -376,6 +380,14 @@ const BittrexComissionFee = Number(btcInfo.txFee)
         } else {
             return;
         }
+    }
+
+    const getBittrexBalance = async (token) => {
+            let res = await axios.get(`${API_URL}/bittrex/balances/${token}`, config)
+
+            if(res){
+                return Number(res.data.available)
+            }
     }
     
     // ------------  START -------------- 
@@ -412,6 +424,7 @@ const BittrexComissionFee = Number(btcInfo.txFee)
         receivedQty: 0,
         btcFromOrders: 0,
         bittrexBalance: 0,
+        instaArbBalance: 0,
         pendingBalance: 0,
         confirmedBalance: 0,
         offsetBal: 0,
@@ -438,6 +451,10 @@ const BittrexComissionFee = Number(btcInfo.txFee)
 
       log(name, {ID}, {costOfRentalUsd, priceBtcUsd})
 
+      let firstHour = () => Date.now() <= (context.startTime + ONE_HOUR) 
+      let consecHours = () => Date.now() <= (context.startTime + (context.duration * ONE_HOUR))
+      let pastDuration = () => Date.now() > (context.startTime + (context.duration * ONE_HOUR))
+
 
     const machine = {
           state: "START",
@@ -446,44 +463,66 @@ const BittrexComissionFee = Number(btcInfo.txFee)
                   starting: async function() {
                     log(name, {ID}, 'Staring...')
 
+                    let res =  await getBalanceFromAddress(BLOCK_EXPLORER, userAddress)
 
-                    let {balance, transactions} = await getBalanceFromAddress(BLOCK_EXPLORER, userAddress)
+                    if(!res){
+                        this.changeState('ERROR')
+                        return this.dispatch('nothing', [this.state, this.dispatch])
+                    }
+
+
+                    let balance = res.balance;
+                    let transactions = res.transactions
+
+                    if(balance >= (MIN_TRADE_SIZE * 2)){
+                        pushTokensToBittrex()
+                    }
+
+
                     let fees = await getFees(BLOCK_EXPLORER, transactions);
 
+                    context.instaArbBalance = await getBittrexBalance(token)
                     context.receivedQty = balance;
                     context.feeFloTx1 = fees
                     context.hourlyCostOfRentalBtc = Number((costOfRentalUsd / context.duration / priceBtcUsd).toFixed(8))
                     context.totalQty = getTotalQty(context.receivedQty, context.feeFloTx1)
-                    log(name, {ID}, context)
                     context.currentTxid = context.bittrexTxid[context.bittrexTxid.length - 1]
-
-
-                    let firstHour = () => Date.now() <= (context.startTime + ONE_HOUR) 
-                    let consecHours = () => Date.now() <= (context.startTime + (context.duration * ONE_HOUR))
-                    let pastDuration = () => Date.now() > (context.startTime + (context.duration * ONE_HOUR))
+                    // context.bittrexBalance += (context.receivedQty - fees)
+                    
+                    log(name, {ID}, context)
 
                     let currentHour = () => Math.floor((Date.now() - context.startTime) / ONE_HOUR)
+
+
                     context.hour = currentHour();
 
                     if(context.hour === 0){
                         context.hour = 1;
 
-                        // //!
+                        // //! TESTING  
                         // //!
                     }
                     
 
+                    console.log(firstHour(), consecHours(), pastDuration(), context.hour)
                     switch(true){
                         case firstHour(): {
                             log('first hour')
-                            this.changeState('TRANSFER')
-                            return this.dispatch('moving')
+
+                            if(instaArb && (context.instaArbBalance >= context.receivedQty)){
+                                log('SKIP ----')
+                                this.changeState("CALC")
+                                return this.dispatch("calculating")
+                            } else {
+                                this.changeState('TRANSFER')
+                                return this.dispatch('moving')
+                            }
                         }
                         case consecHours(): {
                             log('consecutive hours')
-                            setTimeout(() => {
+                            return setTimeout(() => {
                                 this.changeState("CALC")
-                                return this.dispatch("calculating")
+                                this.dispatch("calculating")
                             }, (ONE_HOUR / updateUnsold))
                         }
                         case pastDuration(): {
@@ -503,7 +542,7 @@ const BittrexComissionFee = Number(btcInfo.txFee)
                   moving: async function() {
 
                     if(context.receivedQty <= 0){
-                        log(name, {ID}, "NO BALANCE ---")
+                        log(name, {ID}, "NO BALANCE --- TO TRANSFER")
                         //wait... go back to start
                         return setTimeout(() => {
                             this.changeState("START")
@@ -525,6 +564,13 @@ const BittrexComissionFee = Number(btcInfo.txFee)
                             context.bittrexBalance += (context.receivedQty - fees)
                             context.sellableQty = getSellableQty(context.totalQty, context.feeFloTx2);
                             log(name, {ID}, {fees, context})
+
+                            if(instaArb && (context.instaArbBalance >= context.receivedQty)){
+                                log('SKIP ----')
+                                this.changeState("CALC")
+                                return this.dispatch("calculating")
+                            }
+
                             this.changeState("WAIT")
                             this.dispatch("waiting")
                         }, 10000)
@@ -590,10 +636,23 @@ const BittrexComissionFee = Number(btcInfo.txFee)
                     
                     context.confirmedBalance = bal - context.offsetBal
 
+                                            
+                    if(instaArb){
+                        context.bittrexBalance += context.pendingBalance
+                    }
+
                     context.hourlyCostOfRentalBtc = Number((costOfRentalUsd / context.duration / priceBtcUsd).toFixed(8))
                     context.totalQty = getTotalQty(context.receivedQty, context.feeFloTx1)
 
-                    let { fees } = await getTxidInfo(BLOCK_EXPLORER, context.bittrexTxid[context.bittrexTxid.length - 1])
+                    let res = await getTxidInfo(BLOCK_EXPLORER, context.bittrexTxid[context.bittrexTxid.length - 1])
+
+                    if(!res){
+                        log({res})
+                        this.changeState("START")
+                        this.dispatch("starting")
+                    }
+
+                    let fees = res.fees
                     context.feeFloTx2 = fees;
                     context.sellableQty = getSellableQty(context.totalQty, context.feeFloTx2);
 
@@ -622,20 +681,24 @@ const BittrexComissionFee = Number(btcInfo.txFee)
               },
               "CREATE_OFFER": {
                 creatingOffer: async function() {
-
-
                     
                     if(context.bittrexBalance >= MIN_TRADE_SIZE){
-                        const res = await createSellOrder(token, context.bittrexBalance, context.offerPriceBtc);
+
+                        let bal = context.bittrexBalance
+
+                        log('----->', {context})
+
+                        const res = await createSellOrder(token, bal, context.offerPriceBtc);
 
                         if(res.success){
                             context.orders.push(res.result)
                             context.currentOrder = (res.result.uuid)
                             log(name, {ID}, context)
-                            this.changeState("UPDATE_UNSOLD")
-                            this.dispatch("checkingStatus")
+                            this.changeState("START")
+                            this.dispatch("starting")
                         } else {
                             log({res}, `---- TRY AGAIN LATER`, this.state);
+                            
                             this.changeState("START")
                             this.dispatch("starting")
                         }
@@ -688,7 +751,8 @@ const BittrexComissionFee = Number(btcInfo.txFee)
 )
                         log(name, {ID}, {tokenFromCancelledOffer, costOfRentalFromCancelledOffer, sellableQty, offerPriceBtc})
 
-                        let qty = context.confirmedBalance - context.offsetBal
+                        // let qty = context.confirmedBalance - context.offsetBal
+                        let qty = tokenFromCancelledOffer
 
                         log("UPDATE OFFER ----> ", offerPriceBtc)
                         let res = await updateOrder(context.currentOrder, token, qty, offerPriceBtc)
@@ -757,16 +821,12 @@ const BittrexComissionFee = Number(btcInfo.txFee)
                         context.bittrexBalance = bal - context.offsetBal
                         context.confirmedBalance = bal - context.offsetBal
                         context.totalQty = 0;
-                        context.receivedQty = 0;
+                        context.receivedQty = (bal - context.offsetBal) + context.feeFloTx2
                         context.sellableQty = 0;
 
-                      log(name, {ID}, {context}, '----------')
-
-
-
-                        log(name, {ID}, "CREATE OFFER ----> ", offerPriceBtc)
-                        this.changeState("CREATE_OFFER")
-                        this.dispatch("creatingOffer")                        
+                      log(name, {ID}, {context}, '--------->')
+                        this.changeState("CALC")
+                        this.dispatch("calculating")                        
 
                     }
               },
@@ -784,8 +844,12 @@ const BittrexComissionFee = Number(btcInfo.txFee)
 
                         context.btcFromOrders = await getBtcBalance(context.completedOrders)
 
-                        // profitUsd = (btcFromTrade * priceCoinbaseUsdBtc) - costOfRentalUsd
-                        // takeProfitBtc = profitUsd * (1 - profitReinvestmentRate) / priceCoinbaseUsdBtc
+                        //! Test this
+                        // if(context.currentOrder){
+                        //     context.duration + 1;
+                        //     this.changeState('LOOP')
+                        //     this.changeState('looping')
+                        // }
 
                         this.changeState('WITHDRAWL')
                         this.dispatch('withdrawing')
@@ -834,8 +898,12 @@ const BittrexComissionFee = Number(btcInfo.txFee)
                   }
               },
               "ERROR": {
-                  nothing: async function() {
-                      return "!COOLBEANS :( "
+                  nothing: async function(state, dispatch) {
+                      log("!COOLBEANS :( Try Again Shortly")
+                      setTimeout(() => {
+                            this.changeState(state)
+                            console.log(dispatch)
+                      }, (3 * ONE_MINUTE))
                   }
               }
           },
@@ -871,6 +939,4 @@ const BittrexComissionFee = Number(btcInfo.txFee)
       }, (ONE_HOUR))
 
 
-
-    return;
 }

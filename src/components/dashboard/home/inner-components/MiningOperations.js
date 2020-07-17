@@ -70,12 +70,14 @@ const MiningOperations = (props) => {
         update: false,
         CostOfRentalBtc: '',
         userId: '',
-        mining: false
+        mining: false,
+        instaArb: false
     });
+
 
     let {
         targetMargin, profitReinvestment, updateUnsold, dailyBudget, autoRent, spot, alwaysMineXPercent, autoTrade,
-        morphie, supportedExchange, Xpercent, token, mining
+        morphie, supportedExchange, Xpercent, token, mining, instaArb
     } = miningOperations
 
     useEffect(() => {
@@ -100,7 +102,7 @@ const MiningOperations = (props) => {
                 token: token,
                 name,
                 profile_id: _id,
-                userId: props.user._id
+                userId: props.user._id,
             }
 
             props.dispatch(updateDailyBudget({ ...profile, userId: props.user._id, profile_id: props.profile._id }))
@@ -125,7 +127,8 @@ const MiningOperations = (props) => {
                 update: false,
                 CostOfRentalBtc: '',
                 userId: '',
-                mining: false
+                mining: false,
+                instaArb: false
             })
         }
     }, [props.profile, props.address])
@@ -155,7 +158,8 @@ const MiningOperations = (props) => {
                 profitReinvestment,
                 updateUnsold,
                 dailyBudget,
-                mining
+                mining,
+                instaArb
             }
         }
         let profile = { ...props.profile, ...formatedState.profile }
@@ -539,6 +543,11 @@ const MiningOperations = (props) => {
                                 <label className="form-check-label" htmlFor="supportedExchange">
                                     Supported exchanges
                             </label>
+                            <input  id='insta-arb-checkbox' type='checkbox' className="form-check-input"
+                                    onChange={() => setOperations({ ...miningOperations, instaArb: !instaArb})}
+                             />
+                                    <label className="form-check-label" htmlFor="insta-arb-checkbox">Instant arbitrage using current Bittrex balance</label>
+
                             </div>
                             <div style={{ transform: err.autoTrade ? 'scale(1)' : 'scale(0)' }} className="error-dialog">
                                 <span className="error-arrow"></span>

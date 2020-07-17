@@ -61,9 +61,10 @@ async function processUserInput(req, res) {
     }
 
     let { profitReinvestment, updateUnsold, dailyBudget,targetMargin, autoRent, spot, alwaysMineXPercent,
-        autoTrade, morphie, supportedExchange, profile_id, Xpercent, userId, token, name, mining } = options;
+        autoTrade, morphie, supportedExchange, profile_id, Xpercent, userId, token, name, mining, instaArb } = options;
 
     try {
+
         const rent = await Rent(token, Xpercent)
 
         let user = await User.findById(req.user.id)
@@ -130,6 +131,7 @@ async function processUserInput(req, res) {
                 profile.updateUnsold = updateUnsold
                 profile.dailyBudget = dailyBudget
                 profile.mining = mining
+                profile.instaArb = instaArb
 
                 let isCorrectAddress = isCorrectPublicAddress(profile.address.publicAddress, profile.usedAddresses, token)
 
