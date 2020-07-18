@@ -203,7 +203,8 @@ const processData = async (req, res) => {
                             profile.autoRent.on = msg[key]
                         } else if (key === 'db') {
                             for (let key in msg.db) {
-                                profile[key] = Number(msg.db[key])
+                                if(key === 'CostOfRentalBtc') profile[key] = Number(msg.db[key])
+                                if(key === 'duration') profile[key] = Number(msg.db[key])
                             }
                         }
                     }

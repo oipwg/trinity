@@ -141,7 +141,7 @@ class Timer {
         console.log(this.timestamp(), 'Timer started')
         setTimeout(async () => {
             try {
-                this.options.duration = this.duration - 3  // Offset duration with timer duration
+                this.options.duration = this.duration
                 let address = await this.getProviderAddress()
                 let payout = await on(this.req, address, this.options)
 

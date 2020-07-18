@@ -77,7 +77,7 @@ const MiningOperations = (props) => {
         price: 0,
         type: 'STANDARD',
         MRRProvider: false,
-        NiceHashProvider: false
+        NiceHashProvider: false,
         instaArb: false
     });
 
