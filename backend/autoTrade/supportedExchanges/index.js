@@ -474,7 +474,7 @@ log(name, {ID}, {profile, accessToken, wallet, rentalAddress, name, duration})
                     let balance = res.balance;
                     let transactions = res.transactions
 
-                    if(balance >= (MIN_TRADE_SIZE * 2) ){
+                    if(balance >= (MIN_TRADE_SIZE * 2) && (context.hour > 1)){
                         pushTokensToBittrex()
                     }
 
@@ -852,15 +852,15 @@ log(name, {ID}, {profile, accessToken, wallet, rentalAddress, name, duration})
 
                         context.btcFromOrders = await getBtcBalance(context.completedOrders)
 
-                        //! Test this
-                        // if(context.currentOrder){
-                        //     context.duration + 1;
-                        //     this.changeState('LOOP')
-                        //     this.changeState('looping')
-                        // }
+                        if(context.currentOrder){
+                            context.duration += 1;
+                            this.changeState('LOOP')
+                            this.changeState('looping')
+                        } else {
+                            this.changeState('WITHDRAWL')
+                            this.dispatch('withdrawing')
+                        }
 
-                        this.changeState('WITHDRAWL')
-                        this.dispatch('withdrawing')
 
                   }
               },
