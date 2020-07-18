@@ -8,11 +8,10 @@ const User = require('../models/user');
 const bip32 = require('bip32');
 const { Account, Networks, Address } = require('@oipwg/hdmw');
 const auth = require('../middleware/auth');
-const { Rent, getPriceBtcUsd } = require('../helpers/rentValues')
+const { Rent, getPriceBtcUsd} = require('../helpers/rentValues')
+
 
 function isCorrectPublicAddress(publicAddress, usedAddresses, token) {
-    console.log('publicAddress:', publicAddress)
-    console.log('usedAddresses:', usedAddresses)
     const pattern = /^./g;
     const foundToken = token.match(pattern)[0].toUpperCase()
 
@@ -60,13 +59,13 @@ async function processUserInput(req, res) {
         return options
     }
 
-    let { profitReinvestment, updateUnsold, dailyBudget,targetMargin, autoRent, spot, alwaysMineXPercent,
+    let { profitReinvestment, updateUnsold, dailyBudget, targetMargin, autoRent, spot, alwaysMineXPercent,
         autoTrade, morphie, supportedExchange, profile_id, Xpercent, userId, token, name, mining } = options;
 
     try {
         const rent = await Rent(token, Xpercent)
+        const user = await User.findById(req.user.id)
 
-        let user = await User.findById(req.user.id)
         if (!user) {
             return 'Can\'t find user. setup.js line#16'
         }
@@ -135,7 +134,6 @@ async function processUserInput(req, res) {
 
                 // If user doesn't have a generated address will generate a new one and save address and index to DB
                 if ( !isCorrectAddress ) {
-                // if (profile.address.publicAddress === '') {
                     let usedIndexes = user.indexes
                     let newAddress = getAddress(0, paymentRecieverXPub, token, usedIndexes)
                     let btcAddress = getAddress(0, btcxPrv, 'bitcoin', usedIndexes)
@@ -157,19 +155,12 @@ async function processUserInput(req, res) {
             }
         }
         await user.save()
+        console.log('OPTIONS RENT.JS', options)
 
-        options.profile_id = profile_id
-        options.PriceBtcUsd = getPriceBtcUsd
-        options.NetworkHashRate = rent.Networkhashrate
-        options.MinPercent = rent.MinPercentFromMinHashrate
         // options.duration = token == "FLO" ? 24 : 3
         options.duration = 24
-        options.newRent = Rent
-        options.difficulty = rent.difficulty
-        options.hashrate = rent.Rent
+        // options.newRent = Rent
         options.rentType = 'Manual'
-        options.type = 'FIXED',
-        options.algorithm = token === 'RVN' ? 'KAWPOW' : 'SCRYPT'
         return options
     } catch (e) {
         console.log('Catch error rent.js line 173: .' + e )
@@ -181,7 +172,7 @@ const processData = async (req, res) => {
     try {
         // From user input this file 
         var userInput = await processUserInput(req, res).then(data => data).catch(err => err)
-        console.log('processUserInput ', userInput)
+        // console.log('processUserInput ', userInput)
         if (userInput['update']) {
             return res.status(200).json(userInput)
         }
@@ -202,8 +193,8 @@ const processData = async (req, res) => {
                 if(profile._id.toString() === req.body.profile_id) {
                     for (let key in msg) {
                         if(key === 'mining') {
-                            // profile.mining = msg[key]
-                            profile.mining = true
+                            profile.mining = msg[key]
+                            // profile.mining = true
                         } else if (key === 'autoRent') {
                             profile.autoRent.on = msg[key]
                         } else if (key === 'db') {

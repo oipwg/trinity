@@ -5,10 +5,11 @@ const add = require('./RentalProvider/add/add');
 const clearSpartanBot = require('./RentalProvider/clearSpartanBot');
 const SpartanBot = require('spartanbot').SpartanBot;
 const Events = require('events').EventEmitter;
-const Timer = require('../helpers/timer')
-const emitter = new Events()
-const wss = require('../routes/socket')
-
+const Timer = require('../helpers/timer');
+const User = require('../models/user');
+const emitter = new Events();
+const wss = require('../routes/socket');
+const { Rent, getPriceBtcUsd, AutoRentCalculatons } = require('../helpers/rentValues');
 
 
 class Client {
@@ -16,19 +17,30 @@ class Client {
         this.res = res
         this.users = []
         this.loadMessages()
-        this.newSpartan = (name, userId, callback) => {
+        this.newSpartan = async (userName, userId, returnUser) => {
+            let spartan = new SpartanBot()
             this.users.push({
-                name: name,
+                name: userName,
                 id: userId.toString(),
-                spartan: new SpartanBot(),
+                spartan: spartan,
                 emitter: emitter,
-                // emitter: new Events(),
+                autoRentCalculatons : new AutoRentCalculatons(spartan),
                 timer: Timer
             })
-            if(callback) {
-                callback(this.users[this.users.length-1])
+            if(returnUser) {
+                let user = this.users[this.users.length-1] 
+                returnUser(user)
             }
         }
+    }
+
+    async getDataBaseUser(userId) {
+        try {
+            return await User.findById({ _id: userId})
+        } catch (err) {
+            throw new Error('User not found during getDataBaseUser in index.js')
+        }
+
     }
 
     loadMessages() {
@@ -38,17 +50,28 @@ class Client {
             })
         })
     }
+
+    // updates the options object with new properties made by this.newSpartan
+    async asignNewProperties(user, options) {
+        let userDB = await this.getDataBaseUser(options.userId)
+
+        user.spartan.renting = options.autoRent
+        options.SpartanBot = user.spartan
+        options.emitter = user.emitter
+        options.Timer = user.timer
+        options.User = userDB
+        options.autoRentCalculations = user.autoRentCalculatons
+    }
             
     async getUser({userName, userId}) {
-    console.log('userName, userId, autoRent:', userName, userId)
 
         let users = this.users
         let i = users.length
         let updatedUser;
-
+        
         // If users array is empty will make new user / spartanbot and return it
         if(!users.length) {
-            let data = this.newSpartan(userName, userId, (newUser) => {
+            let data = await this.newSpartan(userName, userId, (newUser) => {
                 updatedUser = newUser
             })
             return updatedUser
@@ -60,7 +83,7 @@ class Client {
                 return user
             //If user doesn't exist in users array (no providers), make a new user and return it.
             } else if (!i) {
-                this.newSpartan(userName, userId, (newUser) => {
+                await this.newSpartan(userName, userId, (newUser) => {
                     updatedUser = newUser
                 })
                 return updatedUser
@@ -88,18 +111,13 @@ class Client {
 
     async controller(options) {
         let user = await this.getUser(options)
-        user.spartan.renting = options.autoRent
-
-        options.SpartanBot = user.spartan
-        options.emitter = user.emitter
-        options.Timer = user.timer
+        await this.asignNewProperties(user, options)
+        
         console.log('options.userName', options.userName)
         console.log('this.users', this.users)
-        console.log('options.emitter.EventEmitter', options.emitter._events)
-        console.log('SPARTANBOT', user.spartan.renting)
+
         switch (options.to_do) {
             case 'rent':
-                
                 try {
                     return await rent(options)
                 }catch (err) {
@@ -116,14 +134,12 @@ class Client {
                 console.log('Current Users after signout:', removedUser)
                 return removedUser
                 // return clearSpartanBot(options)
-                break;
             case 'returnSpartanBot': 
                  return options
-                break;
             case 'stopRental': 
                 let rentalCleared = this.stopRental(options.userId)
                 return options
-                break;
+             
         }
     }
 }

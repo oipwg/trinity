@@ -196,8 +196,7 @@ const Profile = (props) => {
                 />   
             </div>
             </div>
-        </div>
-        {console.log(selectedProfile)}           
+        </div>      
         <ActiveRentals profile={selectedProfile}
         />
         <MiningOperations profile={selectedProfile}

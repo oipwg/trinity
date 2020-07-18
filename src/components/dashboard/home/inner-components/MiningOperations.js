@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { API_URL, WEB_SOCKET_URL } from '../../../../../config.js';
-import { updateDailyBudget, isNiceHashMinimum } from '../../../../actions/miningOperationsActions.js';
+import { rentValues, isNiceHashMinimum} from '../../../../actions/miningOperationsActions.js';
 import ToggleSwitch from '../../../helpers/toggle/ToggleSwitch';
 import MiningLight from '../../../helpers/MiningLight';
 import { connect } from 'react-redux';
@@ -63,18 +63,25 @@ const MiningOperations = (props) => {
         autoTrade: false,
         morphie: false,
         supportedExchange: false,
-        Xpercent: 15,
+        Xpercent: 0,
         token: '',
         message: [],
         update: false,
         CostOfRentalBtc: '',
         userId: '',
-        mining: false
+        mining: false,
+        duration: 2,
+        amount: 0,
+        limit: 0,
+        price: 0,
+        type: 'STANDARD',
+        MRRProvider: false,
+        NiceHashProvider: false
     });
 
     let {
         targetMargin, profitReinvestment, updateUnsold, dailyBudget, autoRent, spot, alwaysMineXPercent, autoTrade,
-        morphie, supportedExchange, Xpercent, token, mining
+        morphie, supportedExchange, Xpercent, token, mining, message, MRRProvider, NiceHashProvider
     } = miningOperations
 
     useEffect(() => {
@@ -101,31 +108,17 @@ const MiningOperations = (props) => {
                 profile_id: _id,
                 userId: props.user._id
             }
-
-            props.dispatch(updateDailyBudget({ ...profile, userId: props.user._id, profile_id: props.profile._id }))
-            setOperations({ ...miningOperations, ...profile })
+           
+         
+            if (!autoRent || NiceHashProvider || MRRProvider) {
+                
+                
+                // props.dispatch(rentValues({...miningOperations, ...profile,  }, 'getRentalValues'))
+                
+            }
             user_id.current = props.user._id
+            setOperations({ ...miningOperations, ...profile })
 
-        } else {
-            setOperations({
-                targetMargin: 0,
-                profitReinvestment: 0,
-                updateUnsold: '0',
-                dailyBudget: dailyBudget,
-                autoRent: false,
-                spot: false,
-                alwaysMineXPercent: true,
-                autoTrade: false,
-                morphie: false,
-                supportedExchange: false,
-                Xpercent: 0,
-                token: '',
-                message: [],
-                update: false,
-                CostOfRentalBtc: '',
-                userId: '',
-                mining: false
-            })
         }
     }, [props.profile, props.address])
 
@@ -164,8 +157,9 @@ const MiningOperations = (props) => {
         }
 
         props.updateProfile(profile)
+        // If a rental is going on stop user from renting again
         if(autoRent && mining) {
-            return
+            // return
             setOperations({ ...miningOperations, message: miningOperations.message.concat('Wait for current rental to finish')})
         }
 
@@ -179,10 +173,13 @@ const MiningOperations = (props) => {
         }
     }, [autoRent]);
 
+
     useEffect(() => {
-        if (!props.dailyBudget) return
-        setOperations({ ...miningOperations, dailyBudget: props.dailyBudget })
-    }, [props.dailyBudget])
+        const rentValues = props.rentValues
+        if (rentValues === undefined || !rentValues.limit) return
+   
+        setOperations({ ...miningOperations, ...rentValues })
+    }, [props.rentValues])
 
     const processReturnData = (data) => {
         let newValues = {}
@@ -268,6 +265,10 @@ const MiningOperations = (props) => {
                     if (miningOperations[key] === '')
                         return setError({ updateUnsold: true })
                     break;
+                case 'Xpercent':
+                    if (miningOperations[key] === 0 || miningOperations[key] === '')
+                        return setError({ Xpercent: true })
+                    break;
                 case 'autoRent':
                     if (slider === 'autoRent') {
                         // If neither radios are checked
@@ -290,19 +291,19 @@ const MiningOperations = (props) => {
         }
     }
 
-
+    // Removes Error dialog after input is entered
     const updateInputs = (e) => {
         const targetElem = e.target.id
-
+        
         switch (targetElem) {
             case "targetMargin":
                 if (err.targetMargin) setError({ targetMargin: false })
-                props.dispatch(updateDailyBudget({ ...miningOperations, targetMargin: e.target.value }))
+                props.dispatch(rentValues({ ...miningOperations, targetMargin: e.target.value }, 'getRentalValues'))
                 setOperations({ ...miningOperations, targetMargin: e.target.value })
                 break;
             case "profitReinvestment":
                 if (err.profitReinvestment) setError({ profitReinvestment: false })
-                props.dispatch(updateDailyBudget({ ...miningOperations, profitReinvestment: e.target.value }))
+                props.dispatch(rentValues({ ...miningOperations, profitReinvestment: e.target.value }, 'getRentalValues'))
                 setOperations({ ...miningOperations, profitReinvestment: e.target.value })
                 break;
             case "updateUnsold":
@@ -311,6 +312,15 @@ const MiningOperations = (props) => {
                 break;
             case "autoRent":
                 checkInputsAndRent(e, targetElem)
+                break;
+            case "MRRProvider":
+                if (err.providerCheckbox ) setError({ providerCheckbox : false })
+                setOperations({ ...miningOperations, MRRProvider: !MRRProvider })
+                break;
+            case "NiceHashProvider":
+                if (err.providerCheckbox ) setError({ providerCheckbox : false })
+
+                setOperations({ ...miningOperations, NiceHashProvider: !NiceHashProvider })
                 break;
             case "spot":
                 if (err.autoRent) setError({ autoRent: false })
@@ -334,24 +344,34 @@ const MiningOperations = (props) => {
     }
 
 
-    const updatePercent = e => {
+    const updatePercent = (e) => {
         let value = e.target.value
-        props.dispatch(updateDailyBudget({ ...miningOperations, Xpercent: value }, 'upDateNiceHashMinimum'))
+         // Removes Error dialog after input is entered
+        if (err.Xpercent) setError({ Xpercent: false })
+
+        // props.dispatch(rentValues({ ...miningOperations, Xpercent: value }, 'getRentalValues'))
         setOperations({ ...miningOperations, Xpercent: value })
+   
     }
-    const showPercentInput = () => {
+
+    const showPercentInput = (e) => {
+        let value = e.target.value
         let elem = document.getElementsByClassName('percent-input-container')[0]
         let pos = elem.style.transform
         if (pos === '') {
             elem.style.transform = 'translate(0px)'
         } else {
             elem.style = ''
+            
+            if(!MRRProvider && !NiceHashProvider) return setError({ providerCheckbox : true })
+            console.log('HIT')
+            props.dispatch(rentValues({ ...miningOperations}, 'getRentalValues'))
         }
     }
 
     return (
         <>
-        {console.log(miningOperations.message)}
+        {console.log(miningOperations)}
             {showSettingaModal && <MarketsNPools handleClick={() => setShowSettingsModal(!showSettingaModal)} />}
             <div className="card mining-operation">
                 <div className="card-header">
@@ -437,7 +457,7 @@ const MiningOperations = (props) => {
                             </div>
                         </div>
                     </div>
-
+                    
                     {/* AUTO RENTING CONTAINER */}
                     <div className="automatic-renting-container">
                         <MiningLight 
@@ -451,6 +471,31 @@ const MiningOperations = (props) => {
 
                         <div className="automatic-renting-content">
                             <h5>Automatic Renting</h5>
+                            <div className="provider-checkbox-container">
+                                <div className="form-check">
+                                    <input className="form-check-input" type="checkbox" value={MRRProvider} id="MRRProvider"
+                                    onChange={(e) => {
+                                        updateInputs(e)
+                                    }} />
+                                    <label className="form-check-label" htmlFor="MRRProvider">
+                                        MiningRigRentals
+                                    </label>
+                                </div>
+                                <div className="form-check">
+                                    <input className="form-check-input" type="checkbox" value={NiceHashProvider} id="NiceHashProvider"
+                                        onChange={(e) => {
+                                            updateInputs(e)
+                                        }} />
+                                    
+                                    <label className="form-check-label" htmlFor="NiceHashProvider">
+                                        NiceHash
+                                    </label>
+                                </div>
+                            </div>
+                            <div style={{ transform: err.providerCheckbox ? 'scale(1)' : 'scale(0)' }} className="error-dialog">
+                                <span className="error-arrow"></span>
+                                <p>Need at least one checked before getting values</p>
+                            </div>
                             <div className="form-check">
                                 <input className="form-check-input" type="radio" id="spot"
                                     value={spot}
@@ -481,8 +526,14 @@ const MiningOperations = (props) => {
                                         value={Xpercent}
                                     />
                                     <span>%</span>
-                                    <button className="edit-percent-btn" onClick={showPercentInput}>edit</button>
+                                    <button className="edit-percent-btn" onClick={(e) => { showPercentInput(e) }}>edit</button>
+                                
                                 </div>
+                                
+                            </div>
+                            <div style={{ transform: err.Xpercent ? 'scale(1)' : 'scale(0)' }} className="error-dialog">
+                                <span className="error-arrow"></span>
+                                <p>Percent needs to be greater than 0!</p>
                             </div>
                             <div style={{ transform: err.autoRent ? 'scale(1)' : 'scale(0)' }} className="error-dialog">
                                 <span className="error-arrow"></span>
@@ -574,6 +625,7 @@ const PercentModal = (props) => {
 
 const mapStateToProps = state => {
     return {
+        rentValues: state.returnedRentValues.options,
         percentModal: state.percentModalReducer.percentModalopen,
         user: state.auth.user,
         address: state.account.wallet,
