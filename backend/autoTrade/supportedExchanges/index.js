@@ -474,7 +474,7 @@ log(name, {ID}, {profile, accessToken, wallet, rentalAddress, name, duration})
                     let balance = res.balance;
                     let transactions = res.transactions
 
-                    if(balance >= (MIN_TRADE_SIZE * 2)){
+                    if(balance >= (MIN_TRADE_SIZE * 2) ){
                         pushTokensToBittrex()
                     }
 
@@ -487,7 +487,7 @@ log(name, {ID}, {profile, accessToken, wallet, rentalAddress, name, duration})
                     context.hourlyCostOfRentalBtc = Number((costOfRentalUsd / context.duration / priceBtcUsd).toFixed(8))
                     context.totalQty = getTotalQty(context.receivedQty, context.feeFloTx1)
                     context.currentTxid = context.bittrexTxid[context.bittrexTxid.length - 1]
-                    // context.bittrexBalance += (context.receivedQty - fees)
+                    context.bittrexBalance = (context.receivedQty - fees)
                     
                     log(name, {ID}, context)
 
@@ -638,7 +638,7 @@ log(name, {ID}, {profile, accessToken, wallet, rentalAddress, name, duration})
 
                                             
                     if(instaArb){
-                        context.bittrexBalance += context.pendingBalance
+                        context.bittrexBalance = context.pendingBalance + context.confirmedBalance
                     }
 
                     context.hourlyCostOfRentalBtc = Number((costOfRentalUsd / context.duration / priceBtcUsd).toFixed(8))
@@ -648,8 +648,8 @@ log(name, {ID}, {profile, accessToken, wallet, rentalAddress, name, duration})
 
                     if(!res){
                         log({res})
-                        this.changeState("START")
-                        this.dispatch("starting")
+                        this.changeState("LOOP")
+                        this.dispatch("looping")
                     }
 
                     let fees = res.fees
@@ -694,20 +694,20 @@ log(name, {ID}, {profile, accessToken, wallet, rentalAddress, name, duration})
                             context.orders.push(res.result)
                             context.currentOrder = (res.result.uuid)
                             log(name, {ID}, context)
-                            this.changeState("START")
-                            this.dispatch("starting")
+                            this.changeState("LOOP")
+                            this.dispatch("looping")
                         } else {
                             log({res}, `---- TRY AGAIN LATER`, this.state);
                             
-                            this.changeState("START")
-                            this.dispatch("starting")
+                            this.changeState("LOOP")
+                            this.dispatch("looping")
                         }
 
                         
                     } else {
                         log(name, {ID}, {MIN_TRADE_SIZE}, '---- NOT MET', this.state)
-                            this.changeState("START")
-                            this.dispatch("starting")
+                            this.changeState("LOOP")
+                            this.dispatch("looping")
                     }
                 }
               },
@@ -833,8 +833,16 @@ log(name, {ID}, {profile, accessToken, wallet, rentalAddress, name, duration})
               "LOOP": {
                 looping: function() {
                     log(name, {ID}, {context}, Date.now())
-                    this.changeState('START')
-                    this.dispatch('starting')
+
+                    if(context.hour === 1){
+                        return setTimeout(() => {
+                            this.changeState('START')
+                            this.dispatch('starting')
+                        }, ONE_HOUR)
+                    } else {
+                        this.changeState('START')
+                        this.dispatch('starting')
+                    }
                 }
               },
               "CLOSE": {
