@@ -1,53 +1,37 @@
 require('dotenv').config();
 const { API_URL}  = process.env
 const { Account, Address, TransactionBuilder, Networks } = require('@oipwg/hdmw')
+const { log }= require('../../helpers/log')
+const uuidv4 = require('../../helpers/uuidv4');
+const {
+    getTotalQty,
+    getOfferPriceBtc,
+    getSellableQty,
+    getProfitUsd,
+    getRentalBudget3HrCycleUsd,
+    getRentalBudgetDailyUsd,
+    getTakeProfitBtc,
+    getCoinbaseBTCUSD,
+    getBittrexBtcUsd,
+    getPriceBittrexBtcToken,
+    getBlockHeightFlo,
+    getBlockHeightRvn,
+    getBalanceFromAddress,
+    getFees,
+    checkMarketPrice,
+    getTxidInfo,
+    getMinTradeSize,
+    getCurrencyInfo
+} = require('./func')
 const bip32 = require('bip32')
 const axios = require('axios')
+
+
 const ONE_MINUTE = 60 * 1000;
 const ONE_HOUR = 60 * ONE_MINUTE;
-const { log }= require('../../helpers/log')
 
-function uuidv4() {
-    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
-      var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
-      return v.toString(16);
-    });
-  }
 
 module.exports = async function(profile, accessToken, wallet, rentalAddress, name, duration) {
-let TotalQty  = 0; //Receviced + FeeFloTx1
-let ReceivedQty; //what is deposited from rentals
-let FeeFloTx1; //cumulative fee from rentals.
-// These values come from what resulted in the rentals;
-
-let SellableQty; //Qty to sell; TotalQty - FeeFloTx2
-let FeeFloTx2; //Fee from moving tokens from Local Wallet to Bittrex
-
-let  OfferPriceBtc, //formula 
-     EstFeeBtcTx1, //?
-     BtcFromTrades = 0,
-     PriceBtcUsd,
-     ProfitUsd,// = ( BtcFromTrades * PriceBtcUsd ) - CostOfRentalUsd
-     RentalBudget3HrCycleUsd,
-     CostOfRentalUsd,
-     totalSent = 0;
-
-const CostOfWithdrawalPerCycleBTC = 0.0005;
-const TradeFee= .002
-let FloTradeFee;
-let checkBlock;
-let currentBlockCount;
-let orderReceiptID = ''
-let BtcFromsPartialTrades = 0;
-let Confirms = 0;
-let btc = 0;
-let BLOCK_EXPLORER = ''
-let bittrexTX
-const ID = uuidv4();
-
-
-const DURATION = duration
-
 let {
     address,
     token,
@@ -56,42 +40,51 @@ let {
     updateUnsold,
     dailyBudget,
     _id,
-    CostOfRentalBtc
+    CostOfRentalBtc,
+    priceBtcUsd,
+    instaArb,
 } = profile
 
-const timeStarted = Date.now();
-const margin = targetMargin / 100;
-const ProfitReinvestmentRate = profitReinvestment / 100;
-let userBTCAddress = address.btcAddress;
-address = address.publicAddress;
-let coin = token.toLowerCase();
-if(coin === 'rvn' ){
-    coin = 'raven'
-}
+let MIN_FEE_PER_BYTE = 0;
+    switch(token){
+        case 'FLO':
+            // BLOCK_EXPLORER = 'https://explorer.mediciland.com'
+            BLOCK_EXPLORER = 'https://livenet.flocha.in'
+            MIN_FEE_PER_BYTE = 0.00000001
+            break;
+        case 'RVN':
+            BLOCK_EXPLORER = `https://main.rvn.explorer.oip.io`
+            MIN_FEE_PER_BYTE = .0000001
+            break;
+        default:
+            BLOCK_EXPLORER = 'https://livenet.flocha.in'
 
-const getCurrencyInfo = async (token) => {
-    try {
-        const res = await axios.get(`https://api.bittrex.com/v3/currencies/${token}`)
-
-        return res.data
-    } catch (error) {
-        log(name, ID, error)
     }
-}
 
+
+const ID = uuidv4();
+const DURATION = duration
+let coin = token.toLowerCase();
+    if(coin === 'rvn' ){
+        coin = 'raven'
+    }
 let currency = await getCurrencyInfo(token)
 let minConfirmations = currency.minConfirmations;
-let MIN_FEE_PER_BYTE = 0.00000001
+const MIN_TRADE_SIZE = await getMinTradeSize(token)
+
+let btcInfo = await getCurrencyInfo('BTC')
+const CostOfWithdrawalPerCycleBTC = Number(btcInfo.txFee)
+const BittrexComissionFee = Number(btcInfo.txFee)
+log(name, {ID}, {profile, accessToken, wallet, rentalAddress, name, duration})
 
 
-
-
+    
     if(!accessToken){
-        log(name, ID, 'no access token');
+        log(name, {ID} ,'no access token');
         return 'ERROR; No Access Token'
     }
     if(!profile){
-        log(name, ID, 'no profile');
+        log(name, {ID} ,'no profile');
         return 'ERROR; Profile Not Found'
     }
 
@@ -102,37 +95,65 @@ let MIN_FEE_PER_BYTE = 0.00000001
         },
     };
 
-    switch(token){
-        case 'FLO':
-            BLOCK_EXPLORER = 'https://livenet.flocha.in'
-            MIN_FEE_PER_BYTE = 0.00000001
-            break;
-        case 'RVN':
-            BLOCK_EXPLORER = `https://main.rvn.explorer.oip.io`
-            MIN_FEE_PER_BYTE = .0000001
-            break;
+    const postResults = async ({ID, _id, timestarted, costOfRentalBtc, priceBtcUsd, duration, btcFromTrades, totalMined, profitReinvestment, completedOrders}) => {
+        try {
+
+            log({ID, _id, timestarted, costOfRentalBtc, priceBtcUsd, duration, btcFromTrades, totalMined, profitReinvestment, completedOrders})
+
+            let body = {
+                uuid: ID,
+                profile: _id,
+                timestarted,
+                costOfRentalBtc,
+                priceBtcUsd,
+                duration,
+                btcFromTrades,
+                totalMined,
+                profitReinvestment,
+                completedOrders,
+            }
+
+            axios.post(`${API_URL}/auto-trade/results`, body, config)
+
+        } catch (error) {
+            log(name, {ID}, 'postResults ---', error)
+        }
     }
 
+    const confirmedBalance = async (arr) => {
+        let res = await axios.get(`${API_URL}/bittrex/closed-deposits`, config)
+                        
+        let closedDeposits = res.data;
+        
+        let tokens = 0;
+        
+        arr.map(txid => {
+                let order = closedDeposits.find(order => order.txId == txid)
 
-
-    // formulas
-    const getTotalQty = (ReceivedQty, FeeFloTx1) => {
-        return Number((ReceivedQty + FeeFloTx1).toFixed(8));
-    }
-
-    const getOfferPriceBtc = (CostOfRentalBtc, TradeFee, margin, CostOfWithdrawalPerCycleBTC, EstFeeBtcTx1, TotalQty, FeeFloTx1, FeeFloTx2) => {
-        let OfferPrice =  ( CostOfRentalBtc * ( TradeFee + 1 ) * ( margin + 1 ) + CostOfWithdrawalPerCycleBTC + EstFeeBtcTx1 ) / ( TotalQty - FeeFloTx2 )
-        return Number(OfferPrice.toFixed(8))
-    }
-
-    const get24hOfferPriceBtc = (costOfRentalFromCancelledOffer, costOfRentalBTCHourly, bittrexTradeFee, targetMargin, costOfWithdrawalPerCycleBTC, estFeeBtcTx1, sellableQty) => {    
-        let OfferPrice = (( costOfRentalFromCancelledOffer + costOfRentalBTCHourly ) * ( bittrexTradeFee + 1 ) * ( targetMargin + 1 ) + ((costOfWithdrawalPerCycleBTC + estFeeBtcTx1)/24) ) / sellableQty
-        return Number(OfferPrice.toFixed(8))
-    }
+                if(order){
+                    tokens += Number(order.quantity)
+                }
     
+            })
 
-    const getSellableQty = (TotalQty, FeeFloTx2) => {
-        return Number((TotalQty - FeeFloTx2).toFixed(8))
+        return tokens;
+    }
+
+    const getBtcBalance = async (arr) => {
+        let res = await axios.get(`${API_URL}/bittrex/closed-orders`, config)
+        
+        let closedOrders = res.data;
+        
+        let btcBalance = 0;
+
+        arr.map(uuid => {
+                let order = closedOrders.find(order => order.id == uuid)
+
+                btcBalance += (order.proceeds - order.commission)
+            })
+
+            
+        return Math.floor((btcBalance)*1e8)/1e8;
     }
 
     //bittrex wallet address
@@ -148,40 +169,26 @@ let MIN_FEE_PER_BYTE = 0.00000001
             return res.data.bittrexAddresses[token].Address
 
         } catch (error) {
-            log(name, ID, 'getBittrexAddress Failed ------- ', error)
-        }
-    }
-
-    const getBalanceFromAddress = async (address) => {
-        try {
-            let res = await axios.get(`${BLOCK_EXPLORER}/api/addr/${address}`)
-
-            if(res.status != 200){
-                return log(name, ID, res)
-            }
-
-            return res.data    
-        } catch (error) {
-            log(name, ID, 'ERR; getBalanceFromAddress  -------', error)
+            log(name, {ID} ,'getBittrexAddress Failed ------- ', error)
         }
     }
 
     const createSellOrder = async (market, quantity, rate) => {
 
         if((!(market && quantity && rate))){
-            log(name, ID, 'Failed', {market, quantity, rate})
-            return;
+            return log(name, {ID} ,'Failed', {market, quantity, rate})
         }
 
         rate = await checkMarketPrice(rate);
 
+                
         let body = {
             market,
             quantity,
             rate,
         }
         
-        log(name, ID, 'running createSellOrder -------', body)
+        log(name, {ID} ,'running createSellOrder -------', body)
 
 
         try {
@@ -189,35 +196,12 @@ let MIN_FEE_PER_BYTE = 0.00000001
 
             return res.data;
         } catch (error) {
-            log(name,'error ---', error)
+            log(name, {ID} ,'error ---', error)
         }
         
     }
 
     const updateOrder = async (orderUuid, market, quantity, rate) => {
-        try {
-
-        log(name, ID, "UPDATING ORDER", {orderUuid, market, quantity, rate})
-
-        rate = await checkMarketPrice(rate);
-        
-        //check to see if order has been partially sold.
-        let order = await getOrder(orderUuid)
-
-        log(name, ID, {order})
-
-        // if partially filled remove for rate - already acounter for in totalSent
-        let amountSold = Number((order.Quantity - order.QuantityRemaining).toFixed(8))
-        BtcFromsPartialTrades = Number((order.Price - order.CommissionPaid).toFixed(8))
-
-        log(name, ID, {BtcFromsPartialTrades})
-
-        quantity -= amountSold;
-
-        if((!(market && quantity && rate))){
-            return log(name, ID, 'Failed', {market, quantity, rate})
-        }
-
         rate = await checkMarketPrice(rate);
 
         let body = {
@@ -228,39 +212,25 @@ let MIN_FEE_PER_BYTE = 0.00000001
         }
 
         
-        log(name, ID, {body})
-            let res = await axios.post(`${API_URL}/bittrex/updateOrder`, body, config)
-            log(name, ID, {res})
-            return res.data
+        log(name, {ID} ,body)
+
+        try {
+            const res = await axios.post(`${API_URL}/bittrex/updateOrder`, body, config)
+
+            console.log({res})
+
+            if(res){
+                return res.data
+            } else log(res.data)
         } catch (error) {
-            log(name, ID, 'updateOrder ---', error)
+            log(name, {ID} ,'updateOrder ---', error)
         }
     }
-
-    const getFees = async transactions => {
-        log(name, ID, 'getting fees...')
-        let total = 0;
-
-        if(!transactions){
-            return;
-        }
-
     
-        for(let i = 0; i < transactions.length; i++){
-            
-            let res = await axios.get(`${BLOCK_EXPLORER}/api/tx/${transactions[i]}`)
-            if(res.status != 200) return log(name,res)
-
-            total += res.data.fees
-        } 
-
-        return Number(total.toFixed(8))
-    }
-
     const getSalesHistory = async (token, id) => {
         try {
             if(!id){
-                return log(name, ID, 'no:', {id})
+                return log(name, {ID} , 'no:', {id})
             }
 
             const res = await axios.get(`${API_URL}/bittrex/salesHistory`, config)
@@ -268,7 +238,7 @@ let MIN_FEE_PER_BYTE = 0.00000001
 
             let {salesHistory} = res.data;
 
-            log(name, ID, {id})
+            log(name, {ID} , {id})
 
             const orderCompleted = salesHistory.find(el => el.OrderUuid === id)
 
@@ -277,50 +247,20 @@ let MIN_FEE_PER_BYTE = 0.00000001
             } else return;
 
         } catch (error) {
-            log(name, ID, 'ERR; getSalesHistory ----', error)
+            log(name, {ID} ,'ERR; getSalesHistory ----', error)
         }
     }
 
     const getOrder = async (orderUuid) => {
         try {
-            const res = await axios.get(`${API_URL}/bittrex/openOrders`, config)
+            const res = await axios.get(`${API_URL}/bittrex/order/${orderUuid}`, config)
 
-            const openOrders = res.data;
-
-            const order = openOrders.find(order => order.OrderUuid === orderUuid)
-
-            return order;
+            return res.data
         } catch (error) {
-            log(name, ID, 'ERR; getOpenOrders ----', error)
+            log(name, {ID} ,'ERR; getOpenOrders ----', error)
         }
     }
 
-    const getCoinbaseBTCUSD = async () => {
-        try {
-            const response = await axios.get('https://api.coinbase.com/v2/exchange-rates?currency=BTC')
-
-            return Number(response.data.data.rates.USD)
-            
-        } catch (error) {
-            log(name, ID, 'Err; getCoinbaseBTCUSD -----', error)
-        }
-    };
-
-    const getProfitUsd = (BtcFromTrades, PriceBtcUsd, CostOfRentalUsd) => {
-         return  ( BtcFromTrades * PriceBtcUsd ) - CostOfRentalUsd
-    }
-
-    const getRentalBudget3HrCycleUsd = (CostOfRentalUsd, ProfitUsd, ProfitReinvestmentRate) => {
-        return  RentalBudget3HrCycleUsd = CostOfRentalUsd + ( ProfitUsd * (ProfitReinvestmentRate) )
-    }
-
-    const getRentalBudgetDailyUsd = (RentalBudget3HrCycleUsd) => {
-        return RentalBudget3HrCycleUsd * 8;
-    }
-
-    const getTakeProfitBtc = (ProfitUsd, ProfitReinvestmentRate, PriceBtcUsd) => {
-        return  Number((ProfitUsd * (1 - ProfitReinvestmentRate) / PriceBtcUsd).toFixed(8))
-    }
     // Withdraw amount has to be 3 times greater than the fee (.0005 btc)
     const withdrawFromBittrex = async (currency, quantity, address) => {
         try {
@@ -330,13 +270,13 @@ let MIN_FEE_PER_BYTE = 0.00000001
                 address
             }
 
-            log(name, ID, {body})
+            log(name, {ID} , {body})
             let res = await axios.post(`${API_URL}/bittrex/withdraw`, body, config)
         
             return res.data;
 
         } catch (error) {
-            log(name, ID,'ERR; withDrawFromBittrex -----', error)
+            log(name, {ID} ,'ERR; withDrawFromBittrex -----', error)
         }
     }
 
@@ -344,8 +284,6 @@ let MIN_FEE_PER_BYTE = 0.00000001
         try {
 
             let addressObj = new Address(address, Networks[coin], false);
-
-
 
             let builder = new TransactionBuilder(Networks[coin], {
                 from: addressObj,
@@ -363,7 +301,7 @@ let MIN_FEE_PER_BYTE = 0.00000001
             let fee = iof.fee * MIN_FEE_PER_BYTE;
 
             const adjustedAmount = Number((amount - fee).toFixed(8))
-    
+
             let builder2 = new TransactionBuilder(Networks[coin], {
                 from: addressObj,
                 to: {[BittrexAddress]: adjustedAmount}
@@ -378,339 +316,627 @@ let MIN_FEE_PER_BYTE = 0.00000001
         
             return Number((inNOuts.fee * MIN_FEE_PER_BYTE).toFixed(8))
         } catch (error) {
-            log(name, ID,'ERR; builTransaction ------', error)
+            log(name, {ID} ,'ERR; builTransaction ------', error)
         }
 
     }
 
-    const checkMarketPrice = async (offerPrice) => {
-        try {
-            const res = await axios.get(`https://api.bittrex.com/api/v1.1/public/getticker?market=BTC-${token}`)
-            let marketPrice = res.data.result.Bid
 
-            log(name, ID,'checking market price', {offerPrice, marketPrice}, 'offerPrice < marketPrice:', (offerPrice < marketPrice))
-            if(offerPrice < marketPrice){
-                return marketPrice
+    const checkBittrexDeposit = async (txId) => {
+        try {
+            const res = await axios.get(`${API_URL}/bittrex/deposit/${txId}`, config)
+
+            if(res.data){
+                return res.data
+            } else {
+                log(res)
             }
 
-        return offerPrice
         } catch (error) {
-            log(name, ID,'ERR; checkMarketPrice ------', error)
-        }        
+            log({error})
+        }
     }
-        // ------------  START -------------- 
-    log(name, ID, 'START AUTO TRADE', {timeStarted, address, userBTCAddress, rentalAddress, token})
+
+    const sendPayment = async (BittrexAddress, address, amount, coin) => {
+        try {
+
+            if(amount <= 0){
+                return " ----------- NO BALANCE -------------"
+            }
+
+            let fee = await buildTransaction(address, amount, coin)
+
+            let sendAmount = Number((amount - (fee)).toFixed(8))
+
+            let txid = await account.sendPayment({
+                to: {[BittrexAddress]: sendAmount},
+                from: address,
+                discover: true
+            })
+
+            log({txid})
+
+            return txid
+
+            
+        } catch (error) {
+            log(name, {ID} , "ERR; SendPayment", error)
+        }
+    }
+
+    const pushTokensToBittrex = async () => {
+        let res = await getBalanceFromAddress(BLOCK_EXPLORER, userAddress)
+        log(name, {ID},'Checking wallet balance', res.balance)
+
+        if(res.balance > 0){
+            let txid = await sendPayment(BittrexAddress, userAddress, res.balance, coin)
+
+            log(name, {ID}, 'pushing tokens', txid)
+
+            if(txid){
+                context.bittrexTxid.push(txid)
+                context.pendingBalance = res.balance
+            }
+        } else {
+            return;
+        }
+    }
+
+    const getBittrexBalance = async (token) => {
+            let res = await axios.get(`${API_URL}/bittrex/balances/${token}`, config)
+
+            if(res){
+                return Number(res.data.available)
+            }
+    }
+    
+    // ------------  START -------------- 
+
+    if(!profile){
+        log(profile, 'not found')
+        return 'no profile found'
+    }
+
+    const accountMaster = bip32.fromBase58(wallet[token.toLowerCase()].xPrv, Networks[coin].network)
+    let account = new Account(accountMaster, Networks[coin]);
+    account.discoverChains();
+    const margin = targetMargin / 100;
+    const reinvestmentRate = profitReinvestment / 100;
+    const BittrexAddress = await getBittrexAddress(token);
+    const costOfRentalUsd = CostOfRentalBtc * priceBtcUsd
+
+    let userBTCAddress = address.btcAddress;
+    let userAddress = address.publicAddress;
+    
+    log(name, {ID} , 'START AUTO TRADE', {userAddress, userBTCAddress, rentalAddress})
 
     if(!address){
-        log(name, ID, 'No Address')
+        log(name, {ID} ,'no address')
         return 'No Address'
     }
 
+    const timerInt = () => setInterval(() => {
+        return context.currentTime = Date.now() 
+        }, 1000)
 
-    const accountMaster = bip32.fromBase58(wallet[token.toLowerCase()].xPrv, Networks[coin].network)
+    let context = {
+        totalQty: 0,
+        receivedQty: 0,
+        btcFromOrders: 0,
+        bittrexBalance: 0,
+        instaArbBalance: 0,
+        pendingBalance: 0,
+        confirmedBalance: 0,
+        offsetBal: 0,
+        duration: DURATION,
+        hour: 1,
+        blockHeight: 0,
+        sellableQty: 0,
+        hourlyCostOfRentalBtc: 0,
+        feeFloTx1: 0,
+        feeFloTx2: 0,
+        bittrexTradeFee: 0.002,
+        bittrexWithdrawlFee: BittrexComissionFee,
+        estFeeBtcTx1: 0.00001551,
+        offerPriceBtc: 0,
+        offerPriceBtc24h: 0,
+        bittrexTxid: [],
+        orders: [],
+        completedOrders: [],
+        currentOrder: null,
+        currentTxid: '',
+        startTime: Date.now(),
+        currentTime: timerInt()
+      }
 
+      log(name, {ID}, {costOfRentalUsd, priceBtcUsd})
 
-    let account = new Account(accountMaster, Networks[coin]);
-        account.discoverChains();
-
-        let {balance, transactions} = await getBalanceFromAddress(address);
-    const BittrexAddress = await getBittrexAddress(token);
-
-            
-        if(transactions){
-            FeeFloTx1 = await getFees(transactions)
-        } else {
-            FeeFloTx1 = 0;
-        }
-            ReceivedQty = balance
-            TotalQty = getTotalQty(ReceivedQty, FeeFloTx1)
-
-
-            log(name, ID,'pre call -----', {ReceivedQty, FeeFloTx1, TotalQty, BittrexAddress})
-    
-
-            if(balance > 0) {
-                FloTradeFee = await buildTransaction(address, ReceivedQty, coin)
-                let sendAmount = Number((ReceivedQty - (FloTradeFee)).toFixed(8))
-                log(name, ID,'sending to bittrex: 1', {sendAmount, FloTradeFee})
-                try {
-                    bittrexTX = await account.sendPayment({
-                        to: {[BittrexAddress]: sendAmount},
-                        from: address,
-                        discover: true
-                    })
-                    totalSent += sendAmount
-                } catch (error) {
-                    log(name, ID,'failed to send, will try again', error)
-                }
-
-            }
-
-            if(bittrexTX){
-                log(name, ID,{bittrexTX})
-            }
-
-                let isUpdate = false;
+      let firstHour = () => Date.now() <= (context.startTime + ONE_HOUR) 
+      let consecHours = () => Date.now() <= (context.startTime + (context.duration * ONE_HOUR))
+      let pastDuration = () => Date.now() > (context.startTime + (context.duration * ONE_HOUR))
 
 
-                const checkConfirmations = async () => {
-                    try {
+    const machine = {
+          state: "START",
+          transitions: {
+              "START": {
+                  starting: async function() {
+                    log(name, {ID}, 'Staring...')
 
-                        log(name, ID,'running checkConfirmation()...')
+                    let res =  await getBalanceFromAddress(BLOCK_EXPLORER, userAddress)
 
-                        if(!bittrexTX) {
-                            log(name, ID, {bittrexTX})
-                            return;
-                        }
-
-                        let res = await axios.get(`${BLOCK_EXPLORER}/api/tx/${bittrexTX}`)
-
-                        if(res.status != 200){
-                            return log(name, ID,res)
-                        }
-
-                        let {fees, confirmations } = res.data
-                        Confirms = confirmations;
-
-                        FeeFloTx2 = fees
-                        EstFeeBtcTx1=0.00001551 //! get from somewhere
-            
-                        TotalQty = getTotalQty(ReceivedQty, FeeFloTx1)
-                        SellableQty = getSellableQty(TotalQty, FeeFloTx2)               
-                        OfferPriceBtc = getOfferPriceBtc(CostOfRentalBtc, TradeFee, margin, CostOfWithdrawalPerCycleBTC, EstFeeBtcTx1,TotalQty,FeeFloTx1,FeeFloTx2)
-                        OfferPrice24h = get24hOfferPriceBtc(0, CostOfRentalBtc, TradeFee, margin, CostOfWithdrawalPerCycleBTC, EstFeeBtcTx1, SellableQty)
-                        log(
-                                name,
-                                ID,
-                                '---check confirmations---',
-                                { 
-                                    confirmations,
-                                    TotalQty,
-                                    FeeFloTx1,
-                                    FeeFloTx2,
-                                    SellableQty,
-                                    FeeFloTx2, 
-                                    CostOfRentalBtc,
-                                    TradeFee,
-                                    margin,
-                                    EstFeeBtcTx1,
-                                    TotalQty,
-                                    FeeFloTx1,
-                                    FeeFloTx2,
-                                    OfferPriceBtc,
-                                    OfferPrice24h,
-                                    totalSent,
-                                    BtcFromTrades,
-                                    btc,
-
-                                }
-                            )
-    
-                        if(Confirms > minConfirmations){
-                            if(isUpdate){
-
-                                    TotalQty = getTotalQty(ReceivedQty, FeeFloTx1)
-                                    SellableQty  = getSellableQty(TotalQty, FeeFloTx2)
-                                    OfferPriceBtc = getOfferPriceBtc(CostOfRentalBtc, TradeFee, margin, CostOfWithdrawalPerCycleBTC, EstFeeBtcTx1, TotalQty, FeeFloTx1, FeeFloTx2);
-    
-                                    log(
-                                        name,
-                                        ID,
-                                        '---Updated---',
-                                        { 
-                                            TotalQty,
-                                            FeeFloTx1,
-                                            FeeFloTx2,
-                                            SellableQty,
-                                            FeeFloTx2, 
-                                            CostOfRentalBtc,
-                                            TradeFee,
-                                            margin,
-                                            EstFeeBtcTx1,
-                                            TotalQty,
-                                            FeeFloTx1,
-                                            FeeFloTx2,
-                                            OfferPriceBtc,
-                                            totalSent,
-                                            BtcFromTrades,
-                                            btc,
-                                        })
-
-                                    log(name, ID,'If Update --- before function;', {SellableQty, OfferPriceBtc, orderReceiptID})
-                            }
-
-                            if(orderReceiptID){
-                                
-                                log(name, ID, 'update', {orderReceiptID})
-                                let res = await updateOrder(orderReceiptID, token, totalSent, OfferPriceBtc)
-                                if(res.success){
-                                    orderReceiptID = res.result.uuid;
-                                    checkOrderStatus()
-                                    bittrexTX=null;
-                                    log(name, ID,'updateOrder ---', {res, orderReceiptID})
-                                    return BtcFromTrades =  await getSalesHistory(token, orderReceiptID);
-                                } else {
-                                    log(res)
-                                }
-                            } else {
-                                log(name, ID, 'create order', bittrexTX)
-                                
-                                if(totalSent <= 0){
-                                    return log(name, ID, {totalSent})
-                                }
-
-                                let res = await createSellOrder(token, totalSent, OfferPriceBtc)
-                                if(res.success){
-                                    orderReceiptID = res.result.uuid
-                                    Confirms = 0;
-                                    checkOrderStatus()
-                                    bittrexTX=null;
-                                    log(name, ID,'createSellOrder ---', {res, orderReceiptID})
-                                    BtcFromTrades = await getSalesHistory(token, orderReceiptID);
-                                } else {
-                                    log(res)
-                                }
-                            }
-                        }}
-                    catch (error) {
-                        log(name, ID,'EER; checkConfirmations ------', error)
+                    if(!res){
+                        this.changeState('ERROR')
+                        return this.dispatch('nothing', [this.state, this.dispatch])
                     }
 
+
+                    let balance = res.balance;
+                    let transactions = res.transactions
+
+                    if(balance >= (MIN_TRADE_SIZE * 2)){
+                        pushTokensToBittrex()
+                    }
+
+
+                    let fees = await getFees(BLOCK_EXPLORER, transactions);
+
+                    context.instaArbBalance = await getBittrexBalance(token)
+                    context.receivedQty = balance;
+                    context.feeFloTx1 = fees
+                    context.hourlyCostOfRentalBtc = Number((costOfRentalUsd / context.duration / priceBtcUsd).toFixed(8))
+                    context.totalQty = getTotalQty(context.receivedQty, context.feeFloTx1)
+                    context.currentTxid = context.bittrexTxid[context.bittrexTxid.length - 1]
+                    // context.bittrexBalance += (context.receivedQty - fees)
                     
-                }
+                    log(name, {ID}, context)
 
-                const shouldIUpdated =  async () => {
-                    try {
-                        log(name, ID,'runing shouldIUpdate()...')
-                        const res = await getBalanceFromAddress(address);
-
-                        if(!res) return;
-
-                        updatedBalance = res.balance
-                        transactions = res.transactions
-
-                        if(bittrexTX) return;
+                    let currentHour = () => Math.floor((Date.now() - context.startTime) / ONE_HOUR)
 
 
-                        if(updatedBalance > 0){
-                            FeeFloTx1 = await getFees(transactions)
-                            log(name, ID,'pre', {balance, updatedBalance, FeeFloTx1})
-                            isUpdate = true;
+                    context.hour = currentHour();
 
-                            //push new tokens to wallet
-                            FloTradeFee = await buildTransaction(address, updatedBalance, coin)
-                            log(name, ID,{FloTradeFee})
-                            if(!FloTradeFee || (typeof FloTradeFee != 'number')) return;
+                    if(context.hour === 0){
+                        context.hour = 1;
 
-                            let sendAmount = Number((updatedBalance - FloTradeFee).toFixed(8))
-                            log(name, ID,'sending to bittrex: 2', {sendAmount})
+                        // //! TESTING  
+                        // //!
+                    }
+                    
 
-                            try {
-                                bittrexTX = await account.sendPayment({
-                                    to: {[BittrexAddress]: sendAmount},
-                                    from: address,
-                                    discover: false
-                                })
-                                totalSent += sendAmount
-                                ReceivedQty += updatedBalance;
-                                log({bittrexTX})
-                            } catch (error) {
-                                log(name, ID,'failed to send, will try again', error)
+                    console.log(firstHour(), consecHours(), pastDuration(), context.hour)
+                    switch(true){
+                        case firstHour(): {
+                            log('first hour')
+
+                            if(instaArb && (context.instaArbBalance >= context.receivedQty)){
+                                log('SKIP ----')
+                                this.changeState("CALC")
+                                return this.dispatch("calculating")
+                            } else {
+                                this.changeState('TRANSFER')
+                                return this.dispatch('moving')
+                            }
+                        }
+                        case consecHours(): {
+                            log('consecutive hours')
+                            return setTimeout(() => {
+                                this.changeState("CALC")
+                                this.dispatch("calculating")
+                            }, (ONE_HOUR / updateUnsold))
+                        }
+                        case pastDuration(): {
+                            log('past duration')
+                            this.changeState('CLOSE')
+                            return this.dispatch('closing')
+                        }
+                        default: {
+                            log('default :(')
+                        }
+                    }
+
+                  },
+                  
+              },
+              "TRANSFER": {
+                  moving: async function() {
+
+                    if(context.receivedQty <= 0){
+                        log(name, {ID}, "NO BALANCE --- TO TRANSFER")
+                        //wait... go back to start
+                        return setTimeout(() => {
+                            this.changeState("START")
+                            this.dispatch("starting")
+                        }, (ONE_MINUTE * 10))
+                        //have this go to an idle state. wait. try go back to start??
+                    }
+                    let txid = await sendPayment(BittrexAddress, userAddress, context.receivedQty, coin)
+                    
+                    log(name, {ID}, txid)
+
+                    if(txid){
+                        context.currentTxid = txid;
+                        context.bittrexTxid.push(txid)
+
+                        setTimeout(async () => {
+                            let { fees } = await getTxidInfo(BLOCK_EXPLORER, txid)
+                            context.feeFloTx2 = fees;
+                            context.bittrexBalance += (context.receivedQty - fees)
+                            context.sellableQty = getSellableQty(context.totalQty, context.feeFloTx2);
+                            log(name, {ID}, {fees, context})
+
+                            if(instaArb && (context.instaArbBalance >= context.receivedQty)){
+                                log('SKIP ----')
+                                this.changeState("CALC")
+                                return this.dispatch("calculating")
                             }
 
-                        } else {
-                            log(name, ID,'Not enought to send to Bittrex', updatedBalance)
+                            this.changeState("WAIT")
+                            this.dispatch("waiting")
+                        }, 10000)
+                    }
+                  }
+              },
+              "WAIT": {
+                  waiting: function() {
+                      let timer = setInterval(async () => {
+                        try {
+                            
+                            // let { confirmations } = await getTxidInfo(BLOCK_EXPLORER, context.bittrexTxid[context.bittrexTxid.length - 1])
+                            let res = await checkBittrexDeposit(context.currentTxid)
 
+                            let confirmations = res[0].confirmations
+
+                            if(confirmations >= minConfirmations){
+                                log("CONFIRMED", `${confirmations} out of ${minConfirmations}`)
+                                clearInterval(timer)
+                                this.changeState("CHECK_DEPOSIT")
+                                this.dispatch("checkingDeposits")
+
+                            } else {
+                                log(name, {ID}, {confirmations})
+                            }
+                        } catch (error) {
+                            log(error)
+                        }
+                      }, ONE_MINUTE )
+                  }
+              },
+              "CHECK_DEPOSIT": {
+                  checkingDeposits: async function() {
+                    let depositInt = setInterval(async () => {
+                        let res = await checkBittrexDeposit(context.currentTxid)
+
+                        log("deposit", {res})
+
+                        let order =  res.find(order => order.txId === context.currentTxid)
+
+                        let bal = await confirmedBalance(context.bittrexTxid)
+                         log('confirmed bal', bal)
+                        context.confirmedBalance = bal - context.offsetBal
+
+                        log({order})
+
+                        let status = order.status
+
+                        if(status === "COMPLETED") {
+                            clearInterval(depositInt)
+                            this.changeState("CALC")
+                            this.dispatch("calculating")
+                        } else {
+                            log(name, {ID}, {res})
+                        }
+                    }, ONE_MINUTE)
+                  }
+              },
+              "CALC": {
+                calculating: async function() {
+                    let bal = await confirmedBalance(context.bittrexTxid)
+
+                    
+                    context.confirmedBalance = bal - context.offsetBal
+
+                                            
+                    if(instaArb){
+                        context.bittrexBalance += context.pendingBalance
+                    }
+
+                    context.hourlyCostOfRentalBtc = Number((costOfRentalUsd / context.duration / priceBtcUsd).toFixed(8))
+                    context.totalQty = getTotalQty(context.receivedQty, context.feeFloTx1)
+
+                    let res = await getTxidInfo(BLOCK_EXPLORER, context.bittrexTxid[context.bittrexTxid.length - 1])
+
+                    if(!res){
+                        log({res})
+                        this.changeState("START")
+                        this.dispatch("starting")
+                    }
+
+                    let fees = res.fees
+                    context.feeFloTx2 = fees;
+                    context.sellableQty = getSellableQty(context.totalQty, context.feeFloTx2);
+
+                    let {
+                        hourlyCostOfRentalBtc,
+                        sellableQty,
+                        bittrexTradeFee,
+                        bittrexWithdrawlFee,
+                        estFeeBtcTx1,
+                        } = context
+
+                    context.offerPriceBtc = getOfferPriceBtc(hourlyCostOfRentalBtc, bittrexTradeFee, margin, bittrexWithdrawlFee, estFeeBtcTx1, sellableQty)
+                    log('offerPriceBtc', context.offerPriceBtc)
+
+
+
+                    if(context.currentOrder){
+                        this.changeState("UPDATE_UNSOLD")
+                        this.dispatch("checkingStatus")
+                    } else {
+                        this.changeState("CREATE_OFFER")
+                        this.dispatch("creatingOffer")
+                    }
+
+                }
+              },
+              "CREATE_OFFER": {
+                creatingOffer: async function() {
+                    
+                    if(context.bittrexBalance >= MIN_TRADE_SIZE){
+
+                        let bal = context.bittrexBalance
+
+                        log('----->', {context})
+
+                        const res = await createSellOrder(token, bal, context.offerPriceBtc);
+
+                        if(res.success){
+                            context.orders.push(res.result)
+                            context.currentOrder = (res.result.uuid)
+                            log(name, {ID}, context)
+                            this.changeState("START")
+                            this.dispatch("starting")
+                        } else {
+                            log({res}, `---- TRY AGAIN LATER`, this.state);
+                            
+                            this.changeState("START")
+                            this.dispatch("starting")
+                        }
+
+                        
+                    } else {
+                        log(name, {ID}, {MIN_TRADE_SIZE}, '---- NOT MET', this.state)
+                            this.changeState("START")
+                            this.dispatch("starting")
+                    }
+                }
+              },
+              "UPDATE_UNSOLD": {
+                    checkingStatus: async function() {
+                        log('checkingSatus', this.state)
+
+                        if(context.hour == 1){
+                                this.changeState("LOOP")
+                                this.dispatch("looping")
+                                return;
+                        }
+
+                        log(name, {ID}, {context}, '--->.', this.state)
+
+                        let orderStatus = await getOrder(context.currentOrder)
+
+                        log(name, {ID}, {orderStatus})
+
+                        if(orderStatus.fillQuantity == "0.00000000"){
+                            return this.dispatch('notPartiallyMet', [{orderStatus}])
+                        } else if (orderStatus.quantity == orderStatus.fillQuantity){
+                            return this.dispatch("fullyMet", [{orderStatus}])
+                        } else if (orderStatus.fillQuantity > 0){
+                            return this.dispatch("partiallyMet", [{orderStatus}])
+                        } else {
+                            log(name, {ID}, "Uuh Ooh")
+                        }
+
+                    },
+                    notPartiallyMet: async function({orderStatus}) {
+                        log(name, {ID}, 'notPartiallyMet', this.state, orderStatus)
+
+                        let tokenFromCancelledOffer = Number(orderStatus.quantity)
+                        let costOfRentalFromCancelledOffer = context.hourlyCostOfRentalBtc * (context.hour - 1)
+                        let costOfRentalBtcHour = context.hourlyCostOfRentalBtc;
+                        let sellableQty = (tokenFromCancelledOffer + (context.receivedQty + context.feeFloTx1) - context.feeFloTx2)
+                        let offerPriceBtc = Number((( 
+                            ( costOfRentalFromCancelledOffer + costOfRentalBtcHour ) * ( context.bittrexTradeFee + 1 ) * (margin + 1 )
+                             + ((CostOfWithdrawalPerCycleBTC + context.estFeeBtcTx1) / DURATION) ) / sellableQty).toFixed(8)
+)
+                        log(name, {ID}, {tokenFromCancelledOffer, costOfRentalFromCancelledOffer, sellableQty, offerPriceBtc})
+
+                        // let qty = context.confirmedBalance - context.offsetBal
+                        let qty = tokenFromCancelledOffer
+
+                        log("UPDATE OFFER ----> ", offerPriceBtc)
+                        let res = await updateOrder(context.currentOrder, token, qty, offerPriceBtc)
+                            log({res})
+
+                            if(res.success){
+                                context.orders.push(res.result)
+                                context.currentOrder = (res.result.uuid)
+                                log(context)
+                                this.changeState("LOOP")
+                                this.dispatch("looping")
+                        } else {
+                                log({res})
+                                log(name, {ID}, 'TRY AGAIN - LATER')
+                                context.currentOrder = null;
+                                this.changeState("START")
+                                this.dispatch("starting")                      
+                        }
+                        
+
+             },
+                    partiallyMet: async function ({orderStatus}) {
+                        log(name, {ID}, "MADE IT TO PARTIALLY_MET", {orderStatus})
+
+                        let unsold = (orderStatus.quantity - orderStatus.fillQuantity)
+                        let percentOfCancelledPartialOfferThatWasUnsold = unsold / context.totalQty
+                        let costOfRentalFromPartialCancelledOffer = percentOfCancelledPartialOfferThatWasUnsold * context.hourlyCostOfRentalBtc * (context.hour - 1)
+                        let costOfRentalBtcHour = context.hourlyCostOfRentalBtc
+                        let sellableQty = (tokenFromCancelledOffer + (context.receivedQty + context.feeFloTx1) - context.feeFloTx2)
+                        let offerPriceBtc = Number((( (
+                            costOfRentalFromPartialCancelledOffer + costOfRentalBtcHour) * ( context.bittrexTradeFee + 1 ) * ( margin + 1 )
+                             + ( ( CostOfWithdrawalPerCycleBTC + context.estFeeBtcTx1 ) / DURATION ) ) / sellableQty).toFixed(8))
+
+                        let qty = unsold + context.bittrexBalance //!
+
+                        log("UPDATE OFFER ----> ", offerPriceBtc)
+                        let res = await updateOrder(context.currentOrder, token, qty, offerPriceBtc)
+                           log(name, {ID}, {res})
+
+                            if(res.success){
+                            context.orders.push(res.result)
+                            context.currentOrder = (res.result.uuid)
+                            log(name, {ID}, context)
+                            this.changeState("LOOP")
+                            this.dispatch("looping")
+                        } else {
+                            log({res}, `---- HANDLE THIS`);
+                            this.changeState("START")
+                            this.dispatch("starting")   
+                        }
+                        
+                    },
+                    fullyMet: async function ({orderStatus}) {
+                        log("MADE IT TO FULLY MET", {orderStatus})
+
+                        let offerPriceBtc = getOfferPriceBtc(context.hourlyCostOfRentalBtc, context.bittrexTradeFee, margin, context.bittrexWithdrawlFee, 
+                            context.estFeeBtcTx1, context.sellableQty)
+                        
+                        context.offerPriceBtc = offerPriceBtc;
+                        context.completedOrders.push(context.currentOrder)
+                        context.currentOrder = null;
+                        context.offsetBal += Number(orderStatus.quantity)
+
+                        context.btcFromOrders = await getBtcBalance(context.completedOrders)
+                        let bal = await confirmedBalance(context.bittrexTxid)
+                        context.bittrexBalance = bal - context.offsetBal
+                        context.confirmedBalance = bal - context.offsetBal
+                        context.totalQty = 0;
+                        context.receivedQty = (bal - context.offsetBal) + context.feeFloTx2
+                        context.sellableQty = 0;
+
+                      log(name, {ID}, {context}, '--------->')
+                        this.changeState("CALC")
+                        this.dispatch("calculating")                        
+
+                    }
+              },
+              "LOOP": {
+                looping: function() {
+                    log(name, {ID}, {context}, Date.now())
+                    this.changeState('START')
+                    this.dispatch('starting')
+                }
+              },
+              "CLOSE": {
+                  closing: async function() {
+
+                        clearInterval(pushTokensInt)
+
+                        context.btcFromOrders = await getBtcBalance(context.completedOrders)
+
+                        //! Test this
+                        // if(context.currentOrder){
+                        //     context.duration + 1;
+                        //     this.changeState('LOOP')
+                        //     this.changeState('looping')
+                        // }
+
+                        this.changeState('WITHDRAWL')
+                        this.dispatch('withdrawing')
+
+                  }
+              },
+              "WITHDRAWL": {
+                withdrawing: async function() {
+                    //Move btc to HDMW
+
+                    //Move takeProfitBtc to coinbase
+
+                    //Move left over btcFromTrade back to rental provider.
+                    try {
+                        let sentToHDMW = await withdrawFromBittrex('BTC', context.btcFromOrders, rentalAddress);
+                        log(name, {ID}, {sentToHDMW})
+
+                        if(sentToHDMW.success){
+                            this.changeState('RESULTS')
+                            this.dispatch('results')
                         }
                     } catch (error) {
-                        log(name, ID,error)
+                        log(error)
                     }
                 }
+              },
 
-            const checkOrderStatus = async () => {
-
-                log(name, ID, 'Running checkOrderStatus().....', {orderReceiptID})
-                if(!orderReceiptID){
-                    return log({orderReceiptID})
-                }
-
-                let BtcFromTrades = await getSalesHistory(token, orderReceiptID)
-
-                if(BtcFromTrades){
-                    log(name, ID, {orderReceiptID}, 'CLOSED')
-                    totalSent=0;
-                    TotalQty=0;
-                    SellableQty=0;
-                    OfferPriceBtc=0;
-                    orderReceiptID=''
-                    BtcFromTrades += BtcFromsPartialTrades;
-                    btc += BtcFromTrades;
-
-                    
-                    PriceBtcUsd = await getCoinbaseBTCUSD();
-                    CostOfRentalUsd = CostOfRentalBtc * PriceBtcUsd
-                    
-                    ProfitUsd = getProfitUsd(BtcFromTrades, PriceBtcUsd, CostOfRentalUsd)
-                    
-                    RentalBudget3HrCycleUsd = getRentalBudget3HrCycleUsd(CostOfRentalUsd, ProfitUsd, ProfitReinvestmentRate);
-                    
-                    RentalBudgetDailyUsd = getRentalBudgetDailyUsd(RentalBudget3HrCycleUsd);
-                    TakeProfitBtc = getTakeProfitBtc(ProfitUsd, ProfitReinvestmentRate, PriceBtcUsd)
-
-                    log(
-                        name,
-                        ID,
-                    {
-                        BtcFromTrades,
-                        btc,
-                        PriceBtcUsd,
-                        CostOfRentalUsd,
-                        ProfitUsd,
-                        ProfitReinvestmentRate,
-                        RentalBudget3HrCycleUsd,
-                        RentalBudgetDailyUsd,
-                        TakeProfitBtc
-                    
+              "RESULTS": {
+                  results: function() {
+                      postResults({
+                        ID, _id, 
+                        timestarted: context.startTime, 
+                        costOfRentalBtc: CostOfRentalBtc, 
+                        duration: DURATION,
+                        priceBtcUsd: priceBtcUsd,
+                        btcFromTrades: context.btcFromOrders, 
+                        totalMined: context.offsetBal, 
+                        profitReinvestment: reinvestmentRate, 
+                        completedOrders: context.completedOrders,
+                        bittrexTxid: context.bittrexTxid,
+                        currentOrder: context.currentOrder,
+                        currentTxid: context.currentTxid,
+                        commission: context.bittrexWithdrawlFee,
+                        openOrders: context.currentOrder
                     })
-                }
-            }
+                  }
+              },
+              "ERROR": {
+                  nothing: async function(state, dispatch) {
+                      log("!COOLBEANS :( Try Again Shortly")
+                      setTimeout(() => {
+                            this.changeState(state)
+                            console.log(dispatch)
+                      }, (3 * ONE_MINUTE))
+                  }
+              }
+          },
+          dispatch (actionName, ...payload) {
+              const actions = this.transitions[this.state];
+              const action = this.transitions[this.state][actionName]
 
-            const withdrawBTC = async () => {
+              if(action){
+                  action.apply(machine, ...payload);
+              } else {
+                  log('not valid for current state ---', 'from: ' + this.state, 'to:', {actionName, ...payload})
+              }
+          },
+          changeState(newState){
+              log(name, {ID}, 'STATE ---[', newState, ']' )
+              this.state = newState;
+          }
+      }
 
-                log(name, ID, {timeStarted}, Date.now(), (Date.now() > (timeStarted + (21 * ONE_HOUR))))
+      let Trade = Object.create(machine, {
+          name: {
+              writable: false,
+              enumerable: true,
+              value: 'Trade'
+          }
+      })
 
-                if(btc <= 0){
-                    return;
-                }
+      log("CURRENT STATE ---", Trade.state)
+      Trade.dispatch("starting")
 
-                    log(name, ID,'Withdraw from bittrex ---')
-                    let sentToHDMW = await withdrawFromBittrex('BTC', btc, rentalAddress);
-                    btc = 0;
-                    log(name, ID,'sentToProvider ---', sentToHDMW)
-                    // clearAllIntervals(timer, update, orderStatus);
-            }
+      let pushTokensInt = setInterval(() => {
+          pushTokensToBittrex()
+      }, (ONE_HOUR))
 
-            let timer = setInterval(() => {
-                checkConfirmations()
-            }, (3 * ONE_MINUTE))
-
-            let update = setInterval(() => {
-                shouldIUpdated()
-            },(ONE_HOUR / updateUnsold))
-
-            let orderStatus = setInterval(() => {
-                checkOrderStatus()
-            },(updateUnsold * (5 * ONE_MINUTE)))
-
-            let withdraw = setInterval(() => {
-                withdrawBTC()
-            }, ((DURATION * ONE_HOUR) - ONE_HOUR))
-
-            const clearAllIntervals = (timer, update, orderStatus) => {
-                    log(name, ID, '--- TRADE END ---')
-                    this.clearInterval(timer)
-                    this.clearInterval(update)
-                    this.clearInterval(orderStatus)
-            }
 
 }

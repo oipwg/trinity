@@ -1,3 +1,4 @@
+
 const express = require('express');
 const router = express.Router();
 const auth = require('../middleware/auth')
@@ -43,6 +44,10 @@ router.get('/open-deposits', auth, BittrexController.openDepositsv3)
 router.get('/closed-deposits', auth, BittrexController.closedDepositsv3)
 
 router.get('/deposit/:txId', auth, BittrexController.depositByTxid);
+
+router.get('/balances', auth, BittrexController.balances);
+
+router.get('/balances/:currency', auth, BittrexController.balance);
 
 
 

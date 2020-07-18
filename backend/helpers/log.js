@@ -1,4 +1,3 @@
-
 const { timestamp } = require('./timestamp')
 
 exports.log = function () {

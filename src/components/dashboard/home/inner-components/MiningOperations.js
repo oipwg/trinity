@@ -7,6 +7,7 @@ import MiningLight from '../../../helpers/MiningLight';
 import { connect } from 'react-redux';
 import MarketsNPools from '../../../settings/prefrences/merc/MercMode'
 import { isEqual } from 'lodash'
+import ProgressBar from '../../../helpers/ProgressBar';
 
 const MiningOperations = (props) => {
     const socket = useRef(null)
@@ -77,11 +78,13 @@ const MiningOperations = (props) => {
         type: 'STANDARD',
         MRRProvider: false,
         NiceHashProvider: false
+        instaArb: false
     });
+
 
     let {
         targetMargin, profitReinvestment, updateUnsold, dailyBudget, autoRent, spot, alwaysMineXPercent, autoTrade,
-        morphie, supportedExchange, Xpercent, token, mining, message, MRRProvider, NiceHashProvider
+        morphie, supportedExchange, Xpercent, token, mining, message, MRRProvider, NiceHashProvider, instaArb
     } = miningOperations
 
     useEffect(() => {
@@ -106,7 +109,7 @@ const MiningOperations = (props) => {
                 token: token,
                 name,
                 profile_id: _id,
-                userId: props.user._id
+                userId: props.user._id,
             }
            
          
@@ -118,6 +121,9 @@ const MiningOperations = (props) => {
             }
             user_id.current = props.user._id
             setOperations({ ...miningOperations, ...profile })
+
+
+        } else {
 
         }
     }, [props.profile, props.address])
@@ -147,7 +153,8 @@ const MiningOperations = (props) => {
                 profitReinvestment,
                 updateUnsold,
                 dailyBudget,
-                mining
+                mining,
+                instaArb
             }
         }
         let profile = { ...props.profile, ...formatedState.profile }
@@ -225,27 +232,6 @@ const MiningOperations = (props) => {
             console.log(err)
         });
     }
-
-    // const trade = (profileID) => {
-    //     console.log(profileID)
-
-    //     fetch(API_URL+'/auto-trade/on/'+profileID, {
-    //         method: 'GET',
-    //         headers: {
-    //             'Content-Type': 'application/json',
-    //             'x-auth-token': localStorage.getItem('token')
-    //         },
-    //     }).then((response) => {
-    //         return response.json();
-    //     })
-    //       .then((data) => {
-    //         console.log(data);
-    //     }).catch((err)=> {
-    //           console.log(err)
-    //     });
-    // }
-
-
 
     // When slider is clicked to switch it checks to make sure inputs have values in them first.
     const checkInputsAndRent = (e, slider) => {
@@ -368,6 +354,52 @@ const MiningOperations = (props) => {
             props.dispatch(rentValues({ ...miningOperations}, 'getRentalValues'))
         }
     }
+
+    const PercentModal = (props) => {
+
+        let percent = props.miningOperations.Xpercent
+        let token = props.miningOperations.token
+    
+        const modalOpen = () => {
+            if (props.state.percentModal === 'open' && token !== 'RVN') {
+                return {
+                    opacity: 1,
+                    transform: 'scale(1)'
+                }
+            } else {
+                return {
+                    opacity: 0,
+                    transform: 'scale(0)'
+                }
+            }
+        }
+    
+        return (
+            <div className="percent-modal-container" style={modalOpen()}>
+                <div className="percent-modal">
+                    <header className="percent-header"></header>
+                    <button type="button" className="close" data-dismiss="modal" aria-label="Close"
+                        onClick={() => { props.state.dispatch(isNiceHashMinimum(0, 0, 'close')) }}>
+                        <span aria-hidden="true" className="white-text">&times;</span>
+                    </button>
+                    <div className="content-wrapper">
+                        <i className="fa fa-bell-o" aria-hidden="true"></i>
+                        <p>Your <span>{percent}%</span> is too low for Nicehash's minimum, so MiningRigRentals will be used by default.
+                        If you would like to have Spartan also consider the Nicehash rental provider, please increase percentage.</p>
+                    </div>
+                    <div className="modal-footer flex-center">
+                        <button className="btn btn-primary">CHANGE IT FOR ME
+                        {/* <i className="far fa-gem ml-1 white-text"></i> */}
+                        </button>
+                        <button type="button" className="btn btn-outline-danger" data-dismiss="modal"
+                            onClick={() => { props.state.dispatch(isNiceHashMinimum(0, 0, 'close')) }}>OK, THANKS</button>
+                    </div>
+                </div>
+                <span className="error-arrow"></span>
+            </div>
+        )
+    }
+    
 
     return (
         <>
@@ -564,6 +596,11 @@ const MiningOperations = (props) => {
                                 <label className="form-check-label" htmlFor="supportedExchange">
                                     Supported exchanges
                             </label>
+                            <input  id='insta-arb-checkbox' type='checkbox' className="form-check-input"
+                                    onChange={() => setOperations({ ...miningOperations, instaArb: !instaArb})}
+                             />
+                                    <label className="form-check-label" htmlFor="insta-arb-checkbox">Instant arbitrage using current Bittrex balance</label>
+
                             </div>
                             <div style={{ transform: err.autoTrade ? 'scale(1)' : 'scale(0)' }} className="error-dialog">
                                 <span className="error-arrow"></span>
@@ -571,57 +608,14 @@ const MiningOperations = (props) => {
                             </div>
                         </div>
                     </div>
+                        <ProgressBar timestarted={1594703271348} duration={24} merchantStarted={true} />
                 </div>
             </div>
+            
         </>
     );
 };
 
-const PercentModal = (props) => {
-
-    let percent = props.miningOperations.Xpercent
-    let token = props.miningOperations.token
-
-    const modalOpen = () => {
-        if (props.state.percentModal === 'open' && token !== 'RVN') {
-            return {
-                opacity: 1,
-                transform: 'scale(1)'
-            }
-        } else {
-            return {
-                opacity: 0,
-                transform: 'scale(0)'
-            }
-        }
-    }
-
-    return (
-        <div className="percent-modal-container" style={modalOpen()}>
-            <div className="percent-modal">
-                <header className="percent-header"></header>
-                <button type="button" className="close" data-dismiss="modal" aria-label="Close"
-                    onClick={() => { props.state.dispatch(isNiceHashMinimum(0, 0, 'close')) }}>
-                    <span aria-hidden="true" className="white-text">&times;</span>
-                </button>
-                <div className="content-wrapper">
-                    <i className="fa fa-bell-o" aria-hidden="true"></i>
-                    <p>Your <span>{percent}%</span> is too low for Nicehash's minimum, so MiningRigRentals will be used by default.
-                    If you would like to have Spartan also consider the Nicehash rental provider, please increase percentage.</p>
-                </div>
-
-                <div className="modal-footer flex-center">
-                    <button className="btn btn-primary">CHANGE IT FOR ME
-                    {/* <i className="far fa-gem ml-1 white-text"></i> */}
-                    </button>
-                    <button type="button" className="btn btn-outline-danger" data-dismiss="modal"
-                        onClick={() => { props.state.dispatch(isNiceHashMinimum(0, 0, 'close')) }}>OK, THANKS</button>
-                </div>
-            </div>
-            <span className="error-arrow"></span>
-        </div>
-    )
-}
 
 const mapStateToProps = state => {
     return {

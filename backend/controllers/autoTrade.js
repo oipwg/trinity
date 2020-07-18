@@ -16,10 +16,62 @@ module.exports = {
             let profile = user.profiles.filter(profile => profile._id == _id)
 
             ATSupportedEx(...profile, accessToken, user.wallet, rentalAddress, name, duration)
-
             return {success: 'Auto Trading Started.'}
         } catch (error) {
             console.log(error);
+        }
+    },
+        results: async (req,res, next) => {
+        try {
+            const {timestarted, uuid, profile, rental, 
+                costOfRentalBtc, 
+                priceBtcUsd, 
+                duration, 
+                btcFromTrades, 
+                totalMined, 
+                profitReinvestment, 
+                completedOrders,
+                bittrexTxid,
+                currentOrder,
+                currentTxid,
+                commission,
+                openOrders
+            
+            } = req.body
+
+            let obj = {
+                    uuid,
+                    profile,
+                    timestarted,
+                    costOfRentalBtc,
+                    priceBtcUsd,
+                    duration,
+                    btcFromTrades,
+                    totalMined,
+                    profitReinvestment,
+                    completedOrders,
+                    bittrexTxid,
+                    currentOrder,
+                    currentTxid,
+                    commission,
+                    openOrders
+            }
+            let user = await User.findByIdAndUpdate(req.user.id).select('results')
+
+            user.results.push(obj)
+
+
+            await user.save(function(err){
+                if(err){
+                     console.log(err);
+                     return;
+                }
+          
+                res.json({user: user });
+          }); 
+        
+        } catch (error) {
+            console.log({error})
         }
     }
 
