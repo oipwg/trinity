@@ -254,6 +254,7 @@ main {
   height: calc(1rem + 7px);
   margin-right: 5px;
   outline: none;
+  padding: 0 5px;
 }
 
 .automatic-renting-content .percent-field:focus {
