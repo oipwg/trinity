@@ -402,11 +402,11 @@ class AutoRentCalculatons {
         }
     }
 
-    savePriceBtcUsd(PriceBtcUsd) {
+    savePriceBtcUsd(PriceBtcUsd, options) {
 
         let profiles = this.user.profiles
         for (let profile of profiles) {
-            if (profile._id.toString() === this.options.profile_id) {
+            if (profile._id.toString() === options.profile_id) {
                 profile.priceBtcUsd = Number(PriceBtcUsd)
                 break;
             }
@@ -417,7 +417,6 @@ class AutoRentCalculatons {
 
     async getDailyBudget(options) {
 
-        // this.options = {...this.options, ...options}
         this.user = options.User
         let { targetMargin, profitReinvestment, Xpercent, token } = options
 
@@ -426,7 +425,7 @@ class AutoRentCalculatons {
         try {
             let priceUSD = await getPriceBtcUsd()
             const PriceBtcUsd = priceUSD.data.rates.USD;
-            this.savePriceBtcUsd(PriceBtcUsd)
+            this.savePriceBtcUsd(PriceBtcUsd, options)
             const Networkhashrate = (await Rent(token, Xpercent, this.options.marketFactor)).Networkhashrate
             // const MarketPriceMrrScrypt = marketPriceScryptBtcThSD * 1000 / 24; // convert to TH/s devided by 24 => 1000/24
             const MarketPriceMrrScrypt = marketPriceScryptBtcThSD / 24
