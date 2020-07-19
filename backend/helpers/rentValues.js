@@ -20,7 +20,6 @@ const Rent = async (token, percent, marketFactor) => {
                         let hashrate = difficulty * Math.pow(2, 32) / 40
                         let Networkhashrate = hashrate / marketFactor;
                         let Rent = Math.floor( Networkhashrate * (-Percent / (-1 + Percent)) *1e2 ) /1e2;
-                        // let Rent = Networkhashrate * (-Percent / (-1 + Percent))
                         let MinPercentFromMinHashrate = marketFactor * .01 / ((difficulty * Math.pow(2, 32) / 40) + (marketFactor * .01))
                         resolve({ Rent, MinPercentFromMinHashrate, difficulty, Networkhashrate, hashrate })
                     } catch (err) {
@@ -35,7 +34,6 @@ const Rent = async (token, percent, marketFactor) => {
     }
 
     if (token === "RVN") {
-        // let Percent = percent / 100
         return await new Promise((resolve, reject) => {
             https.get('https://rvn.2miners.com/api/stats', (response) => {
                 let body = ''

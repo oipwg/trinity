@@ -97,10 +97,10 @@ class Timer {
     }
 
     async getNetworkhashrate() {
-        let Percent = this.userOptions.Xpercent / 100
+        let Percent = this.userOptions.Xpercent
         try {
-            const Networkhashrate = ( await Rent(this.userOptions.token, Percent) ).Networkhashrate
-            const RentNext = (Networkhashrate - this.userOptions.hashrate) * ( - Percent / ( - 1 + Percent ) )
+            const RentNext = ( await Rent(this.userOptions.token, Percent, this.userOptions.marketFactor) ).Rent
+            console.log('RentNext:', RentNext)
             return RentNext
   
         } catch(err) {
@@ -136,7 +136,7 @@ class Timer {
         setTimeout(() => {
             this.nextRental()
         }, this.duration * 60 * 60 * 1000)
-    // }, this.duration * 1000)
+    // }, 20 * 1000)
         
         console.log(this.timestamp(), 'Timer started')
         setTimeout(async () => {
