@@ -289,19 +289,20 @@ class AutoRentCalculatons {
                 this.BittrexMinWithdrawal / (this.BittrexMinWithdrawal + Networkhashrate * PriceRentalStandard * usersSelectedDuration)
             ) * 1e6) / 1e6;
 
-            let MaxMinFromNicehash = Math.max(MinPercentFromMinAmount, MinPercentFromNHMinLimit)
+            let MaxMinFromNicehash = Math.ceil ( Math.max(MinPercentFromMinAmount, MinPercentFromNHMinLimit) * 1000) / 1000
+            console.log('MaxMinFromNicehash:', MaxMinFromNicehash)
             let MinMinFromNicehash = Math.min(MinPercentFromMinAmount, MinPercentFromNHMinLimit)
             console.log('MinMinFromNicehash:', MinMinFromNicehash)
             let NetworkPercent = options.Xpercent / 100
             console.log('NetworkPercent:', NetworkPercent)
-
+            console.log(typeof NetworkPercent, typeof MaxMinFromNicehash)
            let message = [];
             if (NiceHashProvider) {
-                if (NetworkPercent >= MinMinFromNicehash) {
+                if (NetworkPercent >= MaxMinFromNicehash) {
                     if (MRRProvider) { // true if Nicehash is selected, users value for NetworkPercent is above NH's mins and MRR is selected
                         options.MRRProvider = true
                         options.NiceHashProvider = true
-                        message.push('Either provider is greater than MinMinFromNicehash pricing. ')
+                        message.push('Either provider is greater than MaxMinFromNicehash pricing. ')
                     } else { // true if Nicehash is selected, users value for NetworkPercent is above NH's mins and MRR is NOT selected
                         message.push('Proceed using only NiceHash. \n')
                         options.NiceHashProvider = true
@@ -311,12 +312,12 @@ class AutoRentCalculatons {
                     options.MRRProvider = true
                     options.NiceHashProvider = true
                     await this.updateNiceHashValues(options)
-                    message.push('In order to continue.. your percent is replaced with MinMinFromNicehash, proceed using either provider. But now the best price will be chosen. \n')
+                    message.push('In order to continue.. your percent is replaced with MaxMinFromNicehash, proceed using either provider. But now the best price will be chosen. \n')
                 } else { //true if Nicehash is selected and users value for NetworkPercent is NOT above NH's mins and MRR is NOT selected
                     options.NiceHashProvider = true
                     options.Xpercent = (MaxMinFromNicehash * 100).toFixed(2)
                     await this.updateNiceHashValues(options)
-                    message.push('In order to continue.. your percent is replaced with MinMinFromNicehash, proceed using only NiceHash. \n')
+                    message.push('In order to continue.. your percent is replaced with MaxMinFromNicehash, proceed using only NiceHash. \n')
                 }
             } else if (MRRProvider) {
                 if (NetworkPercent >= MinPercentFromBittrexMinWithdrawal) { // true if Nicehash is NOT selected and MRR is selected and NetworkPerecent is above Bittrex's mins 
