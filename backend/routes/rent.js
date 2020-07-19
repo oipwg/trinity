@@ -198,7 +198,6 @@ const processData = async (req, res) => {
                     for (let key in msg) {
                         if(key === 'mining') {
                             profile.mining = msg[key]
-                            // profile.mining = true
                         } else if (key === 'autoRent') {
                             profile.autoRent.on = msg[key]
                         } else if (key === 'db') {

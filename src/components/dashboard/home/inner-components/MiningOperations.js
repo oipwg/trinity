@@ -506,6 +506,7 @@ const MiningOperations = (props) => {
                             <div className="provider-checkbox-container">
                                 <div className="form-check">
                                     <input className="form-check-input" type="checkbox" value={MRRProvider} id="MRRProvider"
+                                    checked={MRRProvider}
                                     onChange={(e) => {
                                         updateInputs(e)
                                     }} />
@@ -515,6 +516,7 @@ const MiningOperations = (props) => {
                                 </div>
                                 <div className="form-check">
                                     <input className="form-check-input" type="checkbox" value={NiceHashProvider} id="NiceHashProvider"
+                                    checked={NiceHashProvider}
                                         onChange={(e) => {
                                             updateInputs(e)
                                         }} />
