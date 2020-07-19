@@ -77,7 +77,11 @@ const CostOfWithdrawalPerCycleBTC = Number(btcInfo.txFee)
 const BittrexComissionFee = Number(btcInfo.txFee)
 log(name, {ID}, {profile, accessToken, wallet, rentalAddress, name, duration})
 
-
+if(priceBtcUsd === 0 || !priceBtcUsd){
+    let price = await getBittrexBtcUsd()
+    priceBtcUsd = CostOfRentalBtc * price
+    console.log({priceBtcUsd})
+}
     
     if(!accessToken){
         log(name, {ID} ,'no access token');
